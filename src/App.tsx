@@ -18,6 +18,7 @@ const Onboarding = lazy(() => import("./pages/onboarding/Onboarding"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
 const Modules = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail = lazy(() => import("./pages/app/ModuleDetail"));
+const Chat = lazy(() => import("./pages/app/Chat"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -83,6 +84,15 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ModuleDetail />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/app/chat"
+                  element={
+                    <ProtectedRoute>
+                      <Chat />
                     </ProtectedRoute>
                   }
                 />
