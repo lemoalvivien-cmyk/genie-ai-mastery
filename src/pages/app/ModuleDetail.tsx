@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
   Brain, Clock, ChevronLeft, Star, AlertTriangle, CheckCircle2,
-  Lightbulb, BookOpen, ExternalLink, PlayCircle, FileText, Loader2,
+  Lightbulb, BookOpen, ExternalLink, PlayCircle, Loader2,
 } from "lucide-react";
 import { useModule, useModuleQuiz, useUserProgress, useSaveProgress } from "@/hooks/useModules";
 import { QuizPlayer } from "@/components/modules/QuizPlayer";
+import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 
 const DOMAIN_CONFIG = {
   ia_pro: { label: "IA Pro", cls: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
@@ -260,20 +261,13 @@ export default function ModuleDetail() {
                   <ul className="space-y-2">
                     {mod.deliverables.map((d, i) => (
                       <li key={i}>
-                        <button
-                          className="w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 hover:border-primary/40 hover:bg-card/60 transition-all text-left group"
-                          aria-label={`Télécharger ${d.title}`}
-                          title="PDF disponible après validation du quiz"
-                        >
-                          <FileText className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium truncate">{d.title}</div>
-                            <div className="text-xs text-muted-foreground capitalize">{d.type}</div>
-                          </div>
-                          {progress?.status !== "completed" && (
-                            <span className="text-xs text-muted-foreground">🔒</span>
-                          )}
-                        </button>
+                        <PdfDownloadButton
+                          type={d.type as "checklist" | "charte" | "sop" | "attestation"}
+                          label={d.title}
+                          moduleId={mod.id}
+                          locked={progress?.status !== "completed"}
+                          disabled={progress?.status !== "completed"}
+                        />
                       </li>
                     ))}
                   </ul>

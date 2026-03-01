@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, CheckCircle2, XCircle, Trophy, RotateCcw, Clock, Loader2, Download } from "lucide-react";
 import type { Quiz, Module } from "@/hooks/useModules";
+import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 
 interface Props {
   quiz: Quiz;
@@ -227,28 +228,35 @@ export function QuizPlayer({ quiz, module: mod, onClose, onComplete }: Props) {
                 {passed ? `Score requis : ${quiz.passing_score}% · Vous avez obtenu ${score}%.` : `Il vous faut ${quiz.passing_score}% pour valider. Vous avez obtenu ${score}%.`}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={handleRetry}
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-secondary/60 transition-all"
-                >
-                  <RotateCcw className="w-4 h-4" /> Refaire le quiz
-                </button>
-                {passed && (
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-primary-foreground text-sm font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50"
-                  >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Download className="w-4 h-4" /> Sauvegarder & Attestation</>}
-                  </button>
-                )}
-                {!passed && (
-                  <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground transition-all">
-                    Revenir au module
-                  </button>
-                )}
-              </div>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
+                    <button
+                      onClick={handleRetry}
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-secondary/60 transition-all"
+                    >
+                      <RotateCcw className="w-4 h-4" /> Refaire le quiz
+                    </button>
+                    {passed && (
+                      <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl gradient-primary text-primary-foreground text-sm font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50"
+                      >
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Download className="w-4 h-4" /> Valider & Enregistrer</>}
+                      </button>
+                    )}
+                    {passed && (
+                      <PdfDownloadButton
+                        type="attestation"
+                        label="Télécharger mon attestation"
+                        variant="outline"
+                      />
+                    )}
+                    {!passed && (
+                      <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground transition-all">
+                        Revenir au module
+                      </button>
+                    )}
+                  </div>
             </div>
           )}
         </div>
