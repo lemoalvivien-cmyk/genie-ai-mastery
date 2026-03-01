@@ -16,6 +16,8 @@ const Register = lazy(() => import("./pages/auth/Register"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const Onboarding = lazy(() => import("./pages/onboarding/Onboarding"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
+const Modules = lazy(() => import("./pages/app/Modules"));
+const ModuleDetail = lazy(() => import("./pages/app/ModuleDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -64,6 +66,23 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/app/modules"
+                  element={
+                    <ProtectedRoute>
+                      <Modules />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/modules/:slug"
+                  element={
+                    <ProtectedRoute>
+                      <ModuleDetail />
                     </ProtectedRoute>
                   }
                 />
