@@ -403,6 +403,7 @@ export type Database = {
           name: string
           partner_org_id: string | null
           plan: Database["public"]["Enums"]["org_plan"] | null
+          plan_source: string | null
           seats_max: number | null
           seats_used: number | null
           settings: Json | null
@@ -420,6 +421,7 @@ export type Database = {
           name: string
           partner_org_id?: string | null
           plan?: Database["public"]["Enums"]["org_plan"] | null
+          plan_source?: string | null
           seats_max?: number | null
           seats_used?: number | null
           settings?: Json | null
@@ -437,6 +439,7 @@ export type Database = {
           name?: string
           partner_org_id?: string | null
           plan?: Database["public"]["Enums"]["org_plan"] | null
+          plan_source?: string | null
           seats_max?: number | null
           seats_used?: number | null
           settings?: Json | null
