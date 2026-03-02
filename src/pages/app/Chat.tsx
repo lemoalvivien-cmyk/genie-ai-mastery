@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
-import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX, Sparkles, Lock } from "lucide-react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Send, Zap, Mic, RotateCcw, Loader2, Volume2, VolumeX, Lock } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
@@ -325,45 +325,7 @@ export default function Chat() {
     <>
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
-      <div className="flex flex-col h-screen gradient-hero">
-        {/* ── Navbar ── */}
-        <header className="shrink-0 border-b border-border/40 px-4 sm:px-6 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold hidden sm:inline">GENIE <span className="text-gradient">IA</span></span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex text-xs px-2.5 py-1 rounded-full border border-border/50 text-muted-foreground">
-              {modeBadge[profile?.preferred_mode ?? "normal"] ?? "Mode Normal"}
-            </span>
-            <button
-              onClick={handleVoiceToggle}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              aria-label={voiceEnabled ? "Désactiver la voix" : "Activer la voix"}
-            >
-              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              <span className="hidden sm:inline">{voiceEnabled ? "Son" : "Muet"}</span>
-            </button>
-            <Link to="/app/today" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">Mission</span>
-            </Link>
-            <Link to="/app/modules" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Modules</span>
-            </Link>
-            <button onClick={handleReset} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors" aria-label="Nouvelle conversation">
-              <RotateCcw className="w-4 h-4" />
-              <span className="hidden sm:inline">Nouveau</span>
-            </button>
-            <button onClick={signOut} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors" aria-label="Se déconnecter">
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
+      <div className="flex flex-col h-full gradient-hero">
         {/* ── KITT Visualizer ── */}
         <div className="shrink-0 flex justify-center pt-4 pb-2">
           <KittVisualizer state={kittState} analyserNode={getAnalyser()} />

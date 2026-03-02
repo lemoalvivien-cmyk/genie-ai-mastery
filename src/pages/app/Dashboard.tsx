@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield, Users, Code2, Sparkles, Flame, ChevronRight } from "lucide-react";
+import { BookOpen, BarChart3, MessageSquare, Shield, Users, Code2, Sparkles, Flame, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
@@ -88,25 +88,7 @@ export default function Dashboard() {
       <Helmet>
         <title>Dashboard – GENIE IA</title>
       </Helmet>
-      <div className="min-h-screen gradient-hero">
-        {/* Navbar */}
-        <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold">GENIE <span className="text-gradient">IA</span></span>
-          </Link>
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Se déconnecter"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Déconnexion</span>
-          </button>
-        </header>
-
+      <div className="gradient-hero min-h-full">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
           {/* Welcome message */}
           <div className="animate-slide-up">
