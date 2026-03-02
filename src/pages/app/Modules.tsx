@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { Brain, LogOut, BookOpen, Filter, Search, Loader2, ChevronDown } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Brain, LogOut, BookOpen, Filter, Search, Loader2, ChevronDown, Code2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
@@ -11,6 +11,7 @@ const DOMAINS = [
   { id: "ia_pro", label: "IA Pro" },
   { id: "ia_perso", label: "IA Perso" },
   { id: "cyber", label: "Cyber" },
+  { id: "vibe_coding", label: "Vibe Coding", icon: Code2, color: "emerald" },
 ];
 
 const LEVELS = [
@@ -22,7 +23,8 @@ const LEVELS = [
 
 export default function Modules() {
   const { signOut } = useAuth();
-  const [domain, setDomain] = useState("");
+  const [searchParams] = useSearchParams();
+  const [domain, setDomain] = useState(() => searchParams.get("domain") ?? "");
   const [level, setLevel] = useState("");
   const [search, setSearch] = useState("");
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -95,21 +97,33 @@ export default function Modules() {
           <div className="mb-6 space-y-3">
             {/* Domain tabs */}
             <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filtrer par domaine">
-              {DOMAINS.map((d) => (
-                <button
-                  key={d.id}
-                  role="tab"
-                  aria-selected={domain === d.id}
-                  onClick={() => setDomain(d.id)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 border focus-ring ${
-                    domain === d.id
-                      ? "gradient-primary text-primary-foreground border-transparent shadow-glow"
-                      : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/40 bg-card/40"
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
+              {DOMAINS.map((d) => {
+                const isActive = domain === d.id;
+                const isVibe = d.id === "vibe_coding";
+                return (
+                  <button
+                    key={d.id}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setDomain(d.id)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 border focus-ring flex items-center gap-1.5 ${
+                      isActive
+                        ? isVibe
+                          ? "bg-emerald-500 text-white border-transparent shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                          : "gradient-primary text-primary-foreground border-transparent shadow-glow"
+                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/40 bg-card/40"
+                    }`}
+                  >
+                    {isVibe && <Code2 className="w-3.5 h-3.5 shrink-0" />}
+                    {d.label}
+                    {isVibe && (
+                      <span className="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                        NEW
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Sub-filters row */}

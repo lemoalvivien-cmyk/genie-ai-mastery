@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield, Users } from "lucide-react";
+import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield, Users, Code2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
@@ -14,6 +14,7 @@ export default function Dashboard() {
     { icon: MessageSquare, title: "Chat IA", description: "Posez vos questions à votre Génie", href: "/app/chat", color: "from-cyan-500/20 to-teal-500/20" },
     { icon: BarChart3, title: "Progression", description: "Suivez vos statistiques", href: "/app/progress", color: "from-emerald-500/20 to-green-500/20" },
     { icon: Shield, title: "Cybersécurité", description: "Modules sécurité dédiés", href: "/app/modules?domain=cyber", color: "from-amber-500/20 to-orange-500/20" },
+    { icon: Code2, title: "Vibe Coding", description: "Créez vos apps avec l'IA", href: "/app/modules?domain=vibe_coding", color: "from-emerald-500/20 to-teal-500/20", isNew: true },
     ...(isManager ? [{ icon: Users, title: "Espace Manager", description: "Gérez votre équipe", href: "/manager", color: "from-violet-500/20 to-pink-500/20" }] : []),
   ];
 
@@ -76,13 +77,20 @@ export default function Dashboard() {
                 <Link
                   key={card.title}
                   to={card.href}
-                  className={`group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-gradient-to-br ${card.color} hover:border-primary/40 hover:scale-[1.02] transition-all duration-300 shadow-card`}
+                  className={`group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-gradient-to-br ${card.color} hover:border-primary/40 hover:scale-[1.02] transition-all duration-300 shadow-card relative overflow-hidden`}
                 >
                   <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center group-hover:shadow-glow transition-all">
                     <Icon className="w-6 h-6 text-primary-foreground" aria-hidden="true" />
                   </div>
                   <div>
-                    <div className="font-semibold">{card.title}</div>
+                    <div className="font-semibold flex items-center gap-2">
+                      {card.title}
+                      {"isNew" in card && card.isNew && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                          NOUVEAU
+                        </span>
+                      )}
+                    </div>
                     <div className="text-sm text-muted-foreground">{card.description}</div>
                   </div>
                 </Link>
