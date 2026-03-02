@@ -199,6 +199,45 @@ export type Database = {
           },
         ]
       }
+      briefs: {
+        Row: {
+          action_plan: Json
+          confidence: number
+          created_at: string
+          domain: string
+          id: string
+          is_verified: boolean
+          kid_summary: string
+          source_count: number
+          sources: Json
+          title: string
+        }
+        Insert: {
+          action_plan?: Json
+          confidence?: number
+          created_at?: string
+          domain?: string
+          id?: string
+          is_verified?: boolean
+          kid_summary: string
+          source_count?: number
+          sources?: Json
+          title: string
+        }
+        Update: {
+          action_plan?: Json
+          confidence?: number
+          created_at?: string
+          domain?: string
+          id?: string
+          is_verified?: boolean
+          kid_summary?: string
+          source_count?: number
+          sources?: Json
+          title?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           created_at: string | null
@@ -779,6 +818,83 @@ export type Database = {
           level?: string
           name?: string
           slug?: string
+        }
+        Relationships: []
+      }
+      source_items: {
+        Row: {
+          created_at: string
+          hash: string
+          id: string
+          published_at: string | null
+          raw: string | null
+          source_id: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          hash: string
+          id?: string
+          published_at?: string | null
+          raw?: string | null
+          source_id: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          hash?: string
+          id?: string
+          published_at?: string | null
+          raw?: string | null
+          source_id?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_items_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sources: {
+        Row: {
+          created_at: string
+          domain: string
+          enabled: boolean
+          id: string
+          last_fetch_at: string | null
+          name: string
+          refresh_freq: string
+          type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          domain?: string
+          enabled?: boolean
+          id?: string
+          last_fetch_at?: string | null
+          name: string
+          refresh_freq?: string
+          type?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          enabled?: boolean
+          id?: string
+          last_fetch_at?: string | null
+          name?: string
+          refresh_freq?: string
+          type?: string
+          url?: string
         }
         Relationships: []
       }
