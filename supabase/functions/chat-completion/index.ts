@@ -253,12 +253,24 @@ serve(async (req) => {
     const isJarvis = request_type === "jarvis";
     const isAutopilot = request_type === "autopilot";
 
-    // ── Subscription check ────────────────────────────────────────────────────
+    // ── Kill switch check ─────────────────────────────────────────────────────
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { auth: { persistSession: false } },
     );
+    const { data: killSwitchRow } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "ai_kill_switch")
+      .single();
+    if (killSwitchRow?.value?.disabled === true) {
+      return new Response(JSON.stringify({ error: "L'IA est temporairement désactivée pour maintenance. Réessayez dans quelques minutes." }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── Subscription check ────────────────────────────────────────────────────
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
       .select("org_id")
@@ -534,6 +546,26 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
 
     // Calculate cost
     const costEur = calcCost(model, result.input_tokens, result.output_tokens);
+
+    // ── Log AI usage (best-effort, don't block response) ─────────────────────
+    const orgId = profileData?.org_id ?? null;
+    const todayStr = new Date().toISOString().split("T")[0];
+    supabaseAdmin.from("ai_usage_daily").select("id,tokens_in,tokens_out,cost_estimate")
+      .eq("user_id", userId).eq("date", todayStr).eq("model_used", model).maybeSingle()
+      .then(({ data: existing }) => {
+        if (existing) {
+          supabaseAdmin.from("ai_usage_daily").update({
+            tokens_in: (existing.tokens_in ?? 0) + result.input_tokens,
+            tokens_out: (existing.tokens_out ?? 0) + result.output_tokens,
+            cost_estimate: (Number(existing.cost_estimate) ?? 0) + costEur,
+          }).eq("id", existing.id).then(() => {}).catch(() => {});
+        } else {
+          supabaseAdmin.from("ai_usage_daily").insert({
+            user_id: userId, org_id: orgId, tokens_in: result.input_tokens,
+            tokens_out: result.output_tokens, cost_estimate: costEur, model_used: model, date: todayStr,
+          }).then(() => {}).catch(() => {});
+        }
+      }).catch(() => {});
 
     // Log to chat_messages
     const sessionUuid = session_id ?? crypto.randomUUID();
