@@ -115,7 +115,7 @@ const App = () => (
                  <Route
                    path="/manager"
                    element={
-                     <ProtectedRoute requireRole="manager">
+                     <ProtectedRoute requireRole="manager" requirePro>
                        <ManagerDashboard />
                      </ProtectedRoute>
                    }
