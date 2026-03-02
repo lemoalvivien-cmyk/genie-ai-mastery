@@ -244,12 +244,14 @@ serve(async (req) => {
       session_id,
       jarvis_stage = "short",  // "short" | "long"
       expert_mode = false,
+      autopilot_id = null,     // "conformite_48h" | "vibe_coding_mvp" | "cyber_hygiene_tpe"
     } = body;
 
     const mode: string = user_profile.mode ?? "normal";
     const persona: string = user_profile.persona ?? "";
     const domain: string = module_context.domain ?? "";
     const isJarvis = request_type === "jarvis";
+    const isAutopilot = request_type === "autopilot";
 
     // Rate limiting via DB function
     const { data: rateLimitOk } = await supabase.rpc("check_rate_limit", {
@@ -283,29 +285,28 @@ serve(async (req) => {
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ── Model routing: cheap by default, powerful only if expert_mode ─────────
-    // Standard: DeepSeek Chat (V3) — très bon rapport qualité/prix
-    // Expert mode or cyber domain: DeepSeek R1 (reasoning)
-    // Fallback: Qwen 72B
+    // ── Model routing ─────────────────────────────────────────────────────────
     let model: string;
     if (domain === "cyber") {
-      model = TIER_MODELS.tier3; // Qwen for cyber validation
+      model = TIER_MODELS.tier3;
     } else if (expert_mode || request_type === "generation") {
-      model = TIER_MODELS.tier2; // DeepSeek R1 for expert/generation
+      model = TIER_MODELS.tier2;
     } else {
-      model = TIER_MODELS.tier1; // DeepSeek Chat V3 — cheapest, ~90% of calls
+      model = TIER_MODELS.tier1; // ~90% of calls — cheapest
     }
 
-    // Token budgets: strict limits per stage/type
+    // Token budgets
     let maxTokens: number;
-    if (isJarvis && jarvis_stage === "short") {
-      maxTokens = 500;   // Stage 1: structured JSON, short
+    if (isAutopilot) {
+      maxTokens = 800;   // Autopilot: structured JSON plan, bounded
+    } else if (isJarvis && jarvis_stage === "short") {
+      maxTokens = 500;
     } else if (isJarvis && jarvis_stage === "long") {
-      maxTokens = 900;   // Stage 2: "Explique plus" — richer but still bounded
+      maxTokens = 900;
     } else if (request_type === "generation") {
       maxTokens = 1500;
     } else {
-      maxTokens = 1200;  // Regular chat — reduced from 2000
+      maxTokens = 1200;
     }
 
     // Cache key includes stage so short and long are cached independently
@@ -367,9 +368,99 @@ Réponds en TEXTE SIMPLE (pas de JSON cette fois). Structure :
 Ton : patient, chaleureux, encourageant. Humour léger autorisé.
 CRITIQUE : Jamais de secrets, mots de passe, clés API. Toujours orienter vers un professionnel pour la santé/droit/finance.`;
 
-    const systemPrompt = isJarvis
-      ? (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt)
-      : baseSystemPrompt;
+    // ── Autopilot prompts — one per program ──────────────────────────────────
+    const AUTOPILOT_PROMPTS: Record<string, string> = {
+      conformite_48h: `${baseSystemPrompt}
+
+AUTOPILOT "CONFORMITÉ EN 48H" :
+Tu es un formateur expert qui PRODUIT des livrables concrets, pas juste des conseils.
+L'utilisateur veut un plan de mise en conformité IA en 48h pour son organisation.
+Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
+\`\`\`json
+{
+  "title": "Conformité IA en 48h",
+  "intro": "1 phrase d'encouragement courte",
+  "steps": [
+    {"id": 1, "label": "H+0 : Inventaire", "detail": "Lister tous les outils IA utilisés. Durée: 2h."},
+    {"id": 2, "label": "H+4 : Évaluation risques", "detail": "Classer chaque outil : vert/orange/rouge selon les données traitées. Durée: 3h."},
+    {"id": 3, "label": "H+8 : Rédiger la Charte", "detail": "Utiliser le modèle Genie IA. La faire valider par la direction. Durée: 2h."},
+    {"id": 4, "label": "H+24 : Former l'équipe", "detail": "Envoyer la checklist à chaque collaborateur. Session de 30min. Durée: 1h."},
+    {"id": 5, "label": "H+36 : SOP Cyber", "detail": "Documenter les procédures de sécurité. Archiver. Durée: 3h."},
+    {"id": 6, "label": "H+48 : Audit final", "detail": "Vérifier que tout est en place. Préparer le rapport. Durée: 2h."}
+  ],
+  "artifacts_to_generate": ["checklist", "charte", "sop"],
+  "snippets": [],
+  "tips": ["Commencez par les outils les plus risqués", "Documentez chaque décision prise"],
+  "estimated_time": "48 heures",
+  "difficulty": "Accessible"
+}
+\`\`\``,
+
+      vibe_coding_mvp: `${baseSystemPrompt}
+
+AUTOPILOT "VIBE CODING MVP" :
+Tu es un formateur dev IA-first qui PRODUIT un plan d'action + snippets de prompts concrets.
+L'utilisateur veut lancer un MVP avec l'aide de l'IA en mode vibe coding.
+Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
+\`\`\`json
+{
+  "title": "Vibe Coding MVP",
+  "intro": "1 phrase d'encouragement pour un dev débutant",
+  "steps": [
+    {"id": 1, "label": "Étape 1 : Définir l'idée", "detail": "Écrire 3 phrases qui décrivent l'app. Qui ? Quoi ? Pourquoi ?"},
+    {"id": 2, "label": "Étape 2 : Premier prompt Lovable", "detail": "Utilise le snippet 'Prompt initial' ci-dessous. Lance la génération."},
+    {"id": 3, "label": "Étape 3 : Itérer vite", "detail": "Tester, noter les bugs, envoyer 1 correction à la fois à l'IA."},
+    {"id": 4, "label": "Étape 4 : Ajouter les données", "detail": "Connecter Supabase avec le snippet 'Auth + DB'."},
+    {"id": 5, "label": "Étape 5 : Déployer", "detail": "Publier sur Lovable en 1 clic. Partager le lien."}
+  ],
+  "artifacts_to_generate": ["checklist"],
+  "snippets": [
+    {"title": "Prompt initial Lovable", "code": "Crée une app [TYPE] pour [CIBLE]. Elle doit permettre de [ACTION PRINCIPALE]. Interface simple, moderne, responsive. Stack : React + Tailwind + Supabase.", "lang": "prompt"},
+    {"title": "Prompt Auth + DB", "code": "Ajoute une authentification par email/mot de passe. Crée une table [NOM] avec les champs [CHAMPS]. Applique des politiques RLS pour que chaque utilisateur ne voit que ses données.", "lang": "prompt"},
+    {"title": "Prompt correction bug", "code": "Le bouton [NOM] ne fonctionne pas. Quand je clique, il devrait [ACTION]. Voici l'erreur dans la console : [ERREUR]. Corrige sans casser le reste.", "lang": "prompt"}
+  ],
+  "tips": ["1 prompt = 1 changement. Ne pas tout demander en même temps.", "Toujours tester avant d'itérer."],
+  "estimated_time": "2 à 4 heures",
+  "difficulty": "Débutant friendly"
+}
+\`\`\``,
+
+      cyber_hygiene_tpe: `${baseSystemPrompt}
+
+AUTOPILOT "CYBER HYGIÈNE TPE" :
+Tu es un formateur cybersécurité pour les petites entreprises. UNIQUEMENT prévention et bonnes pratiques.
+L'utilisateur veut un plan de cyber hygiène sur 7 jours pour sa TPE.
+Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
+\`\`\`json
+{
+  "title": "Cyber Hygiène TPE — 7 jours",
+  "intro": "1 phrase rassurante pour une PME qui a peur de la cybersécurité",
+  "steps": [
+    {"id": 1, "label": "Jour 1 : Mots de passe", "detail": "Activer un gestionnaire (Bitwarden gratuit). Changer les mots de passe admin. Durée: 1h."},
+    {"id": 2, "label": "Jour 2 : MFA partout", "detail": "Activer l'authentification 2FA sur email, banque, cloud. Utiliser une app (Authy). Durée: 1h."},
+    {"id": 3, "label": "Jour 3 : Sauvegardes", "detail": "Règle 3-2-1 : 3 copies, 2 supports, 1 hors site. Tester la restauration. Durée: 2h."},
+    {"id": 4, "label": "Jour 4 : Mises à jour", "detail": "Mettre à jour OS, navigateurs, logiciels. Activer les mises à jour auto. Durée: 1h."},
+    {"id": 5, "label": "Jour 5 : Formation anti-phishing", "detail": "Partager la checklist à l'équipe. Faire 1 simulation phishing (outil gratuit). Durée: 2h."},
+    {"id": 6, "label": "Jour 6 : SOP incident", "detail": "Rédiger la procédure de réponse aux incidents. Qui appeler ? Quand ? Comment ? Durée: 2h."},
+    {"id": 7, "label": "Jour 7 : Audit & rapport", "detail": "Vérifier chaque point. Documenter. Planifier révision dans 3 mois. Durée: 1h."}
+  ],
+  "artifacts_to_generate": ["checklist", "sop"],
+  "snippets": [],
+  "tips": ["Un jour à la fois. C'est faisable.", "Le phishing = 90% des attaques. Priorité absolue."],
+  "estimated_time": "7 jours (1-2h/jour)",
+  "difficulty": "Accessible sans technicien"
+}
+\`\`\``,
+    };
+
+    let systemPrompt: string;
+    if (isAutopilot && autopilot_id && AUTOPILOT_PROMPTS[autopilot_id]) {
+      systemPrompt = AUTOPILOT_PROMPTS[autopilot_id];
+    } else if (isJarvis) {
+      systemPrompt = jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt;
+    } else {
+      systemPrompt = baseSystemPrompt;
+    }
 
     const apiMessages = [
       { role: "system", content: systemPrompt },
