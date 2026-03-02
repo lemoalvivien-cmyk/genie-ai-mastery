@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +25,70 @@ const QUICK_ACTIONS = [
   { label: "Explique plus simplement", prompt: "Peux-tu expliquer cela plus simplement ?" },
   { label: "Donne un exemple", prompt: "Donne-moi un exemple concret." },
   { label: "Fais-moi un quiz", prompt: "Fais-moi un quiz rapide sur ce sujet." },
+];
+
+// ─── Dynamic suggestions per persona ─────────────────────────────────────────
+type SuggestionSet = { emoji: string; label: string }[];
+
+function getSuggestions(persona: string | null, hasProgress: boolean): SuggestionSet {
+  const day = new Date().getDay();
+  const isMondayMorning = day === 1;
+
+  if (persona === "dirigeant" || persona === "manager") {
+    return [
+      { emoji: "🛡️", label: "Vérifier la sécurité de mon entreprise" },
+      { emoji: "🤖", label: "Comment utiliser l'IA au travail" },
+      { emoji: "📄", label: "Générer ma charte IA" },
+    ];
+  }
+  if (persona === "senior") {
+    return [
+      { emoji: "🔒", label: "Protéger mes comptes en ligne" },
+      { emoji: "📱", label: "Sécuriser mon téléphone" },
+      { emoji: "🆘", label: "J'ai reçu un message bizarre" },
+    ];
+  }
+  if (persona === "parent") {
+    return [
+      { emoji: "👶", label: "Protéger mes enfants sur Internet" },
+      { emoji: "🔒", label: "Contrôle parental : comment faire ?" },
+      { emoji: "🤖", label: "Expliquer l'IA à mes enfants" },
+    ];
+  }
+  if (persona === "jeune" || persona === "etudiant") {
+    return [
+      { emoji: "💻", label: "Créer une app avec le vibe coding" },
+      { emoji: "🧠", label: "Techniques avancées de prompt engineering" },
+      { emoji: "🔍", label: "Comment fonctionne une IA ?" },
+    ];
+  }
+  if (persona === "independant") {
+    return [
+      { emoji: "⚡", label: "Automatiser mes tâches répétitives" },
+      { emoji: "🛡️", label: "Sécuriser mes données clients" },
+      { emoji: "🤖", label: "Outils IA pour gagner du temps" },
+    ];
+  }
+  // Default / salarie
+  if (!hasProgress) {
+    return [
+      { emoji: "🛡️", label: "Commencer par la cybersécurité" },
+      { emoji: "🤖", label: "Découvrir l'IA générative" },
+      { emoji: isMondayMorning ? "🚀" : "💡", label: isMondayMorning ? "Boost productivité du lundi" : "Améliorer ma productivité" },
+    ];
+  }
+  return [
+    { emoji: "🎯", label: "Continuer mon apprentissage" },
+    { emoji: "🛡️", label: "Un quiz cybersécurité rapide" },
+    { emoji: "💡", label: "Conseil du jour" },
+  ];
+}
+
+const PLACEHOLDERS = [
+  "Demande-moi n'importe quoi... (ex: comment sécuriser mon wifi ?)",
+  "Tu peux me parler en vocal aussi... (ex: c'est quoi le phishing ?)",
+  "Pose-moi une question sur l'IA ou la cyber...",
+  "Dis-moi ce que tu veux apprendre aujourd'hui...",
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -56,7 +120,6 @@ function MessageBubble({
   onQuickAction: (prompt: string) => void;
 }) {
   const isUser = message.role === "user";
-
   if (isUser) {
     return (
       <div className="flex justify-end mb-3">
@@ -66,7 +129,6 @@ function MessageBubble({
       </div>
     );
   }
-
   return (
     <div className="flex gap-3 mb-4">
       <div className="shrink-0 w-8 h-8 rounded-full gradient-primary flex items-center justify-center shadow-glow mt-1">
@@ -90,9 +152,7 @@ function MessageBubble({
               ))}
             </div>
             {message.model_used && (
-              <p className="mt-1.5 text-[10px] text-muted-foreground/50 pl-1">
-                {message.model_used}
-              </p>
+              <p className="mt-1.5 text-[10px] text-muted-foreground/50 pl-1">{message.model_used}</p>
             )}
           </>
         )}
@@ -104,27 +164,36 @@ function MessageBubble({
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function Chat() {
   const { profile, signOut, session } = useAuth();
+  const [searchParams] = useSearchParams();
+  const isPanic = searchParams.get("panic") === "autre";
+
+  // Dynamic welcome message
+  const firstName = profile?.full_name?.split(" ")[0] ?? "";
+  const welcomeContent = isPanic
+    ? "Dis-moi ce qui se passe, je vais t'aider à trouver une solution. Prends ton temps pour m'expliquer."
+    : firstName
+    ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
+    : `Salut ! Je suis ton Genie. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous. Je m'adapte à toi.`;
+
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content: `Bonjour ${profile?.full_name?.split(" ")[0] ?? ""} ! 👋 Je suis **Genie**, votre assistant pédagogique IA.\n\nPosez-moi n'importe quelle question sur l'IA ou la cybersécurité. Je suis là pour vous aider ! ✨`,
-    },
+    { id: "welcome", role: "assistant", content: welcomeContent },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
+  const [hasProgress] = useState(false); // TODO: fetch from progress table
+  const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Voice engine
+  const suggestions = getSuggestions(profile?.persona ?? null, hasProgress);
+
   const { isListening, getAnalyser, startListening, stopListening, speak, stopSpeaking } = useVoiceEngine({
     onTranscript: (text, isFinal) => {
       if (isFinal) {
         setInput(text);
-        // Auto-send after 800ms
         setTimeout(() => sendMessage(text), 800);
       } else {
         setInput(text);
@@ -138,7 +207,6 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Sync voice toggle with profile
   useEffect(() => {
     setVoiceEnabled(profile?.voice_enabled ?? true);
   }, [profile?.voice_enabled]);
@@ -147,7 +215,6 @@ export default function Chat() {
     const newVal = !voiceEnabled;
     setVoiceEnabled(newVal);
     if (!newVal) stopSpeaking();
-    // Persist to profile
     if (session?.user?.id) {
       await supabase.from("profiles").update({ voice_enabled: newVal }).eq("id", session.user.id);
     }
@@ -202,20 +269,17 @@ export default function Chat() {
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
 
-        // TTS
-        if (voiceEnabled) {
-          speak(data.content);
-        } else {
-          setKittState("idle");
-        }
+        if (voiceEnabled) speak(data.content);
+        else setKittState("idle");
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
-        const assistantMsg: Message = {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: `❌ ${errMsg}`,
-        };
-        setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
+        setMessages((prev) =>
+          prev.filter((m) => m.id !== "loading").concat({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: `❌ ${errMsg}`,
+          }),
+        );
         setKittState("idle");
       } finally {
         setIsLoading(false);
@@ -236,21 +300,12 @@ export default function Chat() {
   const handleReset = () => {
     stopSpeaking();
     setKittState("idle");
-    setMessages([
-      {
-        id: "welcome",
-        role: "assistant",
-        content: "Nouvelle conversation démarrée. Comment puis-je vous aider ? ✨",
-      },
-    ]);
+    setMessages([{ id: "welcome", role: "assistant", content: "Nouvelle conversation démarrée. Comment puis-je vous aider ? ✨" }]);
   };
 
   const handleMicPress = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
+    if (isListening) stopListening();
+    else startListening();
   };
 
   const modeBadge: Record<string, string> = {
@@ -259,11 +314,12 @@ export default function Chat() {
     expert: "Mode Expert 🎓",
   };
 
+  // Check if only the welcome message is shown (no user messages yet)
+  const showSuggestions = messages.length === 1 && messages[0].id === "welcome";
+
   return (
     <>
-      <Helmet>
-        <title>Chat Genie – GENIE IA</title>
-      </Helmet>
+      <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
       <div className="flex flex-col h-screen gradient-hero">
         {/* ── Navbar ── */}
@@ -274,41 +330,27 @@ export default function Chat() {
             </div>
             <span className="font-bold hidden sm:inline">GENIE <span className="text-gradient">IA</span></span>
           </Link>
-
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex text-xs px-2.5 py-1 rounded-full border border-border/50 text-muted-foreground">
               {modeBadge[profile?.preferred_mode ?? "normal"] ?? "Mode Normal"}
             </span>
-            {/* Voice toggle */}
             <button
               onClick={handleVoiceToggle}
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               aria-label={voiceEnabled ? "Désactiver la voix" : "Activer la voix"}
-              title={voiceEnabled ? "Son activé" : "Son désactivé"}
             >
               {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               <span className="hidden sm:inline">{voiceEnabled ? "Son" : "Muet"}</span>
             </button>
-            <Link
-              to="/app/modules"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <Link to="/app/modules" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <BookOpen className="w-4 h-4" />
               <span className="hidden sm:inline">Modules</span>
             </Link>
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Nouvelle conversation"
-            >
+            <button onClick={handleReset} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors" aria-label="Nouvelle conversation">
               <RotateCcw className="w-4 h-4" />
               <span className="hidden sm:inline">Nouveau</span>
             </button>
-            <button
-              onClick={signOut}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Se déconnecter"
-            >
+            <button onClick={signOut} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors" aria-label="Se déconnecter">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -316,22 +358,32 @@ export default function Chat() {
 
         {/* ── KITT Visualizer ── */}
         <div className="shrink-0 flex justify-center pt-4 pb-2">
-          <KittVisualizer
-            state={kittState}
-            analyserNode={getAnalyser()}
-          />
+          <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
         </div>
 
         {/* ── Messages ── */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           <div className="max-w-2xl mx-auto">
             {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onQuickAction={(prompt) => sendMessage(prompt)}
-              />
+              <MessageBubble key={msg.id} message={msg} onQuickAction={(p) => sendMessage(p)} />
             ))}
+
+            {/* ── Suggestions (only shown when chat is empty) ── */}
+            {showSuggestions && (
+              <div className="mt-4 flex flex-col gap-3">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.label}
+                    onClick={() => sendMessage(s.label)}
+                    className="w-full min-h-[52px] flex items-center gap-3 px-5 py-3 rounded-2xl border border-border/60 bg-card/50 hover:bg-card/80 hover:border-primary/50 text-foreground text-sm font-medium text-left transition-all group"
+                  >
+                    <span className="text-lg shrink-0">{s.emoji}</span>
+                    <span className="group-hover:text-primary transition-colors">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div ref={bottomRef} />
           </div>
         </div>
@@ -346,33 +398,24 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Posez votre question à Genie... (Entrée pour envoyer)"
+                  placeholder={placeholder}
                   className="min-h-[52px] max-h-36 resize-none pr-12 text-sm"
                   rows={1}
                   disabled={isLoading}
                 />
               </div>
-
-              {/* Mic button */}
               <Button
                 variant="outline"
                 size="icon"
-                  className={`shrink-0 h-[52px] w-[52px] transition-all relative ${
-                  isListening
-                    ? "border-indigo-400 text-indigo-400 bg-indigo-400/10"
-                    : "text-muted-foreground"
-                }`}
+                className={`shrink-0 h-[52px] w-[52px] transition-all relative ${isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"}`}
                 onClick={handleMicPress}
                 aria-label={isListening ? "Arrêter l'écoute" : "Parler à Genie"}
-                title="Parler à Genie"
               >
                 <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
                 {isListening && (
                   <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />
                 )}
               </Button>
-
-              {/* Send button */}
               <Button
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
@@ -380,11 +423,7 @@ export default function Chat() {
                 size="icon"
                 aria-label="Envoyer"
               >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground/50 mt-2 text-center">

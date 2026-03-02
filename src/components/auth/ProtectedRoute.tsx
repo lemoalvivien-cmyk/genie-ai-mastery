@@ -2,13 +2,15 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
+const WELCOME_EXEMPT_PATHS = ["/app/welcome", "/onboarding", "/login", "/register", "/reset-password"];
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireRole?: "admin" | "manager";
 }
 
 export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, isInitialized, isAdmin, isManager } = useAuth();
+  const { isAuthenticated, isLoading, isInitialized, isAdmin, isManager, profile } = useAuth();
   const location = useLocation();
 
   if (!isInitialized || isLoading) {
@@ -21,6 +23,15 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Redirect to welcome experience if not completed yet
+  if (
+    profile &&
+    !profile.has_completed_welcome &&
+    !WELCOME_EXEMPT_PATHS.some((p) => location.pathname.startsWith(p))
+  ) {
+    return <Navigate to="/app/welcome" replace />;
   }
 
   if (requireRole === "admin" && !isAdmin) {

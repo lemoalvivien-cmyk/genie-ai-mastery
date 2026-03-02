@@ -14,6 +14,8 @@ interface Profile {
   onboarding_completed: boolean;
   voice_enabled: boolean;
   streak_count: number;
+  has_completed_welcome: boolean;
+  panic_uses: number;
 }
 
 interface AuthState {

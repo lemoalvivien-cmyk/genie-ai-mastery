@@ -9,12 +9,15 @@ import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
 
+import { PanicButton } from "@/components/PanicButton";
+
 // Lazy load pages
 const Landing = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const Onboarding = lazy(() => import("./pages/onboarding/Onboarding"));
+const Welcome = lazy(() => import("./pages/app/Welcome"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
 const Modules = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail = lazy(() => import("./pages/app/ModuleDetail"));
@@ -45,6 +48,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthInitializer>
+            <PanicButton />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
@@ -53,12 +57,22 @@ const App = () => (
                 <Route path="/register" element={<Register />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Onboarding — authenticated but before full app */}
+              {/* Onboarding — authenticated but before full app */}
                 <Route
                   path="/onboarding"
                   element={
                     <ProtectedRoute>
                       <Onboarding />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Welcome — first-time Jarvis experience */}
+                <Route
+                  path="/app/welcome"
+                  element={
+                    <ProtectedRoute>
+                      <Welcome />
                     </ProtectedRoute>
                   }
                 />

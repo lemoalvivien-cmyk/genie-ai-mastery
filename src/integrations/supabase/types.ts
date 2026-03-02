@@ -495,11 +495,13 @@ export type Database = {
           created_at: string | null
           email: string
           full_name: string | null
+          has_completed_welcome: boolean | null
           id: string
           last_active_at: string | null
           level: number | null
           onboarding_completed: boolean | null
           org_id: string | null
+          panic_uses: number | null
           persona: Database["public"]["Enums"]["persona_type"] | null
           preferred_mode:
             | Database["public"]["Enums"]["preferred_mode_type"]
@@ -513,11 +515,13 @@ export type Database = {
           created_at?: string | null
           email: string
           full_name?: string | null
+          has_completed_welcome?: boolean | null
           id: string
           last_active_at?: string | null
           level?: number | null
           onboarding_completed?: boolean | null
           org_id?: string | null
+          panic_uses?: number | null
           persona?: Database["public"]["Enums"]["persona_type"] | null
           preferred_mode?:
             | Database["public"]["Enums"]["preferred_mode_type"]
@@ -531,11 +535,13 @@ export type Database = {
           created_at?: string | null
           email?: string
           full_name?: string | null
+          has_completed_welcome?: boolean | null
           id?: string
           last_active_at?: string | null
           level?: number | null
           onboarding_completed?: boolean | null
           org_id?: string | null
+          panic_uses?: number | null
           persona?: Database["public"]["Enums"]["persona_type"] | null
           preferred_mode?:
             | Database["public"]["Enums"]["preferred_mode_type"]

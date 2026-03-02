@@ -1,24 +1,24 @@
 import { Helmet } from "react-helmet-async";
-import { Brain, Shield, Zap, Star, Lock, Globe } from "lucide-react";
+import { Brain, ShieldCheck, Award, AlertTriangle, Lock, Globe } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import heroBg from "@/assets/hero-bg.png";
 
-const features = [
+const whyNotChatgpt = [
   {
-    icon: Brain,
-    title: "IA Générative",
-    description: "Apprenez à maîtriser ChatGPT, Claude, Gemini et les LLMs de pointe.",
+    icon: ShieldCheck,
+    title: "Jarvis vous guide",
+    text: "Pas de champ vide. Genie parle en premier, propose, et vous accompagne pas à pas.",
   },
   {
-    icon: Shield,
-    title: "Cybersécurité",
-    description: "Protégez-vous des menaces numériques avec des modules pratiques.",
+    icon: Award,
+    title: "Des preuves concrètes",
+    text: "Attestations de formation vérifiables. Indispensable pour la conformité NIS2 et les audits.",
   },
   {
-    icon: Zap,
-    title: "Sans formateur",
-    description: "Progressez à votre rythme avec un assistant IA disponible 24/7.",
+    icon: AlertTriangle,
+    title: "Bouton panique",
+    text: "Un problème ? Un clic. Genie vous guide dans la crise, calmement, étape par étape.",
   },
 ];
 
@@ -85,27 +85,22 @@ export default function Index() {
           {/* Badge */}
           <div className="animate-slide-up" style={{ animationDelay: "0ms" }}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-xs font-medium text-primary mb-8">
-              <Star className="w-3 h-3" aria-hidden="true" />
-              Lancement imminent — Rejoignez les premiers
-              <Star className="w-3 h-3" aria-hidden="true" />
+              ✨ Lancement imminent — Rejoignez les premiers ✨
             </div>
           </div>
 
           {/* Title */}
           <div className="text-center max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: "100ms" }}>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight mb-6">
-              Maîtrisez{" "}
-              <span className="text-gradient">l'IA.</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+              Votre assistant IA pour maîtriser{" "}
+              <span className="text-gradient">la cybersécurité,</span>
               <br />
-              Protégez-vous{" "}
-              <span className="text-gradient">en cyber.</span>
-              <br />
-              <span className="text-foreground/80 text-3xl sm:text-4xl md:text-5xl font-bold">
-                Sans formateur.
-              </span>
+              <span className="text-gradient">l'intelligence artificielle</span>
+              {" "}et le{" "}
+              <span className="text-gradient">vibe coding.</span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              La première plateforme francophone d'apprentissage en IA générative et cybersécurité — guidée par un assistant IA disponible 24h/24.
+              3 minutes par jour. Guide vocal. Zéro jargon.
             </p>
           </div>
 
@@ -154,15 +149,17 @@ export default function Index() {
             </div>
           </section>
 
-          {/* Features */}
+          {/* Why not ChatGPT */}
           <section
             className="w-full max-w-3xl mt-20 animate-slide-up"
             style={{ animationDelay: "500ms" }}
-            aria-labelledby="features-title"
+            aria-labelledby="why-title"
           >
-            <h2 id="features-title" className="sr-only">Fonctionnalités</h2>
+            <h2 id="why-title" className="text-center text-lg font-bold text-foreground mb-8 tracking-tight">
+              Pourquoi pas ChatGPT ?
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-              {features.map((f) => (
+              {whyNotChatgpt.map((f) => (
                 <div
                   key={f.title}
                   className="group flex flex-col gap-3 p-5 rounded-2xl border border-border/50 bg-card/40 backdrop-blur-sm hover:border-primary/40 hover:bg-card/70 hover:scale-[1.02] transition-all duration-300 shadow-card"
@@ -172,10 +169,24 @@ export default function Index() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{f.text}</p>
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+              <a
+                href="/pricing"
+                className="px-6 py-3 rounded-xl gradient-primary text-primary-foreground font-semibold text-sm shadow-glow hover:opacity-90 transition-opacity"
+              >
+                Essai gratuit 14 jours →
+              </a>
+              <a
+                href="/register"
+                className="px-6 py-3 rounded-xl border border-border/60 text-foreground font-medium text-sm hover:bg-card/60 transition-colors"
+              >
+                Découvrir gratuitement
+              </a>
             </div>
           </section>
         </main>
