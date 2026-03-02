@@ -14,6 +14,22 @@ const OFFENSIVE_KEYWORDS = [
   "bypass antivirus", "keylogger", "rootkit install",
 ];
 
+// Secrets/credentials fishing detection
+const SENSITIVE_REQUEST_PATTERNS = [
+  /donne[- ]moi (ton |le |la |les )?(mot de passe|clé api|secret|token|credential)/i,
+  /what is (your |the )?(password|api key|secret|token)/i,
+  /révèle (ton |le |la )?(mot de passe|secret|clé)/i,
+  /ignore (tes |les |tes précédentes )?instructions/i,
+  /ignore (your |previous |all )?instructions/i,
+  /system prompt/i,
+  /jailbreak/i,
+  /act as (if )?you (have no|don't have|without) (restrictions|rules|guidelines)/i,
+];
+
+function containsSensitiveRequest(text: string): boolean {
+  return SENSITIVE_REQUEST_PATTERNS.some((p) => p.test(text));
+}
+
 function containsOffensiveContent(text: string): boolean {
   const lower = text.toLowerCase();
   return OFFENSIVE_KEYWORDS.some((kw) => lower.includes(kw));
@@ -219,7 +235,6 @@ serve(async (req) => {
     }
     const userId = authData.claims.sub as string;
 
-    // Parse body
     const body = await req.json();
     const {
       messages = [],
@@ -227,6 +242,8 @@ serve(async (req) => {
       module_context = {},
       request_type = "chat",
       session_id,
+      jarvis_stage = "short",  // "short" | "long"
+      expert_mode = false,
     } = body;
 
     const mode: string = user_profile.mode ?? "normal";
@@ -258,14 +275,41 @@ serve(async (req) => {
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Determine tier & model
-    const tier = selectTier(request_type, domain);
-    const model = TIER_MODELS[tier];
-    // Jarvis uses fewer tokens (structured short output)
-    const maxTokens = isJarvis ? 600 : 2000;
+    // ── Security: detect secret/credential fishing & jailbreak attempts ──────
+    if (containsSensitiveRequest(sanitized)) {
+      return new Response(JSON.stringify({
+        security_refused: true,
+        content: "🚫 Je ne peux pas répondre à ça. Je ne divulgue jamais de mots de passe, clés API ou secrets. Si tu testes ma résistance — bravo, j'ai résisté ! 😄 Si c'est une vraie question, je t'aide autrement.",
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
-    // Cache check (24h)
-    const cacheKey = await hashPrompt(sanitized + mode + model);
+    // ── Model routing: cheap by default, powerful only if expert_mode ─────────
+    // Standard: DeepSeek Chat (V3) — très bon rapport qualité/prix
+    // Expert mode or cyber domain: DeepSeek R1 (reasoning)
+    // Fallback: Qwen 72B
+    let model: string;
+    if (domain === "cyber") {
+      model = TIER_MODELS.tier3; // Qwen for cyber validation
+    } else if (expert_mode || request_type === "generation") {
+      model = TIER_MODELS.tier2; // DeepSeek R1 for expert/generation
+    } else {
+      model = TIER_MODELS.tier1; // DeepSeek Chat V3 — cheapest, ~90% of calls
+    }
+
+    // Token budgets: strict limits per stage/type
+    let maxTokens: number;
+    if (isJarvis && jarvis_stage === "short") {
+      maxTokens = 500;   // Stage 1: structured JSON, short
+    } else if (isJarvis && jarvis_stage === "long") {
+      maxTokens = 900;   // Stage 2: "Explique plus" — richer but still bounded
+    } else if (request_type === "generation") {
+      maxTokens = 1500;
+    } else {
+      maxTokens = 1200;  // Regular chat — reduced from 2000
+    }
+
+    // Cache key includes stage so short and long are cached independently
+    const cacheKey = await hashPrompt(sanitized + mode + model + (isJarvis ? jarvis_stage : ""));
     const { data: cached } = await supabase
       .from("chat_messages")
       .select("content")
@@ -285,27 +329,48 @@ serve(async (req) => {
 
     // Build messages with system prompt
     const baseSystemPrompt = buildSystemPrompt(mode, persona);
-    const jarvisSystemPrompt = `${baseSystemPrompt}
 
-INSTRUCTIONS SPÉCIALES MODE JARVIS COCKPIT :
-Tu dois TOUJOURS répondre avec un bloc JSON unique au format suivant (pas d'autre texte avant ou après) :
+    // Jarvis stage 1: short structured JSON — cheap model, small budget
+    const jarvisShortPrompt = `${baseSystemPrompt}
+
+INSTRUCTIONS MODE JARVIS — RÉPONSE COURTE (ÉTAPE 1) :
+Tu es ultra rassurant, patient et bienveillant. Humour léger bienvenu (1 touche par réponse).
+Tu dois TOUJOURS répondre avec un SEUL bloc JSON (rien d'autre avant ou après) :
 \`\`\`json
 {
-  "kid_summary": "Explication en 3-6 phrases simples, max 15 mots par phrase",
-  "action_plan": ["Étape 1", "Étape 2", "Étape 3"],
+  "kid_summary": "3 à 5 phrases simples et rassurantes, max 15 mots par phrase, niveau enfant 10 ans",
+  "action_plan": ["Action concrète 1", "Action concrète 2", "Action concrète 3"],
   "one_click_actions": ["generate_pdf_checklist", "mini_quiz", "example"],
-  "confidence": 85,
-  "sources": ["Source ou organisme de référence pertinent"]
+  "confidence": 82,
+  "sources": ["ANSSI", "CNIL ou autre organisme pertinent"]
 }
 \`\`\`
-- kid_summary : explication simple et concrète, comme pour un enfant
-- action_plan : 3 à 7 étapes concrètes et actionnables
-- one_click_actions : inclure uniquement parmi generate_pdf_checklist, mini_quiz, example (1 à 3 max)
-- confidence : score de 0 à 100 selon ta certitude sur le sujet
-- sources : 1 à 3 sources textuelles (organismes, standards, sites de référence)
-IMPORTANT : réponse courte, dense, utile. Pas de blabla.`;
+Règles :
+- kid_summary : TON CHALEUREUX. Simplifie tout. Pas de jargon.
+- action_plan : 3 à 5 étapes max. Chaque étape = 1 action faisable en 60 secondes.
+- one_click_actions : 1 à 3 parmi generate_pdf_checklist / mini_quiz / example
+- confidence : 0-100 selon ta certitude. Si < 60 : sois honnête sur tes limites.
+- sources : 1-2 sources réelles (ANSSI, CNIL, NIST, OWASP…). Jamais d'inventions.
+CRITIQUE : Jamais de secrets, mots de passe, clés API dans les réponses.`;
 
-    const systemPrompt = isJarvis ? jarvisSystemPrompt : baseSystemPrompt;
+    // Jarvis stage 2: deep dive — only triggered by "Explique plus"
+    const jarvisLongPrompt = `${baseSystemPrompt}
+
+INSTRUCTIONS MODE JARVIS — APPROFONDISSEMENT (ÉTAPE 2) :
+L'utilisateur veut en savoir plus. Donne une explication plus riche MAIS garde le ton rassurant.
+Réponds en TEXTE SIMPLE (pas de JSON cette fois). Structure :
+1) Analogie simple du quotidien pour l'expliquer autrement
+2) 2-3 exemples concrets différents
+3) Ce qu'il faut SURTOUT retenir (max 3 points)
+4) Une action immédiate recommandée
+
+Ton : patient, chaleureux, encourageant. Humour léger autorisé.
+CRITIQUE : Jamais de secrets, mots de passe, clés API. Toujours orienter vers un professionnel pour la santé/droit/finance.`;
+
+    const systemPrompt = isJarvis
+      ? (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt)
+      : baseSystemPrompt;
+
     const apiMessages = [
       { role: "system", content: systemPrompt },
       ...messages.map((m: { role: string; content: string }) => ({

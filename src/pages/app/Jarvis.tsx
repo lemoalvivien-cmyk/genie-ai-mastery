@@ -1,8 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Zap, CheckSquare, Square, AlertCircle,
   FileText, HelpCircle, Lightbulb, RefreshCw, Mic, Lock,
+  GraduationCap, Leaf, ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +23,7 @@ interface JarvisPanel {
   one_click_actions: string[];
   confidence: number;
   sources: string[];
+  deep_dive?: string; // filled on stage 2 "Explique plus"
 }
 
 interface ChatMessage {
@@ -43,7 +45,6 @@ function sanitize(t: string) {
 }
 
 function parseJarvisPanel(raw: string): JarvisPanel | null {
-  // Try to extract ```json ... ``` block first
   const match = raw.match(/```json\s*([\s\S]*?)```/i) ?? raw.match(/```\s*([\s\S]*?)```/i);
   const jsonStr = match ? match[1] : raw;
   try {
@@ -58,7 +59,7 @@ function ConfidenceRing({ value }: { value: number }) {
   const r = 28;
   const circ = 2 * Math.PI * r;
   const dash = (value / 100) * circ;
-  const color = value >= 75 ? "#22c55e" : value >= 50 ? "#f97316" : "#ef4444";
+  const color = value >= 75 ? "hsl(142 76% 36%)" : value >= 50 ? "hsl(25 95% 53%)" : "hsl(0 84% 60%)";
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width={72} height={72} className="shrink-0">
@@ -83,36 +84,68 @@ function ConfidenceRing({ value }: { value: number }) {
 }
 
 // ─── One-click action labels ───────────────────────────────────────────────────
-const ACTION_MAP: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  generate_pdf_checklist: { icon: FileText, label: "PDF", color: "text-blue-400 border-blue-400/40 hover:bg-blue-400/10" },
-  mini_quiz: { icon: HelpCircle, label: "Mini-quiz", color: "text-purple-400 border-purple-400/40 hover:bg-purple-400/10" },
-  example: { icon: Lightbulb, label: "Exemple", color: "text-yellow-400 border-yellow-400/40 hover:bg-yellow-400/10" },
+const ACTION_MAP: Record<string, { icon: React.ElementType; label: string; className: string }> = {
+  generate_pdf_checklist: { icon: FileText, label: "PDF", className: "text-primary border-primary/40 hover:bg-primary/10" },
+  mini_quiz: { icon: HelpCircle, label: "Mini-quiz", className: "text-secondary border-secondary/40 hover:bg-secondary/10" },
+  example: { icon: Lightbulb, label: "Exemple", className: "text-accent border-accent/40 hover:bg-accent/10" },
 };
+
+// ─── Expert toggle ─────────────────────────────────────────────────────────────
+function ExpertToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!value)}
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+        value
+          ? "bg-primary/10 border-primary/40 text-primary"
+          : "border-border/50 text-muted-foreground hover:border-border"
+      }`}
+      title={value ? "Mode Expert actif (modèle puissant)" : "Mode Standard — économique"}
+    >
+      <GraduationCap className="w-3 h-3" />
+      {value ? "Expert" : "Standard"}
+    </button>
+  );
+}
+
+// ─── Savings badge ─────────────────────────────────────────────────────────────
+function SavingsBadge() {
+  return (
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+      <Leaf className="w-2.5 h-2.5" />
+      Économiseur ✅
+    </span>
+  );
+}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Jarvis() {
-  const { profile, session } = useAuth();
+  const { profile } = useAuth();
   const { data: sub } = useSubscription();
   const isPro = sub?.isActive ?? false;
   const navigate = useNavigate();
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeepLoading, setIsDeepLoading] = useState(false);
   const [kittState, setKittState] = useState<KittState>("idle");
   const [panel, setPanel] = useState<JarvisPanel>(EMPTY_PANEL);
   const [hasResult, setHasResult] = useState(false);
   const [voiceEnabled] = useState(() => profile?.voice_enabled ?? true);
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [expertMode, setExpertMode] = useState(false);
 
   const historyRef = useRef(history);
   historyRef.current = history;
   const profileRef = useRef(profile);
   profileRef.current = profile;
+  const expertRef = useRef(expertMode);
+  expertRef.current = expertMode;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { isListening, getAnalyser, startListening, stopListening, speak, stopSpeaking } =
+  const { isListening, getAnalyser, startListening, stopListening, speak } =
     useVoiceEngine({
       onTranscript: (text, isFinal) => {
         if (isFinal) {
@@ -126,18 +159,19 @@ export default function Jarvis() {
       voiceEnabled,
     });
 
+  // ── Stage 1: short structured JSON ──────────────────────────────────────────
   const sendQuery = useCallback(
-    async (overrideText?: string) => {
+    async (overrideText?: string, isOneClick = false) => {
       const raw = overrideText ?? input;
       const text = sanitize(raw);
       if (!text || isLoading) return;
 
-      setInput("");
+      if (!isOneClick) setInput("");
       setIsLoading(true);
       setKittState("thinking");
 
       const userMsg: ChatMessage = { role: "user", content: text };
-      setHistory((prev) => [...prev, userMsg]);
+      if (!isOneClick) setHistory((prev) => [...prev, userMsg]);
 
       try {
         const apiMessages = [...historyRef.current, userMsg]
@@ -151,10 +185,12 @@ export default function Jarvis() {
             user_profile: {
               persona: p?.persona ?? "",
               level: p?.level ?? 1,
-              mode: p?.preferred_mode ?? "normal",
+              mode: expertRef.current ? "expert" : (p?.preferred_mode ?? "normal"),
             },
             session_id: sessionId,
             request_type: "jarvis",
+            jarvis_stage: "short",
+            expert_mode: expertRef.current,
           },
         });
 
@@ -164,28 +200,34 @@ export default function Jarvis() {
           throw new Error(data.error);
         }
 
+        // Check for security refusal
+        if (data?.security_refused) {
+          toast({
+            title: "⚠️ Demande refusée",
+            description: data.content,
+            variant: "destructive",
+          });
+          setKittState("idle");
+          return;
+        }
+
         const rawContent: string = data.content ?? "";
         const parsed = parseJarvisPanel(rawContent);
 
-        if (parsed) {
-          setPanel(parsed);
-          setHasResult(true);
-          if (voiceEnabled && isPro) speak(parsed.kid_summary);
-          else setKittState("idle");
-        } else {
-          // Fallback: show raw as kid_summary
-          setPanel({
-            kid_summary: rawContent,
-            action_plan: [],
-            one_click_actions: [],
-            confidence: 0,
-            sources: [],
-          });
-          setHasResult(true);
-          setKittState("idle");
-        }
+        const newPanel = parsed ?? {
+          kid_summary: rawContent,
+          action_plan: [],
+          one_click_actions: [],
+          confidence: 0,
+          sources: [],
+        };
 
-        setHistory((prev) => [...prev, { role: "assistant", content: rawContent }]);
+        setPanel(newPanel);
+        setHasResult(true);
+        if (voiceEnabled && isPro) speak(newPanel.kid_summary);
+        else setKittState("idle");
+
+        if (!isOneClick) setHistory((prev) => [...prev, { role: "assistant", content: rawContent }]);
       } catch (err) {
         toast({
           title: "Erreur",
@@ -201,19 +243,50 @@ export default function Jarvis() {
     [input, isLoading, sessionId, speak, voiceEnabled, isPro],
   );
 
+  // ── Stage 2: deep dive (only on demand) ─────────────────────────────────────
   const handleExplainMore = useCallback(async () => {
-    if (!panel.kid_summary) return;
-    await sendQuery("Explique-moi ça plus en détail, avec plus d'exemples.");
-  }, [panel.kid_summary, sendQuery]);
+    if (!panel.kid_summary || isDeepLoading) return;
+    setIsDeepLoading(true);
+    setKittState("thinking");
+    try {
+      const p = profileRef.current;
+      const { data, error } = await supabase.functions.invoke("chat-completion", {
+        body: {
+          messages: [
+            ...historyRef.current.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+            { role: "user", content: "Explique-moi ça plus en détail, avec des exemples concrets et des analogies simples." },
+          ],
+          user_profile: {
+            persona: p?.persona ?? "",
+            level: p?.level ?? 1,
+            mode: expertRef.current ? "expert" : (p?.preferred_mode ?? "normal"),
+          },
+          session_id: sessionId,
+          request_type: "jarvis",
+          jarvis_stage: "long",
+          expert_mode: expertRef.current,
+        },
+      });
+      if (error) throw error;
+      const deepContent = data?.content ?? "";
+      setPanel((prev) => ({ ...prev, deep_dive: deepContent }));
+      setKittState("idle");
+    } catch (err) {
+      toast({ title: "Erreur", description: "Impossible d'approfondir.", variant: "destructive" });
+      setKittState("idle");
+    } finally {
+      setIsDeepLoading(false);
+    }
+  }, [panel.kid_summary, isDeepLoading, sessionId]);
 
   const handleOneClickAction = (action: string) => {
     const prompts: Record<string, string> = {
       generate_pdf_checklist: "Génère une checklist PDF à partir du plan d'action.",
-      mini_quiz: "Fais-moi un mini-quiz rapide sur ce sujet (3 questions).",
-      example: "Donne-moi un exemple concret et détaillé.",
+      mini_quiz: "Fais-moi un mini-quiz rapide sur ce sujet (3 questions max).",
+      example: "Donne-moi un exemple concret simple, comme si je n'y connaissais rien.",
     };
     const p = prompts[action];
-    if (p) sendQuery(p);
+    if (p) sendQuery(p, true);
   };
 
   return (
@@ -226,35 +299,42 @@ export default function Jarvis() {
         <div className="flex flex-col w-full lg:w-[40%] lg:border-r border-border/40 overflow-hidden shrink-0">
 
           {/* Header */}
-          <div className="shrink-0 px-5 py-3 border-b border-border/40 bg-card/20 flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">
-              <Zap className="w-3.5 h-3.5 text-primary-foreground" />
+          <div className="shrink-0 px-4 py-2.5 border-b border-border/40 bg-card/20 flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="w-6 h-6 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">
+                <Zap className="w-3 h-3 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground leading-none">Jarvis</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground leading-none">Jarvis</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Mode cockpit</p>
+            <div className="flex items-center gap-2 shrink-0">
+              {!expertMode && <SavingsBadge />}
+              <ExpertToggle value={expertMode} onChange={setExpertMode} />
             </div>
           </div>
 
           {/* KITT Visualizer */}
-          <div className="shrink-0 flex justify-center pt-4 pb-2">
+          <div className="shrink-0 flex justify-center pt-3 pb-1">
             <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
           </div>
 
           {/* Conversation history */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {history.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <p className="text-sm text-muted-foreground">
-                  Pose une question. Jarvis analyse et remplit le cockpit à droite.
+              <div className="flex flex-col items-center justify-center h-full text-center px-4 gap-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  👋 Salut ! Pose-moi n'importe quelle question. Je vais tout analyser pour toi et remplir le cockpit à droite.
+                </p>
+                <p className="text-xs text-muted-foreground/60">
+                  {expertMode
+                    ? "Mode Expert actif — réponses techniques approfondies."
+                    : "Mode Standard — réponses courtes, claires, économiques."}
                 </p>
               </div>
             ) : (
               history.map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
                       m.role === "user"
@@ -262,9 +342,7 @@ export default function Jarvis() {
                         : "bg-muted/60 border border-border/40 rounded-tl-sm text-foreground"
                     }`}
                   >
-                    {m.role === "assistant"
-                      ? "✅ Analyse terminée"
-                      : m.content}
+                    {m.role === "assistant" ? "✅ Cockpit mis à jour !" : m.content}
                   </div>
                 </div>
               ))
@@ -294,7 +372,7 @@ export default function Jarvis() {
                   variant="outline"
                   size="icon"
                   className={`shrink-0 h-11 w-11 transition-all relative ${
-                    isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"
+                    isListening ? "border-primary text-primary bg-primary/10" : "text-muted-foreground"
                   }`}
                   onClick={() => (isListening ? stopListening() : startListening())}
                   aria-label={isListening ? "Arrêter" : "Parler"}
@@ -329,21 +407,26 @@ export default function Jarvis() {
         </div>
 
         {/* ════════════════════════ RIGHT — Cockpit Panels ══════════════════ */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-5">
           {!hasResult ? (
-            // Empty state
-            <div className="h-full flex flex-col items-center justify-center gap-6 text-center max-w-sm mx-auto">
-              <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow opacity-60">
-                <Zap className="w-8 h-8 text-primary-foreground" />
+            // ── Empty state with suggestions ──────────────────────────────────
+            <div className="h-full flex flex-col items-center justify-center gap-5 text-center max-w-sm mx-auto">
+              <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shadow-glow opacity-70">
+                <Zap className="w-7 h-7 text-primary-foreground" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Cockpit vide</h2>
-                <p className="text-sm text-muted-foreground mt-1.5">
-                  Pose ta première question à gauche. Jarvis va analyser et remplir les 4 panneaux ici.
+                <h2 className="text-base font-semibold text-foreground">Cockpit prêt</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Pose ta première question — Jarvis remplit les 4 panneaux.
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-3 w-full">
-                {["Comment sécuriser mon Wi-Fi ?", "C'est quoi le phishing ?", "Comment utiliser l'IA au travail ?", "Expliquer le chiffrement"].map((q) => (
+              <div className="grid grid-cols-2 gap-2 w-full">
+                {[
+                  "Comment sécuriser mon Wi-Fi ?",
+                  "C'est quoi le phishing ?",
+                  "Comment utiliser l'IA au travail ?",
+                  "Expliquer le chiffrement simplement",
+                ].map((q) => (
                   <button
                     key={q}
                     onClick={() => sendQuery(q)}
@@ -355,7 +438,7 @@ export default function Jarvis() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 max-w-3xl mx-auto lg:max-w-none">
+            <div className="grid grid-cols-1 gap-3 max-w-3xl mx-auto lg:max-w-none">
 
               {/* Panel 1 — Résumé enfant */}
               <div className="rounded-2xl border border-border/50 bg-card/40 p-4 space-y-2">
@@ -365,16 +448,27 @@ export default function Jarvis() {
                   </h3>
                   <button
                     onClick={handleExplainMore}
-                    disabled={isLoading}
-                    className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 border border-primary/30 rounded-full px-2 py-0.5 transition-colors disabled:opacity-50"
+                    disabled={isDeepLoading || isLoading}
+                    className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 border border-primary/30 rounded-full px-2.5 py-1 transition-all disabled:opacity-50 hover:bg-primary/5"
                   >
-                    <RefreshCw className="w-2.5 h-2.5" />
+                    {isDeepLoading ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <RefreshCw className="w-2.5 h-2.5" />}
                     Explique plus
                   </button>
                 </div>
                 <p className="text-sm leading-relaxed text-foreground">
-                  {panel.kid_summary || <span className="text-muted-foreground italic">En attente...</span>}
+                  {panel.kid_summary}
                 </p>
+                {/* Stage 2 deep dive (only when loaded) */}
+                {panel.deep_dive && (
+                  <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
+                    <p className="text-[10px] font-semibold text-primary/70 uppercase tracking-wider">
+                      🔬 Approfondissement
+                    </p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {panel.deep_dive}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Panel 2 — Plan d'action */}
@@ -385,7 +479,7 @@ export default function Jarvis() {
                   </h3>
                   <ol className="space-y-2">
                     {panel.action_plan.map((step, i) => (
-                      <ActionStep key={i} index={i} text={step} />
+                      <ActionStep key={`${step}-${i}`} index={i} text={step} />
                     ))}
                   </ol>
                 </div>
@@ -407,7 +501,7 @@ export default function Jarvis() {
                           key={action}
                           onClick={() => handleOneClickAction(action)}
                           disabled={isLoading}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-all disabled:opacity-50 ${meta.color}`}
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-all disabled:opacity-50 ${meta.className}`}
                         >
                           <Icon className="w-3.5 h-3.5" />
                           {meta.label}
@@ -434,7 +528,13 @@ export default function Jarvis() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">Aucune source spécifique.</p>
+                      <p className="text-xs text-muted-foreground italic">Connaissance générale — vérifie avec un expert.</p>
+                    )}
+                    {panel.confidence < 60 && (
+                      <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-500 dark:text-amber-400">
+                        <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                        Score de confiance bas — consulte un professionnel.
+                      </div>
                     )}
                   </div>
                 </div>
