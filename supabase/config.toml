@@ -27,3 +27,9 @@ verify_jwt = false
 [functions.check-subscription]
 verify_jwt = false
 
+[functions.fetch-sources]
+verify_jwt = false
+
+[functions.generate-briefs]
+verify_jwt = false
+

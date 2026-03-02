@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { SkillMapPanel } from "@/components/skills/SkillMapPanel";
+import { NouveautesPanel } from "@/components/jarvis/NouveautesPanel";
 import {
   Send, Loader2, Zap, CheckSquare, Square, AlertCircle,
   HelpCircle, Lightbulb, RefreshCw, Mic, Lock,
@@ -967,6 +968,13 @@ export default function Jarvis() {
                 )}
               </div>
             )}
+          </div>
+
+          {/* ── Nouveautés (No source = no claim) ──────────────────────────── */}
+          <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
+            <div className="px-4 py-4">
+              <NouveautesPanel />
+            </div>
           </div>
 
           {/* ── Carte Palantir ─────────────────────────────────────────────── */}
