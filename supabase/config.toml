@@ -9,3 +9,9 @@ verify_jwt = false
 [functions.manager-alerts]
 verify_jwt = false
 
+[functions.text-to-speech]
+verify_jwt = false
+
+[functions.redeem-code]
+verify_jwt = false
+

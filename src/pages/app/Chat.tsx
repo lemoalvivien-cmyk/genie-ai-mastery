@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
-import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2 } from "lucide-react";
+import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
+import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
+import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -67,7 +69,6 @@ function MessageBubble({
 
   return (
     <div className="flex gap-3 mb-4">
-      {/* Avatar */}
       <div className="shrink-0 w-8 h-8 rounded-full gradient-primary flex items-center justify-center shadow-glow mt-1">
         <Zap className="w-4 h-4 text-primary-foreground" />
       </div>
@@ -77,7 +78,6 @@ function MessageBubble({
         </div>
         {!message.isLoading && (
           <>
-            {/* Quick actions */}
             <div className="flex flex-wrap gap-2 mt-2">
               {QUICK_ACTIONS.map((a) => (
                 <button
@@ -89,7 +89,6 @@ function MessageBubble({
                 </button>
               ))}
             </div>
-            {/* Model badge */}
             {message.model_used && (
               <p className="mt-1.5 text-[10px] text-muted-foreground/50 pl-1">
                 {message.model_used}
@@ -110,18 +109,49 @@ export default function Chat() {
       id: "welcome",
       role: "assistant",
       content: `Bonjour ${profile?.full_name?.split(" ")[0] ?? ""} ! 👋 Je suis **Genie**, votre assistant pédagogique IA.\n\nPosez-moi n'importe quelle question sur l'IA ou la cybersécurité. Je suis là pour vous aider ! ✨`,
-      model_used: undefined,
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [kittState, setKittState] = useState<KittState>("idle");
+  const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Voice engine
+  const { isListening, getAnalyser, startListening, stopListening, speak, stopSpeaking } = useVoiceEngine({
+    onTranscript: (text, isFinal) => {
+      if (isFinal) {
+        setInput(text);
+        // Auto-send after 800ms
+        setTimeout(() => sendMessage(text), 800);
+      } else {
+        setInput(text);
+      }
+    },
+    onStateChange: setKittState,
+    voiceEnabled,
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Sync voice toggle with profile
+  useEffect(() => {
+    setVoiceEnabled(profile?.voice_enabled ?? true);
+  }, [profile?.voice_enabled]);
+
+  const handleVoiceToggle = async () => {
+    const newVal = !voiceEnabled;
+    setVoiceEnabled(newVal);
+    if (!newVal) stopSpeaking();
+    // Persist to profile
+    if (session?.user?.id) {
+      await supabase.from("profiles").update({ voice_enabled: newVal }).eq("id", session.user.id);
+    }
+  };
 
   const sendMessage = useCallback(
     async (overrideText?: string) => {
@@ -135,11 +165,12 @@ export default function Chat() {
 
       setMessages((prev) => [...prev, userMsg, loadingMsg]);
       setIsLoading(true);
+      setKittState("thinking");
 
       try {
         const apiMessages = [...messages, userMsg]
           .filter((m) => !m.isLoading)
-          .slice(-20) // Keep last 20 messages for context
+          .slice(-20)
           .map((m) => ({ role: m.role, content: m.content }));
 
         const { data, error } = await supabase.functions.invoke("chat-completion", {
@@ -157,7 +188,6 @@ export default function Chat() {
 
         if (error) throw error;
         if (data?.error) {
-          // Surface rate limit / payment errors
           if (data.error.includes("Limite") || data.error.includes("heure")) {
             toast({ title: "Limite atteinte", description: data.error, variant: "destructive" });
           }
@@ -171,6 +201,13 @@ export default function Chat() {
           model_used: data.model_used,
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
+
+        // TTS
+        if (voiceEnabled) {
+          speak(data.content);
+        } else {
+          setKittState("idle");
+        }
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
         const assistantMsg: Message = {
@@ -179,12 +216,14 @@ export default function Chat() {
           content: `❌ ${errMsg}`,
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
+        setKittState("idle");
       } finally {
         setIsLoading(false);
         textareaRef.current?.focus();
       }
     },
-    [input, isLoading, messages, profile, session, sessionId],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [input, isLoading, messages, profile, session, sessionId, voiceEnabled, speak],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -195,6 +234,8 @@ export default function Chat() {
   };
 
   const handleReset = () => {
+    stopSpeaking();
+    setKittState("idle");
     setMessages([
       {
         id: "welcome",
@@ -202,6 +243,14 @@ export default function Chat() {
         content: "Nouvelle conversation démarrée. Comment puis-je vous aider ? ✨",
       },
     ]);
+  };
+
+  const handleMicPress = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
   };
 
   const modeBadge: Record<string, string> = {
@@ -227,10 +276,19 @@ export default function Chat() {
           </Link>
 
           <div className="flex items-center gap-3">
-            {/* Mode indicator */}
             <span className="hidden sm:inline-flex text-xs px-2.5 py-1 rounded-full border border-border/50 text-muted-foreground">
               {modeBadge[profile?.preferred_mode ?? "normal"] ?? "Mode Normal"}
             </span>
+            {/* Voice toggle */}
+            <button
+              onClick={handleVoiceToggle}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={voiceEnabled ? "Désactiver la voix" : "Activer la voix"}
+              title={voiceEnabled ? "Son activé" : "Son désactivé"}
+            >
+              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              <span className="hidden sm:inline">{voiceEnabled ? "Son" : "Muet"}</span>
+            </button>
             <Link
               to="/app/modules"
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -256,8 +314,16 @@ export default function Chat() {
           </div>
         </header>
 
+        {/* ── KITT Visualizer ── */}
+        <div className="shrink-0 flex justify-center pt-4 pb-2">
+          <KittVisualizer
+            state={kittState}
+            analyserNode={getAnalyser()}
+          />
+        </div>
+
         {/* ── Messages ── */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           <div className="max-w-2xl mx-auto">
             {messages.map((msg) => (
               <MessageBubble
@@ -287,16 +353,23 @@ export default function Chat() {
                 />
               </div>
 
-              {/* Mic button (placeholder for Phase 2A) */}
+              {/* Mic button */}
               <Button
                 variant="outline"
                 size="icon"
-                className="shrink-0 h-[52px] w-[52px]"
-                disabled
-                aria-label="Microphone (bientôt disponible)"
-                title="Commande vocale — bientôt disponible"
+                  className={`shrink-0 h-[52px] w-[52px] transition-all relative ${
+                  isListening
+                    ? "border-indigo-400 text-indigo-400 bg-indigo-400/10"
+                    : "text-muted-foreground"
+                }`}
+                onClick={handleMicPress}
+                aria-label={isListening ? "Arrêter l'écoute" : "Parler à Genie"}
+                title="Parler à Genie"
               >
-                <Mic className="w-4 h-4 text-muted-foreground" />
+                <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
+                {isListening && (
+                  <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />
+                )}
               </Button>
 
               {/* Send button */}
