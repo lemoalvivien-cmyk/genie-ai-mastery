@@ -8,6 +8,8 @@ import {
 import { useModule, useModuleQuiz, useUserProgress, useSaveProgress } from "@/hooks/useModules";
 import { QuizPlayer } from "@/components/modules/QuizPlayer";
 import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
+import { useUpsertUserSkills } from "@/hooks/useSkills";
+import { supabase } from "@/integrations/supabase/client";
 
 const DOMAIN_CONFIG = {
   ia_pro: { label: "IA Pro", cls: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
@@ -29,6 +31,7 @@ export default function ModuleDetail() {
   const { data: quiz } = useModuleQuiz(mod?.id ?? "");
   const { data: progressMap } = useUserProgress(mod?.id ? [mod.id] : undefined);
   const saveProgress = useSaveProgress();
+  const upsertSkills = useUpsertUserSkills();
 
   const progress = mod ? progressMap?.[mod.id] : undefined;
   const domain = mod ? DOMAIN_CONFIG[mod.domain] : null;
@@ -77,6 +80,29 @@ export default function ModuleDetail() {
               score,
               quiz_answers: answers,
             });
+            // Upsert user_skills from module's skill_tags if present
+            const skillTags: Array<{ skill_id: string; weight?: number }> =
+              (mod.content_json as unknown as { skill_tags?: Array<{ skill_id: string; weight?: number }> })?.skill_tags ?? [];
+            if (skillTags.length > 0) {
+              // Score contribution proportional to quiz score * weight (default 1)
+              const skillsToUpsert = skillTags.map((tag) => ({
+                skill_id: tag.skill_id,
+                score: Math.round(score * (tag.weight ?? 1)),
+              }));
+              await upsertSkills.mutateAsync(skillsToUpsert);
+            } else {
+              // Fallback: map module domain to domain skills via DB
+              const { data: domainSkills } = await supabase
+                .from("skills")
+                .select("id")
+                .eq("domain", mod.domain)
+                .limit(3);
+              if (domainSkills?.length) {
+                await upsertSkills.mutateAsync(
+                  domainSkills.map((s) => ({ skill_id: s.id, score }))
+                );
+              }
+            }
             setQuizOpen(false);
           }}
         />

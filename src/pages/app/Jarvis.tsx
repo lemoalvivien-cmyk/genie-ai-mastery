@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { SkillMapPanel } from "@/components/skills/SkillMapPanel";
 import {
   Send, Loader2, Zap, CheckSquare, Square, AlertCircle,
   HelpCircle, Lightbulb, RefreshCw, Mic, Lock,
@@ -967,6 +968,9 @@ export default function Jarvis() {
               </div>
             )}
           </div>
+
+          {/* ── Carte Palantir ─────────────────────────────────────────────── */}
+          <SkillMapPanel />
 
           {/* ── Cockpit panels ─────────────────────────────────────────────── */}
           {!hasResult ? (

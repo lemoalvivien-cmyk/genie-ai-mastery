@@ -755,6 +755,33 @@ export type Database = {
           },
         ]
       }
+      skills: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+          level: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+          level?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+          level?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       user_daily_log: {
         Row: {
           completed_date: string
@@ -821,6 +848,45 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_skills: {
+        Row: {
+          id: string
+          score: number
+          skill_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          score?: number
+          skill_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          score?: number
+          skill_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
