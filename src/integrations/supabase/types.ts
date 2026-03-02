@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      artifacts: {
+        Row: {
+          created_at: string
+          file_path: string | null
+          id: string
+          org_id: string | null
+          session_id: string | null
+          signed_url: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          org_id?: string | null
+          session_id?: string | null
+          signed_url?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          org_id?: string | null
+          session_id?: string | null
+          signed_url?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artifacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artifacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attestations: {
         Row: {
           generated_at: string | null
