@@ -104,7 +104,18 @@ function buildSystemPrompt(mode: string, persona: string): string {
     ? `\nL'utilisateur a le profil : [PERSONA: ${persona}].`
     : "";
 
-  return modePrompt + personaContext + SAFETY_PROMPT;
+  const vibeCodingContext = domain === "vibe_coding"
+    ? `\n\nCONTEXTE SPÉCIAL VIBE CODING : L'utilisateur apprend le vibe coding (développer avec l'IA).
+- Guide-le pas à pas. Jamais de code sans explication.
+- Si il demande comment faire quelque chose : donne le PROMPT à utiliser dans Lovable/Bolt/Cursor, pas le code brut.
+- Compare toujours 2-3 outils pour chaque besoin. Sois objectif.
+- N'hésite pas à mentionner les outils chinois (Trae, Tongyi Lingma) quand ils sont pertinents et gratuits.
+- Rappelle les bonnes pratiques : tester entre chaque itération, versionner, sauvegarder.
+- Encourage-le : le vibe coding rend le développement accessible à tous.
+- Si il est bloqué : propose une approche alternative ou un outil différent.`
+    : "";
+
+  return modePrompt + personaContext + vibeCodingContext + SAFETY_PROMPT;
 }
 
 // ─── Simple hash for cache key ────────────────────────────────────────────────
