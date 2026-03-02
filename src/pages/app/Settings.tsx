@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Brain, LogOut, CheckCircle2, Calendar, Loader2, Lock } from "lucide-react";
+import { CheckCircle2, Calendar, Loader2, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -38,21 +38,7 @@ export default function Settings() {
     <>
       <Helmet><title>Paramètres – GENIE IA</title></Helmet>
 
-      <div className="min-h-screen gradient-hero">
-        {/* Navbar */}
-        <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/app/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold hidden sm:inline">GENIE <span className="text-gradient">IA</span></span>
-          </Link>
-          <button onClick={signOut} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Déconnexion</span>
-          </button>
-        </header>
-
+      <div className="gradient-hero min-h-full">
         <main className="max-w-2xl mx-auto px-4 py-12">
           <h1 className="text-2xl font-bold text-foreground mb-8">Paramètres</h1>
 

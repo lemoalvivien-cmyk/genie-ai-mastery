@@ -8,8 +8,7 @@ import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
-
-import { PanicButton } from "@/components/PanicButton";
+import AppLayout from "@/components/AppLayout";
 
 // Lazy load pages
 const Landing = lazy(() => import("./pages/Index"));
@@ -51,7 +50,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthInitializer>
-            <PanicButton />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
@@ -70,51 +68,23 @@ const App = () => (
                   }
                 />
 
-                {/* Welcome — first-time Jarvis experience */}
+                {/* App routes — shared layout */}
                 <Route
-                  path="/app/welcome"
+                  path="/app"
                   element={
                     <ProtectedRoute>
-                      <Welcome />
+                      <AppLayout />
                     </ProtectedRoute>
                   }
-                />
-
-                {/* App routes — authenticated */}
-                <Route
-                  path="/app/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/app/modules"
-                  element={
-                    <ProtectedRoute>
-                      <Modules />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/app/modules/:slug"
-                  element={
-                    <ProtectedRoute>
-                      <ModuleDetail />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/app/chat"
-                  element={
-                    <ProtectedRoute>
-                      <Chat />
-                    </ProtectedRoute>
-                  }
-                />
+                >
+                  <Route path="welcome" element={<Welcome />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="modules" element={<Modules />} />
+                  <Route path="modules/:slug" element={<ModuleDetail />} />
+                  <Route path="chat" element={<Chat />} />
+                  <Route path="today" element={<Today />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
 
                 {/* Admin routes */}
                 <Route
@@ -140,26 +110,6 @@ const App = () => (
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
-
-                {/* Today - daily mission */}
-                <Route
-                  path="/app/today"
-                  element={
-                    <ProtectedRoute>
-                      <Today />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* App settings */}
-                <Route
-                  path="/app/settings"
-                  element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

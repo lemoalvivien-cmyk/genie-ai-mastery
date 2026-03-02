@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { Brain, LogOut, ChevronRight, CheckCircle2, Flame, ArrowLeft, Loader2 } from "lucide-react";
+import { ChevronRight, CheckCircle2, Flame, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -389,26 +389,7 @@ export default function Today() {
   return (
     <>
       <Helmet><title>Mission du jour – GENIE IA</title></Helmet>
-      <div className="min-h-screen gradient-hero">
-        {/* Navbar */}
-        <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold hidden sm:inline">GENIE <span className="text-gradient">IA</span></span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/app/dashboard" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Link>
-            <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
+      <div className="gradient-hero min-h-full">
         <main className="max-w-xl mx-auto px-4 sm:px-6 py-8">
           {/* KITT */}
           <div className="flex justify-center mb-6">

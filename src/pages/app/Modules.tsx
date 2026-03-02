@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useSearchParams } from "react-router-dom";
-import { Brain, LogOut, BookOpen, Filter, Search, Loader2, ChevronDown, Code2 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { BookOpen, Filter, Search, Loader2, ChevronDown, Code2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
@@ -70,23 +70,7 @@ export default function Modules() {
         <meta name="description" content="Explorez tous les modules de formation IA et cybersécurité." />
       </Helmet>
 
-      <div className="min-h-screen gradient-hero">
-        {/* Navbar */}
-        <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-20 bg-background/80 backdrop-blur-sm">
-          <Link to="/app/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold hidden sm:block">GENIE <span className="text-gradient">IA</span></span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/app/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
-            <button onClick={signOut} className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Déconnexion">
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
+      <div className="gradient-hero min-h-full">
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           {/* Page header */}
           <div className="mb-8">
