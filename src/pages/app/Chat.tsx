@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
-import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX } from "lucide-react";
+import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -342,6 +342,10 @@ export default function Chat() {
               {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               <span className="hidden sm:inline">{voiceEnabled ? "Son" : "Muet"}</span>
             </button>
+            <Link to="/app/today" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline">Mission</span>
+            </Link>
             <Link to="/app/modules" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <BookOpen className="w-4 h-4" />
               <span className="hidden sm:inline">Modules</span>
