@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
 import { LevelStep } from "./LevelStep";
 import { InterestStep } from "./InterestStep";
+import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
 
 export type OnboardingData = {
   persona: string;
@@ -25,6 +26,7 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [showCodeStep, setShowCodeStep] = useState(false);
   const totalSteps = 3;
 
   const handlePersona = (persona: string) => {
@@ -94,7 +96,7 @@ export default function Onboarding() {
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      navigate("/app/dashboard", { replace: true });
+      setShowCodeStep(true); // Show code activation step before dashboard
     } catch {
       setError("Une erreur est survenue. Réessayez.");
     } finally {
@@ -141,7 +143,28 @@ export default function Onboarding() {
           </div>
 
           {/* Steps */}
-          {!showOrgForm ? (
+          {showCodeStep ? (
+            /* Code activation bonus step */
+            <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card animate-fade-in">
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
+                  <span className="text-2xl">🎁</span>
+                </div>
+                <h2 className="text-xl font-bold">Vous avez un code d'accès ?</h2>
+                <p className="text-sm text-muted-foreground mt-1">Activez votre accès Business gratuit</p>
+              </div>
+              <div className="space-y-4">
+                <AccessCodeActivator onSuccess={() => navigate("/app/dashboard", { replace: true })} />
+                <button
+                  type="button"
+                  onClick={() => navigate("/app/dashboard", { replace: true })}
+                  className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all"
+                >
+                  Continuer sans code →
+                </button>
+              </div>
+            </div>
+          ) : !showOrgForm ? (
             <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card">
               {step === 1 && <PersonaStep onSelect={handlePersona} />}
               {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
