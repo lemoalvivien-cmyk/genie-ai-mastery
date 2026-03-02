@@ -28,7 +28,16 @@ const Settings = lazy(() => import("./pages/app/Settings"));
 const Today = lazy(() => import("./pages/app/Today"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000,      // 2 min default — avoids redundant refetches
+      gcTime: 10 * 60 * 1000,        // 10 min cache retention
+      retry: 1,                       // one retry on error, not 3
+      refetchOnWindowFocus: false,    // no background refetch on tab switch
+    },
+  },
+});
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
