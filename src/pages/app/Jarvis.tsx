@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Zap, CheckSquare, Square, AlertCircle,
-  FileText, HelpCircle, Lightbulb, RefreshCw, Mic, Lock,
-  GraduationCap, Leaf, ShieldAlert,
+  HelpCircle, Lightbulb, RefreshCw, Mic, Lock,
+  GraduationCap, Leaf, ShieldAlert, FileText, Download,
+  ClipboardCopy, Hammer, Clock, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,13 +24,59 @@ interface JarvisPanel {
   one_click_actions: string[];
   confidence: number;
   sources: string[];
-  deep_dive?: string; // filled on stage 2 "Explique plus"
+  deep_dive?: string;
 }
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
+
+interface ArtifactRecord {
+  id: string;
+  type: string;
+  title: string;
+  signed_url: string | null;
+  created_at: string;
+}
+
+// Artifact Forge config
+const FORGE_ARTIFACTS = [
+  {
+    type: "checklist",
+    label: "Checklist",
+    emoji: "✅",
+    pages: "1 page",
+    description: "Liste d'actions courtes. Imprime et coche.",
+    punchline: "Parce qu'un cerveau, ça oublie.",
+  },
+  {
+    type: "sop",
+    label: "SOP Cyber",
+    emoji: "🔐",
+    pages: "3–6 pages",
+    description: "Procédures de sécurité pour ton équipe.",
+    punchline: "Mieux vaut prévenir que payer une rançon.",
+  },
+  {
+    type: "charte",
+    label: "Charte IA",
+    emoji: "📜",
+    pages: "3–6 pages",
+    description: "Règles d'usage de l'IA dans l'organisation.",
+    punchline: "Parce que l'IA sans règles, c'est le Far West.",
+  },
+  {
+    type: "memo_vibe",
+    label: "Mémo Vibe Coding",
+    emoji: "⚡",
+    pages: "1 page",
+    description: "Checklist du dev IA-first. Simple et efficace.",
+    punchline: "Code avec l'IA, pas contre elle.",
+  },
+] as const;
+
+type ForgeType = (typeof FORGE_ARTIFACTS)[number]["type"];
 
 const EMPTY_PANEL: JarvisPanel = {
   kid_summary: "",
@@ -39,7 +86,6 @@ const EMPTY_PANEL: JarvisPanel = {
   sources: [],
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function sanitize(t: string) {
   return DOMPurify.sanitize(t, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
@@ -52,6 +98,18 @@ function parseJarvisPanel(raw: string): JarvisPanel | null {
     if (parsed.kid_summary) return parsed as JarvisPanel;
   } catch {}
   return null;
+}
+
+function triggerDownload(base64: string, filename: string) {
+  const byteChars = atob(base64);
+  const byteNumbers = new Array(byteChars.length).fill(0).map((_, i) => byteChars.charCodeAt(i));
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ─── Confidence ring ──────────────────────────────────────────────────────────
@@ -83,14 +141,12 @@ function ConfidenceRing({ value }: { value: number }) {
   );
 }
 
-// ─── One-click action labels ───────────────────────────────────────────────────
 const ACTION_MAP: Record<string, { icon: React.ElementType; label: string; className: string }> = {
   generate_pdf_checklist: { icon: FileText, label: "PDF", className: "text-primary border-primary/40 hover:bg-primary/10" },
   mini_quiz: { icon: HelpCircle, label: "Mini-quiz", className: "text-secondary border-secondary/40 hover:bg-secondary/10" },
   example: { icon: Lightbulb, label: "Exemple", className: "text-accent border-accent/40 hover:bg-accent/10" },
 };
 
-// ─── Expert toggle ─────────────────────────────────────────────────────────────
 function ExpertToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
@@ -108,13 +164,96 @@ function ExpertToggle({ value, onChange }: { value: boolean; onChange: (v: boole
   );
 }
 
-// ─── Savings badge ─────────────────────────────────────────────────────────────
 function SavingsBadge() {
   return (
-    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-[10px] text-accent-foreground font-medium">
       <Leaf className="w-2.5 h-2.5" />
       Économiseur ✅
     </span>
+  );
+}
+
+// ─── Artifact result card ─────────────────────────────────────────────────────
+function ArtifactCard({
+  type, title, signedUrl, base64, filename, attestationId,
+  onDismiss,
+}: {
+  type: string;
+  title: string;
+  signedUrl: string | null;
+  base64?: string;
+  filename: string;
+  attestationId?: string;
+  onDismiss: () => void;
+}) {
+  const verifyUrl = attestationId
+    ? `${window.location.origin}/verify/${attestationId}`
+    : null;
+
+  const handleDownload = () => {
+    if (signedUrl) window.open(signedUrl, "_blank");
+    else if (base64) triggerDownload(base64, filename);
+  };
+
+  const handleCopy = () => {
+    const link = verifyUrl ?? signedUrl ?? "";
+    if (!link) return;
+    navigator.clipboard.writeText(link);
+    toast({ title: "Lien copié !", description: link.slice(0, 60) + "…" });
+  };
+
+  const forge = FORGE_ARTIFACTS.find((f) => f.type === type);
+
+  return (
+    <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 space-y-3 animate-in fade-in slide-in-from-bottom-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{forge?.emoji ?? "📄"}</span>
+          <div>
+            <p className="text-sm font-semibold text-foreground leading-tight">{title}</p>
+            <p className="text-[10px] text-muted-foreground">{forge?.pages}</p>
+          </div>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground text-xs shrink-0">✕</button>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        <Button size="sm" variant="default" className="h-8 text-xs gap-1.5 gradient-primary shadow-glow" onClick={handleDownload}>
+          <Download className="w-3.5 h-3.5" />
+          Télécharger
+        </Button>
+        {(verifyUrl ?? signedUrl) && (
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={handleCopy}>
+            <ClipboardCopy className="w-3.5 h-3.5" />
+            Copier le lien
+          </Button>
+        )}
+      </div>
+      {verifyUrl && (
+        <p className="text-[10px] text-muted-foreground truncate">
+          🔍 Vérification : <span className="text-primary">{verifyUrl}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Artifact history item ────────────────────────────────────────────────────
+function ArtifactHistoryItem({ artifact }: { artifact: ArtifactRecord }) {
+  const forge = FORGE_ARTIFACTS.find((f) => f.type === artifact.type);
+  const date = new Date(artifact.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+  return (
+    <div className="flex items-center gap-2 py-2 px-3 rounded-xl border border-border/40 bg-card/30 hover:bg-card/60 transition-all">
+      <span className="text-base shrink-0">{forge?.emoji ?? "📄"}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-foreground truncate">{artifact.title}</p>
+        <p className="text-[10px] text-muted-foreground">{date}</p>
+      </div>
+      {artifact.signed_url && (
+        <a href={artifact.signed_url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+          <Download className="w-3.5 h-3.5 text-muted-foreground hover:text-primary transition-colors" />
+        </a>
+      )}
+    </div>
   );
 }
 
@@ -136,6 +275,15 @@ export default function Jarvis() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [expertMode, setExpertMode] = useState(false);
 
+  // Artifact Forge state
+  const [forgeLoading, setForgeLoading] = useState<ForgeType | null>(null);
+  const [forgeResult, setForgeResult] = useState<{
+    type: string; title: string; signedUrl: string | null;
+    base64?: string; filename: string; attestationId?: string;
+  } | null>(null);
+  const [artifacts, setArtifacts] = useState<ArtifactRecord[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const historyRef = useRef(history);
   historyRef.current = history;
   const profileRef = useRef(profile);
@@ -144,6 +292,20 @@ export default function Jarvis() {
   expertRef.current = expertMode;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load artifact history
+  const loadArtifacts = useCallback(async () => {
+    const { data } = await supabase
+      .from("artifacts")
+      .select("id, type, title, signed_url, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (data) setArtifacts(data as ArtifactRecord[]);
+  }, []);
+
+  useEffect(() => {
+    loadArtifacts();
+  }, [loadArtifacts]);
 
   const { isListening, getAnalyser, startListening, stopListening, speak } =
     useVoiceEngine({
@@ -158,6 +320,54 @@ export default function Jarvis() {
       onStateChange: setKittState,
       voiceEnabled,
     });
+
+  // ── Artifact Forge — Generate PDF ───────────────────────────────────────────
+  const handleForge = useCallback(async (type: ForgeType) => {
+    if (!isPro) { navigate("/pricing"); return; }
+    if (forgeLoading) return;
+    setForgeLoading(type);
+    setForgeResult(null);
+
+    const forge = FORGE_ARTIFACTS.find((f) => f.type === type)!;
+    const p = profileRef.current;
+
+    try {
+      // memo_vibe uses checklist type under the hood (single page)
+      const pdfType = type === "memo_vibe" ? "checklist" : type;
+
+      const { data, error } = await supabase.functions.invoke("generate-pdf", {
+        body: {
+          type: pdfType,
+          org_name: p?.full_name ? `${p.full_name}` : undefined,
+          base_url: window.location.origin,
+          artifact_title: forge.label,
+          session_id: sessionId,
+        },
+      });
+
+      if (error || !data?.success) throw new Error(data?.error ?? error?.message ?? "Erreur génération");
+
+      setForgeResult({
+        type,
+        title: forge.label,
+        signedUrl: data.signed_url ?? null,
+        base64: data.pdf_base64,
+        filename: data.filename,
+        attestationId: data.attestation_id,
+      });
+
+      toast({ title: `${forge.emoji} ${forge.label} généré !`, description: forge.punchline });
+      loadArtifacts();
+    } catch (err) {
+      toast({
+        title: "Erreur génération",
+        description: err instanceof Error ? err.message : "Réessaie.",
+        variant: "destructive",
+      });
+    } finally {
+      setForgeLoading(null);
+    }
+  }, [isPro, forgeLoading, sessionId, navigate, loadArtifacts]);
 
   // ── Stage 1: short structured JSON ──────────────────────────────────────────
   const sendQuery = useCallback(
@@ -200,13 +410,8 @@ export default function Jarvis() {
           throw new Error(data.error);
         }
 
-        // Check for security refusal
         if (data?.security_refused) {
-          toast({
-            title: "⚠️ Demande refusée",
-            description: data.content,
-            variant: "destructive",
-          });
+          toast({ title: "⚠️ Demande refusée", description: data.content, variant: "destructive" });
           setKittState("idle");
           return;
         }
@@ -229,11 +434,7 @@ export default function Jarvis() {
 
         if (!isOneClick) setHistory((prev) => [...prev, { role: "assistant", content: rawContent }]);
       } catch (err) {
-        toast({
-          title: "Erreur",
-          description: err instanceof Error ? err.message : "Erreur inconnue",
-          variant: "destructive",
-        });
+        toast({ title: "Erreur", description: err instanceof Error ? err.message : "Erreur inconnue", variant: "destructive" });
         setKittState("idle");
       } finally {
         setIsLoading(false);
@@ -243,7 +444,7 @@ export default function Jarvis() {
     [input, isLoading, sessionId, speak, voiceEnabled, isPro],
   );
 
-  // ── Stage 2: deep dive (only on demand) ─────────────────────────────────────
+  // ── Stage 2 ──────────────────────────────────────────────────────────────────
   const handleExplainMore = useCallback(async () => {
     if (!panel.kid_summary || isDeepLoading) return;
     setIsDeepLoading(true);
@@ -271,7 +472,7 @@ export default function Jarvis() {
       const deepContent = data?.content ?? "";
       setPanel((prev) => ({ ...prev, deep_dive: deepContent }));
       setKittState("idle");
-    } catch (err) {
+    } catch {
       toast({ title: "Erreur", description: "Impossible d'approfondir.", variant: "destructive" });
       setKittState("idle");
     } finally {
@@ -295,7 +496,7 @@ export default function Jarvis() {
 
       <div className="flex flex-col lg:flex-row h-full overflow-hidden bg-background">
 
-        {/* ════════════════════════ LEFT — Chat + KITT ═══════════════════════ */}
+        {/* ═══════════════════ LEFT — Chat + KITT ═══════════════════ */}
         <div className="flex flex-col w-full lg:w-[40%] lg:border-r border-border/40 overflow-hidden shrink-0">
 
           {/* Header */}
@@ -304,9 +505,7 @@ export default function Jarvis() {
               <div className="w-6 h-6 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">
                 <Zap className="w-3 h-3 text-primary-foreground" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground leading-none">Jarvis</p>
-              </div>
+              <p className="text-sm font-semibold text-foreground leading-none">Jarvis</p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {!expertMode && <SavingsBadge />}
@@ -406,19 +605,90 @@ export default function Jarvis() {
           </div>
         </div>
 
-        {/* ════════════════════════ RIGHT — Cockpit Panels ══════════════════ */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-5">
+        {/* ═══════════════════ RIGHT — Cockpit + Artifact Forge ═══════════════ */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4">
+
+          {/* ── Artifact Forge ─────────────────────────────────────────────── */}
+          <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
+            {/* Section header */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/30">
+              <Hammer className="w-4 h-4 text-primary" />
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Artifact Forge</h3>
+              <span className="ml-auto text-[10px] text-muted-foreground">Génère en 1 clic</span>
+            </div>
+
+            {/* 4 buttons grid */}
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {FORGE_ARTIFACTS.map((forge) => {
+                const isGenerating = forgeLoading === forge.type;
+                return (
+                  <button
+                    key={forge.type}
+                    onClick={() => handleForge(forge.type)}
+                    disabled={!!forgeLoading}
+                    className="flex flex-col gap-1 p-3 rounded-xl border border-border/50 bg-background/40 hover:bg-card/80 hover:border-primary/40 transition-all text-left group disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg">{forge.emoji}</span>
+                      {isGenerating
+                        ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                        : <Download className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
+                      }
+                    </div>
+                    <p className="text-xs font-semibold text-foreground leading-tight">{forge.label}</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">{forge.pages}</p>
+                    <p className="text-[10px] text-muted-foreground/60 italic leading-tight">{forge.punchline}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Result card */}
+            {forgeResult && (
+              <div className="px-3 pb-3">
+                <ArtifactCard
+                  type={forgeResult.type}
+                  title={forgeResult.title}
+                  signedUrl={forgeResult.signedUrl}
+                  base64={forgeResult.base64}
+                  filename={forgeResult.filename}
+                  attestationId={forgeResult.attestationId}
+                  onDismiss={() => setForgeResult(null)}
+                />
+              </div>
+            )}
+
+            {/* History toggle */}
+            {artifacts.length > 0 && (
+              <div className="border-t border-border/30">
+                <button
+                  onClick={() => setShowHistory((v) => !v)}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Historique ({artifacts.length})</span>
+                  {showHistory ? <ChevronUp className="w-3 h-3 ml-auto" /> : <ChevronDown className="w-3 h-3 ml-auto" />}
+                </button>
+                {showHistory && (
+                  <div className="px-3 pb-3 space-y-1.5">
+                    {artifacts.map((a) => (
+                      <ArtifactHistoryItem key={a.id} artifact={a} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Cockpit panels ─────────────────────────────────────────────── */}
           {!hasResult ? (
-            // ── Empty state with suggestions ──────────────────────────────────
-            <div className="h-full flex flex-col items-center justify-center gap-5 text-center max-w-sm mx-auto">
+            <div className="flex flex-col items-center justify-center gap-5 text-center max-w-sm mx-auto py-8">
               <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shadow-glow opacity-70">
                 <Zap className="w-7 h-7 text-primary-foreground" />
               </div>
               <div>
                 <h2 className="text-base font-semibold text-foreground">Cockpit prêt</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Pose ta première question — Jarvis remplit les 4 panneaux.
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">Pose ta première question — Jarvis remplit les 4 panneaux.</p>
               </div>
               <div className="grid grid-cols-2 gap-2 w-full">
                 {[
@@ -438,14 +708,12 @@ export default function Jarvis() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 max-w-3xl mx-auto lg:max-w-none">
+            <div className="grid grid-cols-1 gap-3">
 
               {/* Panel 1 — Résumé enfant */}
               <div className="rounded-2xl border border-border/50 bg-card/40 p-4 space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    📖 Résumé simplifié
-                  </h3>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">📖 Résumé simplifié</h3>
                   <button
                     onClick={handleExplainMore}
                     disabled={isDeepLoading || isLoading}
@@ -455,18 +723,11 @@ export default function Jarvis() {
                     Explique plus
                   </button>
                 </div>
-                <p className="text-sm leading-relaxed text-foreground">
-                  {panel.kid_summary}
-                </p>
-                {/* Stage 2 deep dive (only when loaded) */}
+                <p className="text-sm leading-relaxed text-foreground">{panel.kid_summary}</p>
                 {panel.deep_dive && (
                   <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
-                    <p className="text-[10px] font-semibold text-primary/70 uppercase tracking-wider">
-                      🔬 Approfondissement
-                    </p>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {panel.deep_dive}
-                    </p>
+                    <p className="text-[10px] font-semibold text-primary/70 uppercase tracking-wider">🔬 Approfondissement</p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{panel.deep_dive}</p>
                   </div>
                 )}
               </div>
@@ -474,9 +735,7 @@ export default function Jarvis() {
               {/* Panel 2 — Plan d'action */}
               {panel.action_plan.length > 0 && (
                 <div className="rounded-2xl border border-border/50 bg-card/40 p-4 space-y-3">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    🎯 Plan d'action
-                  </h3>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">🎯 Plan d'action</h3>
                   <ol className="space-y-2">
                     {panel.action_plan.map((step, i) => (
                       <ActionStep key={`${step}-${i}`} index={i} text={step} />
@@ -488,9 +747,7 @@ export default function Jarvis() {
               {/* Panel 3 — Actions 1 clic */}
               {panel.one_click_actions.length > 0 && (
                 <div className="rounded-2xl border border-border/50 bg-card/40 p-4 space-y-3">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    ⚡ Actions rapides
-                  </h3>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">⚡ Actions rapides</h3>
                   <div className="flex flex-wrap gap-2">
                     {panel.one_click_actions.map((action) => {
                       const meta = ACTION_MAP[action];
@@ -514,9 +771,7 @@ export default function Jarvis() {
 
               {/* Panel 4 — Sources + confiance */}
               <div className="rounded-2xl border border-border/50 bg-card/40 p-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  🔍 Sources & confiance
-                </h3>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">🔍 Sources & confiance</h3>
                 <div className="flex items-start gap-4">
                   <ConfidenceRing value={panel.confidence} />
                   <div className="flex-1 min-w-0 space-y-1.5">
@@ -531,7 +786,7 @@ export default function Jarvis() {
                       <p className="text-xs text-muted-foreground italic">Connaissance générale — vérifie avec un expert.</p>
                     )}
                     {panel.confidence < 60 && (
-                      <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-500 dark:text-amber-400">
+                      <div className="flex items-center gap-1.5 mt-2 text-xs text-destructive/80">
                         <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                         Score de confiance bas — consulte un professionnel.
                       </div>

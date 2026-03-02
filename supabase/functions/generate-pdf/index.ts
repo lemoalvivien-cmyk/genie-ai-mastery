@@ -413,12 +413,32 @@ serve(async (req) => {
         .createSignedUrl(storagePath, 86400);
       signedUrl = signed?.signedUrl ?? null;
 
-      // Update attestation with pdf_url
+    // Update attestation with pdf_url
       if (type === "attestation" && attestId && signedUrl) {
         await serviceClient.from("attestations")
           .update({ pdf_url: signedUrl })
           .eq("id", attestId);
       }
+
+      // Save artifact record for Artifact Forge history
+      const artifactTitles: Record<string, string> = {
+        checklist: "Checklist — Module",
+        charte: "Charte IA Interne",
+        sop: "SOP Cybersécurité",
+        attestation: "Attestation de Formation",
+        memo_vibe: "Mémo Vibe Coding",
+      };
+      const { data: profileForOrg } = await serviceClient
+        .from("profiles").select("org_id").eq("id", userId).single();
+      await serviceClient.from("artifacts").insert({
+        user_id: userId,
+        org_id: profileForOrg?.org_id ?? null,
+        type,
+        title: body.artifact_title ?? artifactTitles[type] ?? filename,
+        session_id: body.session_id ?? null,
+        file_path: storagePath,
+        signed_url: signedUrl,
+      }).select().single();
     }
 
     // Always return PDF bytes as base64 for direct download fallback
