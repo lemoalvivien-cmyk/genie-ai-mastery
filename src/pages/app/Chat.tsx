@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
-import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX, Sparkles } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Send, Zap, Mic, RotateCcw, Brain, LogOut, BookOpen, Loader2, Volume2, VolumeX, Sparkles, Lock } from "lucide-react";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
+import { useSubscription } from "@/hooks/useSubscription";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -164,6 +165,9 @@ function MessageBubble({
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function Chat() {
   const { profile, signOut, session } = useAuth();
+  const navigate = useNavigate();
+  const { data: sub } = useSubscription();
+  const isPro = sub?.isActive ?? false;
   const [searchParams] = useSearchParams();
   const isPanic = searchParams.get("panic") === "autre";
 
@@ -269,7 +273,7 @@ export default function Chat() {
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
 
-        if (voiceEnabled) speak(data.content);
+        if (voiceEnabled && isPro) speak(data.content);
         else setKittState("idle");
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
@@ -408,18 +412,31 @@ export default function Chat() {
                   disabled={isLoading}
                 />
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className={`shrink-0 h-[52px] w-[52px] transition-all relative ${isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"}`}
-                onClick={handleMicPress}
-                aria-label={isListening ? "Arrêter l'écoute" : "Parler à Genie"}
-              >
-                <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
-                {isListening && (
-                  <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />
-                )}
-              </Button>
+              {isPro ? (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`shrink-0 h-[52px] w-[52px] transition-all relative ${isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"}`}
+                  onClick={handleMicPress}
+                  aria-label={isListening ? "Arrêter l'écoute" : "Parler à Genie"}
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
+                  {isListening && (
+                    <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 h-[52px] w-[52px] text-muted-foreground opacity-50"
+                  onClick={() => navigate("/pricing")}
+                  title="Voix — Débloquez avec GENIE Pro"
+                  aria-label="Voix disponible avec GENIE Pro"
+                >
+                  <Lock className="w-4 h-4" />
+                </Button>
+              )}
               <Button
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}

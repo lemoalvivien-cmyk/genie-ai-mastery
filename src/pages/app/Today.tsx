@@ -9,6 +9,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useSubscription } from "@/hooks/useSubscription";
+import { getLocalDateMinusDays } from "@/lib/dateUtils";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
@@ -297,7 +298,7 @@ export default function Today() {
 
   const fetchMission = async () => {
     if (!session?.user?.id) return;
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    const sevenDaysAgo = getLocalDateMinusDays(7);
 
     // Get missions not done in 7 days
     const { data: recentLogs } = await supabase

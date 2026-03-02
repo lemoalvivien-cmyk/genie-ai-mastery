@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { ShieldAlert, X, CheckCircle2, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
@@ -67,6 +67,7 @@ const SCENARIOS: { key: ProtocolKey; label: string; emoji: string }[] = [
 export function PanicButton() {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [selectedProtocol, setSelectedProtocol] = useState<ProtocolKey | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -145,6 +146,11 @@ export function PanicButton() {
     closeModal();
     navigate("/app/modules?domain=cyber");
   }, [closeModal, navigate]);
+
+  // All hooks called — safe to early-return now
+  const publicPaths = ['/', '/login', '/register', '/reset-password', '/pricing'];
+  const isPublicPage = publicPaths.includes(location.pathname) || location.pathname.startsWith('/verify/');
+  if (!session || isPublicPage) return null;
 
   if (!open) {
     return (
