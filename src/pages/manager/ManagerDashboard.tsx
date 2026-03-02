@@ -109,6 +109,7 @@ function StatusBadge({ status }: { status: TeamMember["status"] }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function ManagerDashboard() {
+  const { data: sub } = useSubscription();
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -225,6 +226,8 @@ export default function ManagerDashboard() {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [profile?.org_id, loadData]);
+
+  if (!(sub?.isActive)) return <Navigate to="/pricing" replace />;
 
   // ─── Team table logic ────────────────────────────────────────────────────
 
