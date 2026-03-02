@@ -26,6 +26,7 @@ const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Settings = lazy(() => import("./pages/app/Settings"));
+const Today = lazy(() => import("./pages/app/Today"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -139,6 +140,16 @@ const App = () => (
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
+
+                {/* Today - daily mission */}
+                <Route
+                  path="/app/today"
+                  element={
+                    <ProtectedRoute>
+                      <Today />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* App settings */}
                 <Route
