@@ -358,8 +358,12 @@ export type Database = {
       }
       organizations: {
         Row: {
+          completion_deadline_days: number | null
           created_at: string | null
+          default_modules: string[] | null
+          email_reminders_enabled: boolean | null
           id: string
+          logo_url: string | null
           name: string
           partner_org_id: string | null
           plan: Database["public"]["Enums"]["org_plan"] | null
@@ -371,8 +375,12 @@ export type Database = {
           stripe_subscription_id: string | null
         }
         Insert: {
+          completion_deadline_days?: number | null
           created_at?: string | null
+          default_modules?: string[] | null
+          email_reminders_enabled?: boolean | null
           id?: string
+          logo_url?: string | null
           name: string
           partner_org_id?: string | null
           plan?: Database["public"]["Enums"]["org_plan"] | null
@@ -384,8 +392,12 @@ export type Database = {
           stripe_subscription_id?: string | null
         }
         Update: {
+          completion_deadline_days?: number | null
           created_at?: string | null
+          default_modules?: string[] | null
+          email_reminders_enabled?: boolean | null
           id?: string
+          logo_url?: string | null
           name?: string
           partner_org_id?: string | null
           plan?: Database["public"]["Enums"]["org_plan"] | null

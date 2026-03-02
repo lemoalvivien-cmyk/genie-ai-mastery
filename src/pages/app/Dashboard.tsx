@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield } from "lucide-react";
+import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
@@ -7,11 +7,14 @@ export default function Dashboard() {
   const { profile, signOut } = useAuth();
   const firstName = profile?.full_name?.split(" ")[0] || "vous";
 
+  const { isManager } = useAuth();
+
   const cards = [
     { icon: BookOpen, title: "Modules", description: "Continuez votre apprentissage", href: "/app/modules", color: "from-indigo-500/20 to-purple-500/20" },
     { icon: MessageSquare, title: "Chat IA", description: "Posez vos questions à votre Génie", href: "/app/chat", color: "from-cyan-500/20 to-teal-500/20" },
     { icon: BarChart3, title: "Progression", description: "Suivez vos statistiques", href: "/app/progress", color: "from-emerald-500/20 to-green-500/20" },
     { icon: Shield, title: "Cybersécurité", description: "Modules sécurité dédiés", href: "/app/modules?domain=cyber", color: "from-amber-500/20 to-orange-500/20" },
+    ...(isManager ? [{ icon: Users, title: "Espace Manager", description: "Gérez votre équipe", href: "/manager", color: "from-violet-500/20 to-pink-500/20" }] : []),
   ];
 
   return (

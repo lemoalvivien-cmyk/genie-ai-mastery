@@ -20,6 +20,7 @@ const Modules = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail = lazy(() => import("./pages/app/ModuleDetail"));
 const Chat = lazy(() => import("./pages/app/Chat"));
 const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
+const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -110,17 +111,15 @@ const App = () => (
                   }
                 />
 
-                {/* Manager routes */}
-                <Route
-                  path="/manager/*"
-                  element={
-                    <ProtectedRoute requireRole="manager">
-                      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-                        <p>Manager Dashboard (à venir)</p>
-                      </div>
-                    </ProtectedRoute>
-                  }
-                />
+                 {/* Manager routes */}
+                 <Route
+                   path="/manager"
+                   element={
+                     <ProtectedRoute requireRole="manager">
+                       <ManagerDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
 
                 <Route path="*" element={<NotFound />} />
                 {/* Public verify page */}
