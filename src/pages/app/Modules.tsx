@@ -5,6 +5,8 @@ import { Brain, LogOut, BookOpen, Filter, Search, Loader2, ChevronDown, Code2 } 
 import { useAuth } from "@/hooks/useAuth";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
 
 const DOMAINS = [
   { id: "", label: "Tous" },
@@ -23,6 +25,8 @@ const LEVELS = [
 
 export default function Modules() {
   const { signOut } = useAuth();
+  const { data: sub } = useSubscription();
+  const isPro = sub?.plan === "pro";
   const [searchParams] = useSearchParams();
   const [domain, setDomain] = useState(() => searchParams.get("domain") ?? "");
   const [level, setLevel] = useState("");
@@ -182,15 +186,33 @@ export default function Modules() {
               <p className="text-muted-foreground">Aucun module trouvé avec ces filtres.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((mod) => (
-                <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  progress={progressMap?.[mod.id]}
-                />
-              ))}
-            </div>
+            <>
+              {/* Vibe Coding domain locked for free users */}
+              {domain === "vibe_coding" && !isPro ? (
+                <PaywallOverlay feature="Vibe Coding — Débloquez avec GENIE Pro" className="rounded-2xl min-h-[300px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pointer-events-none">
+                    {filtered.slice(0, 3).map((mod) => (
+                      <ModuleCard key={mod.id} module={mod} progress={progressMap?.[mod.id]} />
+                    ))}
+                  </div>
+                </PaywallOverlay>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filtered.map((mod, idx) => {
+                    // Lock modules beyond the first 3 per domain for free users
+                    const isLocked = !isPro && idx >= 3;
+                    if (isLocked) {
+                      return (
+                        <PaywallOverlay key={mod.id} className="rounded-2xl">
+                          <ModuleCard module={mod} progress={progressMap?.[mod.id]} />
+                        </PaywallOverlay>
+                      );
+                    }
+                    return <ModuleCard key={mod.id} module={mod} progress={progressMap?.[mod.id]} />;
+                  })}
+                </div>
+              )}
+            </>
           )}
 
           {/* Load more sentinel */}

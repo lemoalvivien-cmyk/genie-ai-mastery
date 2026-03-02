@@ -24,6 +24,8 @@ const ModuleDetail = lazy(() => import("./pages/app/ModuleDetail"));
 const Chat = lazy(() => import("./pages/app/Chat"));
 const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Settings = lazy(() => import("./pages/app/Settings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -135,9 +137,20 @@ const App = () => (
                    }
                  />
 
-                <Route path="*" element={<NotFound />} />
-                {/* Public verify page */}
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
+
+                {/* App settings */}
+                <Route
+                  path="/app/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </AuthInitializer>
