@@ -232,6 +232,7 @@ serve(async (req) => {
     const mode: string = user_profile.mode ?? "normal";
     const persona: string = user_profile.persona ?? "";
     const domain: string = module_context.domain ?? "";
+    const isJarvis = request_type === "jarvis";
 
     // Rate limiting via DB function
     const { data: rateLimitOk } = await supabase.rpc("check_rate_limit", {
@@ -260,7 +261,8 @@ serve(async (req) => {
     // Determine tier & model
     const tier = selectTier(request_type, domain);
     const model = TIER_MODELS[tier];
-    const maxTokens = 2000;
+    // Jarvis uses fewer tokens (structured short output)
+    const maxTokens = isJarvis ? 600 : 2000;
 
     // Cache check (24h)
     const cacheKey = await hashPrompt(sanitized + mode + model);
@@ -282,7 +284,28 @@ serve(async (req) => {
     }
 
     // Build messages with system prompt
-    const systemPrompt = buildSystemPrompt(mode, persona);
+    const baseSystemPrompt = buildSystemPrompt(mode, persona);
+    const jarvisSystemPrompt = `${baseSystemPrompt}
+
+INSTRUCTIONS SPÉCIALES MODE JARVIS COCKPIT :
+Tu dois TOUJOURS répondre avec un bloc JSON unique au format suivant (pas d'autre texte avant ou après) :
+\`\`\`json
+{
+  "kid_summary": "Explication en 3-6 phrases simples, max 15 mots par phrase",
+  "action_plan": ["Étape 1", "Étape 2", "Étape 3"],
+  "one_click_actions": ["generate_pdf_checklist", "mini_quiz", "example"],
+  "confidence": 85,
+  "sources": ["Source ou organisme de référence pertinent"]
+}
+\`\`\`
+- kid_summary : explication simple et concrète, comme pour un enfant
+- action_plan : 3 à 7 étapes concrètes et actionnables
+- one_click_actions : inclure uniquement parmi generate_pdf_checklist, mini_quiz, example (1 à 3 max)
+- confidence : score de 0 à 100 selon ta certitude sur le sujet
+- sources : 1 à 3 sources textuelles (organismes, standards, sites de référence)
+IMPORTANT : réponse courte, dense, utile. Pas de blabla.`;
+
+    const systemPrompt = isJarvis ? jarvisSystemPrompt : baseSystemPrompt;
     const apiMessages = [
       { role: "system", content: systemPrompt },
       ...messages.map((m: { role: string; content: string }) => ({

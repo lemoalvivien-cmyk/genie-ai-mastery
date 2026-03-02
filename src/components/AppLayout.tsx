@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Brain, LogOut, Sparkles, BarChart3, MessageSquare, BookOpen, Settings, Users, Flame } from "lucide-react";
+import { Brain, LogOut, Sparkles, BarChart3, MessageSquare, BookOpen, Settings, Users, Flame, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
 import { PanicButton } from "@/components/PanicButton";
@@ -18,7 +18,7 @@ export default function AppLayout() {
     return <Outlet />;
   }
 
-  const isChat = location.pathname === "/app/chat";
+  const isChat = location.pathname === "/app/chat" || location.pathname === "/app/jarvis";
 
   const navItems = [
     {
@@ -28,6 +28,7 @@ export default function AppLayout() {
       badge: currentStreak > 0 ? String(currentStreak) : null,
       dot: !missionDone,
     },
+    { to: "/app/jarvis", icon: Zap, label: "Cockpit IA" },
     { to: "/app/dashboard", icon: BarChart3, label: "Dashboard" },
     { to: "/app/chat", icon: MessageSquare, label: "Chat IA" },
     { to: "/app/modules", icon: BookOpen, label: "Modules" },
