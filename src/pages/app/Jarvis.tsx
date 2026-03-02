@@ -78,6 +78,59 @@ const FORGE_ARTIFACTS = [
 
 type ForgeType = (typeof FORGE_ARTIFACTS)[number]["type"];
 
+// ─── Autopilot config ─────────────────────────────────────────────────────────
+interface AutopilotStep {
+  id: number;
+  label: string;
+  detail: string;
+}
+
+interface AutopilotSnippet {
+  title: string;
+  code: string;
+  lang: string;
+}
+
+interface AutopilotPlan {
+  title: string;
+  intro: string;
+  steps: AutopilotStep[];
+  artifacts_to_generate: string[];
+  snippets: AutopilotSnippet[];
+  tips: string[];
+  estimated_time: string;
+  difficulty: string;
+}
+
+const AUTOPILOTS = [
+  {
+    id: "conformite_48h" as const,
+    label: "Conformité en 48h",
+    emoji: "⚖️",
+    tagline: "Checklist + SOP + Charte IA",
+    color: "text-primary border-primary/40 bg-primary/5",
+    description: "Mise en conformité IA express pour ton organisation.",
+  },
+  {
+    id: "vibe_coding_mvp" as const,
+    label: "Vibe Coding MVP",
+    emoji: "🚀",
+    tagline: "Plan + Prompts + Mémo déploiement",
+    color: "text-secondary border-secondary/40 bg-secondary/5",
+    description: "Lance ton MVP IA-first en quelques heures.",
+  },
+  {
+    id: "cyber_hygiene_tpe" as const,
+    label: "Cyber Hygiène TPE",
+    emoji: "🛡️",
+    tagline: "Plan 7 jours + SOP incident + Checklist",
+    color: "text-accent border-accent/40 bg-accent/5",
+    description: "Sécurise ta petite entreprise, sans technicien.",
+  },
+] as const;
+
+type AutopilotId = (typeof AUTOPILOTS)[number]["id"];
+
 const EMPTY_PANEL: JarvisPanel = {
   kid_summary: "",
   action_plan: [],
@@ -284,6 +337,13 @@ export default function Jarvis() {
   const [artifacts, setArtifacts] = useState<ArtifactRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Autopilot state
+  const [autopilotLoading, setAutopilotLoading] = useState<AutopilotId | null>(null);
+  const [autopilotPlan, setAutopilotPlan] = useState<AutopilotPlan | null>(null);
+  const [activeAutopilotId, setActiveAutopilotId] = useState<AutopilotId | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+
   const historyRef = useRef(history);
   historyRef.current = history;
   const profileRef = useRef(profile);
@@ -368,6 +428,56 @@ export default function Jarvis() {
       setForgeLoading(null);
     }
   }, [isPro, forgeLoading, sessionId, navigate, loadArtifacts]);
+
+  // ── Autopilot — launch a program ─────────────────────────────────────────────
+  const handleAutopilot = useCallback(async (id: AutopilotId) => {
+    if (!isPro) { navigate("/pricing"); return; }
+    if (autopilotLoading) return;
+    setAutopilotLoading(id);
+    setAutopilotPlan(null);
+    setActiveAutopilotId(id);
+    setCompletedSteps(new Set());
+    setKittState("thinking");
+
+    try {
+      const p = profileRef.current;
+      const { data, error } = await supabase.functions.invoke("chat-completion", {
+        body: {
+          messages: [{ role: "user", content: `Lance l'autopilot ${id} pour mon organisation.` }],
+          user_profile: { persona: p?.persona ?? "", level: p?.level ?? 1, mode: "normal" },
+          session_id: sessionId,
+          request_type: "autopilot",
+          autopilot_id: id,
+          expert_mode: false,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const raw: string = data.content ?? "";
+      const match = raw.match(/```json\s*([\s\S]*?)```/i) ?? raw.match(/```\s*([\s\S]*?)```/i);
+      const jsonStr = match ? match[1] : raw;
+      const parsed: AutopilotPlan = JSON.parse(jsonStr.trim());
+      setAutopilotPlan(parsed);
+      setKittState("idle");
+      const ap = AUTOPILOTS.find((a) => a.id === id)!;
+      toast({ title: `${ap.emoji} ${ap.label} lancé !`, description: parsed.intro });
+    } catch (err) {
+      toast({ title: "Erreur autopilot", description: err instanceof Error ? err.message : "Réessaie.", variant: "destructive" });
+      setKittState("idle");
+      setActiveAutopilotId(null);
+    } finally {
+      setAutopilotLoading(null);
+    }
+  }, [isPro, autopilotLoading, sessionId, navigate]);
+
+  const handleCopySnippet = useCallback((code: string, title: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedSnippet(title);
+    toast({ title: "Snippet copié !", description: title });
+    setTimeout(() => setCopiedSnippet(null), 2000);
+  }, []);
 
   // ── Stage 1: short structured JSON ──────────────────────────────────────────
   const sendQuery = useCallback(
@@ -607,6 +717,184 @@ export default function Jarvis() {
 
         {/* ═══════════════════ RIGHT — Cockpit + Artifact Forge ═══════════════ */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4">
+
+          {/* ── Autopilots ────────────────────────────────────────────────────── */}
+          <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/30">
+              <Zap className="w-4 h-4 text-primary" />
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Autopilots</h3>
+              <span className="ml-auto text-[10px] text-muted-foreground">1 clic → plan + docs</span>
+            </div>
+
+            {/* 3 autopilot buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3">
+              {AUTOPILOTS.map((ap) => {
+                const isRunning = autopilotLoading === ap.id;
+                const isActive = activeAutopilotId === ap.id && autopilotPlan;
+                return (
+                  <button
+                    key={ap.id}
+                    onClick={() => handleAutopilot(ap.id)}
+                    disabled={!!autopilotLoading}
+                    className={`flex flex-col gap-1.5 p-3 rounded-xl border transition-all text-left group disabled:opacity-60 disabled:cursor-not-allowed ${
+                      isActive
+                        ? ap.color + " ring-1 ring-primary/30"
+                        : `border-border/50 bg-background/40 hover:bg-card/80 hover:border-primary/40`
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl">{ap.emoji}</span>
+                      {isRunning && <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />}
+                      {isActive && !isRunning && <CheckSquare className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                    <p className="text-xs font-semibold text-foreground leading-tight">{ap.label}</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">{ap.tagline}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Autopilot result panel */}
+            {autopilotPlan && activeAutopilotId && (
+              <div className="border-t border-border/30 px-4 pb-4 pt-3 space-y-4 animate-in fade-in slide-in-from-top-1">
+                {/* Intro */}
+                <div className="flex items-start gap-2">
+                  <span className="text-xl shrink-0">{AUTOPILOTS.find((a) => a.id === activeAutopilotId)?.emoji}</span>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{autopilotPlan.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{autopilotPlan.intro}</p>
+                  </div>
+                  <div className="ml-auto shrink-0 text-right">
+                    <p className="text-[10px] text-muted-foreground">{autopilotPlan.estimated_time}</p>
+                    <p className="text-[10px] text-primary/70">{autopilotPlan.difficulty}</p>
+                  </div>
+                </div>
+
+                {/* Steps */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">📋 Plan d'action</p>
+                  {autopilotPlan.steps.map((step) => {
+                    const done = completedSteps.has(step.id);
+                    return (
+                      <div
+                        key={step.id}
+                        onClick={() => setCompletedSteps((prev) => {
+                          const next = new Set(prev);
+                          done ? next.delete(step.id) : next.add(step.id);
+                          return next;
+                        })}
+                        className={`flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all select-none ${
+                          done
+                            ? "border-primary/20 bg-primary/5 opacity-60"
+                            : "border-border/40 bg-background/30 hover:border-primary/30 hover:bg-card/60"
+                        }`}
+                      >
+                        <div className="mt-0.5 shrink-0">
+                          {done
+                            ? <CheckSquare className="w-4 h-4 text-primary" />
+                            : <Square className="w-4 h-4 text-muted-foreground" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-medium leading-tight ${done ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                            {step.label}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{step.detail}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* Progress bar */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-border/40 overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{ width: `${(completedSteps.size / autopilotPlan.steps.length) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground shrink-0">
+                      {completedSteps.size}/{autopilotPlan.steps.length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Snippets (vibe coding) */}
+                {autopilotPlan.snippets.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">⚡ Snippets de prompts</p>
+                    {autopilotPlan.snippets.map((snip) => (
+                      <div key={snip.title} className="rounded-xl border border-border/40 bg-muted/30 overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
+                          <p className="text-[11px] font-medium text-foreground">{snip.title}</p>
+                          <button
+                            onClick={() => handleCopySnippet(snip.code, snip.title)}
+                            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {copiedSnippet === snip.title
+                              ? <><CheckSquare className="w-3 h-3 text-primary" /> Copié !</>
+                              : <><ClipboardCopy className="w-3 h-3" /> Copier</>}
+                          </button>
+                        </div>
+                        <pre className="px-3 py-2.5 text-[10px] text-muted-foreground leading-relaxed whitespace-pre-wrap overflow-x-auto">
+                          {snip.code}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Tips */}
+                {autopilotPlan.tips.length > 0 && (
+                  <div className="rounded-xl border border-border/30 bg-muted/20 p-3 space-y-1">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">💡 Conseils Jarvis</p>
+                    {autopilotPlan.tips.map((tip, i) => (
+                      <p key={i} className="text-[11px] text-muted-foreground flex items-start gap-1.5">
+                        <span className="shrink-0 mt-0.5 text-primary/60">→</span>
+                        {tip}
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                {/* Generate artifact buttons */}
+                {autopilotPlan.artifacts_to_generate.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">📄 Générer les documents</p>
+                    <div className="flex flex-wrap gap-2">
+                      {autopilotPlan.artifacts_to_generate.map((artType) => {
+                        const forge = FORGE_ARTIFACTS.find((f) => f.type === artType);
+                        if (!forge) return null;
+                        return (
+                          <button
+                            key={artType}
+                            onClick={() => handleForge(artType as ForgeType)}
+                            disabled={!!forgeLoading}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-primary/40 text-primary text-xs font-medium hover:bg-primary/5 transition-all disabled:opacity-50"
+                          >
+                            {forgeLoading === artType
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <FileText className="w-3.5 h-3.5" />}
+                            {forge.emoji} {forge.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Show last forge result if relevant */}
+                    {forgeResult && autopilotPlan.artifacts_to_generate.includes(forgeResult.type) && (
+                      <ArtifactCard
+                        type={forgeResult.type}
+                        title={forgeResult.title}
+                        signedUrl={forgeResult.signedUrl}
+                        base64={forgeResult.base64}
+                        filename={forgeResult.filename}
+                        attestationId={forgeResult.attestationId}
+                        onDismiss={() => setForgeResult(null)}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* ── Artifact Forge ─────────────────────────────────────────────── */}
           <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
