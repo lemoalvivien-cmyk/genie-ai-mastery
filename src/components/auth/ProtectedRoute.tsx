@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Loader2 } from "lucide-react";
 
 const WELCOME_EXEMPT_PATHS = ["/app/welcome", "/onboarding", "/login", "/register", "/reset-password"];
@@ -7,13 +8,15 @@ const WELCOME_EXEMPT_PATHS = ["/app/welcome", "/onboarding", "/login", "/registe
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireRole?: "admin" | "manager";
+  requirePro?: boolean;
 }
 
-export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, requireRole, requirePro }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, isInitialized, isAdmin, isManager, profile } = useAuth();
+  const { data: sub, isLoading: subLoading } = useSubscription();
   const location = useLocation();
 
-  if (!isInitialized || isLoading) {
+  if (!isInitialized || isLoading || (requirePro && subLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" aria-label="Chargement..." />
@@ -40,6 +43,11 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
 
   if (requireRole === "manager" && !isManager) {
     return <Navigate to="/app/dashboard" replace />;
+  }
+
+  // Pro-only routes: redirect to pricing if not subscribed
+  if (requirePro && !sub?.isActive) {
+    return <Navigate to="/pricing" replace />;
   }
 
   return <>{children}</>;

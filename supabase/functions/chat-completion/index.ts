@@ -253,14 +253,45 @@ serve(async (req) => {
     const isJarvis = request_type === "jarvis";
     const isAutopilot = request_type === "autopilot";
 
-    // Rate limiting via DB function
-    const { data: rateLimitOk } = await supabase.rpc("check_rate_limit", {
-      _user_id: userId,
-      _window_seconds: 3600,
-      _max_calls: 30,
-    });
-    if (rateLimitOk === false) {
-      return new Response(JSON.stringify({ error: "Limite de messages atteinte. Réessayez dans une heure." }), {
+    // ── Subscription check ────────────────────────────────────────────────────
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } },
+    );
+    const { data: profileData } = await supabaseAdmin
+      .from("profiles")
+      .select("org_id")
+      .eq("id", userId)
+      .single();
+
+    let isPro = false;
+    if (profileData?.org_id) {
+      const { data: orgData } = await supabaseAdmin
+        .from("organizations")
+        .select("plan, plan_source")
+        .eq("id", profileData.org_id)
+        .single();
+      isPro = orgData?.plan === "business" &&
+        (orgData?.plan_source === "stripe" || orgData?.plan_source === "access_code");
+    }
+
+    // Rate limiting: 3 msg/day for free, 500 msg/day for pro
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const { count: todayCount } = await supabaseAdmin
+      .from("chat_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("role", "user")
+      .gte("created_at", todayStart.toISOString());
+
+    const dailyLimit = isPro ? 500 : 3;
+    if ((todayCount ?? 0) >= dailyLimit) {
+      const msg = isPro
+        ? "Limite quotidienne de 500 messages atteinte. Revenez demain !"
+        : `Limite gratuite de 3 messages/jour atteinte. Passez à GENIE Pro pour 500 messages/jour.`;
+      return new Response(JSON.stringify({ error: msg }), {
         status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
