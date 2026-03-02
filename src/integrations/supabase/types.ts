@@ -628,6 +628,44 @@ export type Database = {
         }
         Relationships: []
       }
+      phishing_results: {
+        Row: {
+          completed_at: string
+          email_id: string
+          found_clues: Json
+          id: string
+          score: number
+          total_clues: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          email_id: string
+          found_clues?: Json
+          id?: string
+          score?: number
+          total_clues?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          email_id?: string
+          found_clues?: Json
+          id?: string
+          score?: number
+          total_clues?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phishing_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null

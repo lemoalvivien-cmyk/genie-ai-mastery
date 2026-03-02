@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrgGapsWidget } from "@/components/skills/OrgGapsWidget";
+import { PhishingRiskWidget } from "@/components/phishing/PhishingRiskWidget";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -485,6 +486,9 @@ export default function ManagerDashboard() {
 
           {/* ── Gaps équipe Palantir ── */}
           {org?.id && <OrgGapsWidget orgId={org.id} />}
+
+          {/* ── Risque Phishing ── */}
+          {org?.id && <PhishingRiskWidget orgId={org.id} />}
 
           {/* ── Tabs ── */}
           <Tabs defaultValue="team">
