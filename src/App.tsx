@@ -28,6 +28,7 @@ const Settings = lazy(() => import("./pages/app/Settings"));
 const Today = lazy(() => import("./pages/app/Today"));
 const Jarvis = lazy(() => import("./pages/app/Jarvis"));
 const PhishingLab = lazy(() => import("./pages/app/labs/PhishingLab"));
+const ControlRoom = lazy(() => import("./pages/admin/ControlRoom"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -99,17 +100,24 @@ const App = () => (
                    <Route path="labs/phishing" element={<PhishingLab />} />
                 </Route>
 
-                {/* Admin routes */}
-                <Route
-                  path="/admin/*"
-                  element={
-                    <ProtectedRoute requireRole="admin">
-                      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-                        <p>Admin Dashboard (à venir)</p>
-                      </div>
-                    </ProtectedRoute>
-                  }
-                />
+                  <Route
+                    path="/admin/control-room"
+                    element={
+                      <ProtectedRoute requireRole="admin">
+                        <ControlRoom />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/*"
+                    element={
+                      <ProtectedRoute requireRole="admin">
+                        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+                          <p>Admin Dashboard (à venir)</p>
+                        </div>
+                      </ProtectedRoute>
+                    }
+                  />
 
                  {/* Manager routes */}
                  <Route
