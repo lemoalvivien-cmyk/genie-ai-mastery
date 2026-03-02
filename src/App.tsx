@@ -27,6 +27,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Settings = lazy(() => import("./pages/app/Settings"));
 const Today = lazy(() => import("./pages/app/Today"));
 const Jarvis = lazy(() => import("./pages/app/Jarvis"));
+const PhishingLab = lazy(() => import("./pages/app/labs/PhishingLab"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -92,9 +93,10 @@ const App = () => (
                   <Route path="modules" element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
                   <Route path="chat" element={<Chat />} />
-                  <Route path="today" element={<Today />} />
-                  <Route path="jarvis" element={<Jarvis />} />
-                  <Route path="settings" element={<Settings />} />
+                   <Route path="today" element={<Today />} />
+                   <Route path="jarvis" element={<Jarvis />} />
+                   <Route path="settings" element={<Settings />} />
+                   <Route path="labs/phishing" element={<PhishingLab />} />
                 </Route>
 
                 {/* Admin routes */}
