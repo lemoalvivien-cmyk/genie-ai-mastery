@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { getLocalDate, getLocalYesterday, getLocalDateMinusDays } from "@/lib/dateUtils";
 
 export interface StreakData {
   current_streak: number;
@@ -45,7 +46,7 @@ export function useStreak() {
         setStreak(streakData as StreakData);
       }
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = getLocalDate();
       const { data: logData } = await supabase
         .from("user_daily_log")
         .select("mission_id, completed_date, xp_earned")
@@ -55,7 +56,7 @@ export function useStreak() {
 
       setTodayLog(logData as DailyLogEntry | null);
 
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const sevenDaysAgo = getLocalDateMinusDays(7);
       const { data: weekLogs } = await supabase
         .from("user_daily_log")
         .select("completed_date")
@@ -76,7 +77,7 @@ export function useStreak() {
   const completeMission = useCallback(
     async (missionId: string, xpEarned: number, score?: number, timeSpent?: number) => {
       if (!userId) return;
-      const today = new Date().toISOString().split("T")[0];
+      const today = getLocalDate();
 
       await supabase.from("user_daily_log").upsert({
         user_id: userId,
@@ -89,7 +90,7 @@ export function useStreak() {
 
       const currentStreak = streak?.current_streak ?? 0;
       const lastDate = streak?.last_completed_date ?? null;
-      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const yesterday = getLocalYesterday();
 
       let newStreak = 1;
       if (lastDate === today) {

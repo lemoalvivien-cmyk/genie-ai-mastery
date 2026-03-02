@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Brain, Check, X, Lock, Globe, ChevronDown, Loader2 } from "lucide-react";
+import { Brain, Check, X, Lock, Globe, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-// Adjust this to match your LAUNCH_PRICE_ACTIVE secret (hardcoded for client-side display)
-const LAUNCH_PRICE_ACTIVE = true;
 
 const FREE_FEATURES_YES = [
   "3 modules par domaine",
@@ -65,8 +63,19 @@ const FAQ = [
 ];
 
 export default function Pricing() {
-  const { isAuthenticated, session } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  const { data: launchData } = useQuery({
+    queryKey: ["launch-price"],
+    staleTime: 60 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("check-launch-price");
+      if (error) return { launch_price_active: true };
+      return data as { launch_price_active: boolean };
+    },
+  });
+  const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [codeLoading, setCodeLoading] = useState(false);

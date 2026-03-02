@@ -3,6 +3,8 @@ import { Brain, LogOut, BookOpen, BarChart3, MessageSquare, Shield, Users, Code2
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 function MiniCalendar({ last7Days }: { last7Days: string[] }) {
   const days = [];
@@ -32,10 +34,38 @@ function MiniCalendar({ last7Days }: { last7Days: string[] }) {
 }
 
 export default function Dashboard() {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, session } = useAuth();
   const firstName = profile?.full_name?.split(" ")[0] || "vous";
   const { isManager } = useAuth();
   const { streak, todayLog, loading: streakLoading, last7Days } = useStreak();
+  const userId = session?.user?.id;
+
+  const { data: statsData } = useQuery({
+    queryKey: ["dashboard-stats", userId],
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
+    queryFn: async () => {
+      const { count: completedModules } = await supabase
+        .from("progress")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId!)
+        .eq("status", "completed");
+      const { data: scores } = await supabase
+        .from("progress")
+        .select("score")
+        .eq("user_id", userId!)
+        .eq("status", "completed")
+        .not("score", "is", null);
+      const avgScore = scores && scores.length > 0
+        ? Math.round(scores.reduce((s, r) => s + (r.score ?? 0), 0) / scores.length)
+        : null;
+      const { count: attestations } = await supabase
+        .from("attestations")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId!);
+      return { completedModules: completedModules ?? 0, avgScore, attestations: attestations ?? 0 };
+    },
+  });
 
   const missionDone = !!todayLog;
 
@@ -140,10 +170,10 @@ export default function Dashboard() {
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Modules complétés", value: "0" },
+              { label: "Modules complétés", value: String(statsData?.completedModules ?? 0) },
               { label: "Série en cours", value: `${streak?.current_streak ?? 0} 🔥` },
-              { label: "Score moyen", value: "—" },
-              { label: "Attestations", value: "0" },
+              { label: "Score moyen", value: statsData?.avgScore ? `${statsData.avgScore}%` : "—" },
+              { label: "Attestations", value: String(statsData?.attestations ?? 0) },
             ].map((s) => (
               <div key={s.label} className="p-4 rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm">
                 <div className="text-2xl font-bold text-gradient">{s.value}</div>
