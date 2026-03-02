@@ -252,6 +252,51 @@ export type Database = {
           },
         ]
       }
+      daily_missions: {
+        Row: {
+          content: Json
+          created_at: string | null
+          description: string
+          domain: string
+          id: string
+          is_active: boolean | null
+          jarvis_bravo: string
+          jarvis_intro: string
+          level: string | null
+          mission_type: string
+          title: string
+          xp: number | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string | null
+          description: string
+          domain: string
+          id?: string
+          is_active?: boolean | null
+          jarvis_bravo: string
+          jarvis_intro: string
+          level?: string | null
+          mission_type: string
+          title: string
+          xp?: number | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          description?: string
+          domain?: string
+          id?: string
+          is_active?: boolean | null
+          jarvis_bravo?: string
+          jarvis_intro?: string
+          level?: string | null
+          mission_type?: string
+          title?: string
+          xp?: number | null
+        }
+        Relationships: []
+      }
       flags: {
         Row: {
           chat_message_id: string | null
@@ -659,6 +704,47 @@ export type Database = {
           },
         ]
       }
+      user_daily_log: {
+        Row: {
+          completed_date: string
+          created_at: string | null
+          id: number
+          mission_id: string
+          score: number | null
+          time_spent_seconds: number | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          completed_date: string
+          created_at?: string | null
+          id?: number
+          mission_id: string
+          score?: number | null
+          time_spent_seconds?: number | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          completed_date?: string
+          created_at?: string | null
+          id?: number
+          mission_id?: string
+          score?: number | null
+          time_spent_seconds?: number | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_daily_log_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "daily_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -687,6 +773,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_streaks: {
+        Row: {
+          current_streak: number | null
+          id: number
+          last_completed_date: string | null
+          longest_streak: number | null
+          total_xp: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number | null
+          id?: number
+          last_completed_date?: string | null
+          longest_streak?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_streak?: number | null
+          id?: number
+          last_completed_date?: string | null
+          longest_streak?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       waitlist: {
         Row: {
