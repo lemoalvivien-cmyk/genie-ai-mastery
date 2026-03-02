@@ -224,6 +224,16 @@ export default function Chat() {
     }
   };
 
+  // Use refs for stable values so sendMessage doesn't change identity on every keystroke
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+  const profileRef = useRef(profile);
+  profileRef.current = profile;
+  const voiceEnabledRef = useRef(voiceEnabled);
+  voiceEnabledRef.current = voiceEnabled;
+  const isProRef = useRef(isPro);
+  isProRef.current = isPro;
+
   const sendMessage = useCallback(
     async (overrideText?: string) => {
       const raw = overrideText ?? input;
@@ -239,18 +249,19 @@ export default function Chat() {
       setKittState("thinking");
 
       try {
-        const apiMessages = [...messages, userMsg]
+        const apiMessages = [...messagesRef.current, userMsg]
           .filter((m) => !m.isLoading)
           .slice(-20)
           .map((m) => ({ role: m.role, content: m.content }));
 
+        const p = profileRef.current;
         const { data, error } = await supabase.functions.invoke("chat-completion", {
           body: {
             messages: apiMessages,
             user_profile: {
-              persona: profile?.persona ?? "",
-              level: profile?.level ?? 1,
-              mode: profile?.preferred_mode ?? "normal",
+              persona: p?.persona ?? "",
+              level: p?.level ?? 1,
+              mode: p?.preferred_mode ?? "normal",
             },
             session_id: sessionId,
             request_type: "chat",
@@ -273,7 +284,7 @@ export default function Chat() {
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
 
-        if (voiceEnabled && isPro) speak(data.content);
+        if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
@@ -290,8 +301,8 @@ export default function Chat() {
         textareaRef.current?.focus();
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [input, isLoading, messages, profile, session, sessionId, voiceEnabled, speak],
+    // Only re-create when truly needed: input text, loading state, sessionId, or speak changes
+    [input, isLoading, sessionId, speak],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
