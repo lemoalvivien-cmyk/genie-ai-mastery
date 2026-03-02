@@ -733,7 +733,7 @@ export type Database = {
       chat_role: "user" | "assistant" | "system"
       flag_severity: "low" | "medium" | "high" | "critical"
       flag_status: "open" | "reviewing" | "resolved" | "dismissed"
-      module_domain: "ia_pro" | "ia_perso" | "cyber"
+      module_domain: "ia_pro" | "ia_perso" | "cyber" | "vibe_coding"
       module_level: "debutant" | "intermediaire" | "avance"
       org_plan:
         | "free"
@@ -899,7 +899,7 @@ export const Constants = {
       chat_role: ["user", "assistant", "system"],
       flag_severity: ["low", "medium", "high", "critical"],
       flag_status: ["open", "reviewing", "resolved", "dismissed"],
-      module_domain: ["ia_pro", "ia_perso", "cyber"],
+      module_domain: ["ia_pro", "ia_perso", "cyber", "vibe_coding"],
       module_level: ["debutant", "intermediaire", "avance"],
       org_plan: [
         "free",

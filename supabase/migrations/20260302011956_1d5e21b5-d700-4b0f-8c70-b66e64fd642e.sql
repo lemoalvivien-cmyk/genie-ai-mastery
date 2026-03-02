@@ -1,0 +1,1 @@
+ALTER TYPE module_domain ADD VALUE IF NOT EXISTS 'vibe_coding';
