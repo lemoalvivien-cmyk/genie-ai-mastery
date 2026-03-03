@@ -1,8 +1,9 @@
 import { Helmet } from "react-helmet-async";
-import { Brain, ShieldCheck, Award, AlertTriangle, Lock, Globe } from "lucide-react";
+import { ShieldCheck, Award, AlertTriangle, Lock, Globe, Brain } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import heroBg from "@/assets/hero-bg.png";
+import logoGenie from "@/assets/logo-genie.png";
 
 const whyNotChatgpt = [
   {
@@ -62,13 +63,8 @@ export default function Index() {
 
         {/* Navbar */}
         <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-5 border-b border-border/40">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow animate-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">
-              GENIE <span className="text-gradient">IA</span>
-            </span>
+        <div className="flex items-center gap-2.5">
+            <img src={logoGenie} alt="GENIE IA" className="h-9 w-auto" style={{ filter: "drop-shadow(0 0 10px hsl(235 62% 63% / 0.5))" }} />
           </div>
           <nav aria-label="Navigation principale">
             <a
@@ -195,12 +191,7 @@ export default function Index() {
         <footer className="relative z-10 border-t border-border/40 px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md gradient-primary flex items-center justify-center">
-                <Brain className="w-3 h-3 text-primary-foreground" aria-hidden="true" />
-              </div>
-              <span className="text-sm font-semibold text-foreground">
-                GENIE <span className="text-gradient">IA</span>
-              </span>
+              <img src={logoGenie} alt="GENIE IA" className="h-7 w-auto opacity-80" />
             </div>
             <nav aria-label="Liens légaux">
               <ul className="flex items-center gap-4 sm:gap-6 list-none m-0 p-0">
