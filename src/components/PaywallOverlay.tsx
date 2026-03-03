@@ -3,8 +3,6 @@ import { Lock, Zap, ArrowRight, Check, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
-const SOCIAL_PROOF_COUNT = 127;
-
 const ARGS = [
   "Tous les modules illimités",
   "KITT IA sans restriction",
@@ -121,7 +119,7 @@ export function PaywallOverlay({
           {/* Social proof */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Users className="w-3.5 h-3.5" />
-            <span>{SOCIAL_PROOF_COUNT}+ pros utilisent déjà cette fonctionnalité</span>
+            <span>Rejoignez les premiers utilisateurs GENIE IA</span>
           </div>
 
           {/* Legal */}
