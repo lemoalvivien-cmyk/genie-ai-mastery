@@ -22,6 +22,16 @@ serve(async (req) => {
     const { data: userData } = await supabase.auth.getUser(token);
     if (!userData.user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+    // Enforce admin-only access for partner account creation
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userData.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleRow) return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
     const { name, contact_email } = await req.json();
     if (!name || !contact_email) return new Response(JSON.stringify({ error: "name and contact_email required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
