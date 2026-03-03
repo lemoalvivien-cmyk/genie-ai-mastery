@@ -382,6 +382,7 @@ serve(async (req) => {
       org_cost_cap: number;
     } | null;
 
+    const tier = selectTier(request_type, domain);
     const ecoMode = budget?.eco_mode ?? false;
     const userOverBudget = budget?.user_over_budget ?? false;
     const orgOverBudget = budget?.org_over_budget ?? false;
@@ -708,6 +709,9 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       }
     }
 
+    // Calculate cost (must be before cost-guard post-call)
+    const costEur = calcCost(model, result.input_tokens, result.output_tokens);
+
     // ── cost-guard: post-call accounting — record actual cost in ai_budgets ─────
     if (orgId) {
       supabaseAdmin.rpc("check_and_increment_ai_budget", {
@@ -724,13 +728,10 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       _amount: result.output_tokens,
     }).then(() => {}).catch(() => {});
 
-    // Calculate cost
-    const costEur = calcCost(model, result.input_tokens, result.output_tokens);
-
     // ── Log AI usage — RELIABLE: await with 400ms soft timeout ───────────────
-    const orgId = profileData?.org_id ?? null;
+    // orgId already declared above
     const todayStr = new Date().toISOString().split("T")[0];
-    const requestId = crypto.randomUUID();
+    // requestId already declared above via makeRequestId()
 
     const logUsage = supabaseAdmin.rpc("log_ai_usage_safe", {
       _user_id: userId,
