@@ -10,6 +10,13 @@ const corsHeaders = {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ── Kill-Switch ───────────────────────────────────────────────────────────────
+  if (Deno.env.get("AI_DISABLED") === "true") {
+    return new Response(JSON.stringify({ error: "Le service vocal est temporairement désactivé." }), {
+      status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     // Auth
     const authHeader = req.headers.get("Authorization");
