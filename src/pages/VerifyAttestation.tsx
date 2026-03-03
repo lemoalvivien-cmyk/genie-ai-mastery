@@ -9,12 +9,11 @@ import {
 
 interface AttestationDetail {
   id: string;
-  user_id: string;
   score_average: number | null;
   modules_completed: { title: string; score: number; completed_at: string }[];
   generated_at: string | null;
   valid_until: string | null;
-  profiles?: { full_name: string | null; email: string } | null;
+  // NOTE: email intentionally excluded — public page should not expose PII
   organizations?: { name: string } | null;
 }
 
@@ -33,33 +32,32 @@ export default function VerifyAttestation() {
     queryKey: ["attestation-verify", id],
     queryFn: async () => {
       if (!id) return null;
+      // Only select non-PII fields — email and full_name intentionally excluded on this public page
       const { data, error } = await supabase
         .from("attestations")
         .select(`
-          id, user_id, score_average, modules_completed, generated_at, valid_until,
-          profiles:user_id ( full_name, email ),
+          id, score_average, modules_completed, generated_at, valid_until,
           organizations:org_id ( name )
         `)
         .eq("id", id)
         .maybeSingle();
       if (error) return null;
-      return data as AttestationDetail | null;
+      return data as unknown as AttestationDetail | null;
     },
     enabled: !!id,
     retry: false,
   });
 
   const isValid = data && data.valid_until && new Date(data.valid_until) > new Date();
-  const holderName = data?.profiles?.full_name ?? "Apprenant";
   const orgName = data?.organizations?.name;
   const moduleCount = Array.isArray(data?.modules_completed) ? data.modules_completed.length : 0;
 
-  // JSON-LD structured data
+  // JSON-LD structured data — no personal name to protect privacy
   const jsonLd = isValid ? {
     "@context": "https://schema.org",
     "@type": "EducationalOccupationalCredential",
     "name": `Attestation de Formation ${APP_NAME}`,
-    "description": `Attestation de formation en IA et Cybersécurité délivrée par ${APP_NAME} à ${holderName}`,
+    "description": `Attestation de formation en IA et Cybersécurité délivrée par ${APP_NAME}${orgName ? ` — ${orgName}` : ""}`,
     "credentialCategory": "Certificate",
     "educationalLevel": "Professional",
     "recognizedBy": {
@@ -69,11 +67,7 @@ export default function VerifyAttestation() {
     },
     "validFrom": data?.generated_at ?? undefined,
     "validUntil": data?.valid_until ?? undefined,
-    "about": {
-      "@type": "Person",
-      "name": holderName,
-      ...(orgName ? { "worksFor": { "@type": "Organization", "name": orgName } } : {}),
-    },
+    ...(orgName ? { "about": { "@type": "Organization", "name": orgName } } : {}),
   } : null;
 
   return (
@@ -81,19 +75,19 @@ export default function VerifyAttestation() {
       <Helmet>
         <title>
           {isValid
-            ? `Attestation validée — ${holderName} | ${APP_NAME}`
+            ? `Attestation validée${orgName ? ` — ${orgName}` : ""} | ${APP_NAME}`
             : `Vérification d'attestation | ${APP_NAME}`}
         </title>
         <meta
           name="description"
           content={isValid
-            ? `Attestation de formation en IA & Cybersécurité de ${holderName} — vérifiée et authentique. Délivrée par ${APP_NAME}.`
+            ? `Attestation de formation en IA & Cybersécurité${orgName ? ` — ${orgName}` : ""} — vérifiée et authentique. Délivrée par ${APP_NAME}.`
             : `Vérifiez l'authenticité d'une attestation de formation ${APP_NAME} en IA et cybersécurité.`}
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={`${LANDING_URL}/verify/${id}`} />
         {/* OG */}
-        <meta property="og:title" content={isValid ? `Attestation de ${holderName} — ${APP_NAME}` : `Vérification | ${APP_NAME}`} />
+        <meta property="og:title" content={isValid ? `Attestation${orgName ? ` — ${orgName}` : ""} | ${APP_NAME}` : `Vérification | ${APP_NAME}`} />
         <meta property="og:description" content={`Formation IA & Cybersécurité — ${moduleCount} module(s) complété(s), score moyen ${data?.score_average ?? "—"}%`} />
         <meta property="og:type" content="article" />
         {jsonLd && (
@@ -174,13 +168,13 @@ export default function VerifyAttestation() {
 
                   {/* Body */}
                   <div className="px-6 py-5 space-y-5">
-                    {/* Beneficiary */}
+                    {/* Beneficiary — show org name only, no personal name on public page */}
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Bénéficiaire</p>
-                      <p className="font-bold text-xl">{holderName}</p>
-                      {orgName && (
-                        <p className="text-sm text-muted-foreground mt-0.5">{orgName}</p>
-                      )}
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Organisation</p>
+                      {orgName
+                        ? <p className="font-bold text-xl">{orgName}</p>
+                        : <p className="text-muted-foreground text-sm">–</p>
+                      }
                     </div>
 
                     {/* Dates row */}
@@ -246,7 +240,7 @@ export default function VerifyAttestation() {
                       Formez votre équipe à l'IA & Cybersécurité
                     </h2>
                     <p className="text-primary-foreground/80 text-sm">
-                      {holderName} s'est formé(e) sur {APP_NAME}. Rejoignez +2 000 professionnels.
+                      Un collaborateur s'est formé sur {APP_NAME}. Rejoignez +2 000 professionnels.
                     </p>
                   </div>
 

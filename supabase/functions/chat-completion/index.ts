@@ -299,7 +299,12 @@ serve(async (req) => {
     const isJarvis = request_type === "jarvis";
     const isAutopilot = request_type === "autopilot";
 
-    // ── Kill switch check ─────────────────────────────────────────────────────
+    // ── Kill switch check (env var AI_DISABLED takes priority, then DB setting) ──
+    if (Deno.env.get("AI_DISABLED") === "true") {
+      return new Response(JSON.stringify({ error: "L'IA est temporairement désactivée. Réessayez plus tard." }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
