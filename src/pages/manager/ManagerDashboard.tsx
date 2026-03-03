@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert } from "lucide-react";
+import { useWeeklyReport } from "@/hooks/useWeeklyReport";
+import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,7 @@ interface Organization {
   logo_url: string | null;
   completion_deadline_days: number | null;
   email_reminders_enabled: boolean | null;
+  is_read_only: boolean | null;
 }
 
 interface Campaign {
@@ -115,6 +117,8 @@ export default function ManagerDashboard() {
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [orgId, setOrgId] = useState<string | undefined>(undefined);
+  const { data: weeklyReport, refetch: refetchReport } = useWeeklyReport(orgId);
 
   const [org, setOrg] = useState<Organization | null>(null);
   const [stats, setStats] = useState<OrgStats | null>(null);
@@ -172,6 +176,7 @@ export default function ManagerDashboard() {
 
       if (orgRes.data) {
         setOrg(orgRes.data as unknown as Organization);
+        setOrgId(orgRes.data.id);
         setOrgName(orgRes.data.name);
         setDeadlineDays((orgRes.data as unknown as Organization).completion_deadline_days ?? 30);
         setRemindersEnabled((orgRes.data as unknown as Organization).email_reminders_enabled ?? true);
@@ -433,7 +438,16 @@ export default function ManagerDashboard() {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-          {/* ── Stats cards ── */}
+          {/* ── Read-only banner ── */}
+          {org?.is_read_only && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/40 bg-destructive/8 text-sm">
+              <ShieldAlert className="w-5 h-5 text-destructive shrink-0" />
+              <span className="text-foreground">
+                <strong>Accès en lecture seule</strong> — Votre abonnement a expiré. Les données sont consultables mais les modifications sont désactivées.{" "}
+                <Link to="/pricing" className="underline font-semibold">Renouveler →</Link>
+              </span>
+            </div>
+          )}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Sièges */}
             <Card className="bg-card/60 border-border/50 backdrop-blur-sm">
@@ -549,6 +563,94 @@ export default function ManagerDashboard() {
 
           {/* ── Risque Phishing ── */}
           {org?.id && <PhishingRiskWidget orgId={org.id} />}
+
+          {/* ── Rapport hebdomadaire ── */}
+          {weeklyReport && (
+            <Card className="bg-card/60 border-border/50 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Rapport de la semaine du {new Date(weeklyReport.week_start).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
+                  </CardTitle>
+                  <button
+                    onClick={() => supabase.functions.invoke("manager-brief").then(() => refetchReport())}
+                    className="text-xs text-muted-foreground hover:text-foreground underline flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" />Actualiser
+                  </button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-lg bg-secondary/40 p-3 text-center">
+                    <div className="text-2xl font-bold">{weeklyReport.completion_rate}%</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Taux de complétion</div>
+                  </div>
+                  <div className="rounded-lg bg-secondary/40 p-3 text-center">
+                    <div className="text-2xl font-bold">{weeklyReport.avg_score != null ? `${weeklyReport.avg_score}%` : "—"}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Score moyen</div>
+                  </div>
+                  <div className={`rounded-lg p-3 text-center ${weeklyReport.at_risk_count > 0 ? "bg-orange-500/10 border border-orange-500/20" : "bg-secondary/40"}`}>
+                    <div className="text-2xl font-bold text-orange-400">{weeklyReport.at_risk_count}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">À risque</div>
+                  </div>
+                  <div className={`rounded-lg p-3 text-center ${weeklyReport.inactive_count > 0 ? "bg-destructive/10 border border-destructive/20" : "bg-secondary/40"}`}>
+                    <div className="text-2xl font-bold text-destructive">{weeklyReport.inactive_count}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Inactifs</div>
+                  </div>
+                </div>
+
+                {weeklyReport.top_gaps.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                      <TrendingDown className="w-3 h-3" />Top 5 failles de formation
+                    </h4>
+                    <div className="space-y-2">
+                      {weeklyReport.top_gaps.map((gap, i) => (
+                        <div key={gap.module_id} className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground w-4">{i + 1}.</span>
+                          <span className="text-sm flex-1 truncate">{gap.title}</span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <div className="w-20 h-1.5 rounded-full bg-secondary overflow-hidden">
+                              <div className="h-full rounded-full bg-destructive/70" style={{ width: `${gap.rate}%` }} />
+                            </div>
+                            <span className="text-xs font-medium w-8 text-right text-destructive">{gap.rate}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {weeklyReport.at_risk_users.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3 h-3 text-orange-400" />Employés à risque
+                    </h4>
+                    <div className="space-y-1.5">
+                      {weeklyReport.at_risk_users.slice(0, 5).map((u) => (
+                        <div key={u.id} className="flex items-center justify-between text-sm">
+                          <span className="text-foreground">{u.full_name ?? "Inconnu"}</span>
+                          <div className="flex items-center gap-2">
+                            {u.last_active && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                                <Clock className="w-3 h-3" />
+                                {new Date(u.last_active).toLocaleDateString("fr-FR")}
+                              </span>
+                            )}
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.reason === "inactive" ? "bg-destructive/15 text-destructive" : "bg-orange-500/15 text-orange-400"}`}>
+                              {u.reason === "inactive" ? "Inactif" : "En retard"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* ── Tabs ── */}
           <Tabs defaultValue="team">
