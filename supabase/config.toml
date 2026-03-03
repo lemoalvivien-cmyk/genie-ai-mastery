@@ -78,5 +78,8 @@ verify_jwt = false
 [functions.score-utterance]
 verify_jwt = false
 
+[functions.content-forge]
+verify_jwt = false
+
 
 
