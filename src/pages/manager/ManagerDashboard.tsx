@@ -230,17 +230,12 @@ export default function ManagerDashboard() {
     loadData();
   }, [loadData]);
 
-  // ─── Realtime ────────────────────────────────────────────────────────────
+  // ─── 15s polling (replaces Realtime subscription) ───────────────────────
 
   useEffect(() => {
     if (!profile?.org_id) return;
-    const channel = supabase
-      .channel("manager-progress")
-      .on("postgres_changes", { event: "*", schema: "public", table: "progress" }, () => {
-        loadData();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(loadData, 15_000);
+    return () => clearInterval(interval);
   }, [profile?.org_id, loadData]);
 
   if (!(sub?.isActive)) return <Navigate to="/pricing" replace />;
