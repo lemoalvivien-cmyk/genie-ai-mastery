@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Brain, Check, X, Lock, Globe, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import {
   Accordion,
   AccordionContent,
@@ -67,6 +68,12 @@ export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [portalLoading, setPortalLoading] = useState(false);
+  const { track } = useAnalytics();
+
+  // Track pricing_viewed on mount
+  useEffect(() => {
+    track("pricing_viewed");
+  }, []);
 
   const handlePortal = async () => {
     setPortalLoading(true);
@@ -102,6 +109,7 @@ export default function Pricing() {
       return;
     }
     setCheckoutLoading(true);
+    track("checkout_started");
     try {
       const referralCode = localStorage.getItem("genie_ref") ?? undefined;
       const { data, error } = await supabase.functions.invoke("create-checkout", {

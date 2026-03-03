@@ -255,6 +255,9 @@ export default function ControlRoom() {
               <p className="text-muted-foreground text-sm mt-1">Supervision IA · Coûts · Kill Switch · Intégrité logs</p>
             </div>
             <div className="flex items-center gap-3">
+              <a href="/admin/growth" className="text-xs text-primary hover:underline font-medium">📈 Growth →</a>
+              <a href="/admin/ops" className="text-xs text-muted-foreground hover:text-foreground">Ops →</a>
+              <a href="/admin/runbook" className="text-xs text-muted-foreground hover:text-foreground">Runbook →</a>
               <select
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}

@@ -1,10 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import { BookOpen, BarChart3, MessageSquare, Shield, Users, Code2, Sparkles, Flame, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useEffect } from "react";
 
 function MiniCalendar({ last7Days }: { last7Days: string[] }) {
   const days = [];
@@ -39,6 +41,15 @@ export default function Dashboard() {
   const { isManager } = useAuth();
   const { streak, todayLog, loading: streakLoading, last7Days } = useStreak();
   const userId = session?.user?.id;
+  const { track } = useAnalytics();
+  const [searchParams] = useSearchParams();
+
+  // Track checkout_success when returning from Stripe
+  useEffect(() => {
+    if (searchParams.get("payment") === "success") {
+      track("checkout_success");
+    }
+  }, []);
 
   const { data: statsData } = useQuery({
     queryKey: ["dashboard-stats", userId],

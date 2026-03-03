@@ -33,6 +33,7 @@ const OpsCenter = lazy(() => import("./pages/admin/OpsCenter"));
 const Runbook = lazy(() => import("./pages/admin/Runbook"));
 const GuideList = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
+const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
 const Legal = lazy(() => import("./pages/Legal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
@@ -106,6 +107,14 @@ const App = () => (
                    <Route path="labs/phishing" element={<PhishingLab />} />
                 </Route>
 
+                  <Route
+                    path="/admin/growth"
+                    element={
+                      <ProtectedRoute requireRole="admin">
+                        <GrowthDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path="/admin/control-room"
                     element={
