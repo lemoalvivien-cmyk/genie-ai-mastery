@@ -75,5 +75,8 @@ verify_jwt = false
 [functions.partner-connect-onboard]
 verify_jwt = false
 
+[functions.score-utterance]
+verify_jwt = false
+
 
 

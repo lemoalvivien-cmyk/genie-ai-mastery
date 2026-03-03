@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
   Brain, Clock, ChevronLeft, Star, AlertTriangle, CheckCircle2,
-  Lightbulb, BookOpen, ExternalLink, PlayCircle, Loader2,
+  Lightbulb, BookOpen, ExternalLink, PlayCircle, Loader2, Download,
 } from "lucide-react";
 import { useModule, useModuleQuiz, useUserProgress, useSaveProgress } from "@/hooks/useModules";
 import { QuizPlayer } from "@/components/modules/QuizPlayer";
@@ -11,6 +11,9 @@ import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 import { useUpsertUserSkills } from "@/hooks/useSkills";
 import { supabase } from "@/integrations/supabase/client";
 import { ELI10Button } from "@/components/jarvis/ELI10Button";
+import { useSkillMastery } from "@/hooks/useSkillMastery";
+import { useEffect, useRef } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 const DOMAIN_CONFIG: Record<string, { label: string; cls: string }> = {
   ia_pro: { label: "IA Pro", cls: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
@@ -28,6 +31,9 @@ export default function ModuleDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [quizOpen, setQuizOpen] = useState(false);
+  const [attestationUrl, setAttestationUrl] = useState<string | null>(null);
+  const [generatingAttestation, setGeneratingAttestation] = useState(false);
+  const attestationTriggeredRef = useRef(false);
 
   const { data: mod, isLoading, isError } = useModule(slug!);
   const { data: quiz } = useModuleQuiz(mod?.id ?? "");
@@ -35,7 +41,43 @@ export default function ModuleDetail() {
   const saveProgress = useSaveProgress();
   const upsertSkills = useUpsertUserSkills();
 
+  // Extract skill_ids from module content_json
+  const skillIds: string[] = mod
+    ? ((mod.content_json as unknown as { skill_tags?: Array<{ skill_id: string }> })?.skill_tags ?? []).map((t) => t.skill_id)
+    : [];
+
   const progress = mod ? progressMap?.[mod.id] : undefined;
+
+  const { data: masteryList } = useSkillMastery(skillIds);
+  const allMastered = skillIds.length > 0 && masteryList?.length === skillIds.length &&
+    masteryList.every((m) => m.p_mastery >= 0.99);
+
+  // Auto-trigger attestation when all skills mastered
+  useEffect(() => {
+    if (!allMastered || !mod || attestationTriggeredRef.current || generatingAttestation) return;
+    if (progress?.status === "completed") return; // already done
+    attestationTriggeredRef.current = true;
+    setGeneratingAttestation(true);
+
+    supabase.functions.invoke("generate-pdf", {
+      body: {
+        type: "attestation",
+        module_id: mod.id,
+        base_url: window.location.origin,
+      },
+    }).then(({ data, error }) => {
+      if (error || !data?.success) {
+        console.error("Auto-attestation error", error ?? data?.error);
+        return;
+      }
+      if (data.signed_url) setAttestationUrl(data.signed_url);
+      toast({
+        title: "🎓 Maîtrise complète !",
+        description: "Toutes les compétences du module sont maîtrisées. Votre attestation est prête.",
+      });
+    }).finally(() => setGeneratingAttestation(false));
+  }, [allMastered, mod, progress?.status, generatingAttestation]);
+
   const domain = mod ? DOMAIN_CONFIG[mod.domain] : null;
   const level = mod ? LEVEL_CONFIG[mod.level] : null;
 
@@ -282,6 +324,32 @@ export default function ModuleDetail() {
                   <p className="text-sm text-muted-foreground">Pas encore commencé.</p>
                 )}
               </div>
+
+              {/* Auto-attestation from skill mastery */}
+              {(attestationUrl || generatingAttestation) && (
+                <div className="rounded-2xl border border-primary/40 bg-primary/5 p-5 shadow-card animate-fade-in">
+                  <h2 className="font-semibold mb-1 flex items-center gap-2">
+                    🎓 Attestation de maîtrise
+                  </h2>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Toutes les compétences de ce module sont maîtrisées.
+                  </p>
+                  {generatingAttestation ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Génération en cours…
+                    </div>
+                  ) : (
+                    <a
+                      href={attestationUrl!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl gradient-primary text-primary-foreground text-sm font-semibold shadow-glow hover:opacity-90 transition-all"
+                    >
+                      <Download className="w-4 h-4" /> Télécharger l'attestation
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Deliverables */}
               {mod.deliverables.length > 0 && (

@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
+import { fireScoreUtterance } from "@/hooks/useSkillMastery";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -241,6 +242,9 @@ export default function Chat() {
   const isPro = sub?.isActive ?? false;
   const [searchParams] = useSearchParams();
   const isPanic = searchParams.get("panic") === "autre";
+  // skill_ids & module_id can be passed via query params when Chat is opened from a module
+  const contextSkillIds = (searchParams.get("skill_ids") ?? "").split(",").filter(Boolean);
+  const contextModuleId = searchParams.get("module_id") ?? undefined;
   const [ecoMode, setEcoMode] = useState(false);
 
   // Dynamic welcome message
@@ -365,6 +369,17 @@ export default function Chat() {
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
         if (data.eco_mode) setEcoMode(true);
+
+        // Fire-and-forget skill mastery scoring (async, never blocks UI)
+        if (contextSkillIds.length && session?.access_token && !data.quota_exceeded) {
+          fireScoreUtterance({
+            utterance: text,
+            assistantReply: data.content ?? "",
+            skillIds: contextSkillIds,
+            moduleId: contextModuleId,
+            accessToken: session.access_token,
+          });
+        }
 
         if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");
