@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "https://genie-ai-mastery.lovable.app",
         "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
       },
     });
