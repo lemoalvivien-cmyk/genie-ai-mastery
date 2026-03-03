@@ -84,5 +84,8 @@ verify_jwt = false
 [functions.manager-brief]
 verify_jwt = false
 
+[functions.cost-guard]
+verify_jwt = false
+
 
 
