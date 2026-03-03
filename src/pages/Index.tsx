@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import {
   AlertTriangle, CheckCircle, BookOpen, Bot, BarChart3,
   FileText, Users, Zap, Loader2, Mail, Star, ArrowRight,
-  Shield, Mic, Globe, Lock
+  Shield, Mic, Globe, Lock, Download, Smartphone, X
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 import logoGenie from "@/assets/logo-genie.png";
 import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 /* ─── CONFIGURABLE CONSTANTS ─────────────────────────────────── */
 const LAUNCH_DEADLINE = new Date("2026-04-15T23:59:59");
@@ -169,6 +170,10 @@ export default function Index() {
   const [emailLead, setEmailLead] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailDone, setEmailDone] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [installOutcome, setInstallOutcome] = useState<string | null>(null);
+
+  const { isInstallable, isInstalled, isIOS, triggerInstall } = usePWAInstall();
 
   const { h, m, s } = useCountdown(LAUNCH_DEADLINE);
   const { count: proCount, ref: proRef } = useCounterUp(SOCIAL_PROOF_COUNT);
@@ -220,8 +225,58 @@ export default function Index() {
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
+  const handleInstall = async () => {
+    const result = await triggerInstall();
+    if (result === "ios") {
+      setShowIOSInstructions(true);
+    } else if (result === "accepted") {
+      setInstallOutcome("accepted");
+      toast({ title: "🎉 Application installée !", description: "GENIE IA est maintenant sur votre écran d'accueil." });
+    } else if (result === "unavailable") {
+      // Fallback: open install page
+      window.open("/", "_blank");
+    }
+  };
+
   return (
     <>
+      {/* iOS Install Instructions Modal */}
+      {showIOSInstructions && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowIOSInstructions(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5 text-primary" />
+                <h3 className="font-bold text-base">Installer sur iPhone</h3>
+              </div>
+              <button onClick={() => setShowIOSInstructions(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <ol className="space-y-3 text-sm text-muted-foreground">
+              <li className="flex items-start gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">1</span>
+                <span>Appuyez sur le bouton <strong className="text-foreground">Partager</strong> <span className="text-lg">⎙</span> en bas de Safari</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">2</span>
+                <span>Faites défiler et appuyez sur <strong className="text-foreground">« Sur l'écran d'accueil »</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">3</span>
+                <span>Appuyez sur <strong className="text-foreground">« Ajouter »</strong> en haut à droite</span>
+              </li>
+            </ol>
+            <button
+              onClick={() => setShowIOSInstructions(false)}
+              className="mt-5 w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
+            >
+              Compris !
+            </button>
+          </div>
+        </div>
+      )}
+
       <Helmet>
         <title>GENIE IA – Formez-vous à l'IA. Prouvez-le.</title>
         <meta name="description" content="La seule plateforme qui forme, évalue et certifie vos compétences IA. Pour les pros, les curieux, les PME. Dès 29€/mois." />
@@ -349,6 +404,35 @@ export default function Index() {
               Voir la démo KITT IA
             </Link>
           </div>
+
+          {/* Install App Banner */}
+          {!isInstalled && (isInstallable || isIOS) && installOutcome !== "accepted" && (
+            <div
+              className="relative w-full max-w-md mb-8 animate-slide-up"
+              style={{ animationDelay: "200ms" }}
+            >
+              <button
+                onClick={handleInstall}
+                className="w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl border border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                    <Download className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-foreground">Télécharger votre Appli</p>
+                    <p className="text-xs text-muted-foreground">
+                      {isIOS ? "Ajouter à l'écran d'accueil (iOS)" : "Installer sur Android / Desktop"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Smartphone className="w-4 h-4 text-primary" />
+                  <ArrowRight className="w-4 h-4 text-primary" />
+                </div>
+              </button>
+            </div>
+          )}
 
           {/* Trust indicators */}
           <div className="relative flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground animate-fade-in" style={{ animationDelay: "300ms" }}>
