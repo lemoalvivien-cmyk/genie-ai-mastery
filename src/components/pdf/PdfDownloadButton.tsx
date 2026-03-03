@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export type PdfType = "attestation" | "charte" | "sop" | "checklist";
 
@@ -37,29 +38,14 @@ export function PdfDownloadButton({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: sub } = useSubscription();
+  const { track } = useAnalytics();
   const isPro = sub?.isActive ?? false;
 
-  // If not pro, show locked-to-pro button
-  if (!isPro) {
-    const cls = variant === "outline"
-      ? "flex items-center gap-2 px-4 py-2 rounded-xl border border-border/40 text-muted-foreground text-sm font-medium opacity-60 cursor-pointer hover:opacity-80 transition-all"
-      : "w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 text-left opacity-60 cursor-pointer hover:opacity-80 transition-all";
-    return (
-      <button className={cls} onClick={() => navigate("/pricing")} title="PDF — Débloquez avec GENIE Pro">
-        <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate">{label}</div>
-          <div className="text-xs text-muted-foreground">PDF — GENIE Pro</div>
-        </div>
-      </button>
-    );
-  }
-
+  // All hooks must be called before any early returns
   const handleClick = useCallback(async () => {
     if (locked || disabled || loading) return;
     setLoading(true);
     try {
-      // Pass referral_code from localStorage if present (set at landing/register time)
       const referralCode = localStorage.getItem("ref_code") ?? undefined;
 
       const { data, error } = await supabase.functions.invoke("generate-pdf", {
@@ -75,6 +61,9 @@ export function PdfDownloadButton({
       if (error || !data?.success) {
         throw new Error(data?.error ?? error?.message ?? "Erreur de génération");
       }
+
+      // ── Cash event: pdf generated ─────────────────────────────────────────
+      track("pdf_generated", { type, is_attestation: type === "attestation" });
 
       if (data.signed_url) {
         window.open(data.signed_url, "_blank");
@@ -99,7 +88,23 @@ export function PdfDownloadButton({
     } finally {
       setLoading(false);
     }
-  }, [type, moduleId, orgName, locked, disabled, loading, toast]);
+  }, [type, moduleId, orgName, locked, disabled, loading, toast, track]);
+
+  // If not pro, show locked-to-pro button
+  if (!isPro) {
+    const cls = variant === "outline"
+      ? "flex items-center gap-2 px-4 py-2 rounded-xl border border-border/40 text-muted-foreground text-sm font-medium opacity-60 cursor-pointer hover:opacity-80 transition-all"
+      : "w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 text-left opacity-60 cursor-pointer hover:opacity-80 transition-all";
+    return (
+      <button className={cls} onClick={() => navigate("/pricing")} title="PDF — Débloquez avec GENIE Pro">
+        <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium truncate">{label}</div>
+          <div className="text-xs text-muted-foreground">PDF — GENIE Pro</div>
+        </div>
+      </button>
+    );
+  }
 
   if (variant === "outline") {
     return (

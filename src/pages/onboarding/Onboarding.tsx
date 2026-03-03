@@ -108,7 +108,8 @@ export default function Onboarding() {
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      track("onboarding_step_done", { step: "completed", persona: finalData.persona });
+      // ── Cash event: onboarding fully completed ────────────────────────────
+      track("onboarding_done", { persona: finalData.persona, level: finalData.level, has_org: !!org_id });
 
       // Confetti then redirect
       setShowConfetti(true);
