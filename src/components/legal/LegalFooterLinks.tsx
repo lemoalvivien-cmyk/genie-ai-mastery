@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 
 const LEGAL_LINKS = [
+  { to: "/legal/cgu", label: "CGU" },
   { to: "/legal/mentions-legales", label: "Mentions légales" },
   { to: "/legal/confidentialite", label: "Confidentialité" },
   { to: "/legal/cookies", label: "Cookies" },

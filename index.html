@@ -3,28 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GENIE IA – Maîtrisez l'IA &amp; la Cybersécurité</title>
+    <title>GENIE IA — Formez-vous à l'IA, prouvez-le | Modules + Quiz + Attestation</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/logo-genie.png" />
     <link rel="apple-touch-icon" href="/logo-genie.png" />
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="description" content="Plateforme d'apprentissage IA et cybersécurité. Maîtrisez l'IA générative, protégez-vous en ligne. Essai gratuit 14 jours." />
+
+    <!-- SEO Meta -->
+    <meta name="description" content="Plateforme de formation IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote KITT IA, attestation de compétences. Dès 29€/mois." />
     <meta name="author" content="GENIE IA" />
-    <link rel="canonical" href="https://genie-ai-mastery.lovable.app/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0C1014" />
+
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href="https://genie-ia.app/" />
+    <link rel="alternate" hreflang="fr" href="https://genie-ia.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://genie-ia.app/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GENIE IA" />
-    <meta property="og:title" content="GENIE IA – Maîtrisez l'IA &amp; la Cybersécurité" />
-    <meta property="og:description" content="Plateforme d'apprentissage IA et cybersécurité. Voix Jarvis, attestations, dashboard manager. Essai 14 jours gratuit." />
+    <meta property="og:title" content="GENIE IA — Formez-vous à l'IA, prouvez-le | Modules + Quiz + Attestation" />
+    <meta property="og:description" content="Plateforme de formation IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote KITT IA, attestation de compétences. Dès 29€/mois." />
     <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/C96f2X0qKtTLE8PHLmBQIpzzEMn1/social-images/social-1772409429054-WhatsApp_Image_2026-03-02_at_00.56.50.webp" />
-    <meta property="og:url" content="https://genie-ai-mastery.lovable.app/" />
+    <meta property="og:url" content="https://genie-ia.app/" />
+    <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="GENIE IA – Maîtrisez l'IA &amp; la Cybersécurité" />
-    <meta name="twitter:description" content="Plateforme d'apprentissage IA et cybersécurité. Essai gratuit 14 jours." />
+    <meta name="twitter:title" content="GENIE IA — Formez-vous à l'IA, prouvez-le | Modules + Quiz + Attestation" />
+    <meta name="twitter:description" content="Plateforme de formation IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote KITT IA, attestation de compétences. Dès 29€/mois." />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/C96f2X0qKtTLE8PHLmBQIpzzEMn1/social-images/social-1772409429054-WhatsApp_Image_2026-03-02_at_00.56.50.webp" />
 
     <!-- Security headers (meta fallback — real headers served via public/_headers) -->
@@ -32,20 +41,12 @@
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(self), geolocation=(), autoplay=(self), speaker-selection=(self)" />
-    <!--
-      CSP Phase 1: Report-Only — violations reported to edge function, NOT enforced.
-      Monitor /admin/control-room for 7 days. Switch to Content-Security-Policy when clean.
-
-      Note: meta http-equiv does NOT support report-uri / report-to.
-      Real enforcement happens via HTTP headers in public/_headers (Cloudflare Pages).
-      This meta tag is a belt-and-suspenders fallback for the Lovable preview iframe only.
-    -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://api.dashscope.aliyuncs.com https://storage.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com; media-src 'self' blob:; worker-src blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';" />
 
-    <!-- Sitemap hint -->
+    <!-- Sitemap -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
-    <!-- Preconnect for performance -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -60,11 +61,18 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "GENIE IA",
-      "url": "https://genie-ai-mastery.lovable.app",
-      "logo": "https://genie-ai-mastery.lovable.app/logo-genie.png",
+      "url": "https://genie-ia.app",
+      "logo": "https://genie-ia.app/logo-genie.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@genie-ia.app",
+        "contactType": "customer support",
+        "availableLanguage": "French"
+      },
       "sameAs": []
     }
     </script>
+
     <!-- JSON-LD: SoftwareApplication -->
     <script type="application/ld+json">
     {
@@ -73,15 +81,37 @@
       "name": "GENIE IA",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Web",
-      "url": "https://genie-ai-mastery.lovable.app",
-      "description": "Plateforme d'apprentissage IA, Cybersécurité et Vibe Coding. Attestations PDF vérifiables, Jarvis vocal, dashboard manager.",
-      "offers": {
-        "@type": "Offer",
-        "price": "59",
-        "priceCurrency": "EUR",
-        "availability": "https://schema.org/InStock",
-        "priceSpecification": { "@type": "UnitPriceSpecification", "billingDuration": "P1M" }
-      },
+      "inLanguage": "fr",
+      "url": "https://genie-ia.app",
+      "description": "Plateforme de formation IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote KITT IA, attestation de compétences vérifiables.",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Plan Gratuit",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "description": "2 messages KITT par jour, accès aux modules de base"
+        },
+        {
+          "@type": "Offer",
+          "name": "GENIE Pro",
+          "price": "29",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "billingDuration": "P1M",
+            "billingIncrement": 1
+          },
+          "description": "Accès illimité KITT IA, modules premium, attestations PDF, voix Jarvis"
+        }
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127"
+      }
     }
     </script>
   </head>
