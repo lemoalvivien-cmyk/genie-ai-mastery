@@ -95,6 +95,41 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_budgets: {
+        Row: {
+          daily_limit: number
+          is_blocked: boolean
+          org_id: string
+          reset_date: string
+          updated_at: string
+          used_today: number
+        }
+        Insert: {
+          daily_limit?: number
+          is_blocked?: boolean
+          org_id: string
+          reset_date?: string
+          updated_at?: string
+          used_today?: number
+        }
+        Update: {
+          daily_limit?: number
+          is_blocked?: boolean
+          org_id?: string
+          reset_date?: string
+          updated_at?: string
+          used_today?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_budgets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_usage_buffer: {
         Row: {
           cost_estimate: number
@@ -2172,6 +2207,10 @@ export type Database = {
           _org_id: string
           _user_id: string
         }
+        Returns: Json
+      }
+      check_and_increment_ai_budget: {
+        Args: { _cost_delta?: number; _org_id: string }
         Returns: Json
       }
       check_budget: {

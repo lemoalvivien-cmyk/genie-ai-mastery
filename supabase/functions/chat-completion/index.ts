@@ -414,6 +414,22 @@ serve(async (req) => {
       });
     }
 
+    // ── cost-guard: pre-flight daily budget check (ai_budgets table) ─────────
+    if (orgId) {
+      const { data: guardResult, error: guardError } = await supabaseAdmin.rpc(
+        "check_and_increment_ai_budget",
+        { _org_id: orgId, _cost_delta: 0 }, // pre-check only, no cost yet
+      );
+      if (!guardError && guardResult && !(guardResult as { allowed: boolean }).allowed) {
+        const g = guardResult as { used_today: number; daily_limit: number };
+        return new Response(JSON.stringify({
+          error: `Limite journalière atteinte (${(g.used_today ?? 0).toFixed(4)} € / ${g.daily_limit} €). Les appels IA sont suspendus jusqu'à minuit UTC.`,
+          budget_exceeded: true,
+          cost_guard_blocked: true,
+        }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" } });
+      }
+    }
+
     // Sanitize last user message
     const lastUserMsg = messages.findLast?.((m: { role: string }) => m.role === "user")?.content ?? "";
     const sanitized = lastUserMsg.replace(/<[^>]*>/g, "").replace(/javascript:/gi, "").trim();
@@ -690,6 +706,14 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       } catch (_e) {
         // Validation failed, keep original content
       }
+    }
+
+    // ── cost-guard: post-call accounting — record actual cost in ai_budgets ─────
+    if (orgId) {
+      supabaseAdmin.rpc("check_and_increment_ai_budget", {
+        _org_id: orgId,
+        _cost_delta: costEur,
+      }).then(() => {}).catch(() => {});
     }
 
     // ── Increment quota usage (fire-and-forget) ───────────────────────────────
