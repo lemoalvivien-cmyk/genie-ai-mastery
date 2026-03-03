@@ -201,10 +201,10 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs GENIE IA – 29€/mois, Essai 14 jours</title>
-        <meta name="description" content="GENIE Pro à 29€/mois TTC. Essai 14 jours gratuit. KITT IA, attestations vérifiables, missions quotidiennes. Annulation en 2 clics." />
+        <title>Tarifs GENIE IA – 59€ TTC/mois, Essai 14 jours</title>
+        <meta name="description" content="GENIE Pro à 59€ TTC/mois par organisation. Essai 14 jours gratuit. KITT IA, attestations vérifiables, couverture légale totale. Annulation en 2 clics." />
         <link rel="canonical" href="https://genie-ai-mastery.lovable.app/pricing" />
-        <meta property="og:title" content="Tarifs GENIE IA – 29€/mois" />
+        <meta property="og:title" content="Tarifs GENIE IA – 59€ TTC/mois" />
         <meta property="og:description" content="Essai 14 jours gratuit. Tout illimité. Attestations PDF. Annulation en 2 clics." />
         <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
         <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
@@ -329,19 +329,15 @@ export default function Pricing() {
               <div className="mb-6 mt-2">
                 <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "hsl(var(--primary))" }}>Pro</p>
                 <div className="flex items-end gap-2 mb-1">
-                  {LAUNCH_PRICE_ACTIVE && (
-                    <span className="text-muted-foreground line-through text-lg">49€</span>
-                  )}
                   <span className="text-5xl font-black" style={{ color: "hsl(var(--accent))" }}>
-                    {LAUNCH_PRICE_ACTIVE ? "29€" : "49€"}
+                    59€
                   </span>
-                  <span className="text-muted-foreground text-base mb-1.5">/mois TTC</span>
+                  <span className="text-muted-foreground text-base mb-1.5">TTC/mois</span>
                 </div>
-                {LAUNCH_PRICE_ACTIVE && (
-                  <div className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--accent)/0.1)", color: "hsl(var(--accent))" }}>
-                    <Zap className="w-3 h-3" /> Offre de lancement -40%
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground font-mono">par organisation · 25 sièges inclus</p>
+                <div className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--accent)/0.1)", color: "hsl(var(--accent))" }}>
+                  <Zap className="w-3 h-3" /> Couverture légale totale · Evidence Vault illimité
+                </div>
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
