@@ -1,15 +1,25 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = [
+  "https://genie-ia.app",
+  "https://genie-ai-mastery.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 const log = (step: string, d?: unknown) =>
   console.log(`[MANAGER-BRIEF] ${step}${d ? " - " + JSON.stringify(d) : ""}`);
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const supabase = createClient(
@@ -46,7 +56,7 @@ serve(async (req) => {
 
         if (!members?.length) continue;
 
-        const userIds = members.map((m) => m.id);
+        const userIds = members.map((m: { id: string }) => m.id);
 
         // Progress data
         const { data: progressRows } = await supabase
@@ -66,11 +76,11 @@ serve(async (req) => {
         const scores: number[] = [];
 
         for (const member of members) {
-          const userProg = progressRows?.filter((p) => p.user_id === member.id) ?? [];
-          const completed = userProg.filter((p) => p.status === "completed");
+          const userProg = progressRows?.filter((p: { user_id: string }) => p.user_id === member.id) ?? [];
+          const completed = userProg.filter((p: { status: string }) => p.status === "completed");
           completedCount += completed.length;
           totalProgressEntries += userProg.length;
-          completed.forEach((p) => { if (p.score != null) scores.push(p.score); });
+          completed.forEach((p: { score: number | null }) => { if (p.score != null) scores.push(p.score); });
 
           const lastActive = member.last_active_at ? new Date(member.last_active_at).getTime() : null;
           const isInactive = !lastActive || (now - lastActive) > inactiveThresholdMs;
@@ -110,7 +120,7 @@ serve(async (req) => {
           topGaps = Object.entries(moduleCompletions)
             .map(([mid, stats]) => ({
               module_id: mid,
-              title: mods?.find((m) => m.id === mid)?.title ?? mid,
+              title: mods?.find((m: { id: string; title: string }) => m.id === mid)?.title ?? mid,
               rate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0,
             }))
             .sort((a, b) => a.rate - b.rate)
