@@ -9,6 +9,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -399,6 +400,30 @@ export default function Today() {
       <div className="flex min-h-screen items-center justify-center gradient-hero">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  // ── Hard paywall: missions require Pro ────────────────────────────────────────
+  if (!isSubscribed) {
+    return (
+      <>
+        <Helmet><title>Mission du jour – GENIE IA</title></Helmet>
+        <div className="gradient-hero min-h-full flex items-center justify-center p-6">
+          <div className="w-full max-w-sm">
+            <PaywallOverlay
+              feature="Missions Quotidiennes"
+              description="5 minutes par jour. Streak, XP, conformité AI Act & NIS2 — réservé aux membres Pro."
+            >
+              <div className="rounded-2xl border border-border/40 bg-card/60 p-8 space-y-4">
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-full" />
+                <div className="h-3 bg-muted rounded w-5/6" />
+                <div className="h-10 bg-muted rounded-xl w-full mt-4" />
+              </div>
+            </PaywallOverlay>
+          </div>
+        </div>
+      </>
     );
   }
 
