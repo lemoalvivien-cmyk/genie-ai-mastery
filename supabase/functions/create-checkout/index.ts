@@ -50,12 +50,16 @@ serve(async (req) => {
       });
     }
 
-    // Read body: optional seat quantity
+    // Read body: optional seat quantity + referral code
     let seats = 1;
+    let referralCode: string | null = null;
     try {
       const body = await req.json();
       if (body?.seats && typeof body.seats === "number" && body.seats >= 1 && body.seats <= 500) {
         seats = Math.floor(body.seats);
+      }
+      if (body?.referral_code && typeof body.referral_code === "string") {
+        referralCode = body.referral_code.trim().toUpperCase();
       }
     } catch { /* body is optional */ }
 
@@ -122,7 +126,7 @@ serve(async (req) => {
       // ── 14-day free trial ──
       subscription_data: {
         trial_period_days: 14,
-        metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats) },
+        metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats), referral_code: referralCode ?? "" },
       },
       // ── Stripe Tax: collect tax IDs + auto-calculate ──
       automatic_tax: { enabled: true },
@@ -132,7 +136,7 @@ serve(async (req) => {
       allow_promotion_codes: true,
       success_url: `${origin}/app/dashboard?payment=success`,
       cancel_url: `${origin}/pricing?payment=cancelled`,
-      metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats) },
+      metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats), referral_code: referralCode ?? "" },
     });
     logStep("Checkout session created", { sessionId: session.id, seats });
 

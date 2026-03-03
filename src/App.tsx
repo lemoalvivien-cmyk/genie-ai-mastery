@@ -35,6 +35,7 @@ const GuideList = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
 const Legal = lazy(() => import("./pages/Legal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -152,6 +153,7 @@ const App = () => (
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
+                <Route path="/partner" element={<PartnerDashboard />} />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 

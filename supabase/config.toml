@@ -48,5 +48,29 @@ verify_jwt = false
 [functions.update-seats]
 verify_jwt = false
 
+[functions.partner-get-account]
+verify_jwt = false
+
+[functions.partner-apply]
+verify_jwt = false
+
+[functions.partner-create-referral]
+verify_jwt = false
+
+[functions.partner-get-referrals]
+verify_jwt = false
+
+[functions.partner-get-commissions]
+verify_jwt = false
+
+[functions.partner-get-stats]
+verify_jwt = false
+
+[functions.partner-get-clients]
+verify_jwt = false
+
+[functions.partner-connect-onboard]
+verify_jwt = false
+
 
 

@@ -103,7 +103,10 @@ export default function Pricing() {
     }
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
+      const referralCode = localStorage.getItem("genie_ref") ?? undefined;
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { seats: 1, ...(referralCode ? { referral_code: referralCode } : {}) },
+      });
       if (error || data?.error) throw new Error(data?.error ?? "Erreur checkout");
       window.location.href = data.url;
     } catch (err) {
