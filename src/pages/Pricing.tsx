@@ -158,7 +158,7 @@ export default function Pricing() {
           {Array.from({ length: 40 }).map((_, i) => (
             <div
               key={i}
-              className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-orange-500","bg-emerald-500","bg-amber-400"][i % 5]}`}
+              className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-orange-500","bg-yellow-400","bg-amber-400"][i % 5]}`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `-${Math.random() * 20}%`,

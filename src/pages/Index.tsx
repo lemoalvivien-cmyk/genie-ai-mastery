@@ -403,7 +403,7 @@ export default function Index() {
               <span className="text-muted-foreground text-sm mb-2">/mois TTC</span>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald/30 bg-emerald/10 text-xs font-semibold text-emerald mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary mb-6">
               <Check className="w-3 h-3" />
               Essai 24h — Annulation en 2 clics
             </div>
@@ -468,12 +468,14 @@ export default function Index() {
               <img src={logoGenie} alt="GENIE IA" className="h-10 w-auto opacity-80" />
               <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground">
                 {[
-                  { href: "/mentions-legales", label: "Mentions légales" },
-                  { href: "/confidentialite", label: "Confidentialité" },
-                  { href: "/cgu", label: "CGU" },
-                  { href: "/rgpd", label: "RGPD" },
+                  { to: "/mentions-legales", label: "Mentions légales" },
+                  { to: "/confidentialite", label: "Confidentialité" },
+                  { to: "/cgu", label: "CGU" },
+                  { to: "/rgpd", label: "RGPD" },
+                  { to: "/security", label: "Sécurité" },
+                  { to: "/guides", label: "Guides" },
                 ].map((l) => (
-                  <a key={l.href} href={l.href} className="hover:text-foreground transition-colors">{l.label}</a>
+                  <Link key={l.to} to={l.to} className="hover:text-foreground transition-colors">{l.label}</Link>
                 ))}
               </div>
             </div>
