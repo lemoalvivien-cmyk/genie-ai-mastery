@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import {
   Activity, AlertTriangle, DollarSign, Users, Power, PowerOff,
-  Loader2, RefreshCw, ShieldAlert, CheckCircle2, Archive
+  Loader2, RefreshCw, ShieldAlert, CheckCircle2, Archive, Shield, XCircle
 } from "lucide-react";
 
 type UsageRow = {
@@ -31,6 +31,19 @@ type BufferRow = {
   tokens_out: number;
   cost_estimate: number;
   created_at: string;
+};
+
+type CspReport = {
+  id: string;
+  created_at: string;
+  document_uri: string | null;
+  violated_directive: string | null;
+  effective_directive: string | null;
+  blocked_uri: string | null;
+  disposition: string | null;
+  source_file: string | null;
+  line_number: number | null;
+  user_agent: string | null;
 };
 
 function StatCard({ icon: Icon, label, value, sub, warn }: {
@@ -128,6 +141,32 @@ export default function ControlRoom() {
     refetchInterval: 20_000,
   });
 
+  // CSP Reports
+  const { data: cspReports = [], refetch: refetchCsp } = useQuery<CspReport[]>({
+    queryKey: ["csp-reports"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("csp_reports")
+        .select("id, created_at, document_uri, violated_directive, effective_directive, blocked_uri, disposition, source_file, line_number, user_agent")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data as CspReport[];
+    },
+    refetchInterval: 30_000,
+  });
+
+  // Aggregate CSP stats
+  const cspByDirective: Record<string, number> = {};
+  cspReports.forEach((r) => {
+    const d = r.effective_directive || r.violated_directive || "unknown";
+    cspByDirective[d] = (cspByDirective[d] ?? 0) + 1;
+  });
+  const cspEnforced  = cspReports.filter((r) => r.disposition === "enforce").length;
+  const cspReportOnly = cspReports.filter((r) => r.disposition !== "enforce").length;
+
+  // Flush buffer
+
   // Flush buffer
   const flushBuffer = useMutation({
     mutationFn: async () => {
@@ -196,7 +235,7 @@ export default function ControlRoom() {
                 <option value={30}>30 jours</option>
               </select>
               <button
-                onClick={() => { refetch(); refetchMetrics(); refetchBuffer(); }}
+                onClick={() => { refetch(); refetchMetrics(); refetchBuffer(); refetchCsp(); }}
                 className="p-2 rounded-lg border border-border bg-card hover:bg-muted transition-colors"
                 title="Rafraîchir"
               >
@@ -379,6 +418,97 @@ export default function ControlRoom() {
               </div>
             </>
           )}
+
+          {/* ── CSP Reports Panel ─────────────────────────────────────────────── */}
+          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
+                <h2 className="text-sm font-semibold text-foreground">CSP Reports</h2>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cspReports.length === 0 ? "bg-primary/10 text-primary" : "bg-amber-500/10 text-amber-600"}`}>
+                  {cspReports.length === 0 ? "✅ Aucune violation" : `⚠️ ${cspReports.length} violation${cspReports.length > 1 ? "s" : ""}`}
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs">
+                  Report-Only
+                </span>
+              </div>
+              <button
+                onClick={() => refetchCsp()}
+                className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted transition-colors"
+                title="Rafraîchir CSP"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {cspReports.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
+                <CheckCircle2 className="w-8 h-8 text-primary opacity-40" />
+                <p className="text-sm text-muted-foreground">Aucune violation CSP enregistrée.</p>
+                <p className="text-xs text-muted-foreground/60">La politique Report-Only surveille le trafic sans bloquer.</p>
+              </div>
+            ) : (
+              <>
+                {/* Summary by directive */}
+                {Object.keys(cspByDirective).length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {Object.entries(cspByDirective)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([dir, count]) => (
+                        <span key={dir} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs font-medium text-foreground">
+                          <XCircle className="w-3 h-3 text-destructive" />
+                          {dir.replace(/-src$/, "")}
+                          <span className="ml-1 font-bold text-destructive">{count}</span>
+                        </span>
+                      ))}
+                    {cspEnforced > 0 && (
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive/10 text-xs font-medium text-destructive">
+                        🚫 {cspEnforced} enforced
+                      </span>
+                    )}
+                    {cspReportOnly > 0 && (
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-warning/10 text-xs font-medium text-warning-foreground border border-warning/20">
+                        👁️ {cspReportOnly} report-only
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Violation log */}
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <div className="bg-muted/50 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Dernières 100 violations
+                  </div>
+                  <div className="divide-y divide-border max-h-80 overflow-y-auto">
+                    {cspReports.map((r) => (
+                      <div key={r.id} className="grid grid-cols-[auto_1fr_1fr_auto] gap-x-3 items-center px-4 py-2 text-xs hover:bg-muted/30 transition-colors">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${r.disposition === "enforce" ? "bg-destructive/10 text-destructive" : "bg-amber-500/10 text-amber-600"}`}>
+                          {r.disposition === "enforce" ? "blocked" : "report"}
+                        </span>
+                        <span className="font-mono text-muted-foreground truncate" title={r.effective_directive ?? r.violated_directive ?? "—"}>
+                          {(r.effective_directive || r.violated_directive || "—").replace(/-src$/, "")}
+                        </span>
+                        <span className="text-foreground truncate" title={r.blocked_uri ?? "—"}>
+                          {r.blocked_uri?.replace(/^https?:\/\//, "").slice(0, 50) ?? "—"}
+                        </span>
+                        <span className="text-muted-foreground/60 whitespace-nowrap">
+                          {r.created_at ? new Date(r.created_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="mt-3 text-xs text-muted-foreground">
+                  💡 Quand les violations sont nulles ou uniquement des extensions navigateur, passez en mode enforced dans{" "}
+                  <code className="bg-muted px-1 rounded">public/_headers</code> en renommant{" "}
+                  <code className="bg-muted px-1 rounded">Content-Security-Policy-Report-Only</code> en{" "}
+                  <code className="bg-muted px-1 rounded">Content-Security-Policy</code>.
+                </p>
+              </>
+            )}
+          </div>
+
         </div>
       </div>
     </>
