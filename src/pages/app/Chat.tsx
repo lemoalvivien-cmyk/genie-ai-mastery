@@ -106,8 +106,8 @@ function ThinkingDots() {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-bounce"
-          style={{ animationDelay: `${i * 0.15}s` }}
+          className="w-2 h-2 rounded-full animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s`, background: "#5257D8" }}
         />
       ))}
     </div>
@@ -166,7 +166,13 @@ function MessageBubble({
   if (isUser) {
     return (
       <div className="flex justify-end mb-3">
-        <div className="max-w-[80%] rounded-2xl rounded-br-sm px-4 py-3 bg-primary text-primary-foreground text-sm leading-relaxed">
+        <div
+          className="max-w-[80%] rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed text-foreground"
+          style={{
+            background: "rgba(82,87,216,0.20)",
+            borderLeft: "3px solid #5257D8",
+          }}
+        >
           {message.content}
         </div>
       </div>
@@ -181,7 +187,13 @@ function MessageBubble({
         <Zap className="w-4 h-4 text-primary-foreground" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-muted/60 border border-border/40 text-sm leading-relaxed whitespace-pre-wrap">
+        <div
+          className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
+          style={{
+            background: "#1A1D2E",
+            borderLeft: "3px solid #FE2C40",
+          }}
+        >
           {message.isLoading ? <ThinkingDots /> : message.content}
         </div>
         {!message.isLoading && (
@@ -406,7 +418,7 @@ export default function Chat() {
     <>
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
-      <div className="flex flex-col h-full gradient-hero">
+      <div className="flex flex-col h-full" style={{ background: "#0F1119" }}>
         {/* ── KITT Visualizer + Eco badge ── */}
         <div className="shrink-0 flex flex-col items-center pt-4 pb-2 gap-2">
           <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
@@ -419,7 +431,7 @@ export default function Chat() {
         </div>
 
         {/* ── Messages ── */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4" style={{ background: "#0F1119" }}>
           <div className="max-w-2xl mx-auto">
             {messages.map((msg) => (
               <MessageBubble key={msg.id} message={msg} onQuickAction={(p) => sendMessage(p)} />
@@ -446,7 +458,7 @@ export default function Chat() {
         </div>
 
         {/* ── Input ── */}
-        <div className="shrink-0 border-t border-border/40 bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-4">
+        <div className="shrink-0 border-t px-4 sm:px-6 py-4" style={{ borderColor: "#2A2D3A", background: "#13151E" }}>
           <div className="max-w-2xl mx-auto">
             <div className="flex gap-2 items-end">
               <div className="flex-1 relative">
@@ -455,8 +467,14 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={placeholder}
-                  className="min-h-[52px] max-h-36 resize-none pr-12 text-sm"
+                  placeholder="Posez votre question à KITT IA..."
+                  className="min-h-[52px] max-h-36 resize-none pr-12 text-sm transition-all"
+                  style={{
+                    background: "#1A1D2E",
+                    border: "1px solid rgba(82,87,216,0.4)",
+                    boxShadow: input ? "0 0 0 2px rgba(82,87,216,0.25)" : undefined,
+                    color: "hsl(var(--foreground))",
+                  }}
                   rows={1}
                   disabled={isLoading}
                 />
@@ -489,8 +507,14 @@ export default function Chat() {
               <Button
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
-                className="shrink-0 h-[52px] w-[52px] gradient-primary shadow-glow"
                 size="icon"
+                className="shrink-0 h-[52px] w-[52px] transition-all"
+                style={{
+                  background: "#FE2C40",
+                  boxShadow: (!input.trim() || isLoading) ? undefined : "0 0 16px rgba(254,44,64,0.5)",
+                  color: "#fff",
+                  border: "none",
+                }}
                 aria-label="Envoyer"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

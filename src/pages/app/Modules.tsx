@@ -1,31 +1,29 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { BookOpen, Filter, Search, Loader2, ChevronDown, Code2 } from "lucide-react";
+import { BookOpen, Search, Loader2, ChevronDown, Code2, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaywallOverlay } from "@/components/PaywallOverlay";
-import { useAnalytics } from "@/hooks/useAnalytics";
 
 const DOMAINS = [
   { id: "", label: "Tous" },
   { id: "ia_pro", label: "IA Pro" },
   { id: "ia_perso", label: "IA Perso" },
   { id: "cyber", label: "Cyber" },
-  { id: "vibe_coding", label: "Vibe Coding", icon: Code2, color: "emerald" },
+  { id: "vibe_coding", label: "Vibe Coding", icon: Code2 },
 ];
 
 const LEVELS = [
-  { id: "", label: "Tous niveaux" },
+  { id: "", label: "Tous" },
   { id: "debutant", label: "Débutant" },
   { id: "intermediaire", label: "Intermédiaire" },
   { id: "avance", label: "Avancé" },
 ];
 
 export default function Modules() {
-  const { signOut } = useAuth();
   const { data: sub } = useSubscription();
   const isPro = sub?.plan === "pro";
   const [searchParams] = useSearchParams();
@@ -47,12 +45,10 @@ export default function Modules() {
   const moduleIds = allModules.map((m) => m.id);
   const { data: progressMap } = useUserProgress(moduleIds.length ? moduleIds : undefined);
 
-  // Filter by search
   const filtered = allModules.filter((m) =>
     !search || m.title.toLowerCase().includes(search.toLowerCase()) || m.subtitle?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Infinite scroll observer
   useEffect(() => {
     const el = loadMoreRef.current;
     if (!el) return;
@@ -71,21 +67,26 @@ export default function Modules() {
         <meta name="description" content="Explorez tous les modules de formation IA et cybersécurité." />
       </Helmet>
 
-      <div className="gradient-hero min-h-full">
+      <div className="min-h-full" style={{ background: "#0C1014" }}>
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           {/* Page header */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-5 h-5 text-primary" aria-hidden="true" />
-              <h1 className="text-2xl font-bold">Bibliothèque de modules</h1>
+            <div className="flex items-center gap-2 mb-1">
+              <BookOpen className="w-5 h-5" style={{ color: "#5257D8" }} aria-hidden="true" />
+              <h1
+                className="text-2xl font-bold bg-clip-text text-transparent"
+                style={{ backgroundImage: "linear-gradient(90deg, #5257D8, #FE2C40)" }}
+              >
+                Votre formation
+              </h1>
             </div>
-            <p className="text-muted-foreground">Choisissez votre prochain module d'apprentissage</p>
+            <p className="text-muted-foreground text-sm">Choisissez votre prochain module d'apprentissage</p>
           </div>
 
           {/* Filters */}
           <div className="mb-6 space-y-3">
-            {/* Domain tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filtrer par domaine">
+            {/* Domain toggle buttons */}
+            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrer par domaine">
               {DOMAINS.map((d) => {
                 const isActive = domain === d.id;
                 const isVibe = d.id === "vibe_coding";
@@ -95,18 +96,31 @@ export default function Modules() {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setDomain(d.id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 border focus-ring flex items-center gap-1.5 ${
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 focus-visible:outline-none"
+                    style={
                       isActive
-                        ? isVibe
-                          ? "bg-emerald-500 text-white border-transparent shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                          : "gradient-primary text-primary-foreground border-transparent shadow-glow"
-                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/40 bg-card/40"
-                    }`}
+                        ? {
+                            background: isVibe ? "#10B981" : "#5257D8",
+                            color: "#fff",
+                            boxShadow: isVibe
+                              ? "0 0 12px rgba(16,185,129,0.45)"
+                              : "0 0 14px rgba(82,87,216,0.5)",
+                            border: "1px solid transparent",
+                          }
+                        : {
+                            background: "rgba(255,255,255,0.04)",
+                            color: "hsl(var(--muted-foreground))",
+                            border: "1px solid #2A2D3A",
+                          }
+                    }
                   >
                     {isVibe && <Code2 className="w-3.5 h-3.5 shrink-0" />}
                     {d.label}
                     {isVibe && (
-                      <span className="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                      <span
+                        className="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse"
+                        style={{ background: "rgba(16,185,129,0.2)", color: "#10B981", border: "1px solid rgba(16,185,129,0.4)" }}
+                      >
                         NEW
                       </span>
                     )}
@@ -115,7 +129,7 @@ export default function Modules() {
               })}
             </div>
 
-            {/* Sub-filters row */}
+            {/* Level + search row */}
             <div className="flex flex-col sm:flex-row gap-2">
               {/* Search */}
               <div className="relative flex-1">
@@ -126,30 +140,37 @@ export default function Modules() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Rechercher un module..."
                   aria-label="Rechercher un module"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card/60 border border-border/60 text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none transition-all"
+                  style={{
+                    background: "#1A1D2E",
+                    border: "1px solid #2A2D3A",
+                    color: "hsl(var(--foreground))",
+                  }}
                 />
               </div>
-              {/* Level select */}
-              <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                <select
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                  aria-label="Filtrer par niveau"
-                  className="pl-10 pr-8 py-2.5 rounded-xl bg-card/60 border border-border/60 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all appearance-none cursor-pointer min-w-[180px]"
-                >
-                  {LEVELS.map((l) => (
-                    <option key={l.id} value={l.id}>{l.label}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+              {/* Level toggle */}
+              <div className="flex gap-1.5">
+                {LEVELS.map((l) => (
+                  <button
+                    key={l.id}
+                    onClick={() => setLevel(l.id)}
+                    className="px-3 py-2 rounded-xl text-xs font-medium transition-all"
+                    style={
+                      level === l.id
+                        ? { background: "#5257D8", color: "#fff" }
+                        : { background: "rgba(255,255,255,0.04)", color: "hsl(var(--muted-foreground))", border: "1px solid #2A2D3A" }
+                    }
+                  >
+                    {l.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Count */}
           {!isLoading && (
-            <p className="text-sm text-muted-foreground mb-4" aria-live="polite">
+            <p className="text-xs text-muted-foreground mb-4" aria-live="polite">
               {filtered.length} module{filtered.length !== 1 ? "s" : ""} trouvé{filtered.length !== 1 ? "s" : ""}
             </p>
           )}
@@ -158,7 +179,7 @@ export default function Modules() {
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-56 rounded-2xl bg-card/40 border border-border/30 animate-pulse" />
+                <div key={i} className="h-56 rounded-2xl animate-pulse" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid #2A2D3A" }} />
               ))}
             </div>
           ) : isError ? (
@@ -172,7 +193,6 @@ export default function Modules() {
             </div>
           ) : (
             <>
-              {/* Vibe Coding domain locked for free users */}
               {domain === "vibe_coding" && !isPro ? (
                 <PaywallOverlay feature="Vibe Coding — Débloquez avec GENIE Pro" className="rounded-2xl min-h-[300px]">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pointer-events-none">
@@ -184,7 +204,6 @@ export default function Modules() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filtered.map((mod, idx) => {
-                    // Lock modules beyond the first 3 per domain for free users
                     const isLocked = !isPro && idx >= 3;
                     if (isLocked) {
                       return (
@@ -202,7 +221,7 @@ export default function Modules() {
 
           {/* Load more sentinel */}
           <div ref={loadMoreRef} className="h-8 flex items-center justify-center mt-6">
-            {isFetchingNextPage && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+            {isFetchingNextPage && <Loader2 className="w-5 h-5 animate-spin" style={{ color: "#5257D8" }} />}
           </div>
         </main>
       </div>
