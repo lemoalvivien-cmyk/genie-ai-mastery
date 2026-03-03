@@ -193,7 +193,7 @@ const App = () => (
                 <Route path="/partner" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
 
                 {/* Hidden God Mode — email-gated */}
-                <Route path="/admin-god-mode" element={<ProtectedRoute><GodMode /></ProtectedRoute>} />
+                <Route path="/admin-god-mode" element={<ProtectedRoute requireRole="admin"><GodMode /></ProtectedRoute>} />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 
