@@ -1401,6 +1401,44 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_email: string
+          referrer_id: string
+          status: Database["public"]["Enums"]["referral_status"]
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_email: string
+          referrer_id: string
+          status?: Database["public"]["Enums"]["referral_status"]
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_email?: string
+          referrer_id?: string
+          status?: Database["public"]["Enums"]["referral_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skills: {
         Row: {
           created_at: string | null
@@ -1897,6 +1935,7 @@ export type Database = {
       plan_type: "free" | "launch_59" | "pro" | "business" | "partner"
       preferred_mode_type: "enfant" | "normal" | "expert"
       progress_status: "not_started" | "in_progress" | "completed" | "failed"
+      referral_status: "pending" | "completed" | "rewarded"
       usage_kind:
         | "ai_tokens_in"
         | "ai_tokens_out"
@@ -2077,6 +2116,7 @@ export const Constants = {
       plan_type: ["free", "launch_59", "pro", "business", "partner"],
       preferred_mode_type: ["enfant", "normal", "expert"],
       progress_status: ["not_started", "in_progress", "completed", "failed"],
+      referral_status: ["pending", "completed", "rewarded"],
       usage_kind: [
         "ai_tokens_in",
         "ai_tokens_out",

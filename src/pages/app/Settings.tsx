@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
 import { useQueryClient } from "@tanstack/react-query";
+import ReferralSection from "@/components/referral/ReferralSection";
 
 export default function Settings() {
   const { profile, signOut } = useAuth();
@@ -213,6 +214,9 @@ export default function Settings() {
               </div>
             )}
           </div>
+
+          {/* Referral section */}
+          <ReferralSection />
 
           {/* Legal & privacy section */}
           <div className="rounded-2xl border border-border bg-card/60 p-6 mt-6">
