@@ -147,6 +147,27 @@
     background-clip: text;
   }
 
+  /* Page enter */
+  .page-enter {
+    animation: page-enter 200ms ease-out both;
+  }
+
+  /* CTA micro-animation */
+  .cta-hover {
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+  .cta-hover:hover {
+    transform: scale(1.02);
+  }
+
+  /* Glassmorphism card hover */
+  .card-hover {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card-hover:hover {
+    transform: scale(1.01);
+  }
+
   /* Animations */
   .animate-float      { animation: float 6s ease-in-out infinite; }
   .animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
@@ -203,6 +224,12 @@
 @keyframes kitt-scan {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+/* Page enter */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Splash animations */

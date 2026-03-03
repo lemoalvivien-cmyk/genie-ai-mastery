@@ -100,7 +100,7 @@ export default function Dashboard() {
         <title>Dashboard – GENIE IA</title>
       </Helmet>
 
-      <div className="min-h-full" style={{ background: "#13151E" }}>
+      <div className="min-h-full page-enter" style={{ background: "#13151E" }}>
         <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
           {/* ── 1. Header ── */}

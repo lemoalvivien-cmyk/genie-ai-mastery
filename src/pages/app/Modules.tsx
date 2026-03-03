@@ -67,7 +67,7 @@ export default function Modules() {
         <meta name="description" content="Explorez tous les modules de formation IA et cybersécurité." />
       </Helmet>
 
-      <div className="min-h-full" style={{ background: "#0C1014" }}>
+      <div className="min-h-full page-enter" style={{ background: "#0C1014" }}>
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           {/* Page header */}
           <div className="mb-8">
