@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  getClientIp,
+  hashIp,
+  checkIpRateLimit,
+  checkUserAbuse,
+  detectChatAbuse,
+  recordAbuse,
+  SHIELD_CONFIG,
+} from "../_shared/shield.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -235,6 +244,25 @@ serve(async (req) => {
     }
     const userId = authData.claims.sub as string;
 
+    // ── Shield: IP rate limit (layer 1) ──────────────────────────────────────
+    const clientIp = getClientIp(req);
+    const ipHash = await hashIp(clientIp);
+    const ipCheck = await checkIpRateLimit(ipHash, "chat", SHIELD_CONFIG.chat.maxRequests, SHIELD_CONFIG.chat.windowHours);
+    if (!ipCheck.allowed) {
+      recordAbuse(userId, ipHash, "rate_exceeded", "medium", { endpoint: "chat", reason: ipCheck.reason });
+      return new Response(JSON.stringify({ error: "Trop de requêtes. Attendez quelques instants avant de réessayer." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" },
+      });
+    }
+
+    // ── Shield: User abuse score (layer 2) ───────────────────────────────────
+    const userAbuse = await checkUserAbuse(userId);
+    if (userAbuse.blocked) {
+      return new Response(JSON.stringify({ error: "Votre compte est temporairement suspendu pour comportement abusif. Contactez le support si c'est une erreur." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = await req.json();
     const {
       messages = [],
@@ -347,6 +375,18 @@ serve(async (req) => {
     const lastUserMsg = messages.findLast?.((m: { role: string }) => m.role === "user")?.content ?? "";
     const sanitized = lastUserMsg.replace(/<[^>]*>/g, "").replace(/javascript:/gi, "").trim();
 
+    // ── Shield: Chat loop / spam detection (layer 3) ─────────────────────────
+    const chatAbuse = await detectChatAbuse(userId, sanitized);
+    if (chatAbuse.suspicious) {
+      recordAbuse(userId, ipHash, chatAbuse.reason ?? "spam_loop", "medium", { message_preview: sanitized.slice(0, 80) });
+      // Progressive cooldown: short message to user, don't hard block
+      if (userAbuse.score >= 40) {
+        return new Response(JSON.stringify({ error: "Activité suspecte détectée. Attendez quelques secondes avant de réessayer." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "30" },
+        });
+      }
+    }
+
     // Offensive content check
     if (containsOffensiveContent(sanitized)) {
       return new Response(JSON.stringify({
@@ -357,6 +397,7 @@ serve(async (req) => {
 
     // ── Security: detect secret/credential fishing & jailbreak attempts ──────
     if (containsSensitiveRequest(sanitized)) {
+      recordAbuse(userId, ipHash, "jailbreak_attempt", "high", { message_preview: sanitized.slice(0, 80) });
       return new Response(JSON.stringify({
         security_refused: true,
         content: "🚫 Je ne peux pas répondre à ça. Je ne divulgue jamais de mots de passe, clés API ou secrets. Si tu testes ma résistance — bravo, j'ai résisté ! 😄 Si c'est une vraie question, je t'aide autrement.",
