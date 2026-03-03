@@ -49,7 +49,10 @@ export default function Register() {
     const email = DOMPurify.sanitize(data.email.trim().toLowerCase());
     const full_name = DOMPurify.sanitize(data.full_name.trim());
 
-    const { error } = await supabase.auth.signUp({
+    // Read referral code from localStorage before signup
+    const referralCode = localStorage.getItem("genie_ref");
+
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password: data.password,
       options: {
@@ -67,7 +70,21 @@ export default function Register() {
       return;
     }
 
-    await track("signup", { method: "email" });
+    // Associate referral: mark referral record as completed
+    if (referralCode && authData.user) {
+      try {
+        await supabase
+          .from("referrals")
+          .update({ status: "completed", completed_at: new Date().toISOString() })
+          .eq("referral_code", referralCode)
+          .eq("referred_email", email);
+      } catch {
+        // Non-blocking — referral attribution failure shouldn't block signup
+      }
+      localStorage.removeItem("genie_ref");
+    }
+
+    await track("signup", { method: "email", referral_code: referralCode ?? undefined });
     navigate("/onboarding");
   };
 
