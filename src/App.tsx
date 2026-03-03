@@ -37,6 +37,7 @@ const Runbook = lazy(() => import("./pages/admin/Runbook"));
 const GuideList = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
 const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
+const GodMode = lazy(() => import("./pages/admin/GodMode"));
 const Legal = lazy(() => import("./pages/Legal"));
 const LegalCenter = lazy(() => import("./pages/legal/LegalCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -190,6 +191,9 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
                 <Route path="/partner" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
+
+                {/* Hidden God Mode — email-gated */}
+                <Route path="/admin-god-mode" element={<ProtectedRoute><GodMode /></ProtectedRoute>} />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 
