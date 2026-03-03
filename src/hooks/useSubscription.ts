@@ -25,7 +25,7 @@ const FREE_PLAN: SubscriptionInfo = {
   isActive: false,
   source: "none",
   canUseVoice: false,
-  maxMessagesPerDay: 5,
+  maxMessagesPerDay: 2,
   canAccessVibeCoding: false,
   canAccessManager: false,
   canGetAttestation: false,

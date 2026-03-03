@@ -19,6 +19,7 @@ interface Message {
   content: string;
   model_used?: string;
   isLoading?: boolean;
+  isUpsell?: boolean;
 }
 
 // ─── Action buttons ───────────────────────────────────────────────────────────
@@ -112,6 +113,46 @@ function ThinkingDots() {
   );
 }
 
+// ─── Upsell bubble ───────────────────────────────────────────────────────────
+function UpsellBubble({ content }: { content: string }) {
+  return (
+    <div className="flex gap-3 mb-4">
+      <div className="shrink-0 w-8 h-8 rounded-full gradient-primary flex items-center justify-center shadow-glow mt-1">
+        <Zap className="w-4 h-4 text-primary-foreground" />
+      </div>
+      <div className="flex-1 min-w-0 space-y-3">
+        <div
+          className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed"
+          style={{
+            background: "rgba(82,87,216,0.08)",
+            border: "1px solid rgba(82,87,216,0.3)",
+          }}
+        >
+          {content}
+        </div>
+        {/* Progress bar 2/2 */}
+        <div className="px-1">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Messages gratuits utilisés</span>
+            <span className="font-semibold" style={{ color: "#FE2C40" }}>2/2</span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+            <div className="h-full rounded-full w-full" style={{ background: "#FE2C40" }} />
+          </div>
+        </div>
+        <a
+          href="/pricing"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
+          style={{ background: "#FE2C40", color: "#fff" }}
+        >
+          <Lock className="w-4 h-4" />
+          Débloquer KITT IA illimité →
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ─── Message bubble ───────────────────────────────────────────────────────────
 function MessageBubble({
   message,
@@ -129,6 +170,9 @@ function MessageBubble({
         </div>
       </div>
     );
+  }
+  if (message.isUpsell) {
+    return <UpsellBubble content={message.content} />;
   }
   return (
     <div className="flex gap-3 mb-4">
@@ -284,7 +328,7 @@ export default function Chat() {
         });
 
         if (error) throw error;
-        if (data?.error) {
+        if (data?.error && !data?.quota_exceeded) {
           if (data.error.includes("Limite") || data.error.includes("heure")) {
             toast({ title: "Limite atteinte", description: data.error, variant: "destructive" });
           }
@@ -296,6 +340,7 @@ export default function Chat() {
           role: "assistant",
           content: data.content,
           model_used: data.model_used,
+          isUpsell: !!data.quota_exceeded,
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
         if (data.eco_mode) setEcoMode(true);
