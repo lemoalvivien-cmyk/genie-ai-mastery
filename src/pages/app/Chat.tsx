@@ -265,6 +265,13 @@ export default function Chat() {
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
   const [hasProgress] = useState(false); // TODO: fetch from progress table
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
+  // ── Semantic adaptation engine ─────────────────────────────────────────────
+  // Tracks consecutive "failure signals" (wrong quiz answers or explicit confusion)
+  // 0 = normal | 1 = simplify | 2 = ELI10 forced analogies
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const adaptationLevel = Math.min(2, consecutiveFailures);
+  const consecutiveFailuresRef = useRef(consecutiveFailures);
+  consecutiveFailuresRef.current = consecutiveFailures;
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -310,11 +317,34 @@ export default function Chat() {
   const isProRef = useRef(isPro);
   isProRef.current = isPro;
 
+  // Detect failure signals in user message (confusion keywords)
+  const CONFUSION_SIGNALS = [
+    /je (ne )?comprends? (pas|rien)/i,
+    /c'est (quoi|quoi exactement|compliqué|confus)/i,
+    /t'as perdu/i,
+    /explique (encore|autrement|plus simplement|mieux)/i,
+    /j'ai (pas|rien) compris/i,
+    /ça (veut|veux) dire quoi/i,
+    /je suis perdu/i,
+    /c'est trop (compliqué|technique|complexe)/i,
+  ];
+
+  const detectConfusion = (text: string): boolean =>
+    CONFUSION_SIGNALS.some((p) => p.test(text));
+
   const sendMessage = useCallback(
-    async (overrideText?: string) => {
+    async (overrideText?: string, isFailureSignal?: boolean) => {
       const raw = overrideText ?? input;
       const text = sanitizeInput(raw);
       if (!text || isLoading) return;
+
+      // ── Adaptation: bump failure counter if confused ─────────────────────
+      const isConfused = isFailureSignal || detectConfusion(text);
+      const newFailures = isConfused
+        ? Math.min(2, consecutiveFailuresRef.current + 1)
+        : Math.max(0, consecutiveFailuresRef.current - 1); // success slowly resets
+      setConsecutiveFailures(newFailures);
+      const currentAdaptation = Math.min(2, newFailures);
 
       setInput("");
       const userMsg: Message = { id: crypto.randomUUID(), role: "user", content: text };
@@ -341,6 +371,7 @@ export default function Chat() {
             },
             session_id: sessionId,
             request_type: "chat",
+            adaptation_level: currentAdaptation,
           },
         });
 
@@ -398,7 +429,7 @@ export default function Chat() {
         textareaRef.current?.focus();
       }
     },
-    // Only re-create when truly needed: input text, loading state, sessionId, or speak changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [input, isLoading, sessionId, speak],
   );
 
@@ -442,6 +473,16 @@ export default function Chat() {
               <EcoModeBadge active={true} />
               <span className="text-[10px] text-muted-foreground">Réponses courtes jusqu'à minuit</span>
             </div>
+          )}
+          {adaptationLevel >= 2 && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] text-amber-400 font-medium animate-pulse">
+              🧒 Mode analogies activé
+            </span>
+          )}
+          {adaptationLevel === 1 && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400 font-medium">
+              💡 Mode simplifié
+            </span>
           )}
         </div>
 
