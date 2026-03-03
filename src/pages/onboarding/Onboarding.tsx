@@ -7,7 +7,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
 import { LevelStep } from "./LevelStep";
 import { InterestStep } from "./InterestStep";
-import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
+import { CodeStep } from "./CodeStep";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export type OnboardingData = {
   persona: string;
@@ -18,6 +19,7 @@ export type OnboardingData = {
 export default function Onboarding() {
   const navigate = useNavigate();
   const { user, fetchProfile } = useAuthStore();
+  const { track } = useAnalytics();
   const [step, setStep] = useState(1);
   const [data, setData] = useState<Partial<OnboardingData>>({});
   const [showOrgForm, setShowOrgForm] = useState(false);
@@ -25,23 +27,26 @@ export default function Onboarding() {
   const [orgSize, setOrgSize] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [showCodeStep, setShowCodeStep] = useState(false);
+
   const totalSteps = 3;
 
   const handlePersona = (persona: string) => {
     setData((d) => ({ ...d, persona }));
+    track("onboarding_step_done", { step: "persona", value: persona });
     setStep(2);
   };
 
   const handleLevel = (level: string) => {
     setData((d) => ({ ...d, level }));
+    track("onboarding_step_done", { step: "level", value: level });
     setStep(3);
   };
 
   const handleFinish = async (interests: string[]) => {
     const finalData = { ...data, interests };
     setError(null);
+    track("onboarding_step_done", { step: "interests", count: interests.length });
 
     if (finalData.persona === "dirigeant") {
       setData((d) => ({ ...d, interests }));
@@ -73,7 +78,6 @@ export default function Onboarding() {
 
         if (!orgErr && orgData) {
           org_id = orgData.id;
-          // Set user as manager of this org
           await supabase.from("user_roles").upsert({
             user_id: user.id,
             role: "manager",
@@ -96,7 +100,8 @@ export default function Onboarding() {
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      setShowCodeStep(true); // Show code activation step before dashboard
+      track("onboarding_step_done", { step: "completed", persona: finalData.persona });
+      setShowCodeStep(true);
     } catch {
       setError("Une erreur est survenue. Réessayez.");
     } finally {
@@ -104,8 +109,7 @@ export default function Onboarding() {
     }
   };
 
-  const profile = useAuthStore.getState().profile;
-  const firstName = profile?.full_name?.split(" ")[0] || "vous";
+  const goToToday = () => navigate("/app/today", { replace: true });
 
   return (
     <>
@@ -125,11 +129,10 @@ export default function Onboarding() {
               </div>
               <span className="text-xl font-bold">GENIE <span className="text-gradient">IA</span></span>
             </div>
-            {!showOrgForm && (
+            {!showOrgForm && !showCodeStep && (
               <>
                 <h1 className="text-2xl font-bold mb-1">Configurons votre Génie</h1>
                 <p className="text-sm text-muted-foreground">Étape {step} sur {totalSteps}</p>
-                {/* Progress bar */}
                 <div className="mt-4 flex gap-1.5 justify-center" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={totalSteps}>
                   {Array.from({ length: totalSteps }).map((_, i) => (
                     <div
@@ -144,25 +147,11 @@ export default function Onboarding() {
 
           {/* Steps */}
           {showCodeStep ? (
-            /* Code activation bonus step */
             <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card animate-fade-in">
-              <div className="text-center mb-6">
-                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
-                  <span className="text-2xl">🎁</span>
-                </div>
-                <h2 className="text-xl font-bold">Vous avez un code d'accès ?</h2>
-                <p className="text-sm text-muted-foreground mt-1">Activez votre accès Business gratuit</p>
-              </div>
-              <div className="space-y-4">
-                <AccessCodeActivator onSuccess={() => navigate("/app/dashboard", { replace: true })} />
-                <button
-                  type="button"
-                  onClick={() => navigate("/app/dashboard", { replace: true })}
-                  className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all"
-                >
-                  Continuer sans code →
-                </button>
-              </div>
+              <CodeStep
+                onDone={goToToday}
+                onSkip={goToToday}
+              />
             </div>
           ) : !showOrgForm ? (
             <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card">

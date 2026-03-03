@@ -364,6 +364,22 @@ export default function Today() {
     setScore(missionScore);
     const prevLongest = streak?.longest_streak ?? 0;
     await completeMission(mission.id, xp, missionScore, timeSpent);
+    // Track first mission completion
+    try {
+      await supabase.from("analytics_events").insert({
+        actor_user_id: session?.user?.id ?? null,
+        org_id: profile?.org_id ?? null,
+        event_name: "first_mission_done",
+        properties: {
+          mission_id: mission.id,
+          domain: mission.domain,
+          mission_type: mission.mission_type,
+          score: missionScore,
+          xp,
+          time_spent_seconds: timeSpent,
+        },
+      });
+    } catch { /* silent */ }
     // Check if new record
     const newStreak = (streak?.current_streak ?? 0) + 1;
     if (newStreak > prevLongest) setIsNewRecord(true);
