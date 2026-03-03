@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import logoGenie from "@/assets/logo-genie.png";
-import { softwareApplicationSchema, productSchema, organizationSchema } from "@/lib/seo";
+import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 
 /* ─── CONFIGURABLE CONSTANTS ─────────────────────────────────── */
@@ -234,6 +234,7 @@ export default function Index() {
         <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
         <script type="application/ld+json">{JSON.stringify(softwareApplicationSchema())}</script>
         <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema())}</script>
       </Helmet>
 
       <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden">

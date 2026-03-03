@@ -67,6 +67,55 @@ export function productSchema() {
   };
 }
 
+export function faqSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Qu'est-ce que GENIE IA ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "GENIE IA est une plateforme de formation professionnelle en Intelligence Artificielle, Cybersécurité et Vibe Coding. Elle propose des modules interactifs, un copilote vocal KITT, et des attestations PDF vérifiables, dès 29€/mois.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Les attestations GENIE IA sont-elles reconnues par les OPCO ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Oui. Les attestations sont signées cryptographiquement et vérifiables en ligne via une URL publique (/verify/:id). Elles sont acceptées pour les démarches OPCO et CPF.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Combien coûte l'abonnement GENIE IA ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "L'abonnement Pro démarre à 29€/mois sans engagement. Un plan Business pour les équipes (jusqu'à 25 sièges) est disponible à partir de 59€/mois.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Puis-je former toute mon équipe sur GENIE IA ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Oui. Le plan Business inclut un dashboard manager, des alertes de progression, des rapports RH exportables et jusqu'à 25 sièges. Des licences multi-équipes sont disponibles sur devis.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Comment fonctionne le copilote vocal KITT ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "KITT est un assistant IA vocal intégré à la plateforme. Il répond à vos questions, génère des résumés de modules, crée des fiches pratiques et vous guide dans votre parcours de formation en langage naturel.",
+        },
+      },
+    ],
+  };
+}
+
 export function articleSchema(opts: {
   title: string;
   description: string;
