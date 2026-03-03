@@ -433,6 +433,18 @@ serve(async (req) => {
       }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // ── Nudge block: reject attestation if org has delayed users (> 7 days) ──
+    if (type === "attestation" && orgId) {
+      const { data: isBlocked } = await supabaseAdmin.rpc("org_attestation_blocked", { _org_id: orgId });
+      if (isBlocked === true) {
+        return new Response(JSON.stringify({
+          error: "attestation_blocked",
+          success: false,
+          message: "L'attestation globale est bloquée : un ou plusieurs membres de votre organisation accusent un retard supérieur à 7 jours dans leur formation. Relancez-les pour débloquer l'attestation.",
+        }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+
     // ── Resolve partner name if referral_code provided ────────────────────────
     let partnerName: string | undefined;
     if (referral_code) {

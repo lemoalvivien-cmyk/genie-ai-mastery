@@ -1044,6 +1044,42 @@ export type Database = {
         }
         Relationships: []
       }
+      nudges: {
+        Row: {
+          delay_days: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          delay_days?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          delay_days?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nudges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nudges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_budgets: {
         Row: {
           daily_cost_cap: number
@@ -2152,6 +2188,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      org_attestation_blocked: { Args: { _org_id: string }; Returns: boolean }
       record_abuse: {
         Args: {
           _details?: Json

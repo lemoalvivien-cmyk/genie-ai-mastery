@@ -291,6 +291,7 @@ serve(async (req) => {
       jarvis_stage = "short",  // "short" | "long"
       expert_mode = false,
       autopilot_id = null,     // "conformite_48h" | "vibe_coding_mvp" | "cyber_hygiene_tpe"
+      adaptation_level = 0,    // 0=normal | 1=simplify | 2=eli10 (forced analogies)
     } = body;
 
     const mode: string = user_profile.mode ?? "normal";
@@ -496,6 +497,31 @@ serve(async (req) => {
     // Build messages with system prompt
     const baseSystemPrompt = buildSystemPrompt(mode, persona, domain);
 
+    // ── Semantic adaptation layer — injected when user struggles ─────────────
+    // adaptation_level: 0=normal | 1=simplify | 2=eli10
+    const ELI10_OVERRIDE = adaptation_level >= 2
+      ? `\n\n⚠️ MODE ANALOGIES FORCÉ (l'utilisateur a eu 2+ erreurs consécutives) :
+Tu DOIS impérativement utiliser des analogies de la vie quotidienne pour TOUT.
+Exemples d'analogies à utiliser :
+- Firewall = un videur de boîte de nuit qui vérifie les identités
+- Chiffrement = enveloppe scellée qu'on ne peut ouvrir qu'avec la bonne clé
+- Phishing = quelqu'un qui se déguise en facteur pour voler ton courrier
+- Patch de sécurité = coller un sparadrap sur une blessure pour empêcher l'infection
+Règles ABSOLUES en mode ELI10 :
+- ZÉRO terme technique sans analogie immédiate
+- Chaque concept = 1 objet du quotidien (cuisine, transport, maison, école)
+- Phrases de 10 mots MAX
+- Commence TOUJOURS par : "C'est comme si..." ou "Imagine que..."
+- Pose 1 question simple à la fin pour vérifier : "Tu as compris ?"
+`
+      : adaptation_level >= 1
+      ? `\n\nMODE SIMPLIFICATION (l'utilisateur a eu 1 erreur) :
+Simplifie davantage tes explications. Utilise au moins 1 analogie du quotidien.
+Évite le jargon. Phrases courtes (max 12 mots).
+`
+      : "";
+
+
     // KITT IA stage 1: short structured JSON — cheap model, small budget
     const jarvisShortPrompt = `${baseSystemPrompt}
 
@@ -622,9 +648,9 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     if (isAutopilot && autopilot_id && AUTOPILOT_PROMPTS[autopilot_id]) {
       systemPrompt = AUTOPILOT_PROMPTS[autopilot_id];
     } else if (isJarvis) {
-      systemPrompt = jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt;
+      systemPrompt = (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt) + ELI10_OVERRIDE;
     } else {
-      systemPrompt = baseSystemPrompt;
+      systemPrompt = baseSystemPrompt + ELI10_OVERRIDE;
     }
 
     const apiMessages = [
