@@ -547,25 +547,39 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     // Calculate cost
     const costEur = calcCost(model, result.input_tokens, result.output_tokens);
 
-    // ── Log AI usage (best-effort, don't block response) ─────────────────────
+    // ── Log AI usage — RELIABLE: await with 400ms soft timeout ───────────────
     const orgId = profileData?.org_id ?? null;
     const todayStr = new Date().toISOString().split("T")[0];
-    supabaseAdmin.from("ai_usage_daily").select("id,tokens_in,tokens_out,cost_estimate")
-      .eq("user_id", userId).eq("date", todayStr).eq("model_used", model).maybeSingle()
-      .then(({ data: existing }) => {
-        if (existing) {
-          supabaseAdmin.from("ai_usage_daily").update({
-            tokens_in: (existing.tokens_in ?? 0) + result.input_tokens,
-            tokens_out: (existing.tokens_out ?? 0) + result.output_tokens,
-            cost_estimate: (Number(existing.cost_estimate) ?? 0) + costEur,
-          }).eq("id", existing.id).then(() => {}).catch(() => {});
-        } else {
-          supabaseAdmin.from("ai_usage_daily").insert({
-            user_id: userId, org_id: orgId, tokens_in: result.input_tokens,
-            tokens_out: result.output_tokens, cost_estimate: costEur, model_used: model, date: todayStr,
-          }).then(() => {}).catch(() => {});
-        }
-      }).catch(() => {});
+    const requestId = crypto.randomUUID();
+
+    const logUsage = supabaseAdmin.rpc("log_ai_usage_safe", {
+      _user_id: userId,
+      _org_id: orgId,
+      _model: model,
+      _tokens_in: result.input_tokens,
+      _tokens_out: result.output_tokens,
+      _cost_estimate: costEur,
+      _date: todayStr,
+      _request_id: requestId,
+    });
+
+    // Race: rpc vs 400ms timeout
+    const logResult = await Promise.race([
+      logUsage,
+      new Promise<{ error: Error }>((resolve) =>
+        setTimeout(() => resolve({ error: new Error("log_timeout") }), 400)
+      ),
+    ]);
+
+    // If timed out or errored: buffer-only fallback (fire-and-forget, never blocks)
+    if ((logResult as { error: unknown }).error) {
+      supabaseAdmin.from("ai_usage_buffer").insert({
+        user_id: userId, org_id: orgId, model, tokens_in: result.input_tokens,
+        tokens_out: result.output_tokens, cost_estimate: costEur, date: todayStr, request_id: requestId,
+      }).then(() => {}).catch(() => {});
+      // Increment error counter via a separate non-blocking call
+      supabaseAdmin.rpc("increment_logging_errors").then(() => {}).catch(() => {});
+    }
 
     // Log to chat_messages
     const sessionUuid = session_id ?? crypto.randomUUID();
