@@ -163,7 +163,7 @@ export default function Pricing() {
     setCheckoutLoading(true);
     track("checkout_started");
     try {
-      const referralCode = localStorage.getItem("genie_ref") ?? undefined;
+      const referralCode = sessionStorage.getItem("genie_ref") ?? undefined;
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { seats: 1, ...(referralCode ? { referral_code: referralCode } : {}) },
       });
