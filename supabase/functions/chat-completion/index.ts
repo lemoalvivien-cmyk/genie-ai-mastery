@@ -270,40 +270,75 @@ serve(async (req) => {
       });
     }
 
-    // ── Subscription check ────────────────────────────────────────────────────
+    // ── Subscription + profile check ─────────────────────────────────────────
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
       .select("org_id")
       .eq("id", userId)
       .single();
 
+    const orgId = profileData?.org_id ?? null;
+
     let isPro = false;
-    if (profileData?.org_id) {
+    if (orgId) {
       const { data: orgData } = await supabaseAdmin
         .from("organizations")
         .select("plan, plan_source")
-        .eq("id", profileData.org_id)
+        .eq("id", orgId)
         .single();
       isPro = orgData?.plan === "business" &&
         (orgData?.plan_source === "stripe" || orgData?.plan_source === "access_code");
     }
 
-    // Rate limiting: 3 msg/day for free, 500 msg/day for pro
+    // ── Budget + rate check (parallel) ───────────────────────────────────────
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const { count: todayCount } = await supabaseAdmin
-      .from("chat_messages")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("role", "user")
-      .gte("created_at", todayStart.toISOString());
 
+    const [rateLimitResult, budgetResult] = await Promise.all([
+      supabaseAdmin
+        .from("chat_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("role", "user")
+        .gte("created_at", todayStart.toISOString()),
+      supabaseAdmin.rpc("check_budget", {
+        _user_id: userId,
+        _org_id: orgId,
+      }),
+    ]);
+
+    const todayCount = rateLimitResult.count ?? 0;
+    const budget = budgetResult.data as {
+      eco_mode: boolean;
+      user_over_budget: boolean;
+      org_over_budget: boolean;
+      user_cost_today: number;
+      org_cost_today: number;
+      org_cost_cap: number;
+    } | null;
+
+    const ecoMode = budget?.eco_mode ?? false;
+    const userOverBudget = budget?.user_over_budget ?? false;
+    const orgOverBudget = budget?.org_over_budget ?? false;
+
+    // Hard block: user over their personal budget (non-org free user: 3 msg/day)
     const dailyLimit = isPro ? 500 : 3;
-    if ((todayCount ?? 0) >= dailyLimit) {
+    if (todayCount >= dailyLimit || (userOverBudget && !orgId)) {
       const msg = isPro
         ? "Limite quotidienne de 500 messages atteinte. Revenez demain !"
         : `Limite gratuite de 3 messages/jour atteinte. Passez à GENIE Pro pour 500 messages/jour.`;
-      return new Response(JSON.stringify({ error: msg }), {
+      return new Response(JSON.stringify({ error: msg, budget_exceeded: true }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Org over budget: return eco mode notice + non-AI templates suggestion
+    if (orgOverBudget && !ecoMode) {
+      return new Response(JSON.stringify({
+        error: "Budget IA de l'organisation atteint pour aujourd'hui. Mode Éco activé automatiquement.",
+        eco_mode_activated: true,
+        budget_exceeded: true,
+      }), {
         status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -328,9 +363,11 @@ serve(async (req) => {
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ── Model routing ─────────────────────────────────────────────────────────
+    // ── Model routing — Eco mode forces cheapest model + low tokens ──────────
     let model: string;
-    if (domain === "cyber") {
+    if (ecoMode) {
+      model = TIER_MODELS.tier1; // cheapest always in eco
+    } else if (domain === "cyber") {
       model = TIER_MODELS.tier3;
     } else if (expert_mode || request_type === "generation") {
       model = TIER_MODELS.tier2;
@@ -338,9 +375,11 @@ serve(async (req) => {
       model = TIER_MODELS.tier1; // ~90% of calls — cheapest
     }
 
-    // Token budgets
+    // Token budgets — eco mode caps at 300 tokens
     let maxTokens: number;
-    if (isAutopilot) {
+    if (ecoMode) {
+      maxTokens = 300; // Eco mode: short responses only
+    } else if (isAutopilot) {
       maxTokens = 800;   // Autopilot: structured JSON plan, bounded
     } else if (isJarvis && jarvis_stage === "short") {
       maxTokens = 500;
@@ -612,6 +651,12 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       tokens_used: result.input_tokens + result.output_tokens,
       cost_eur: costEur,
       session_id: sessionUuid,
+      eco_mode: ecoMode,
+      budget: budget ? {
+        user_cost_today: budget.user_cost_today,
+        org_cost_today: budget.org_cost_today,
+        org_cost_cap: budget.org_cost_cap,
+      } : undefined,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (err) {

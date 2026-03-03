@@ -219,7 +219,15 @@ function ExpertToggle({ value, onChange }: { value: boolean; onChange: (v: boole
   );
 }
 
-function SavingsBadge() {
+function SavingsBadge({ ecoForced = false }: { ecoForced?: boolean }) {
+  if (ecoForced) {
+    return (
+      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-destructive/10 border border-destructive/30 text-[10px] text-destructive font-medium">
+        <ShieldAlert className="w-2.5 h-2.5" />
+        Éco forcé ⚠️
+      </span>
+    );
+  }
   return (
     <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-[10px] text-accent-foreground font-medium">
       <Leaf className="w-2.5 h-2.5" />
@@ -329,6 +337,7 @@ export default function Jarvis() {
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [expertMode, setExpertMode] = useState(false);
+  const [ecoMode, setEcoMode] = useState(false);
 
   // Artifact Forge state
   const [forgeLoading, setForgeLoading] = useState<ForgeType | null>(null);
@@ -541,6 +550,7 @@ export default function Jarvis() {
 
         setPanel(newPanel);
         setHasResult(true);
+        if (data?.eco_mode) setEcoMode(true);
         if (voiceEnabled && isPro) speak(newPanel.kid_summary);
         else setKittState("idle");
 
@@ -620,7 +630,7 @@ export default function Jarvis() {
               <p className="text-sm font-semibold text-foreground leading-none">Jarvis</p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {!expertMode && <SavingsBadge />}
+              {!expertMode && <SavingsBadge ecoForced={ecoMode} />}
               <ExpertToggle value={expertMode} onChange={setExpertMode} />
             </div>
           </div>

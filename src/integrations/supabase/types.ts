@@ -667,6 +667,41 @@ export type Database = {
         }
         Relationships: []
       }
+      org_budgets: {
+        Row: {
+          daily_cost_cap: number
+          daily_token_cap: number
+          eco_mode_forced: boolean
+          eco_triggered_at: string | null
+          org_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          daily_cost_cap?: number
+          daily_token_cap?: number
+          eco_mode_forced?: boolean
+          eco_triggered_at?: string | null
+          org_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          daily_cost_cap?: number
+          daily_token_cap?: number
+          eco_mode_forced?: boolean
+          eco_triggered_at?: string | null
+          org_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_budgets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           completion_deadline_days: number | null
@@ -1242,6 +1277,10 @@ export type Database = {
     }
     Functions: {
       calculate_org_stats: { Args: { _org_id: string }; Returns: Json }
+      check_budget: {
+        Args: { _org_id?: string; _user_id: string }
+        Returns: Json
+      }
       check_rate_limit: {
         Args: {
           _max_calls?: number
@@ -1277,6 +1316,7 @@ export type Database = {
         }
         Returns: Json
       }
+      reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "manager" | "learner"

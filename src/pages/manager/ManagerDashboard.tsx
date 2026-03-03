@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X } from "lucide-react";
+import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +123,10 @@ export default function ManagerDashboard() {
   const [attestations, setAttestations] = useState<Attestation[]>([]);
   const [modules, setModules] = useState<{ id: string; title: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [orgBudget, setOrgBudget] = useState<{
+    daily_cost_cap: number; daily_token_cap: number; eco_mode_forced: boolean; eco_triggered_at: string | null;
+  } | null>(null);
+  const [budgetUsage, setBudgetUsage] = useState<{ org_cost_today: number; org_tokens_today: number } | null>(null);
 
   // Team table state
   const [search, setSearch] = useState("");
@@ -156,13 +160,14 @@ export default function ManagerDashboard() {
     if (!profile?.org_id) return;
     setLoading(true);
     try {
-      const [orgRes, statsRes, teamRes, campaignsRes, attestationsRes, modulesRes] = await Promise.all([
+      const [orgRes, statsRes, teamRes, campaignsRes, attestationsRes, modulesRes, budgetRes] = await Promise.all([
         supabase.from("organizations").select("*").eq("id", profile.org_id).single(),
         supabase.rpc("calculate_org_stats", { _org_id: profile.org_id }),
         supabase.from("profiles").select("id, full_name, email, last_active_at").eq("org_id", profile.org_id),
         supabase.from("campaigns").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false }),
         supabase.from("attestations").select("*").eq("org_id", profile.org_id).order("generated_at", { ascending: false }),
         supabase.from("modules").select("id, title").eq("is_published", true),
+        supabase.rpc("check_budget", { _user_id: profile.id, _org_id: profile.org_id }),
       ]);
 
       if (orgRes.data) {
@@ -175,6 +180,15 @@ export default function ManagerDashboard() {
       if (campaignsRes.data) setCampaigns(campaignsRes.data as Campaign[]);
       if (attestationsRes.data) setAttestations(attestationsRes.data as Attestation[]);
       if (modulesRes.data) setModules(modulesRes.data);
+
+      // Budget data
+      if (budgetRes.data) {
+        const bd = budgetRes.data as Record<string, unknown>;
+        setBudgetUsage({ org_cost_today: Number(bd.org_cost_today ?? 0), org_tokens_today: Number(bd.org_tokens_today ?? 0) });
+        // Fetch org_budgets config
+        const { data: ob } = await supabase.from("org_budgets").select("*").eq("org_id", profile.org_id).maybeSingle();
+        if (ob) setOrgBudget(ob as typeof orgBudget);
+      }
 
       // Build team with progress stats
       if (teamRes.data) {
@@ -438,7 +452,7 @@ export default function ManagerDashboard() {
                 <div className="text-2xl font-bold">{seatsUsed}<span className="text-muted-foreground text-base font-normal"> / {seatsMax}</span></div>
                 <Progress value={seatsPct} className="mt-2 h-1.5" />
                 {seatsUsed >= seatsMax && (
-                  <p className="text-xs text-orange-400 mt-1.5">Limite atteinte — <Link to="/pricing" className="underline">Upgrader</Link></p>
+                  <p className="text-xs text-destructive mt-1.5">Limite atteinte — <Link to="/pricing" className="underline">Upgrader</Link></p>
                 )}
               </CardContent>
             </Card>
@@ -483,6 +497,57 @@ export default function ManagerDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* ── Budget IA du jour ── */}
+          {budgetUsage && (() => {
+            const costToday = budgetUsage.org_cost_today;
+            const tokensToday = budgetUsage.org_tokens_today;
+            const costCap = orgBudget?.daily_cost_cap ?? 5;
+            const tokenCap = orgBudget?.daily_token_cap ?? 500000;
+            const ecoForced = orgBudget?.eco_mode_forced ?? false;
+            const costPct = Math.min((costToday / costCap) * 100, 100);
+            const tokenPct = Math.min((tokensToday / tokenCap) * 100, 100);
+            const warn = costPct >= 80;
+            return (
+              <Card className={`bg-card/60 backdrop-blur-sm ${ecoForced ? "border-destructive/50" : "border-border/50"}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    {ecoForced
+                      ? <><ShieldAlert className="w-4 h-4 text-destructive" /> Budget IA — Mode Éco forcé ⚠️</>
+                      : <><Zap className="w-4 h-4 text-primary" /> Budget IA du jour</>}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {ecoForced && (
+                    <p className="text-xs text-destructive/80 bg-destructive/5 rounded-lg px-3 py-2">
+                      Le budget quotidien a été dépassé. Les réponses IA sont en mode économique jusqu'à minuit.
+                    </p>
+                  )}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Coût estimé</span>
+                      <span className={warn ? "text-destructive font-semibold" : "text-foreground font-medium"}>
+                        €{costToday.toFixed(4)} / €{costCap.toFixed(2)}
+                      </span>
+                    </div>
+                    <Progress value={costPct} className="h-2" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Tokens utilisés</span>
+                      <span className="text-foreground font-medium">{tokensToday.toLocaleString()} / {tokenCap.toLocaleString()}</span>
+                    </div>
+                    <Progress value={tokenPct} className="h-2" />
+                  </div>
+                  {ecoForced && orgBudget?.eco_triggered_at && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Mode éco déclenché à {new Date(orgBudget.eco_triggered_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {/* ── Gaps équipe Palantir ── */}
           {org?.id && <OrgGapsWidget orgId={org.id} />}

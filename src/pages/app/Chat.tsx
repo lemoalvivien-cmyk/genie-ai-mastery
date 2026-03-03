@@ -162,14 +162,29 @@ function MessageBubble({
   );
 }
 
+// ─── Eco mode badge ───────────────────────────────────────────────────────────
+function EcoModeBadge({ active }: { active: boolean }) {
+  if (!active) return (
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium">
+      ✅ Économiseur
+    </span>
+  );
+  return (
+    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-destructive/10 border border-destructive/30 text-[10px] text-destructive font-medium">
+      ⚠️ Éco forcé
+    </span>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function Chat() {
-  const { profile, signOut, session } = useAuth();
+  const { profile, session } = useAuth();
   const navigate = useNavigate();
   const { data: sub } = useSubscription();
   const isPro = sub?.isActive ?? false;
   const [searchParams] = useSearchParams();
   const isPanic = searchParams.get("panic") === "autre";
+  const [ecoMode, setEcoMode] = useState(false);
 
   // Dynamic welcome message
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
@@ -283,6 +298,7 @@ export default function Chat() {
           model_used: data.model_used,
         };
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
+        if (data.eco_mode) setEcoMode(true);
 
         if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");
@@ -337,9 +353,15 @@ export default function Chat() {
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
       <div className="flex flex-col h-full gradient-hero">
-        {/* ── KITT Visualizer ── */}
-        <div className="shrink-0 flex justify-center pt-4 pb-2">
+        {/* ── KITT Visualizer + Eco badge ── */}
+        <div className="shrink-0 flex flex-col items-center pt-4 pb-2 gap-2">
           <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
+          {ecoMode && (
+            <div className="flex items-center gap-2">
+              <EcoModeBadge active={true} />
+              <span className="text-[10px] text-muted-foreground">Réponses courtes jusqu'à minuit</span>
+            </div>
+          )}
         </div>
 
         {/* ── Messages ── */}
