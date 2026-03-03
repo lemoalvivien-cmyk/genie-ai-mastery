@@ -7,6 +7,7 @@ import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const DOMAINS = [
   { id: "", label: "Tous" },

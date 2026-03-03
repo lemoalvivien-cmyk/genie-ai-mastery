@@ -45,6 +45,9 @@ verify_jwt = false
 [functions.daily-cron]
 verify_jwt = false
 
+[functions.guardrails-alert]
+verify_jwt = false
+
 [functions.update-seats]
 verify_jwt = false
 
