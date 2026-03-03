@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import logoGenie from "@/assets/logo-genie.png";
+import { OfficeHoursCard } from "@/components/OfficeHoursCard";
 import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
@@ -649,6 +650,15 @@ export default function Index() {
                 Rejoignez {SOCIAL_PROOF_COUNT}+ professionnels. Zéro spam, désinscription en 1 clic.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════
+            OFFICE HOURS
+        ══════════════════════════════════════════════════════════ */}
+        <section className="relative py-20 px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto">
+            <OfficeHoursCard />
           </div>
         </section>
 
