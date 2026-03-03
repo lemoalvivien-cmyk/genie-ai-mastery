@@ -59,12 +59,16 @@ export function PdfDownloadButton({
     if (locked || disabled || loading) return;
     setLoading(true);
     try {
+      // Pass referral_code from localStorage if present (set at landing/register time)
+      const referralCode = localStorage.getItem("ref_code") ?? undefined;
+
       const { data, error } = await supabase.functions.invoke("generate-pdf", {
         body: {
           type,
           module_id: moduleId,
           org_name: orgName,
           base_url: window.location.origin,
+          referral_code: referralCode,
         },
       });
 
