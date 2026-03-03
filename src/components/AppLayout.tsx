@@ -31,7 +31,7 @@ export default function AppLayout() {
     {
       to: "/app/today",
       icon: Sparkles,
-      label: "Mon Jarvis",
+      label: "Mon KITT IA",
       badge: currentStreak > 0 ? String(currentStreak) : null,
       dot: !missionDone,
     },
@@ -173,7 +173,7 @@ export default function AppLayout() {
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive border border-background" />
                 )}
               </div>
-              <span>{item.label === "Mon Jarvis" ? "Jarvis" : item.label}</span>
+              <span>{item.label === "Mon KITT IA" ? "KITT IA" : item.label}</span>
             </NavLink>
           ))}
         </nav>

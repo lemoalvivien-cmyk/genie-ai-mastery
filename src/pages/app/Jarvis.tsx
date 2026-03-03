@@ -142,7 +142,7 @@ export default function Jarvis() {
     onQuotaExceeded: () => {
       toast({
         title: "🔇 Mode lecture activé",
-        description: "Quota voix atteint ce mois. Jarvis continue en texte + voix navigateur.",
+        description: "Quota voix atteint ce mois. KITT IA continue en texte + voix navigateur.",
       });
     },
     voiceEnabled,
@@ -156,14 +156,14 @@ export default function Jarvis() {
   useEffect(() => {
     const firstName = profile?.full_name?.split(" ")[0] ?? "toi";
     const greetings: Record<string, string> = {
-      senior: `Bonjour ${firstName} ! 😊 Je suis Jarvis, ton assistant numérique. Je suis là pour t'aider, étape par étape, sans jargon. Par quoi voudrais-tu commencer aujourd'hui ?`,
-      parent: `Salut ${firstName} ! 👋 Je suis Jarvis. Je t'aide à utiliser le numérique en toute sécurité pour toi et ta famille. Qu'est-ce qui te préoccupe en ce moment ?`,
-      jeune: `Hey ${firstName} ! ⚡ Je suis Jarvis, ton copilote IA. On peut coder, apprendre, et explorer ensemble. C'est parti !`,
-      dirigeant: `Bonjour ${firstName}. Je suis Jarvis, votre Génie IA. Je vais vous donner des actions concrètes pour votre organisation. Quel est votre défi du moment ?`,
-      independant: `Salut ${firstName} ! 🚀 Je suis Jarvis. Dis-moi ce qui te prend trop de temps — on va automatiser ça !`,
-      salarie: `Bonjour ${firstName} ! 🤖 Je suis Jarvis. Ensemble on va booster ta productivité et sécuriser ton quotidien numérique. Par où commencer ?`,
+      senior: `Bonjour ${firstName} ! 😊 Je suis KITT IA, ton assistant numérique. Je suis là pour t'aider, étape par étape, sans jargon. Par quoi voudrais-tu commencer aujourd'hui ?`,
+      parent: `Salut ${firstName} ! 👋 Je suis KITT IA. Je t'aide à utiliser le numérique en toute sécurité pour toi et ta famille. Qu'est-ce qui te préoccupe en ce moment ?`,
+      jeune: `Hey ${firstName} ! ⚡ Je suis KITT IA, ton copilote IA. On peut coder, apprendre, et explorer ensemble. C'est parti !`,
+      dirigeant: `Bonjour ${firstName}. Je suis KITT IA, votre Génie IA. Je vais vous donner des actions concrètes pour votre organisation. Quel est votre défi du moment ?`,
+      independant: `Salut ${firstName} ! 🚀 Je suis KITT IA. Dis-moi ce qui te prend trop de temps — on va automatiser ça !`,
+      salarie: `Bonjour ${firstName} ! 🤖 Je suis KITT IA. Ensemble on va booster ta productivité et sécuriser ton quotidien numérique. Par où commencer ?`,
     };
-    const welcome = (persona && greetings[persona]) ?? `Bonjour ${firstName} ! ⚡ Je suis Jarvis, ton Génie IA. Pose-moi n'importe quelle question sur l'IA ou la cybersécurité !`;
+    const welcome = (persona && greetings[persona]) ?? `Bonjour ${firstName} ! ⚡ Je suis KITT IA, ton Génie IA. Pose-moi n'importe quelle question sur l'IA ou la cybersécurité !`;
     setMessages([{ id: "welcome", role: "assistant", content: welcome }]);
 
     if (voiceEnabled) {
@@ -239,8 +239,8 @@ export default function Jarvis() {
   return (
     <>
       <Helmet>
-        <title>Jarvis – Cockpit IA | GENIE IA</title>
-        <meta name="description" content="Votre assistant IA personnel : guide, coaching, missions du jour et cockpit de progression." />
+        <title>KITT IA — Votre copilote intelligent | GENIE IA</title>
+        <meta name="description" content="KITT IA : votre copilote intelligent. Guide, coaching, missions du jour et cockpit de progression." />
       </Helmet>
 
       <div className="flex h-full overflow-hidden">
@@ -256,7 +256,7 @@ export default function Jarvis() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">Jarvis</span>
+                  <span className="text-sm font-bold">KITT IA</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">En ligne</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground">Guide IA · Ultra patient · Toujours là</p>
