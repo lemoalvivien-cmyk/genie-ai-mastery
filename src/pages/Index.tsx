@@ -181,7 +181,7 @@ export default function Index() {
 
   useEffect(() => {
     const ref = searchParams.get("ref");
-    if (ref) localStorage.setItem("genie_ref", ref.toUpperCase());
+    if (ref) sessionStorage.setItem("genie_ref", ref.toUpperCase());
   }, [searchParams]);
 
   const handleCheckout = async () => {
@@ -191,7 +191,7 @@ export default function Index() {
     }
     setCheckoutLoading(true);
     try {
-      const referralCode = localStorage.getItem("genie_ref") ?? undefined;
+      const referralCode = sessionStorage.getItem("genie_ref") ?? undefined;
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { seats: 1, ...(referralCode ? { referral_code: referralCode } : {}) },
       });

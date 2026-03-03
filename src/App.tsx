@@ -71,7 +71,7 @@ function RefCapture() {
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const ref = searchParams.get("ref");
-    if (ref) localStorage.setItem("genie_ref", ref.toUpperCase().slice(0, 20));
+    if (ref) sessionStorage.setItem("genie_ref", ref.toUpperCase().slice(0, 20));
   }, [searchParams]);
   return null;
 }
