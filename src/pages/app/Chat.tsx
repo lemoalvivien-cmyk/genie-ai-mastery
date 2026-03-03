@@ -418,7 +418,7 @@ export default function Chat() {
     <>
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
-      <div className="flex flex-col h-full" style={{ background: "#0F1119" }}>
+      <div className="flex flex-col h-full page-enter" style={{ background: "#0F1119" }}>
         {/* ── KITT Visualizer + Eco badge ── */}
         <div className="shrink-0 flex flex-col items-center pt-4 pb-2 gap-2">
           <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
