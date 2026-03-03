@@ -70,7 +70,7 @@ serve(async (req) => {
       if (body?.referral_code && typeof body.referral_code === "string") {
         referralCode = body.referral_code.trim().toUpperCase();
       }
-    } catch { /* body is optional */ }
+    } catch (_e) { /* body is optional */ }
 
     // Fetch org
     const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
