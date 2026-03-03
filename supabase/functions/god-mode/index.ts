@@ -1,8 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 
-const GOD_EMAIL = "lemoalvivien@gmail.com";
-
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
   "https://genie-ai-mastery.lovable.app",
@@ -54,14 +52,15 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
-  // Verify email via service role
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("email")
-    .eq("id", claims.claims.sub)
-    .single();
+  // Verify admin role via user_roles table (source of truth)
+  const { data: roleData } = await admin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", claims.claims.sub)
+    .eq("role", "admin")
+    .maybeSingle();
 
-  if (profile?.email !== GOD_EMAIL) {
+  if (!roleData) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403, headers: corsHeaders,
     });
