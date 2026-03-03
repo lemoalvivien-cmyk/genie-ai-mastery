@@ -87,5 +87,6 @@ verify_jwt = false
 [functions.cost-guard]
 verify_jwt = false
 
-
+[functions.god-mode]
+verify_jwt = false
 
