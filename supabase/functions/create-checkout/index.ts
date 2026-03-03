@@ -26,7 +26,9 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
@@ -35,35 +37,48 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id });
 
     // Rate limit: max 3 checkout sessions / hour
-    const oneHourAgo = new Date(Date.now() - 3600_000).toISOString();
+    const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString();
     const { count } = await supabase
       .from("audit_logs")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id)
       .eq("action", "checkout_created")
       .gte("created_at", oneHourAgo);
-    if ((count ?? 0) >= 3) {
+    if ((count ?? 0) >= 5) {
       return new Response(JSON.stringify({ error: "Trop de tentatives. Réessayez dans une heure." }), {
         status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Read body: optional seat quantity
+    let seats = 1;
+    try {
+      const body = await req.json();
+      if (body?.seats && typeof body.seats === "number" && body.seats >= 1 && body.seats <= 500) {
+        seats = Math.floor(body.seats);
+      }
+    } catch { /* body is optional */ }
+
     // Fetch org
     const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
     const orgId = profile?.org_id;
-    let orgData: { stripe_customer_id?: string; plan?: string; plan_source?: string } = {};
+    let orgData: { stripe_customer_id?: string; plan?: string; plan_source?: string; stripe_subscription_id?: string } = {};
     if (orgId) {
       const { data } = await supabase
         .from("organizations")
-        .select("stripe_customer_id, plan, plan_source")
+        .select("stripe_customer_id, plan, plan_source, stripe_subscription_id")
         .eq("id", orgId)
         .single();
       orgData = data ?? {};
     }
 
-    // Already subscribed?
-    if (orgData.plan === "business" && orgData.plan_source === "stripe" && orgData.stripe_customer_id) {
-      return new Response(JSON.stringify({ error: "Vous avez déjà un abonnement actif." }), {
+    // Already subscribed via Stripe?
+    if (
+      (orgData.plan === "business" || orgData.plan === "compliance") &&
+      orgData.plan_source === "stripe" &&
+      orgData.stripe_subscription_id
+    ) {
+      return new Response(JSON.stringify({ error: "Vous avez déjà un abonnement actif. Gérez-le depuis le portail." }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -74,11 +89,11 @@ serve(async (req) => {
       ? Deno.env.get("STRIPE_PRICE_PRO")
       : Deno.env.get("STRIPE_PRICE_PRO_FULL");
     if (!priceId) throw new Error("Price ID not configured");
-    logStep("Using price", { priceId, launchActive });
+    logStep("Using price", { priceId, launchActive, seats });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Create or reuse customer
+    // Create or reuse Stripe customer
     let customerId = orgData.stripe_customer_id;
     if (!customerId) {
       const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
@@ -87,11 +102,11 @@ serve(async (req) => {
       } else {
         const customer = await stripe.customers.create({
           email: user.email!,
+          name: user.user_metadata?.full_name as string | undefined,
           metadata: { user_id: user.id, org_id: orgId ?? "" },
         });
         customerId = customer.id;
       }
-      // Store customer id if org exists
       if (orgId) {
         await supabase.from("organizations").update({ stripe_customer_id: customerId }).eq("id", orgId);
       }
@@ -99,23 +114,33 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "https://genie-ai-mastery.lovable.app";
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: seats }],
       mode: "subscription",
-      trial_period_days: 1,
+      // ── 14-day free trial ──
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats) },
+      },
+      // ── Stripe Tax: collect tax IDs + auto-calculate ──
+      automatic_tax: { enabled: true },
+      customer_update: { address: "auto" },
+      tax_id_collection: { enabled: true },
+      // ──────────────────────────────────────────────────
+      allow_promotion_codes: true,
       success_url: `${origin}/app/dashboard?payment=success`,
       cancel_url: `${origin}/pricing?payment=cancelled`,
-      allow_promotion_codes: true,
-      metadata: { user_id: user.id, org_id: orgId ?? "" },
+      metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats) },
     });
-    logStep("Checkout session created", { sessionId: session.id });
+    logStep("Checkout session created", { sessionId: session.id, seats });
 
     // Audit log
     await supabase.from("audit_logs").insert({
       user_id: user.id,
       action: "checkout_created",
-      details: { session_id: session.id, price_id: priceId },
+      details: { session_id: session.id, price_id: priceId, seats },
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

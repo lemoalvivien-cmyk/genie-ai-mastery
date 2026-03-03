@@ -14,6 +14,10 @@ export interface SubscriptionInfo {
   canUseDailyMissions: boolean;
   isLaunchPrice: boolean;
   renewalDate: string | null;
+  isTrialing: boolean;
+  trialEndsAt: string | null;
+  seatsMax: number;
+  seatsUsed: number;
 }
 
 const FREE_PLAN: SubscriptionInfo = {
@@ -28,6 +32,10 @@ const FREE_PLAN: SubscriptionInfo = {
   canUseDailyMissions: false,
   isLaunchPrice: false,
   renewalDate: null,
+  isTrialing: false,
+  trialEndsAt: null,
+  seatsMax: 1,
+  seatsUsed: 0,
 };
 
 export function useSubscription() {
@@ -54,8 +62,12 @@ export function useSubscription() {
         canAccessManager: isPro,
         canGetAttestation: isPro,
         canUseDailyMissions: isPro,
-        isLaunchPrice: false, // determined client-side from env/config
+        isLaunchPrice: false,
         renewalDate: data.renewal_date ?? null,
+        isTrialing: data.is_trialing ?? false,
+        trialEndsAt: data.trial_ends_at ?? null,
+        seatsMax: data.seats_max ?? 1,
+        seatsUsed: data.seats_used ?? 0,
       };
     },
   });
