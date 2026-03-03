@@ -463,11 +463,10 @@ export default function Index() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl glass">
                 <span
-                  ref={proRef}
                   className="text-3xl font-black tabular-nums"
                   style={{ color: "hsl(var(--primary))" }}
                 >
-                  {proCount}+
+                  127+
                 </span>
                 <span className="text-base font-semibold text-foreground">professionnels formés</span>
               </div>
@@ -772,7 +771,7 @@ export default function Index() {
               )}
 
               <p className="text-xs text-muted-foreground mt-4">
-                Rejoignez {SOCIAL_PROOF_COUNT}+ professionnels. Zéro spam, désinscription en 1 clic.
+                Rejoignez les premiers professionnels GENIE. Zéro spam, désinscription en 1 clic.
               </p>
             </div>
           </div>
