@@ -76,13 +76,12 @@ export default function Login() {
 
     clearAttempts(email);
 
-    // Log connexion in audit_logs (fire and forget)
+    // Log connexion in audit_logs via RPC (no direct client insert)
     if (authData?.user) {
-      supabase.from("audit_logs").insert({
-        user_id: authData.user.id,
-        action: "login",
-        resource_type: "auth",
-        details: { method: "password" },
+      supabase.rpc("log_audit", {
+        _action: "login",
+        _resource_type: "auth",
+        _meta: { method: "password" },
       }).then(() => {});
     }
 

@@ -118,11 +118,11 @@ export function PanicButton() {
       await speakAndShow(PROTOCOLS[key].steps[0]);
 
       if (session?.user?.id) {
-        await supabase.from("audit_logs").insert({
-          user_id: session.user.id,
-          action: "panic_protocol",
-          details: { type: key },
-        });
+        // Use RPC to log audit — no direct client insert allowed
+        supabase.rpc("log_audit", {
+          _action: "panic_protocol",
+          _meta: { type: key },
+        }).then(() => {});
       }
     },
     [session, speakAndShow, navigate, closeModal],
