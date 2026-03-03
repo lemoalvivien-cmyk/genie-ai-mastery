@@ -8,6 +8,7 @@ import { Eye, EyeOff, Mail, Lock, User, Loader2, Sparkles, Brain } from "lucide-
 import { supabase } from "@/integrations/supabase/client";
 import { validatePassword } from "@/lib/security";
 import DOMPurify from "dompurify";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const schema = z.object({
   full_name: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50),
@@ -26,6 +27,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function Register() {
   const navigate = useNavigate();
+  const { track } = useAnalytics();
   const [showPassword, setShowPassword] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [magicEmail, setMagicEmail] = useState("");
@@ -65,6 +67,7 @@ export default function Register() {
       return;
     }
 
+    await track("signup", { method: "email" });
     navigate("/onboarding");
   };
 
