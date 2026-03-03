@@ -64,14 +64,20 @@ Deno.serve(async (req) => {
   );
 
   try {
-    // Fetch all enabled sources
-    const { data: sources, error: sourcesError } = await supabase
-      .from("sources")
-      .select("*")
-      .eq("enabled", true);
+    // Fetch enabled sources from both legacy `sources` AND curated `sources_watchlist`
+    const [legacySources, watchlistSources] = await Promise.all([
+      supabase.from("sources").select("*").eq("enabled", true),
+      supabase.from("sources_watchlist").select("*").eq("enabled", true),
+    ]);
+    const sourcesError = legacySources.error || watchlistSources.error;
+    // Merge: watchlist items use same shape, map them to a unified format
+    const allSources = [
+      ...(legacySources.data ?? []),
+      ...(watchlistSources.data ?? []).map((w) => ({ ...w, last_fetch_at: w.last_fetch_at })),
+    ];
 
     if (sourcesError) throw sourcesError;
-    if (!sources || sources.length === 0) {
+    if (!allSources || allSources.length === 0) {
       return new Response(JSON.stringify({ ok: true, message: "No sources" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -79,7 +85,7 @@ Deno.serve(async (req) => {
 
     const results: Array<{ source: string; fetched: number; inserted: number; error?: string }> = [];
 
-    for (const source of sources) {
+    for (const source of allSources) {
       try {
         console.log(`Fetching: ${source.name} (${source.url})`);
 
@@ -120,11 +126,18 @@ Deno.serve(async (req) => {
           if (!insertError) inserted++;
         }
 
-        // Update last_fetch_at
+        // Update last_fetch_at on both tables (best-effort)
         await supabase
           .from("sources")
           .update({ last_fetch_at: new Date().toISOString() })
           .eq("id", source.id);
+        // Also update watchlist if this source came from there
+        supabase
+          .from("sources_watchlist")
+          .update({ last_fetch_at: new Date().toISOString() })
+          .eq("id", source.id)
+          .then(() => {})
+          .catch(() => {});
 
         results.push({ source: source.name, fetched: items.length, inserted });
       } catch (err) {

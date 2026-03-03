@@ -326,11 +326,11 @@ serve(async (req) => {
         (orgData?.plan_source === "stripe" || orgData?.plan_source === "access_code");
     }
 
-    // ── Budget + rate check (parallel) ───────────────────────────────────────
+    // ── can_execute quota check + budget check (parallel) ────────────────────
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const [rateLimitResult, budgetResult] = await Promise.all([
+    const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
       supabaseAdmin
         .from("chat_messages")
         .select("*", { count: "exact", head: true })
@@ -341,9 +341,22 @@ serve(async (req) => {
         _user_id: userId,
         _org_id: orgId,
       }),
+      supabaseAdmin.rpc("can_execute", {
+        _user_id: userId,
+        _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
+        _kind: "ai_tokens_out",
+      }),
     ]);
 
     const todayCount = rateLimitResult.count ?? 0;
+    const quota = quotaResult.data as { allowed: boolean; current_usage: number; limit: number; remaining: number } | null;
+    // If quota check says not allowed and limit != -1, block
+    if (quota && !quota.allowed && quota.limit !== -1) {
+      return new Response(JSON.stringify({
+        error: `Quota IA mensuel atteint (${quota.current_usage.toLocaleString()} / ${quota.limit.toLocaleString()} tokens). Votre quota se renouvelle le 1er du mois.`,
+        quota_exceeded: true,
+      }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const budget = budgetResult.data as {
       eco_mode: boolean;
       user_over_budget: boolean;
@@ -631,6 +644,14 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
         // Validation failed, keep original content
       }
     }
+
+    // ── Increment quota usage (fire-and-forget) ───────────────────────────────
+    supabaseAdmin.rpc("increment_usage", {
+      _user_id: userId,
+      _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
+      _kind: "ai_tokens_out",
+      _amount: result.output_tokens,
+    }).then(() => {}).catch(() => {});
 
     // Calculate cost
     const costEur = calcCost(model, result.input_tokens, result.output_tokens);
