@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   AlertTriangle, CheckCircle, BookOpen, Bot, BarChart3,
@@ -135,31 +135,6 @@ function useCountdown(target: Date) {
   return timeLeft;
 }
 
-/* ─── Counter-up hook ────────────────────────────────────────── */
-function useCounterUp(target: number, duration = 1500) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        observer.disconnect();
-        const start = Date.now();
-        const step = () => {
-          const elapsed = Date.now() - start;
-          const progress = Math.min(elapsed / duration, 1);
-          setCount(Math.floor(progress * target));
-          if (progress < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target, duration]);
-  return { count, ref };
-}
 
 /* ─── Main component ─────────────────────────────────────────── */
 export default function Index() {
