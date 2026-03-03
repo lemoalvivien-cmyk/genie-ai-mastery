@@ -57,7 +57,7 @@ export function useSubscription() {
         isActive: isPro,
         source,
         canUseVoice: isPro,
-        maxMessagesPerDay: isPro ? 500 : 5,
+        maxMessagesPerDay: isPro ? 500 : 2,
         canAccessVibeCoding: isPro,
         canAccessManager: isPro,
         canGetAttestation: isPro,
