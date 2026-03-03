@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_buffer: {
+        Row: {
+          cost_estimate: number
+          created_at: string
+          date: string
+          id: string
+          model: string | null
+          org_id: string | null
+          request_id: string | null
+          tokens_in: number
+          tokens_out: number
+          user_id: string | null
+        }
+        Insert: {
+          cost_estimate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          model?: string | null
+          org_id?: string | null
+          request_id?: string | null
+          tokens_in?: number
+          tokens_out?: number
+          user_id?: string | null
+        }
+        Update: {
+          cost_estimate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          model?: string | null
+          org_id?: string | null
+          request_id?: string | null
+          tokens_in?: number
+          tokens_out?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ai_usage_daily: {
         Row: {
           cost_estimate: number
@@ -100,6 +139,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      app_metrics: {
+        Row: {
+          id: number
+          last_logging_error_at: string | null
+          logging_errors: number
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number
+          last_logging_error_at?: string | null
+          logging_errors?: number
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number
+          last_logging_error_at?: string | null
+          logging_errors?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       app_settings: {
         Row: {
@@ -1190,6 +1250,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      flush_usage_buffer: { Args: never; Returns: Json }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -1201,6 +1262,19 @@ export type Database = {
       is_manager_of_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
+      }
+      log_ai_usage_safe: {
+        Args: {
+          _cost_estimate: number
+          _date?: string
+          _model: string
+          _org_id: string
+          _request_id?: string
+          _tokens_in: number
+          _tokens_out: number
+          _user_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {
