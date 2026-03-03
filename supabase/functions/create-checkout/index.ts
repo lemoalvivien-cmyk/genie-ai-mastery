@@ -103,7 +103,7 @@ serve(async (req) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      trial_period_days: 14,
+      trial_period_days: 1,
       success_url: `${origin}/app/dashboard?payment=success`,
       cancel_url: `${origin}/pricing?payment=cancelled`,
       allow_promotion_codes: true,
