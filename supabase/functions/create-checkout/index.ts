@@ -97,12 +97,11 @@ serve(async (req) => {
       });
     }
 
-    // Determine price
-    const launchActive = Deno.env.get("LAUNCH_PRICE_ACTIVE") === "true";
-    const priceId = launchActive
-      ? Deno.env.get("STRIPE_PRICE_PRO")
-      : Deno.env.get("STRIPE_PRICE_PRO_FULL");
-    if (!priceId) throw new Error("Price ID not configured");
+    // ── ACTION REQUISE : Vérifier que le Price ID dans le dashboard Stripe correspond exactement à l'abonnement 59€ TTC/mois ──
+    // Variable d'environnement attendue : STRIPE_PRICE_59_TTC
+    const priceId = Deno.env.get("STRIPE_PRICE_59_TTC") ?? Deno.env.get("STRIPE_PRICE_PRO");
+    if (!priceId) throw new Error("Price ID non configuré — vérifier STRIPE_PRICE_59_TTC dans les secrets");
+    console.warn("[CREATE-CHECKOUT] Action requise : Vérifier que le Price ID dans le dashboard Stripe correspond exactement à l'abonnement 59€ TTC/mois");
     logStep("Using price", { priceId, launchActive, seats });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });

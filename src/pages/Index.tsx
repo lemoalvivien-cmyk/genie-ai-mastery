@@ -68,8 +68,8 @@ const PROBLEMS = [
 const SOLUTIONS = [
   {
     icon: CheckCircle,
-    title: "Dès 29€/mois",
-    body: "Accès complet à 500+ modules IA, Cyber et Vibe Coding. Sans engagement.",
+    title: "59€ TTC/mois",
+    body: "Couverture légale totale pour votre organisation. 25 sièges inclus, Evidence Vault illimité. Sans engagement.",
   },
   {
     icon: CheckCircle,
@@ -280,9 +280,9 @@ export default function Index() {
 
       <Helmet>
         <title>GENIE IA – Formez-vous à l'IA. Prouvez-le.</title>
-        <meta name="description" content="La seule plateforme qui forme, évalue et certifie vos compétences IA. Pour les pros, les curieux, les PME. Dès 29€/mois." />
+        <meta name="description" content="La seule plateforme qui forme, évalue et certifie vos compétences IA. Pour les pros, les curieux, les PME. 59€ TTC/mois." />
         <meta property="og:title" content="GENIE IA – Formez-vous à l'IA. Prouvez-le." />
-        <meta property="og:description" content="Formations IA, Cyber, Vibe Coding. Attestations vérifiables. KITT IA copilote vocal. Dès 29€/mois." />
+        <meta property="og:description" content="Formations IA, Cyber, Vibe Coding. Attestations vérifiables. KITT IA copilote vocal. 59€ TTC/mois." />
         <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://genie-ai-mastery.lovable.app/" />

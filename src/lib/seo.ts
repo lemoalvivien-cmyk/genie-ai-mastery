@@ -77,7 +77,7 @@ export function faqSchema() {
         name: "Qu'est-ce que GENIE IA ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "GENIE IA est une plateforme de formation professionnelle en Intelligence Artificielle, Cybersécurité et Vibe Coding. Elle propose des modules interactifs, un copilote vocal KITT, et des attestations PDF vérifiables, dès 29€/mois.",
+          text: "GENIE IA est une plateforme de formation professionnelle en Intelligence Artificielle, Cybersécurité et Vibe Coding. Elle propose des modules interactifs, un copilote vocal KITT, et des attestations PDF vérifiables, à 59€ TTC/mois.",
         },
       },
       {
@@ -93,7 +93,7 @@ export function faqSchema() {
         name: "Combien coûte l'abonnement GENIE IA ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "L'abonnement Pro démarre à 29€/mois sans engagement. Un plan Business pour les équipes (jusqu'à 25 sièges) est disponible à partir de 59€/mois.",
+          text: "L'abonnement Pro est à 59€ TTC/mois par organisation, 25 sièges inclus, sans engagement. Couverture légale totale et accès illimité à l'Evidence Vault.",
         },
       },
       {
