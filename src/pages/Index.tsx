@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Check, Lock, Globe, Loader2, Shield, FileText, Brain,
   Zap, Mic, ChevronDown, Play, AlertTriangle, BarChart3,
   BookOpen, Bot, Flame, Star
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
@@ -83,10 +83,19 @@ const FAQ = [
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [demoInput, setDemoInput] = useState("");
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoResult, setDemoResult] = useState<string | null>(null);
+
+  // Capture referral code from URL ?ref= param
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      localStorage.setItem("genie_ref", ref.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
@@ -95,7 +104,10 @@ export default function Index() {
     }
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
+      const referralCode = localStorage.getItem("genie_ref") ?? undefined;
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { seats: 1, ...(referralCode ? { referral_code: referralCode } : {}) },
+      });
       if (error || data?.error) throw new Error(data?.error ?? "Erreur checkout");
       window.location.href = data.url;
     } catch (err) {

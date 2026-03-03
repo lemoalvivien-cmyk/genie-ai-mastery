@@ -57,12 +57,26 @@ serve(async (req) => {
       const seats = Math.max(1, parseInt(seatsRaw, 10) || 1);
       logStep("checkout.session.completed", { orgId, userId, subscriptionId, seats });
 
+      // Resolve partner attribution from metadata
+      const referralCode = session.metadata?.referral_code ?? null;
+      let partnerAccountId: string | null = null;
+      if (referralCode) {
+        const { data: refData } = await supabase.rpc("resolve_referral", { _code: referralCode });
+        if (refData?.found) {
+          partnerAccountId = refData.partner_id;
+          logStep("Partner attribution found", { partnerAccountId, referralCode });
+        }
+      }
+
+      const settingsUpdate = partnerAccountId ? { partner_account_id: partnerAccountId } : undefined;
+
       if (orgId) {
         await supabase.from("organizations").update({
           plan: "business",
           stripe_subscription_id: subscriptionId,
           plan_source: "stripe",
           seats_max: seats * 25, // 25 seats per seat unit
+          ...(settingsUpdate ? { settings: settingsUpdate } : {}),
         }).eq("id", orgId);
       } else if (userId) {
         // No org yet — create a personal one
@@ -187,20 +201,50 @@ serve(async (req) => {
         },
       });
 
-    // ── invoice.paid — restore if previously downgraded ───────────────────────
+    // ── invoice.paid — restore + commissions partenaire ──────────────────────
     } else if (event.type === "invoice.paid") {
       const invoice = event.data.object as Stripe.Invoice;
       const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
       if (customerId && invoice.subscription) {
         const { data: org } = await supabase
-          .from("organizations").select("id, plan").eq("stripe_customer_id", customerId).maybeSingle();
-        if (org && org.plan === "free") {
-          // Re-activate
-          await supabase.from("organizations").update({
-            plan: "business",
-            plan_source: "stripe",
-          }).eq("id", org.id);
-          logStep("Restored org to business after successful payment", { orgId: org.id });
+          .from("organizations").select("id, plan, partner_org_id").eq("stripe_customer_id", customerId).maybeSingle();
+        if (org) {
+          // Re-activate if previously downgraded
+          if (org.plan === "free") {
+            await supabase.from("organizations").update({ plan: "business", plan_source: "stripe" }).eq("id", org.id);
+            logStep("Restored org to business after successful payment", { orgId: org.id });
+          }
+
+          // ── Partner commission calculation ────────────────────────────────
+          // Check if this org is attributed to a partner via partner_referrals / partner_accounts
+          // We look up partner_commissions to find an existing partner link
+          const amountPaid = invoice.amount_paid ?? 0; // in cents
+
+          if (amountPaid > 0) {
+            // Find a partner referral linked to this org (via metadata stored in org.settings)
+            const { data: orgFull } = await supabase.from("organizations").select("settings").eq("id", org.id).single();
+            const partnerAccountId = orgFull?.settings?.partner_account_id as string | undefined;
+
+            if (partnerAccountId) {
+              const { data: partnerAccount } = await supabase
+                .from("partner_accounts")
+                .select("id, revshare_percent, status")
+                .eq("id", partnerAccountId)
+                .maybeSingle();
+
+              if (partnerAccount && partnerAccount.status === "active") {
+                const commissionCents = Math.round(amountPaid * partnerAccount.revshare_percent / 100);
+                await supabase.from("partner_commissions").insert({
+                  partner_id: partnerAccount.id,
+                  org_id: org.id,
+                  amount_cents: commissionCents,
+                  status: "pending",
+                  stripe_invoice_id: invoice.id,
+                });
+                logStep("Commission created", { partnerId: partnerAccount.id, commissionCents, orgId: org.id });
+              }
+            }
+          }
         }
       }
     }
