@@ -178,6 +178,36 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_name: string
+          id: string
+          org_id: string | null
+          properties: Json
+          session_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name: string
+          id?: string
+          org_id?: string | null
+          properties?: Json
+          session_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name?: string
+          id?: string
+          org_id?: string | null
+          properties?: Json
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       app_metrics: {
         Row: {
           id: number
@@ -964,6 +994,84 @@ export type Database = {
           },
         ]
       }
+      partner_accounts: {
+        Row: {
+          contact_email: string
+          created_at: string
+          id: string
+          name: string
+          revshare_percent: number
+          status: Database["public"]["Enums"]["partner_account_status"]
+          stripe_connect_account_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email: string
+          created_at?: string
+          id?: string
+          name: string
+          revshare_percent?: number
+          status?: Database["public"]["Enums"]["partner_account_status"]
+          stripe_connect_account_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string
+          created_at?: string
+          id?: string
+          name?: string
+          revshare_percent?: number
+          status?: Database["public"]["Enums"]["partner_account_status"]
+          stripe_connect_account_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      partner_commissions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          org_id: string | null
+          partner_id: string
+          status: Database["public"]["Enums"]["commission_status"]
+          stripe_invoice_id: string | null
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          org_id?: string | null
+          partner_id: string
+          status?: Database["public"]["Enums"]["commission_status"]
+          stripe_invoice_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          org_id?: string | null
+          partner_id?: string
+          status?: Database["public"]["Enums"]["commission_status"]
+          stripe_invoice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_commissions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_orgs: {
         Row: {
           clients_count: number | null
@@ -999,6 +1107,38 @@ export type Database = {
           type?: Database["public"]["Enums"]["partner_type"]
         }
         Relationships: []
+      }
+      partner_referrals: {
+        Row: {
+          created_at: string
+          id: string
+          landing_url_slug: string | null
+          partner_id: string
+          referral_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          landing_url_slug?: string | null
+          partner_id: string
+          referral_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          landing_url_slug?: string | null
+          partner_id?: string
+          referral_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_referrals_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       phishing_results: {
         Row: {
@@ -1037,6 +1177,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_limits: {
+        Row: {
+          ai_tokens_out_max: number
+          labs_max: number
+          pdf_max: number
+          plan: Database["public"]["Enums"]["plan_type"]
+          seats_max: number
+          tts_seconds_max: number
+          updated_at: string
+        }
+        Insert: {
+          ai_tokens_out_max?: number
+          labs_max?: number
+          pdf_max?: number
+          plan: Database["public"]["Enums"]["plan_type"]
+          seats_max?: number
+          tts_seconds_max?: number
+          updated_at?: string
+        }
+        Update: {
+          ai_tokens_out_max?: number
+          labs_max?: number
+          pdf_max?: number
+          plan?: Database["public"]["Enums"]["plan_type"]
+          seats_max?: number
+          tts_seconds_max?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1314,6 +1484,62 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          ai_tokens_in: number
+          ai_tokens_out: number
+          created_at: string
+          id: string
+          labs_runs: number
+          org_id: string | null
+          pdf_generated: number
+          period_end: string
+          period_start: string
+          tts_characters: number
+          tts_seconds: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_tokens_in?: number
+          ai_tokens_out?: number
+          created_at?: string
+          id?: string
+          labs_runs?: number
+          org_id?: string | null
+          pdf_generated?: number
+          period_end: string
+          period_start: string
+          tts_characters?: number
+          tts_seconds?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_tokens_in?: number
+          ai_tokens_out?: number
+          created_at?: string
+          id?: string
+          labs_runs?: number
+          org_id?: string | null
+          pdf_generated?: number
+          period_end?: string
+          period_start?: string
+          tts_characters?: number
+          tts_seconds?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_counters_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_daily_log: {
         Row: {
           completed_date: string
@@ -1480,6 +1706,14 @@ export type Database = {
     }
     Functions: {
       calculate_org_stats: { Args: { _org_id: string }; Returns: Json }
+      can_execute: {
+        Args: {
+          _kind: Database["public"]["Enums"]["usage_kind"]
+          _org_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       check_budget: {
         Args: { _org_id?: string; _user_id: string }
         Returns: Json
@@ -1512,6 +1746,15 @@ export type Database = {
         Returns: boolean
       }
       increment_logging_errors: { Args: never; Returns: undefined }
+      increment_usage: {
+        Args: {
+          _amount?: number
+          _kind: Database["public"]["Enums"]["usage_kind"]
+          _org_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       is_manager_of_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -1549,11 +1792,13 @@ export type Database = {
         Returns: undefined
       }
       reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
+      resolve_referral: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "manager" | "learner"
       campaign_status: "draft" | "active" | "completed" | "archived"
       chat_role: "user" | "assistant" | "system"
+      commission_status: "pending" | "paid" | "failed"
       flag_severity: "low" | "medium" | "high" | "critical"
       flag_status: "open" | "reviewing" | "resolved" | "dismissed"
       module_domain: "ia_pro" | "ia_perso" | "cyber" | "vibe_coding"
@@ -1565,6 +1810,7 @@ export type Database = {
         | "business"
         | "compliance"
         | "partner"
+      partner_account_status: "active" | "paused"
       partner_status: "pending" | "active" | "suspended"
       partner_type:
         | "comptable"
@@ -1588,8 +1834,16 @@ export type Database = {
         | "senior"
         | "independant"
         | "universal"
+      plan_type: "free" | "launch_59" | "pro" | "business" | "partner"
       preferred_mode_type: "enfant" | "normal" | "expert"
       progress_status: "not_started" | "in_progress" | "completed" | "failed"
+      usage_kind:
+        | "ai_tokens_in"
+        | "ai_tokens_out"
+        | "tts_characters"
+        | "tts_seconds"
+        | "pdf_generated"
+        | "labs_runs"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1720,6 +1974,7 @@ export const Constants = {
       app_role: ["admin", "manager", "learner"],
       campaign_status: ["draft", "active", "completed", "archived"],
       chat_role: ["user", "assistant", "system"],
+      commission_status: ["pending", "paid", "failed"],
       flag_severity: ["low", "medium", "high", "critical"],
       flag_status: ["open", "reviewing", "resolved", "dismissed"],
       module_domain: ["ia_pro", "ia_perso", "cyber", "vibe_coding"],
@@ -1732,6 +1987,7 @@ export const Constants = {
         "compliance",
         "partner",
       ],
+      partner_account_status: ["active", "paused"],
       partner_status: ["pending", "active", "suspended"],
       partner_type: [
         "comptable",
@@ -1758,8 +2014,17 @@ export const Constants = {
         "independant",
         "universal",
       ],
+      plan_type: ["free", "launch_59", "pro", "business", "partner"],
       preferred_mode_type: ["enfant", "normal", "expert"],
       progress_status: ["not_started", "in_progress", "completed", "failed"],
+      usage_kind: [
+        "ai_tokens_in",
+        "ai_tokens_out",
+        "tts_characters",
+        "tts_seconds",
+        "pdf_generated",
+        "labs_runs",
+      ],
     },
   },
 } as const
