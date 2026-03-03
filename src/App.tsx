@@ -31,6 +31,8 @@ const PhishingLab = lazy(() => import("./pages/app/labs/PhishingLab"));
 const ControlRoom = lazy(() => import("./pages/admin/ControlRoom"));
 const OpsCenter = lazy(() => import("./pages/admin/OpsCenter"));
 const Runbook = lazy(() => import("./pages/admin/Runbook"));
+const GuideList = lazy(() => import("./pages/guides/GuideList"));
+const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -149,6 +151,8 @@ const App = () => (
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
+                <Route path="/guides" element={<GuideList />} />
+                <Route path="/guides/:slug" element={<GuideDetail />} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

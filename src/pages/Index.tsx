@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import logoGenie from "@/assets/logo-genie.png";
+import { softwareApplicationSchema, productSchema, organizationSchema } from "@/lib/seo";
 
 /* ─── Copy & data ────────────────────────────────────────────── */
 const PROOFS = [
@@ -130,9 +131,13 @@ export default function Index() {
         <meta name="description" content="Formations IA, Cybersécurité et Vibe Coding. Attestations PDF vérifiables, voix Jarvis, dashboard manager. Essai 24h. 59€/mois TTC." />
         <meta property="og:title" content="GENIE IA – Maîtrisez l'IA & la Cybersécurité" />
         <meta property="og:description" content="Formez-vous à l'IA, Cyber et Vibe Coding. Attestations vérifiables. 59€/mois. Essai 24h." />
-        <meta property="og:image" content="/logo-genie.png" />
+        <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
+        <meta property="og:type" content="website" />
         <link rel="canonical" href="https://genie-ai-mastery.lovable.app/" />
         <meta name="theme-color" content="#646CDC" />
+        <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
+        <script type="application/ld+json">{JSON.stringify(softwareApplicationSchema())}</script>
+        <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
       </Helmet>
 
       <div className="min-h-screen flex flex-col gradient-hero relative overflow-x-hidden">

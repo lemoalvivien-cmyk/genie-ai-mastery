@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { productSchema, organizationSchema } from "@/lib/seo";
 
 const FREE_FEATURES_YES = [
   "3 modules par domaine",
@@ -141,11 +142,14 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs – GENIE IA</title>
-        <meta
-          name="description"
-          content="GENIE Pro à 59€/mois. 14 jours d'essai gratuit. Voix Jarvis, attestations, Vibe Coding, dashboard manager."
-        />
+        <title>Tarifs GENIE IA – 59€/mois, Essai 24h</title>
+        <meta name="description" content="GENIE Pro à 59€/mois TTC. Essai 24h gratuit. Voix Jarvis, attestations vérifiables, Vibe Coding, dashboard manager. Annulation en 2 clics." />
+        <link rel="canonical" href="https://genie-ai-mastery.lovable.app/pricing" />
+        <meta property="og:title" content="Tarifs GENIE IA – 59€/mois" />
+        <meta property="og:description" content="Essai 24h gratuit. Tout illimité. Attestations PDF. Annulation en 2 clics." />
+        <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
+        <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
+        <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
       </Helmet>
 
       {/* Confetti */}
@@ -154,11 +158,10 @@ export default function Pricing() {
           {Array.from({ length: 40 }).map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 rounded-sm animate-bounce"
+              className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-orange-500","bg-emerald-500","bg-amber-400"][i % 5]}`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `-${Math.random() * 20}%`,
-                background: ["#6366F1", "#EF4444", "#F97316", "#22C55E", "#F59E0B"][i % 5],
                 animationDelay: `${Math.random() * 2}s`,
                 animationDuration: `${1 + Math.random() * 2}s`,
               }}
@@ -219,7 +222,7 @@ export default function Pricing() {
               <ul className="space-y-3 mb-8">
                 {FREE_FEATURES_YES.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                    <Check className="w-4 h-4 text-green-500 shrink-0" />
+                    <Check className="w-4 h-4 text-primary shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -290,7 +293,7 @@ export default function Pricing() {
                 {checkoutLoading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Redirection...</>
                 ) : (
-                  "Essai gratuit 14 jours →"
+                  "Démarrer — Essai 24h gratuit →"
                 )}
               </button>
             </div>
