@@ -1,80 +1,149 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { Brain, Check, X, Lock, Globe, Loader2 } from "lucide-react";
+import {
+  Check, X, Loader2, Shield, ChevronDown, Star, Zap,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/pages/Index";
+import logoGenie from "@/assets/logo-genie.png";
 
-const FREE_FEATURES_YES = [
-  "3 modules par domaine",
-  "5 messages IA / jour",
-  "1 quiz / jour",
-  "1 checklist PDF",
-  "Bouton panique",
-];
-const FREE_FEATURES_NO = [
-  "Voix Jarvis (KITT)",
-  "Attestations de formation",
-  "Vibe Coding",
-  "Dashboard manager",
-  "Missions quotidiennes illimitées",
+/* ─── Data ───────────────────────────────────────────────────── */
+const LAUNCH_DEADLINE = new Date("2026-04-15T23:59:59");
+const LAUNCH_CODE = "LAUNCH40";
+const LAUNCH_SPOTS_REMAINING = 23;
+
+const FREE_FEATURES: { label: string; included: boolean }[] = [
+  { label: "1 module par domaine", included: true },
+  { label: "1 message KITT IA / jour", included: true },
+  { label: "Quiz basiques", included: true },
+  { label: "Attestations de compétence", included: false },
+  { label: "Missions quotidiennes", included: false },
+  { label: "Accès illimité aux modules", included: false },
+  { label: "Support prioritaire", included: false },
 ];
 
-const PRO_FEATURES = [
-  "TOUT illimité (modules, quiz, chat 500 msg/jour)",
-  "Voix Jarvis activée",
-  "Attestations vérifiables",
-  "Vibe Coding complet",
-  "Dashboard manager (25 sièges)",
-  "Missions quotidiennes Jarvis",
-  "PDFs illimités (attestations, chartes, SOP)",
-  "Sans engagement — résiliation en 1 clic",
+const PRO_FEATURES: string[] = [
+  "Modules illimités (IA, Cyber, Vibe Coding)",
+  "KITT IA illimité (500 messages / jour)",
+  "Quiz adaptatifs illimités",
+  "Attestations PDF vérifiables",
+  "Missions quotidiennes + streaks",
+  "Dashboard cockpit complet",
+  "Support prioritaire",
+  "Sans engagement — résiliation en 2 clics",
 ];
 
 const FAQ = [
   {
-    q: "Comment fonctionne l'essai gratuit ?",
-    a: "14 jours complets, zéro prélèvement, carte nécessaire. Vous pouvez résilier avant la fin de l'essai sans rien payer. La TVA applicable est calculée automatiquement selon votre pays.",
+    q: "C'est quoi la différence avec ChatGPT ?",
+    a: "ChatGPT est un outil. GENIE IA est une méthode : modules structurés + quiz + attestation + copilote. Vous ne restez pas seul face à l'écran.",
   },
   {
-    q: "Puis-je résilier quand je veux ?",
-    a: "Oui. En 1 clic. Pas d'engagement. Vos données restent 90 jours.",
+    q: "Je suis débutant total, c'est pour moi ?",
+    a: "Oui. L'onboarding adapte tout à votre niveau. 70% de nos utilisateurs n'avaient jamais utilisé l'IA avant de rejoindre GENIE IA.",
   },
   {
-    q: "Pourquoi 59 EUR au lieu de 99 EUR ?",
-    a: "C'est notre tarif de lancement réservé aux 100 premiers inscrits. Ce prix est garanti à vie pour ceux qui souscrivent maintenant.",
+    q: "L'attestation a-t-elle une valeur ?",
+    a: "C'est une attestation de compétence vérifiable, pas un diplôme d'État. Elle prouve à un employeur ou client que vous maîtrisez les fondamentaux. Acceptée par les OPCO.",
   },
   {
-    q: "Est-ce éligible OPCO / formation professionnelle ?",
-    a: "Oui. GENIE IA délivre des attestations de formation. Contactez-nous pour un devis OPCO.",
+    q: "Je peux annuler quand je veux ?",
+    a: "Oui. Résiliation en 2 clics depuis votre espace, effective immédiatement. Garantie satisfait ou remboursé 30 jours, sans condition.",
   },
   {
-    q: "Combien de collaborateurs par abonnement ?",
-    a: "25 sièges inclus. Contactez-nous pour plus.",
+    q: "C'est sécurisé ?",
+    a: "Paiement Stripe (certifié PCI-DSS). Données hébergées en Europe. RGPD complet. Aucune donnée revendue. Jamais.",
   },
 ];
 
+/* ─── Urgency Banner ─────────────────────────────────────────── */
+function UrgencyBanner() {
+  const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  useEffect(() => {
+    const tick = () => {
+      const diff = Math.max(0, LAUNCH_DEADLINE.getTime() - Date.now());
+      const totalSec = Math.floor(diff / 1000);
+      setTimeLeft({ h: Math.floor(totalSec / 3600), m: Math.floor((totalSec % 3600) / 60), s: totalSec % 60 });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div
+      className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white text-center"
+      style={{ background: "linear-gradient(90deg, #FE2C40 0%, #5257D8 100%)" }}
+    >
+      <span>🔥 Offre de lancement : -40% avec le code</span>
+      <code className="bg-white/20 px-2 py-0.5 rounded font-mono tracking-widest">{LAUNCH_CODE}</code>
+      <span>— Plus que {LAUNCH_SPOTS_REMAINING} places</span>
+      <span className="flex items-center gap-1 opacity-90">
+        · Expire dans <span className="font-mono">{pad(timeLeft.h)}:{pad(timeLeft.m)}:{pad(timeLeft.s)}</span>
+      </span>
+    </div>
+  );
+}
+
+/* ─── FAQ Accordion Item ─────────────────────────────────────── */
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="rounded-xl overflow-hidden transition-all duration-300"
+      style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left group"
+      >
+        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{q}</span>
+        <ChevronDown
+          className="w-4 h-4 shrink-0 text-muted-foreground transition-transform duration-300"
+          style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", color: open ? "hsl(var(--primary))" : undefined }}
+        />
+      </button>
+      <div
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{ maxHeight: open ? "200px" : "0px" }}
+      >
+        <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">{a}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main ───────────────────────────────────────────────────── */
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [codeLoading, setCodeLoading] = useState(false);
+  const [confetti, setConfetti] = useState(false);
   const { track } = useAnalytics();
 
-  // Track pricing_viewed on mount
-  useEffect(() => {
-    track("pricing_viewed");
-  }, []);
+  useEffect(() => { track("pricing_viewed"); }, []);
+
+  const { data: launchData } = useQuery({
+    queryKey: ["launch-price"],
+    staleTime: 60 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("check-launch-price");
+      if (error) return { launch_price_active: true };
+      return data as { launch_price_active: boolean };
+    },
+  });
+  const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
 
   const handlePortal = async () => {
     setPortalLoading(true);
@@ -89,26 +158,8 @@ export default function Pricing() {
     }
   };
 
-  const { data: launchData } = useQuery({
-    queryKey: ["launch-price"],
-    staleTime: 60 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("check-launch-price");
-      if (error) return { launch_price_active: true };
-      return data as { launch_price_active: boolean };
-    },
-  });
-  const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [accessCode, setAccessCode] = useState("");
-  const [codeLoading, setCodeLoading] = useState(false);
-  const [confetti, setConfetti] = useState(false);
-
   const handleCheckout = async () => {
-    if (!isAuthenticated) {
-      navigate("/register?redirect=/pricing");
-      return;
-    }
+    if (!isAuthenticated) { navigate("/register?redirect=/pricing"); return; }
     setCheckoutLoading(true);
     track("checkout_started");
     try {
@@ -119,11 +170,7 @@ export default function Pricing() {
       if (error || data?.error) throw new Error(data?.error ?? "Erreur checkout");
       window.location.href = data.url;
     } catch (err) {
-      toast({
-        title: "Erreur",
-        description: err instanceof Error ? err.message : "Impossible de créer la session.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: err instanceof Error ? err.message : "Impossible de créer la session.", variant: "destructive" });
     } finally {
       setCheckoutLoading(false);
     }
@@ -131,35 +178,21 @@ export default function Pricing() {
 
   const formatCode = (val: string) => {
     const raw = val.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 14);
-    const parts = [raw.slice(0, 5), raw.slice(5, 9), raw.slice(9, 13)].filter(Boolean);
-    return parts.join("-");
-  };
-
-  const handleCodeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAccessCode(formatCode(e.target.value));
+    return [raw.slice(0, 5), raw.slice(5, 9), raw.slice(9, 13)].filter(Boolean).join("-");
   };
 
   const handleActivateCode = async () => {
     if (!accessCode.trim()) return;
-    if (!isAuthenticated) {
-      navigate("/register?redirect=/pricing");
-      return;
-    }
+    if (!isAuthenticated) { navigate("/register?redirect=/pricing"); return; }
     setCodeLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("redeem-code", {
-        body: { code: accessCode.trim() },
-      });
+      const { data, error } = await supabase.functions.invoke("redeem-code", { body: { code: accessCode.trim() } });
       if (error || data?.error) throw new Error(data?.error ?? "Code invalide");
       setConfetti(true);
       toast({ title: "✅ Accès Pro activé !", description: data.message });
       setTimeout(() => navigate("/app/dashboard"), 2000);
     } catch (err) {
-      toast({
-        title: "Code invalide",
-        description: err instanceof Error ? err.message : "Ce code est invalide ou expiré.",
-        variant: "destructive",
-      });
+      toast({ title: "Code invalide", description: err instanceof Error ? err.message : "Ce code est invalide ou expiré.", variant: "destructive" });
     } finally {
       setCodeLoading(false);
     }
@@ -168,11 +201,11 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs GENIE IA – 59€/mois, Essai 24h</title>
-        <meta name="description" content="GENIE Pro à 59€/mois TTC. Essai 24h gratuit. Voix Jarvis, attestations vérifiables, Vibe Coding, dashboard manager. Annulation en 2 clics." />
+        <title>Tarifs GENIE IA – 29€/mois, Essai 14 jours</title>
+        <meta name="description" content="GENIE Pro à 29€/mois TTC. Essai 14 jours gratuit. KITT IA, attestations vérifiables, missions quotidiennes. Annulation en 2 clics." />
         <link rel="canonical" href="https://genie-ai-mastery.lovable.app/pricing" />
-        <meta property="og:title" content="Tarifs GENIE IA – 59€/mois" />
-        <meta property="og:description" content="Essai 24h gratuit. Tout illimité. Attestations PDF. Annulation en 2 clics." />
+        <meta property="og:title" content="Tarifs GENIE IA – 29€/mois" />
+        <meta property="og:description" content="Essai 14 jours gratuit. Tout illimité. Attestations PDF. Annulation en 2 clics." />
         <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
         <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
         <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
@@ -185,47 +218,34 @@ export default function Pricing() {
             <div
               key={i}
               className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-orange-500","bg-yellow-400","bg-amber-400"][i % 5]}`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-${Math.random() * 20}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${1 + Math.random() * 2}s`,
-              }}
+              style={{ left: `${Math.random() * 100}%`, top: `-${Math.random() * 20}%`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${1 + Math.random() * 2}s` }}
             />
           ))}
         </div>
       )}
 
-      <div className="min-h-screen gradient-hero">
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
+        {/* Banner */}
+        <UrgencyBanner />
+
         {/* Navbar */}
-        <header className="border-b border-border/40 px-4 sm:px-6 py-5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">
-              GENIE <span className="text-gradient">IA</span>
-            </span>
+        <header className="border-b border-border/30 px-4 sm:px-8 py-4 flex items-center justify-between bg-background/90 backdrop-blur-md">
+          <Link to="/">
+            <img src={logoGenie} alt="GENIE IA" className="h-9 w-auto" style={{ filter: "drop-shadow(0 0 8px rgba(82,87,216,0.3))" }} />
           </Link>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <button
-                  onClick={handlePortal}
-                  disabled={portalLoading}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                >
+                <button onClick={handlePortal} disabled={portalLoading} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
                   {portalLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                   Gérer mon abonnement
                 </button>
-                <Link to="/app/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Mon espace →
-                </Link>
+                <Link to="/app/dashboard" className="text-sm font-semibold text-primary hover:brightness-110 transition-colors">Mon espace →</Link>
               </>
             ) : (
               <>
-                <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground">Se connecter</Link>
-                <Link to="/register" className="px-4 py-2 rounded-lg gradient-primary text-primary-foreground text-sm font-medium shadow-glow">
+                <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Se connecter</Link>
+                <Link to="/register" className="px-4 py-2 rounded-xl text-white text-sm font-bold shadow-glow transition-all" style={{ background: "hsl(var(--accent))" }}>
                   Commencer
                 </Link>
               </>
@@ -233,89 +253,101 @@ export default function Pricing() {
           </div>
         </header>
 
-        <main className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
-          {/* Title */}
+        <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-16">
+
+          {/* Hero title */}
           <div className="text-center mb-14">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-3">
-              Un seul plan. <span className="text-gradient">Tout inclus.</span>
+            <h1 className="text-3xl sm:text-5xl font-black mb-3 leading-tight">
+              <span
+                style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
+              >
+                Investissez dans les compétences.
+              </span>
             </h1>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-              Simple, transparent, sans surprise.
-            </p>
+            <p className="text-lg text-muted-foreground">Pas de surprise. Pas d'engagement.</p>
           </div>
 
-          {/* Plans */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start mb-16">
-            {/* Free plan */}
-            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+          {/* Plans grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start mb-12">
+
+            {/* ── FREE plan ── */}
+            <div
+              className="rounded-2xl p-6 sm:p-8 flex flex-col"
+              style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+            >
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-foreground mb-1">Découvrir</h2>
-                <p className="text-muted-foreground text-sm">Pour commencer sans engagement</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Découverte</p>
+                <div className="flex items-end gap-1 mb-1">
+                  <span className="text-5xl font-black text-foreground">0€</span>
+                  <span className="text-muted-foreground text-base mb-1.5">/mois</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Pour découvrir sans engagement</p>
               </div>
-              <div className="mb-6">
-                <span className="text-4xl font-extrabold text-foreground">0€</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {FREE_FEATURES_YES.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {f}
-                  </li>
-                ))}
-                {FREE_FEATURES_NO.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <X className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                    {f}
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {FREE_FEATURES.map((f) => (
+                  <li key={f.label} className="flex items-center gap-2.5 text-sm">
+                    {f.included
+                      ? <Check className="w-4 h-4 shrink-0 text-primary" />
+                      : <X className="w-4 h-4 shrink-0 text-muted-foreground/40" />
+                    }
+                    <span className={f.included ? "text-foreground" : "text-muted-foreground/60"}>{f.label}</span>
                   </li>
                 ))}
               </ul>
+
               <Link
                 to="/register"
-                className="block w-full text-center py-3 rounded-xl border border-border text-foreground font-semibold text-sm hover:bg-muted transition-colors"
+                className="block w-full text-center py-3.5 rounded-xl font-bold text-sm transition-all hover:bg-primary/10"
+                style={{ border: "1px solid hsl(var(--primary))", color: "hsl(var(--primary))" }}
               >
                 Commencer gratuitement
               </Link>
             </div>
 
-            {/* Pro plan — highlighted */}
+            {/* ── PRO plan ── */}
             <div
-              className="relative rounded-2xl border-2 border-primary bg-primary/5 p-6 sm:p-8"
-              style={{ transform: "scale(1.03)", transformOrigin: "top center" }}
+              className="relative rounded-2xl p-6 sm:p-8 flex flex-col"
+              style={{
+                background: "hsl(var(--card))",
+                border: "2px solid hsl(var(--primary))",
+                boxShadow: "0 0 30px rgba(82,87,216,0.2)",
+                transform: "scale(1.02)",
+                transformOrigin: "top center",
+              }}
             >
-              {/* Launch badge */}
-              {LAUNCH_PRICE_ACTIVE && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-primary-foreground gradient-primary animate-pulse">
-                    OFFRE LANCEMENT 🔥 -40%
-                  </div>
+              {/* POPULAIRE badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <div
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black text-white"
+                  style={{ background: "hsl(var(--accent))", boxShadow: "0 0 12px rgba(254,44,64,0.4)" }}
+                >
+                  <Star className="w-3 h-3" /> POPULAIRE
                 </div>
-              )}
+              </div>
 
               <div className="mb-6 mt-2">
-                <h2 className="text-lg font-bold text-foreground mb-1">GENIE Pro</h2>
-                <p className="text-muted-foreground text-sm">Tout illimité, voix Jarvis, attestations</p>
-              </div>
-
-              <div className="mb-2">
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "hsl(var(--primary))" }}>Pro</p>
+                <div className="flex items-end gap-2 mb-1">
+                  {LAUNCH_PRICE_ACTIVE && (
+                    <span className="text-muted-foreground line-through text-lg">49€</span>
+                  )}
+                  <span className="text-5xl font-black" style={{ color: "hsl(var(--accent))" }}>
+                    {LAUNCH_PRICE_ACTIVE ? "29€" : "49€"}
+                  </span>
+                  <span className="text-muted-foreground text-base mb-1.5">/mois TTC</span>
+                </div>
                 {LAUNCH_PRICE_ACTIVE && (
-                  <span className="text-muted-foreground line-through text-base mr-2">99€</span>
+                  <div className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--accent)/0.1)", color: "hsl(var(--accent))" }}>
+                    <Zap className="w-3 h-3" /> Offre de lancement -40%
+                  </div>
                 )}
-                <span className="text-4xl font-extrabold text-foreground">
-                  {LAUNCH_PRICE_ACTIVE ? "59€" : "99€"}
-                </span>
-                <span className="text-muted-foreground text-sm ml-1">/mois TTC</span>
               </div>
-              {LAUNCH_PRICE_ACTIVE && (
-                <p className="text-xs text-primary font-medium mb-6">
-                  Pour les 100 premiers inscrits uniquement
-                </p>
-              )}
-              {!LAUNCH_PRICE_ACTIVE && <div className="mb-6" />}
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 flex-1">
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
+                    <Check className="w-4 h-4 shrink-0" style={{ color: "#22C55E" }} />
                     {f}
                   </li>
                 ))}
@@ -324,33 +356,46 @@ export default function Pricing() {
               <button
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
-                className="w-full min-h-[52px] py-3 rounded-xl gradient-primary text-primary-foreground font-bold text-sm shadow-glow hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl text-white font-black text-base transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{ background: "hsl(var(--accent))", boxShadow: "0 0 20px rgba(254,44,64,0.35)" }}
               >
-                {checkoutLoading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Redirection...</>
-                ) : (
-                  "Démarrer — Essai 14 jours gratuit →"
-                )}
+                {checkoutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                Démarrer l'essai gratuit 14j →
               </button>
+              <p className="text-xs text-muted-foreground text-center mt-3">Sans carte requise pour l'essai</p>
             </div>
           </div>
 
-          {/* Access code section */}
+          {/* Guarantee */}
+          <div
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 px-6 py-5 rounded-2xl mb-12 text-center sm:text-left"
+            style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)" }}
+          >
+            <Shield className="w-8 h-8 shrink-0" style={{ color: "#22C55E" }} />
+            <div>
+              <p className="font-bold text-foreground">Satisfait ou remboursé 30 jours. Sans condition.</p>
+              <p className="text-sm text-muted-foreground mt-0.5">Paiement sécurisé par Stripe. Résiliation en 2 clics depuis votre compte.</p>
+            </div>
+          </div>
+
+          {/* Access code */}
           <div className="max-w-md mx-auto mb-16 text-center">
             <p className="text-sm font-medium text-muted-foreground mb-3">Vous avez un code d'accès ?</p>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={accessCode}
-                onChange={handleCodeInput}
+                onChange={(e) => setAccessCode(formatCode(e.target.value))}
                 placeholder="GENIE-XXXX-XXXX"
                 maxLength={14}
-                className="flex-1 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="flex-1 px-4 py-3 rounded-xl text-foreground text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                style={{ border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
               />
               <button
                 onClick={handleActivateCode}
                 disabled={codeLoading || accessCode.length < 5}
-                className="px-5 py-3 rounded-xl gradient-primary text-primary-foreground text-sm font-semibold shadow-glow hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-3 rounded-xl text-white text-sm font-semibold transition-all disabled:opacity-50 flex items-center gap-2"
+                style={{ background: "hsl(var(--primary))", boxShadow: "var(--shadow-glow-sm)" }}
               >
                 {codeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Activer"}
               </button>
@@ -359,23 +404,12 @@ export default function Pricing() {
 
           {/* FAQ */}
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-bold text-foreground text-center mb-6">Questions fréquentes</h2>
-            <Accordion type="single" collapsible className="space-y-2">
+            <h2 className="text-2xl font-black text-foreground text-center mb-8">Questions fréquentes</h2>
+            <div className="space-y-3">
               {FAQ.map((item, i) => (
-                <AccordionItem
-                  key={i}
-                  value={`item-${i}`}
-                  className="border border-border/60 rounded-xl px-5 bg-card/40"
-                >
-                  <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4">
-                    {item.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground pb-4 leading-relaxed">
-                    {item.a}
-                  </AccordionContent>
-                </AccordionItem>
+                <FaqItem key={i} q={item.q} a={item.a} />
               ))}
-            </Accordion>
+            </div>
           </div>
         </main>
 
