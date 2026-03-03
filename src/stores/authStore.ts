@@ -22,11 +22,13 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  serverRoles: string[];
   isLoading: boolean;
   isInitialized: boolean;
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
+  setServerRoles: (roles: string[]) => void;
   setLoading: (v: boolean) => void;
   setInitialized: (v: boolean) => void;
   fetchProfile: (userId: string) => Promise<void>;
@@ -38,12 +40,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   session: null,
   profile: null,
+  serverRoles: [],
   isLoading: true,
   isInitialized: false,
 
   setUser: (user) => set({ user }),
   setSession: (session) => set({ session }),
   setProfile: (profile) => set({ profile }),
+  setServerRoles: (serverRoles) => set({ serverRoles }),
   setLoading: (isLoading) => set({ isLoading }),
   setInitialized: (isInitialized) => set({ isInitialized }),
 
@@ -54,7 +58,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .select("*")
         .eq("id", userId)
         .single();
-      if (data) set({ profile: data as Profile });
+
+      const { data: roles } = await supabase.rpc("get_my_roles");
+      const userRoles = (roles ?? []).map((r: { role: string }) => r.role);
+
+      if (data) set({ profile: data as Profile, serverRoles: userRoles });
     } catch {
       // Profile might not exist yet (trigger delay)
     }
@@ -71,9 +79,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }).then(() => {});
     }
     await supabase.auth.signOut();
-    set({ user: null, session: null, profile: null });
+    set({ user: null, session: null, profile: null, serverRoles: [] });
   },
 
   reset: () =>
-    set({ user: null, session: null, profile: null, isLoading: false }),
+    set({ user: null, session: null, profile: null, serverRoles: [], isLoading: false }),
 }));

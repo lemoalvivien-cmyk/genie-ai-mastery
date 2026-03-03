@@ -70,8 +70,8 @@ export function useAuth() {
     isLoading: store.isLoading,
     isInitialized: store.isInitialized,
     isAuthenticated: !!store.user,
-    isAdmin: store.profile?.role === "admin",
-    isManager: store.profile?.role === "manager" || store.profile?.role === "admin",
+    isAdmin: store.serverRoles.includes("admin"),
+    isManager: store.serverRoles.includes("manager") || store.serverRoles.includes("admin"),
     signOut: store.signOut,
     refetchProfile: () => store.user ? store.fetchProfile(store.user.id) : Promise.resolve(),
   };

@@ -2239,6 +2239,12 @@ export type Database = {
       }
       cleanup_ip_rate_limits: { Args: never; Returns: undefined }
       flush_usage_buffer: { Args: never; Returns: Json }
+      get_my_roles: {
+        Args: never
+        Returns: {
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
