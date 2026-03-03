@@ -108,7 +108,7 @@ serve(async (req) => {
         // Delete from buffer
         await supabase.from("ai_usage_buffer").delete().eq("id", row.id);
         processed++;
-      } catch {
+      } catch (_e) {
         failed++;
       }
     }

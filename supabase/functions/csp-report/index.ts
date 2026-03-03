@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
         // Standard CSP report wraps data in "csp-report" key
         reportBody = parsed["csp-report"] ?? parsed;
       }
-    } catch {
+    } catch (_e) {
       // Malformed report — still return 204 to avoid browser retries
       return new Response(null, { status: 204, headers: corsHeaders });
     }
