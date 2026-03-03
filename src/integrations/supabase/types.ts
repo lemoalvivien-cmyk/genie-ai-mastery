@@ -1530,6 +1530,52 @@ export type Database = {
           },
         ]
       }
+      skill_mastery: {
+        Row: {
+          id: string
+          p_mastery: number
+          skill_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          p_mastery?: number
+          skill_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          p_mastery?: number
+          skill_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_mastery_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_mastery_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_mastery_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skills: {
         Row: {
           created_at: string | null
@@ -2059,6 +2105,10 @@ export type Database = {
       }
       reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
       resolve_referral: { Args: { _code: string }; Returns: Json }
+      upsert_skill_mastery: {
+        Args: { _p_mastery: number; _skill_id: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "learner"
