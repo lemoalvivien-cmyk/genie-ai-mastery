@@ -33,6 +33,7 @@ const OpsCenter = lazy(() => import("./pages/admin/OpsCenter"));
 const Runbook = lazy(() => import("./pages/admin/Runbook"));
 const GuideList = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
+const Legal = lazy(() => import("./pages/Legal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -153,6 +154,13 @@ const App = () => (
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
+
+                {/* Legal & Security pages */}
+                <Route path="/cgu" element={<Legal />} />
+                <Route path="/confidentialite" element={<Legal />} />
+                <Route path="/mentions-legales" element={<Legal />} />
+                <Route path="/rgpd" element={<Legal />} />
+                <Route path="/security" element={<Legal />} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
