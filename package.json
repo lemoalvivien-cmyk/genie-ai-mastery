@@ -10,7 +10,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:load:smoke": "bash tests/load/run.sh smoke all",
+    "test:load:full": "bash tests/load/run.sh full all",
+    "test:load:smoke:chat": "bash tests/load/run.sh smoke chat",
+    "test:load:smoke:pdf": "bash tests/load/run.sh smoke pdf",
+    "test:load:smoke:reads": "bash tests/load/run.sh smoke reads",
+    "test:load:full:chat": "bash tests/load/run.sh full chat",
+    "test:load:full:pdf": "bash tests/load/run.sh full pdf",
+    "test:load:full:reads": "bash tests/load/run.sh full reads"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
