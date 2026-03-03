@@ -1259,6 +1259,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_logging_errors: { Args: never; Returns: undefined }
       is_manager_of_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
