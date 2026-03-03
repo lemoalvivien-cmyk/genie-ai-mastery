@@ -8,6 +8,9 @@ import {
   detectChatAbuse,
   recordAbuse,
   SHIELD_CONFIG,
+  makeRequestId,
+  logRequest,
+  logEdgeError,
 } from "../_shared/shield.ts";
 
 const corsHeaders = {
@@ -220,6 +223,10 @@ async function callOpenRouter(
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const startMs = Date.now();
+  const requestId = makeRequestId();
+  let logCtx = { requestId, fn: "chat-completion", startMs, userId: null as string | null, orgId: null as string | null };
+
   try {
     // Auth
     const authHeader = req.headers.get("Authorization");
@@ -243,6 +250,7 @@ serve(async (req) => {
       });
     }
     const userId = authData.claims.sub as string;
+    logCtx = { ...logCtx, userId };
 
     // ── Shield: IP rate limit (layer 1) ──────────────────────────────────────
     const clientIp = getClientIp(req);
@@ -686,6 +694,8 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       });
     }
 
+    // Log successful request (fire-and-forget)
+    logRequest({ ...logCtx, orgId: orgId ?? null }, 200);
     return new Response(JSON.stringify({
       content: finalContent,
       model_used: model,
@@ -704,6 +714,8 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     console.error("chat-completion error:", err);
     const message = err instanceof Error ? err.message : "Erreur inconnue";
     const isTimeout = message.includes("abort");
+    // Log structured error
+    logEdgeError(logCtx, 500, err, { isTimeout }).catch(() => {});
     return new Response(JSON.stringify({
       error: isTimeout
         ? "L'IA met trop de temps à répondre. Réessayez dans quelques instants."

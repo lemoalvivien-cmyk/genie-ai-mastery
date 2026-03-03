@@ -29,6 +29,8 @@ const Today = lazy(() => import("./pages/app/Today"));
 const Jarvis = lazy(() => import("./pages/app/Jarvis"));
 const PhishingLab = lazy(() => import("./pages/app/labs/PhishingLab"));
 const ControlRoom = lazy(() => import("./pages/admin/ControlRoom"));
+const OpsCenter = lazy(() => import("./pages/admin/OpsCenter"));
+const Runbook = lazy(() => import("./pages/admin/Runbook"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -105,6 +107,22 @@ const App = () => (
                     element={
                       <ProtectedRoute requireRole="admin">
                         <ControlRoom />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/ops"
+                    element={
+                      <ProtectedRoute requireRole="admin">
+                        <OpsCenter />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/runbook"
+                    element={
+                      <ProtectedRoute requireRole="admin">
+                        <Runbook />
                       </ProtectedRoute>
                     }
                   />
