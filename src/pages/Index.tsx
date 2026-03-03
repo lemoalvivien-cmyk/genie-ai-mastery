@@ -441,9 +441,9 @@ export default function Index() {
                   className="text-3xl font-black tabular-nums"
                   style={{ color: "hsl(var(--primary))" }}
                 >
-                  127+
+                  🚀 Early
                 </span>
-                <span className="text-base font-semibold text-foreground">professionnels formés</span>
+                <span className="text-base font-semibold text-foreground">accès lancement</span>
               </div>
             </div>
 
