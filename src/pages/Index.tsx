@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import logoGenie from "@/assets/logo-genie.png";
 import { softwareApplicationSchema, productSchema, organizationSchema } from "@/lib/seo";
+import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 
 /* ─── Copy & data ────────────────────────────────────────────── */
 const PROOFS = [
@@ -479,23 +480,16 @@ export default function Index() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
               <img src={logoGenie} alt="GENIE IA" className="h-10 w-auto opacity-80" />
               <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground">
-                {[
-                  { to: "/mentions-legales", label: "Mentions légales" },
-                  { to: "/confidentialite", label: "Confidentialité" },
-                  { to: "/cgu", label: "CGU" },
-                  { to: "/rgpd", label: "RGPD" },
-                  { to: "/security", label: "Sécurité" },
-                  { to: "/guides", label: "Guides" },
-                ].map((l) => (
-                  <Link key={l.to} to={l.to} className="hover:text-foreground transition-colors">{l.label}</Link>
-                ))}
+                <Link to="/legal" className="hover:text-foreground transition-colors font-medium">Centre légal</Link>
+                <Link to="/guides" className="hover:text-foreground transition-colors">Guides</Link>
               </div>
             </div>
+            <LegalFooterLinks className="justify-center mb-4" />
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground pt-4 border-t border-border/20">
-              <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Paiement sécurisé Stripe</span>
+              <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Paiement sécurisé</span>
               <span className="flex items-center gap-1.5"><Shield className="w-3 h-3" /> RGPD natif</span>
-              <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Hébergement Europe</span>
-              <span>© 2025 GENIE IA. Tous droits réservés.</span>
+              <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Hébergement dans l'Union européenne</span>
+              <span>© {new Date().getFullYear()} GENIE IA. Tous droits réservés.</span>
             </div>
           </div>
         </footer>

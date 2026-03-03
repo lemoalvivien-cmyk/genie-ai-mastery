@@ -207,11 +207,47 @@ export default function Settings() {
 
                 {/* Access code */}
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-3">Vous avez un code d'accès ?</p>
+                   <p className="text-sm font-medium text-muted-foreground mb-3">Vous avez un code d'accès ?</p>
                   <AccessCodeActivator />
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Legal & privacy section */}
+          <div className="rounded-2xl border border-border bg-card/60 p-6 mt-6">
+            <h2 className="text-base font-semibold text-foreground mb-4">Légal & confidentialité</h2>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-3 text-sm">
+                {[
+                  { to: "/legal/confidentialite", label: "Politique de confidentialité" },
+                  { to: "/legal/cgu", label: "CGU" },
+                  { to: "/legal/cookies", label: "Cookies" },
+                  { to: "/legal/rgpd", label: "Exercer mes droits RGPD" },
+                  { to: "/legal/mentions-legales", label: "Mentions légales" },
+                  { to: "/legal/subprocessors", label: "Sous-traitants" },
+                  { to: "/legal/dpa", label: "DPA (entreprises)" },
+                ].map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    className="text-primary hover:underline text-xs"
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+              <hr className="border-border/40" />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  disabled
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted/40 text-muted-foreground text-sm cursor-not-allowed opacity-60"
+                  title="Fonctionnalité à venir"
+                >
+                  Exporter mes données (bientôt)
+                </button>
+              </div>
+            </div>
           </div>
         </main>
       </div>

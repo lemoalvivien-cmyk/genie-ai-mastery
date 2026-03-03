@@ -379,17 +379,19 @@ export default function Pricing() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-border/40 px-4 sm:px-6 py-6 mt-8">
-          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Lock className="w-3 h-3" />
-              <span>Paiement sécurisé Stripe</span>
-              <Globe className="w-3 h-3" />
-              <span>© 2025 GENIE IA</span>
+        <footer className="border-t border-border/40 px-4 sm:px-6 py-8 mt-8">
+          <div className="max-w-4xl mx-auto space-y-4">
+            {/* Trust badges */}
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Paiement sécurisé</span>
+              <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Hébergement dans l'Union européenne</span>
+              <span className="flex items-center gap-1.5">✓ RGPD natif</span>
+              <Link to="/legal/confidentialite" className="hover:text-foreground transition-colors">Confidentialité</Link>
+              <Link to="/legal/dpa" className="hover:text-foreground transition-colors">DPA entreprises</Link>
+              <Link to="/legal/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
             </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
-              <Link to="/confidentialite" className="hover:text-foreground transition-colors">Confidentialité</Link>
+            <div className="flex justify-center">
+              <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} GENIE IA. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

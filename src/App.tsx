@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
+import { CookieBanner } from "@/components/legal/CookieBanner";
 
 // Lazy load pages
 const Landing = lazy(() => import("./pages/Index"));
@@ -35,6 +36,7 @@ const GuideList = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
 const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
 const Legal = lazy(() => import("./pages/Legal"));
+const LegalCenter = lazy(() => import("./pages/legal/LegalCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
 
@@ -69,6 +71,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthInitializer>
+            <CookieBanner />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
@@ -166,7 +169,11 @@ const App = () => (
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 
-                {/* Legal & Security pages */}
+                {/* Legal centre — new routes */}
+                <Route path="/legal" element={<LegalCenter />} />
+                <Route path="/legal/:slug" element={<LegalCenter />} />
+
+                {/* Legacy legal redirects */}
                 <Route path="/cgu" element={<Legal />} />
                 <Route path="/confidentialite" element={<Legal />} />
                 <Route path="/mentions-legales" element={<Legal />} />
