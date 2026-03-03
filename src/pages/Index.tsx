@@ -76,7 +76,7 @@ const FAQ = [
   },
   {
     q: "Qui gère l'IA derrière GENIE ?",
-    a: "Nous orchestrons les meilleurs modèles (Gemini, GPT-5) avec un bouclier anti-abus propriétaire. Vous ne payez pas l'API.",
+    a: "Nous orchestrons les modèles les plus performants du marché avec un bouclier anti-abus propriétaire. Vous ne payez pas l'API.",
   },
 ];
 
