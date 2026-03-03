@@ -1,5 +1,5 @@
 /**
- * Shield middleware — IP rate limiting + abuse detection
+ * Shield middleware — IP rate limiting + abuse detection + structured logging
  * Used by chat-completion, generate-pdf, verify endpoints
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -37,6 +37,12 @@ async function hashText(text: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
 }
 
+export async function hashStack(stack: string): Promise<string> {
+  const enc = new TextEncoder().encode(stack.slice(0, 500));
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
 export function getClientIp(req: Request): string {
   return (
     req.headers.get("cf-connecting-ip") ||
@@ -44,6 +50,70 @@ export function getClientIp(req: Request): string {
     req.headers.get("x-real-ip") ||
     "unknown"
   );
+}
+
+// ─── Structured logger ────────────────────────────────────────────────────────
+export interface LogContext {
+  requestId: string;
+  fn: string;
+  userId?: string | null;
+  orgId?: string | null;
+  startMs: number;
+}
+
+export function makeRequestId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+/** Log a completed request (fire-and-forget) */
+export function logRequest(
+  ctx: LogContext,
+  statusCode: number,
+): void {
+  const latencyMs = Date.now() - ctx.startMs;
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    { auth: { persistSession: false } },
+  );
+  admin.from("edge_logs").insert({
+    request_id: ctx.requestId,
+    fn: ctx.fn,
+    user_id: ctx.userId ?? null,
+    org_id: ctx.orgId ?? null,
+    status_code: statusCode,
+    latency_ms: latencyMs,
+  }).then(() => {}).catch(() => {});
+}
+
+/** Log an edge exception (fire-and-forget, dedup by stack_hash) */
+export async function logEdgeError(
+  ctx: LogContext,
+  statusCode: number,
+  err: unknown,
+  meta: Record<string, unknown> = {},
+): Promise<void> {
+  const latencyMs = Date.now() - ctx.startMs;
+  const message = err instanceof Error ? err.message : String(err);
+  const stack = err instanceof Error ? (err.stack ?? message) : message;
+  const stack_hash = await hashStack(stack);
+
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    { auth: { persistSession: false } },
+  );
+  admin.from("edge_errors").insert({
+    request_id: ctx.requestId,
+    fn: ctx.fn,
+    user_id: ctx.userId ?? null,
+    org_id: ctx.orgId ?? null,
+    message: message.slice(0, 500),
+    stack_hash,
+    status_code: statusCode,
+    latency_ms: latencyMs,
+    meta,
+  }).then(() => {}).catch(() => {});
 }
 
 // ─── IP rate limit check (via DB function) ───────────────────────────────────
@@ -150,14 +220,10 @@ export async function detectChatAbuse(
     recentMessages.set(key, { hash: msgHash, count: 1, firstSeen: now });
   }
 
-  // Progressive cooldown: if abuse_score is high, apply exponential backoff
-  // (checked upstream in chat-completion via checkUserAbuse)
-
   return { suspicious: false };
 }
 
 // ─── Verify endpoint fingerprint + cache ─────────────────────────────────────
-// Simple ETag-based caching hint for verify page to reduce scraping impact
 export function buildVerifyCacheHeaders(attestationId: string): Record<string, string> {
   return {
     "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",

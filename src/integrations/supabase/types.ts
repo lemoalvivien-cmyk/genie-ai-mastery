@@ -616,6 +616,81 @@ export type Database = {
         }
         Relationships: []
       }
+      edge_errors: {
+        Row: {
+          created_at: string
+          fn: string
+          id: string
+          latency_ms: number | null
+          message: string
+          meta: Json | null
+          org_id: string | null
+          request_id: string | null
+          stack_hash: string | null
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          fn: string
+          id?: string
+          latency_ms?: number | null
+          message: string
+          meta?: Json | null
+          org_id?: string | null
+          request_id?: string | null
+          stack_hash?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          fn?: string
+          id?: string
+          latency_ms?: number | null
+          message?: string
+          meta?: Json | null
+          org_id?: string | null
+          request_id?: string | null
+          stack_hash?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      edge_logs: {
+        Row: {
+          created_at: string
+          fn: string
+          id: string
+          latency_ms: number | null
+          org_id: string | null
+          request_id: string | null
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          fn: string
+          id?: string
+          latency_ms?: number | null
+          org_id?: string | null
+          request_id?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          fn?: string
+          id?: string
+          latency_ms?: number | null
+          org_id?: string | null
+          request_id?: string | null
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       flags: {
         Row: {
           chat_message_id: string | null
