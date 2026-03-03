@@ -8,6 +8,10 @@
  *
  * Content-Type: application/csp-report  (standard)
  *           or: application/json         (some browsers)
+ *
+ * Note: This endpoint intentionally accepts requests from any browser origin
+ * (browsers cannot control the Origin header for CSP reports). The wildcard
+ * is kept deliberately here for report-uri compatibility.
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

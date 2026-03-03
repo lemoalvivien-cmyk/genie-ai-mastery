@@ -19,7 +19,6 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 const LAUNCH_DEADLINE = new Date("2026-04-15T23:59:59");
 const LAUNCH_CODE = "LAUNCH40";
 const LAUNCH_SPOTS_REMAINING = 23;
-const SOCIAL_PROOF_COUNT = 127;
 
 const TRUSTED_BY = ["BNP Paribas", "Crédit Agricole", "KPMG", "Alten", "Freelances"];
 
@@ -177,7 +176,6 @@ export default function Index() {
   const { isInstallable, isInstalled, isIOS, triggerInstall } = usePWAInstall();
 
   const { h, m, s } = useCountdown(LAUNCH_DEADLINE);
-  const { count: proCount, ref: proRef } = useCounterUp(SOCIAL_PROOF_COUNT);
 
   useEffect(() => {
     const ref = searchParams.get("ref");
