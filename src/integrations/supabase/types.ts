@@ -1484,6 +1484,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sources_watchlist: {
+        Row: {
+          created_at: string
+          domain: string
+          enabled: boolean
+          id: string
+          last_fetch_at: string | null
+          name: string
+          persona_tags: string[] | null
+          tags: string[] | null
+          type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          domain?: string
+          enabled?: boolean
+          id?: string
+          last_fetch_at?: string | null
+          name: string
+          persona_tags?: string[] | null
+          tags?: string[] | null
+          type?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          enabled?: boolean
+          id?: string
+          last_fetch_at?: string | null
+          name?: string
+          persona_tags?: string[] | null
+          tags?: string[] | null
+          type?: string
+          url?: string
+        }
+        Relationships: []
+      }
       usage_counters: {
         Row: {
           ai_tokens_in: number
