@@ -10,11 +10,13 @@ import { QuizPlayer } from "@/components/modules/QuizPlayer";
 import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 import { useUpsertUserSkills } from "@/hooks/useSkills";
 import { supabase } from "@/integrations/supabase/client";
+import { ELI10Button } from "@/components/jarvis/ELI10Button";
 
-const DOMAIN_CONFIG = {
+const DOMAIN_CONFIG: Record<string, { label: string; cls: string }> = {
   ia_pro: { label: "IA Pro", cls: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
   ia_perso: { label: "IA Perso", cls: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
   cyber: { label: "Cyber", cls: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  vibe_coding: { label: "Vibe Coding", cls: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
 };
 const LEVEL_CONFIG = {
   debutant: { label: "Débutant", cls: "bg-green-500/10 text-green-400 border-green-500/20" },
@@ -167,8 +169,9 @@ export default function ModuleDetail() {
                   <div key={idx} className="space-y-4">
                     <h2 className="text-xl font-bold text-foreground border-b border-border/40 pb-2">{section.title}</h2>
 
-                    {/* Body text */}
+                    {/* Body text + ELI10 */}
                     <div className="text-muted-foreground leading-relaxed whitespace-pre-line">{section.body}</div>
+                    <ELI10Button text={section.body} className="mt-2" />
 
                     {/* Examples */}
                     {section.examples?.map((ex, ei) => (
