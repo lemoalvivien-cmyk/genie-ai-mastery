@@ -165,7 +165,7 @@ const App = () => (
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
-                <Route path="/partner" element={<PartnerDashboard />} />
+                <Route path="/partner" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 
