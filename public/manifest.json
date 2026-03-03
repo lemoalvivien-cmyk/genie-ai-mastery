@@ -1,0 +1,17 @@
+{
+  "name": "GENIE IA",
+  "short_name": "GENIE IA",
+  "description": "Maîtrisez l'IA & la Cybersécurité",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C1014",
+  "theme_color": "#646CDC",
+  "icons": [
+    {
+      "src": "/logo-genie.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

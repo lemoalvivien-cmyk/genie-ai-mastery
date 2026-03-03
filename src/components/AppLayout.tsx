@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Brain, LogOut, Sparkles, BarChart3, MessageSquare, BookOpen, Settings, Users, Flame, Zap } from "lucide-react";
+import { LogOut, Sparkles, BarChart3, MessageSquare, BookOpen, Settings, Users, Flame, Zap } from "lucide-react";
+import logoGenie from "@/assets/logo-genie.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
 import { PanicButton } from "@/components/PanicButton";
@@ -48,17 +49,17 @@ export default function AppLayout() {
       {/* ── Desktop Sidebar ── */}
       <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-r border-border/40 bg-card/30 backdrop-blur-sm">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-border/40">
+        <div className="px-5 py-4 border-b border-border/40">
           <button
             onClick={() => navigate("/app/dashboard")}
             className="flex items-center gap-2.5"
           >
-            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground">
-              GENIE <span className="text-gradient">IA</span>
-            </span>
+            <img
+              src={logoGenie}
+              alt="GENIE IA"
+              className="h-9 w-auto"
+              style={{ filter: "drop-shadow(0 0 8px hsl(235 62% 63% / 0.45))" }}
+            />
           </button>
         </div>
 
@@ -123,10 +124,12 @@ export default function AppLayout() {
             onClick={() => navigate("/app/dashboard")}
             className="flex items-center gap-2"
           >
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-              <Brain className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground">GENIE <span className="text-gradient">IA</span></span>
+            <img
+              src={logoGenie}
+              alt="GENIE IA"
+              className="h-8 w-auto"
+              style={{ filter: "drop-shadow(0 0 6px hsl(235 62% 63% / 0.4))" }}
+            />
           </button>
           <button
             onClick={signOut}
