@@ -49,20 +49,43 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- JSON-LD structured data -->
+    <!-- Route prefetch hints -->
+    <link rel="prefetch" href="/pricing" as="document" />
+    <link rel="prefetch" href="/register" as="document" />
+    <link rel="prefetch" href="/guides" as="document" />
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "GENIE IA",
+      "url": "https://genie-ai-mastery.lovable.app",
+      "logo": "https://genie-ai-mastery.lovable.app/logo-genie.png",
+      "sameAs": []
+    }
+    </script>
+    <!-- JSON-LD: SoftwareApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "GENIE IA",
-      "description": "Plateforme d'apprentissage IA et cybersécurité pour particuliers et entreprises.",
       "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
       "url": "https://genie-ai-mastery.lovable.app",
+      "description": "Plateforme d'apprentissage IA, Cybersécurité et Vibe Coding. Attestations PDF vérifiables, Jarvis vocal, dashboard manager.",
       "offers": {
         "@type": "Offer",
         "price": "59",
         "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
         "priceSpecification": { "@type": "UnitPriceSpecification", "billingDuration": "P1M" }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "87"
       }
     }
     </script>

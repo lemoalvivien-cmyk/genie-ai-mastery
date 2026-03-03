@@ -20,4 +20,39 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/c-est-quoi-l-ia-generative</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/prompt-engineering-debutant</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/cybersecurite-pour-les-nuls</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/phishing-reconnaitre-eviter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/vibe-coding-c-est-quoi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://genie-ai-mastery.lovable.app/guides/automatiser-son-travail-avec-ia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
