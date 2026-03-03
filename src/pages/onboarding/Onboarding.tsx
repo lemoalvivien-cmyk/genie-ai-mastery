@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Building2, Users, Sparkles } from "lucide-react";
+import { Loader2, Building2, Users, Sparkles, CreditCard, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
@@ -73,7 +73,51 @@ export default function Onboarding() {
   };
 
   const handleOrgSubmit = async () => {
-    await saveOnboarding(data as OnboardingData, orgName.trim() ? { name: orgName.trim(), size: orgSize } : null);
+    if (!orgName.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      // 1. Save profile & create org in free mode (seats from Stripe later)
+      if (!user) throw new Error("Non connecté");
+      const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
+      const orgSizeNum = parseInt(orgSize) || 5;
+      const { data: orgData, error: orgErr } = await supabase
+        .from("organizations")
+        .insert({ name: orgName.trim(), slug, plan: "free", seats_max: orgSizeNum })
+        .select("id")
+        .single();
+      if (orgErr) throw orgErr;
+
+      // Assign manager role
+      await supabase.from("user_roles").upsert({ user_id: user.id, role: "manager", org_id: orgData.id });
+      await supabase.from("profiles").update({
+        persona: data.persona as never,
+        level: ({ debutant: 1, intermediaire: 3, avance: 5 } as Record<string, number>)[data.level ?? "debutant"] ?? 1,
+        onboarding_completed: true,
+        org_id: orgData.id,
+        role: "manager",
+      }).eq("id", user.id);
+      await fetchProfile(user.id);
+      track("onboarding_done", { persona: data.persona, has_org: true });
+
+      // 2. Redirect to Stripe checkout to activate seats
+      const seatsNeeded = Math.max(1, Math.ceil(orgSizeNum / 25));
+      const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke("create-checkout", {
+        body: { seats: seatsNeeded },
+      });
+      if (checkoutErr || !checkoutData?.url) {
+        // Fall back to dashboard if Stripe unavailable
+        setShowConfetti(true);
+        setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
+        return;
+      }
+      window.location.href = checkoutData.url;
+    } catch (e) {
+      setError("Une erreur est survenue. Réessayez.");
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const saveOnboarding = async (finalData: OnboardingData, org: { name: string; size: string } | null) => {
@@ -252,6 +296,14 @@ export default function Onboarding() {
 
                   {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
+                  {/* Stripe CTA notice */}
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl border border-primary/20 bg-primary/5">
+                    <CreditCard className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-semibold text-foreground">Essai gratuit 14 jours</span> — Vous serez redirigé vers le paiement sécurisé pour activer les sièges équipe. Aucune facturation avant la fin de l'essai.
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       type="button"
@@ -259,7 +311,7 @@ export default function Onboarding() {
                       disabled={saving}
                       className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
                     >
-                      Passer
+                      Continuer sans équipe
                     </button>
                     <button
                       type="button"
@@ -267,7 +319,7 @@ export default function Onboarding() {
                       disabled={saving || !orgName.trim()}
                       className="flex-1 py-2.5 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Créer mon espace"}
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CreditCard className="w-4 h-4" />Créer &amp; Activer</>}
                     </button>
                   </div>
                 </div>

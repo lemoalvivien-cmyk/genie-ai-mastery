@@ -1115,6 +1115,56 @@ export type Database = {
           },
         ]
       }
+      org_weekly_reports: {
+        Row: {
+          at_risk_count: number
+          at_risk_users: Json
+          avg_score: number | null
+          completion_rate: number
+          created_at: string
+          id: string
+          inactive_count: number
+          org_id: string
+          top_gaps: Json
+          total_learners: number
+          week_start: string
+        }
+        Insert: {
+          at_risk_count?: number
+          at_risk_users?: Json
+          avg_score?: number | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          inactive_count?: number
+          org_id: string
+          top_gaps?: Json
+          total_learners?: number
+          week_start: string
+        }
+        Update: {
+          at_risk_count?: number
+          at_risk_users?: Json
+          avg_score?: number | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          inactive_count?: number
+          org_id?: string
+          top_gaps?: Json
+          total_learners?: number
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_weekly_reports_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           completion_deadline_days: number | null
@@ -1122,6 +1172,7 @@ export type Database = {
           default_modules: string[] | null
           email_reminders_enabled: boolean | null
           id: string
+          is_read_only: boolean
           logo_url: string | null
           name: string
           partner_org_id: string | null
@@ -1140,6 +1191,7 @@ export type Database = {
           default_modules?: string[] | null
           email_reminders_enabled?: boolean | null
           id?: string
+          is_read_only?: boolean
           logo_url?: string | null
           name: string
           partner_org_id?: string | null
@@ -1158,6 +1210,7 @@ export type Database = {
           default_modules?: string[] | null
           email_reminders_enabled?: boolean | null
           id?: string
+          is_read_only?: boolean
           logo_url?: string | null
           name?: string
           partner_org_id?: string | null

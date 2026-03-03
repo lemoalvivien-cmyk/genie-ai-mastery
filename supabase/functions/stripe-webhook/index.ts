@@ -152,13 +152,11 @@ serve(async (req) => {
       logStep("subscription.deleted", { subscriptionId: sub.id });
 
       const orgId = await resolveOrgId(sub);
+      // On cancellation: downgrade to free + enable read-only mode
+      const cancelUpdate = { plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1, is_read_only: true };
       const filter = orgId
-        ? supabase.from("organizations").update({
-            plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1,
-          }).eq("id", orgId)
-        : supabase.from("organizations").update({
-            plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1,
-          }).eq("stripe_subscription_id", sub.id);
+        ? supabase.from("organizations").update(cancelUpdate).eq("id", orgId)
+        : supabase.from("organizations").update(cancelUpdate).eq("stripe_subscription_id", sub.id);
 
       await filter;
 
@@ -211,7 +209,7 @@ serve(async (req) => {
         if (org) {
           // Re-activate if previously downgraded
           if (org.plan === "free") {
-            await supabase.from("organizations").update({ plan: "business", plan_source: "stripe" }).eq("id", org.id);
+            await supabase.from("organizations").update({ plan: "business", plan_source: "stripe", is_read_only: false }).eq("id", org.id);
             logStep("Restored org to business after successful payment", { orgId: org.id });
           }
 

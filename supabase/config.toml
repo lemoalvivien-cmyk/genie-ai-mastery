@@ -81,5 +81,8 @@ verify_jwt = false
 [functions.content-forge]
 verify_jwt = false
 
+[functions.manager-brief]
+verify_jwt = false
+
 
 
