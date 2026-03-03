@@ -129,7 +129,7 @@ export default function Jarvis() {
   const historyRef = useRef(messages);
   historyRef.current = messages;
 
-  const { isListening, getAnalyser, startListening, stopListening, speak } = useVoiceEngine({
+  const { isListening, getAnalyser, startListening, stopListening, speak, ttsQuotaExceeded } = useVoiceEngine({
     onTranscript: (text, isFinal) => {
       if (isFinal) {
         setInput(text);
@@ -139,6 +139,12 @@ export default function Jarvis() {
       }
     },
     onStateChange: setKittState,
+    onQuotaExceeded: () => {
+      toast({
+        title: "🔇 Mode lecture activé",
+        description: "Quota voix atteint ce mois. Jarvis continue en texte + voix navigateur.",
+      });
+    },
     voiceEnabled,
   });
 
@@ -345,12 +351,14 @@ export default function Jarvis() {
                   onMouseUp={stopListening}
                   onTouchStart={startListening}
                   onTouchEnd={stopListening}
-                  className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all relative ${
                     isListening
                       ? "bg-destructive text-destructive-foreground shadow-[0_0_12px_hsl(var(--destructive)/0.4)]"
+                      : ttsQuotaExceeded
+                      ? "bg-muted/50 text-muted-foreground/50"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
-                  title="Maintenir pour parler"
+                  title={ttsQuotaExceeded ? "Mode lecture (quota voix atteint)" : "Maintenir pour parler"}
                 >
                   {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>

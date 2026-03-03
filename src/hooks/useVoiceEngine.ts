@@ -5,26 +5,33 @@ import type { KittState } from "@/components/chat/KittVisualizer";
 interface UseVoiceEngineOptions {
   onTranscript: (text: string, isFinal: boolean) => void;
   onStateChange: (state: KittState) => void;
+  onQuotaExceeded?: () => void;  // called when TTS quota is hit
   voiceEnabled: boolean;
 }
 
-export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: UseVoiceEngineOptions) {
+export function useVoiceEngine({
+  onTranscript,
+  onStateChange,
+  onQuotaExceeded,
+  voiceEnabled,
+}: UseVoiceEngineOptions) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [ttsQuotaExceeded, setTtsQuotaExceeded] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const micStreamRef = useRef<MediaStream | null>(null);
-  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
-  const ttsSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const audioCtxRef    = useRef<AudioContext | null>(null);
+  const analyserRef    = useRef<AnalyserNode | null>(null);
+  const micStreamRef   = useRef<MediaStream | null>(null);
+  const ttsAudioRef    = useRef<HTMLAudioElement | null>(null);
+  const ttsSourceRef   = useRef<MediaElementAudioSourceNode | null>(null);
   const ttsAnalyserRef = useRef<AnalyserNode | null>(null);
+  const isSpeakingRef  = useRef(false);
 
-  // Returns the analyser node currently in use (mic or TTS)
   const getAnalyser = useCallback((): AnalyserNode | null => {
     if (isListening) return analyserRef.current;
-    if (isSpeaking) return ttsAnalyserRef.current;
+    if (isSpeaking)  return ttsAnalyserRef.current;
     return null;
   }, [isListening, isSpeaking]);
 
@@ -36,13 +43,13 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
   }, []);
 
   const startListening = useCallback(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
-      console.warn("SpeechRecognition not supported");
+      console.warn("SpeechRecognition not supported — falling back to text input");
       return;
     }
 
-    // Setup AudioContext + mic analyser
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       micStreamRef.current = stream;
@@ -57,7 +64,7 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
       source.connect(analyser);
       analyserRef.current = analyser;
     } catch {
-      // mic access denied - continue without visualizer
+      // mic access denied — continue without visualizer analyser
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +72,7 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
     recognition.lang = "fr-FR";
     recognition.continuous = false;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -100,10 +108,39 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
     recognition.start();
   }, [onTranscript, onStateChange, stopListening]);
 
+  // ── Web Speech fallback ──────────────────────────────────────────────────────
+  const speakWithBrowser = useCallback((text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "fr-FR";
+    utterance.rate = 1.0;
+    utterance.pitch = 1.1;
+    // Pick a French voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith("fr"));
+    if (frVoice) utterance.voice = frVoice;
+
+    utterance.onend = () => {
+      if (isSpeakingRef.current) {
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        onStateChange("idle");
+      }
+    };
+    utterance.onerror = () => {
+      isSpeakingRef.current = false;
+      setIsSpeaking(false);
+      onStateChange("idle");
+    };
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }, [onStateChange]);
+
+  // ── Main speak function ──────────────────────────────────────────────────────
   const speak = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
+    if (isSpeakingRef.current) return; // already speaking
 
-    // Strip markdown for TTS
+    // Strip markdown
     const clean = text
       .replace(/\*\*(.+?)\*\*/g, "$1")
       .replace(/\*(.+?)\*/g, "$1")
@@ -113,15 +150,33 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
       .replace(/\n{2,}/g, ". ")
       .replace(/\n/g, " ")
       .trim()
-      .slice(0, 500); // limit length for TTS
+      .slice(0, 500);
 
+    if (!clean) return;
+
+    isSpeakingRef.current = true;
     setIsSpeaking(true);
     onStateChange("speaking");
+
+    // If quota already exceeded, skip directly to browser fallback
+    if (ttsQuotaExceeded) {
+      speakWithBrowser(clean);
+      return;
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke("text-to-speech", {
         body: { text: clean, voice: "loongstella_v2", speed: 1.0 },
       });
+
+      // Quota exceeded
+      if (data?.quota_exceeded || (error as { status?: number } | null)?.status === 429) {
+        setTtsQuotaExceeded(true);
+        onQuotaExceeded?.();
+        // Still speak with browser — user still hears something
+        speakWithBrowser(clean);
+        return;
+      }
 
       if (error || !data?.audio) throw new Error("TTS failed");
 
@@ -138,49 +193,49 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
       const ctx = audioCtxRef.current;
 
       const audio = new Audio(url);
+      audio.crossOrigin = "anonymous";
       ttsAudioRef.current = audio;
 
-      if (!ttsSourceRef.current || ttsSourceRef.current.mediaElement !== audio) {
-        const source = ctx.createMediaElementSource(audio);
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 64;
-        source.connect(analyser);
-        analyser.connect(ctx.destination);
-        ttsSourceRef.current = source;
-        ttsAnalyserRef.current = analyser;
-      }
+      // New analyser for each utterance
+      const source = ctx.createMediaElementSource(audio);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      ttsSourceRef.current = source;
+      ttsAnalyserRef.current = analyser;
 
       audio.onended = () => {
         URL.revokeObjectURL(url);
+        isSpeakingRef.current = false;
         setIsSpeaking(false);
         onStateChange("idle");
         ttsSourceRef.current = null;
         ttsAnalyserRef.current = null;
       };
 
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        throw new Error("audio playback error");
+      };
+
       await audio.play();
     } catch {
       // Fallback to Web Speech API
       try {
-        const utterance = new SpeechSynthesisUtterance(clean);
-        utterance.lang = "fr-FR";
-        utterance.rate = 1.0;
-        utterance.onend = () => {
-          setIsSpeaking(false);
-          onStateChange("idle");
-        };
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
+        speakWithBrowser(clean);
       } catch {
+        isSpeakingRef.current = false;
         setIsSpeaking(false);
         onStateChange("idle");
       }
     }
-  }, [voiceEnabled, onStateChange]);
+  }, [voiceEnabled, onStateChange, onQuotaExceeded, ttsQuotaExceeded, speakWithBrowser]);
 
   const stopSpeaking = useCallback(() => {
     ttsAudioRef.current?.pause();
     window.speechSynthesis?.cancel();
+    isSpeakingRef.current = false;
     setIsSpeaking(false);
     onStateChange("idle");
   }, [onStateChange]);
@@ -188,6 +243,7 @@ export function useVoiceEngine({ onTranscript, onStateChange, voiceEnabled }: Us
   return {
     isListening,
     isSpeaking,
+    ttsQuotaExceeded,
     getAnalyser,
     startListening,
     stopListening,
