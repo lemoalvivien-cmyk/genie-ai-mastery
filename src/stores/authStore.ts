@@ -63,12 +63,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     const userId = get().user?.id;
     if (userId) {
-      // Fire-and-forget logout audit log
-      supabase.from("audit_logs").insert({
-        user_id: userId,
-        action: "logout",
-        resource_type: "auth",
-        details: { method: "explicit" },
+      // Fire-and-forget logout audit log via RPC (no direct client insert)
+      supabase.rpc("log_audit", {
+        _action: "logout",
+        _resource_type: "auth",
+        _meta: { method: "explicit" },
       }).then(() => {});
     }
     await supabase.auth.signOut();

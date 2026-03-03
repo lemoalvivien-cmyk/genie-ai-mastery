@@ -1316,6 +1316,15 @@ export type Database = {
         }
         Returns: Json
       }
+      log_audit: {
+        Args: {
+          _action: string
+          _meta?: Json
+          _resource_id?: string
+          _resource_type?: string
+        }
+        Returns: undefined
+      }
       reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
     }
     Enums: {
