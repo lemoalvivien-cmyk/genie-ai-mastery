@@ -174,8 +174,16 @@ Deno.serve(async (req) => {
     // UPDATE USER ROLE
     if (action === "set_user_role") {
       const { user_id, role } = payload;
-      await admin.from("profiles").update({ role }).eq("id", user_id);
+      // Update both: display cache (profiles) AND source of truth (user_roles)
+      await Promise.all([
+        admin.from("profiles").update({ role }).eq("id", user_id),
+        admin.from("user_roles").upsert(
+          { user_id, role },
+          { onConflict: "user_id" }
+        ),
+      ]);
       return json({ ok: true }, corsHeaders);
+    }
     }
 
     return new Response(JSON.stringify({ error: "Unknown action" }), {
