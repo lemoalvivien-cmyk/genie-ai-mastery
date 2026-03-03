@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getClientIp, hashIp, checkIpRateLimit, recordAbuse, SHIELD_CONFIG } from "../_shared/shield.ts";
 import { PDFDocument, rgb, StandardFonts, degrees } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
@@ -284,10 +285,19 @@ serve(async (req) => {
     }
     const userId = authData.claims.sub as string;
 
-    // Service client for storage
-    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+    // ── Shield: IP rate limit for demo PDF generation ─────────────────────────
+    const clientIp = getClientIp(req);
+    const ipHash = await hashIp(clientIp);
+    const ipCheck = await checkIpRateLimit(ipHash, "demo", SHIELD_CONFIG.demo.maxRequests, SHIELD_CONFIG.demo.windowHours);
+    if (!ipCheck.allowed) {
+      recordAbuse(null, ipHash, "rate_exceeded", "low", { endpoint: "generate-pdf" });
+      return new Response(JSON.stringify({ error: "Limite atteinte : 1 PDF gratuit par IP par 24h. Créez un compte pour continuer." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" },
+      });
+    }
 
     const body = await req.json();
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     const { type, module_id, attestation_id, org_name, base_url = "https://genie-ia.app" } = body;
 
     let pdfBytes: Uint8Array;

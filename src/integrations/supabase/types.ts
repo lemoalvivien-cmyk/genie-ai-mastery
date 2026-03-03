@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      abuse_flags: {
+        Row: {
+          created_at: string
+          details: Json | null
+          flag_type: string
+          id: string
+          ip_hash: string | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          flag_type: string
+          id?: string
+          ip_hash?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          flag_type?: string
+          id?: string
+          ip_hash?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abuse_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       access_codes: {
         Row: {
           code: string
@@ -643,6 +681,39 @@ export type Database = {
           },
         ]
       }
+      ip_rate_limits: {
+        Row: {
+          blocked_until: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_hash: string
+          request_count: number
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_hash: string
+          request_count?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_hash?: string
+          request_count?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       modules: {
         Row: {
           confidence_score: number | null
@@ -894,6 +965,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          abuse_blocked_until: string | null
+          abuse_score: number
           created_at: string | null
           email: string
           full_name: string | null
@@ -914,6 +987,8 @@ export type Database = {
           voice_enabled: boolean | null
         }
         Insert: {
+          abuse_blocked_until?: string | null
+          abuse_score?: number
           created_at?: string | null
           email: string
           full_name?: string | null
@@ -934,6 +1009,8 @@ export type Database = {
           voice_enabled?: boolean | null
         }
         Update: {
+          abuse_blocked_until?: string | null
+          abuse_score?: number
           created_at?: string | null
           email?: string
           full_name?: string | null
@@ -1332,6 +1409,15 @@ export type Database = {
         Args: { _org_id?: string; _user_id: string }
         Returns: Json
       }
+      check_ip_rate_limit: {
+        Args: {
+          _endpoint: string
+          _ip_hash: string
+          _max_requests?: number
+          _window_hours?: number
+        }
+        Returns: Json
+      }
       check_rate_limit: {
         Args: {
           _max_calls?: number
@@ -1340,6 +1426,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_ip_rate_limits: { Args: never; Returns: undefined }
       flush_usage_buffer: { Args: never; Returns: Json }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
@@ -1373,6 +1460,16 @@ export type Database = {
           _meta?: Json
           _resource_id?: string
           _resource_type?: string
+        }
+        Returns: undefined
+      }
+      record_abuse: {
+        Args: {
+          _details?: Json
+          _flag_type: string
+          _ip_hash: string
+          _severity?: string
+          _user_id: string
         }
         Returns: undefined
       }

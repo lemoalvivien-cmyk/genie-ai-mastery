@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import {
   Activity, AlertTriangle, DollarSign, Users, Power, PowerOff,
-  Loader2, RefreshCw, ShieldAlert, CheckCircle2, Archive, Shield, XCircle
+  Loader2, RefreshCw, ShieldAlert, CheckCircle2, Archive, Shield, XCircle, Swords
 } from "lucide-react";
 
 type UsageRow = {
@@ -44,6 +44,16 @@ type CspReport = {
   source_file: string | null;
   line_number: number | null;
   user_agent: string | null;
+};
+
+type AbuseFlag = {
+  id: string;
+  user_id: string | null;
+  ip_hash: string | null;
+  flag_type: string;
+  severity: string;
+  details: Record<string, unknown>;
+  created_at: string;
 };
 
 function StatCard({ icon: Icon, label, value, sub, warn }: {
@@ -155,6 +165,26 @@ export default function ControlRoom() {
     },
     refetchInterval: 30_000,
   });
+
+  // Abuse flags
+  const { data: abuseFlags = [], refetch: refetchAbuse } = useQuery<AbuseFlag[]>({
+    queryKey: ["abuse-flags"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("abuse_flags")
+        .select("id, user_id, ip_hash, flag_type, severity, details, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as AbuseFlag[];
+    },
+    refetchInterval: 30_000,
+  });
+
+  const abuseBySeverity = abuseFlags.reduce((acc, f) => {
+    acc[f.severity] = (acc[f.severity] ?? 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   // Aggregate CSP stats
   const cspByDirective: Record<string, number> = {};
@@ -507,10 +537,56 @@ export default function ControlRoom() {
                 </p>
               </>
             )}
+        </div>
+
+        {/* ── Abuse Shield Panel ── */}
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Swords className="w-4 h-4 text-destructive" />
+              <span className="font-semibold text-sm">Bouclier Anti-Abus</span>
+              {abuseFlags.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-xs font-bold">{abuseFlags.length}</span>
+              )}
+            </div>
+            <button onClick={() => refetchAbuse()} className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted transition-colors" title="Rafraîchir">
+              <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
           </div>
 
+          {/* Severity summary */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {(["critical","high","medium","low"] as const).map(sev => {
+              const count = abuseBySeverity[sev] ?? 0;
+              const colors: Record<string, string> = { critical: "bg-destructive/20 text-destructive", high: "bg-orange-500/15 text-orange-600", medium: "bg-amber-500/15 text-amber-600", low: "bg-muted text-muted-foreground" };
+              return <span key={sev} className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colors[sev]}`}>{sev}: {count}</span>;
+            })}
+          </div>
+
+          {abuseFlags.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 gap-2">
+              <CheckCircle2 className="w-8 h-8 text-primary opacity-40" />
+              <p className="text-sm text-muted-foreground">Aucun signal d'abus détecté.</p>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="bg-muted/50 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Derniers 100 signaux</div>
+              <div className="divide-y divide-border max-h-72 overflow-y-auto">
+                {abuseFlags.map((f) => (
+                  <div key={f.id} className="grid grid-cols-[auto_1fr_auto_auto] gap-x-3 items-center px-4 py-2 text-xs hover:bg-muted/30 transition-colors">
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${f.severity === "critical" || f.severity === "high" ? "bg-destructive/10 text-destructive" : "bg-amber-500/10 text-amber-600"}`}>{f.severity}</span>
+                    <span className="font-mono text-foreground truncate">{f.flag_type}</span>
+                    <span className="text-muted-foreground/60 font-mono truncate max-w-[80px]">{f.ip_hash?.slice(0,8) ?? (f.user_id?.slice(0,8) ?? "—")}…</span>
+                    <span className="text-muted-foreground/60 whitespace-nowrap">{new Date(f.created_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+
       </div>
-    </>
+    </div>
+  </>
   );
 }
