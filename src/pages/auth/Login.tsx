@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Brain } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Brain, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   isBlocked,
@@ -12,6 +12,7 @@ import {
   clearAttempts,
   formatBlockedTime,
 } from "@/lib/security";
+import { useDeviceTracker } from "@/hooks/useDeviceTracker";
 import DOMPurify from "dompurify";
 
 const schema = z.object({
@@ -24,6 +25,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/app/dashboard";
+  const { getDeviceId } = useDeviceTracker();
 
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -32,6 +34,7 @@ export default function Login() {
   const [magicLoading, setMagicLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [deviceWarning, setDeviceWarning] = useState(false);
 
   const {
     register,
@@ -44,6 +47,7 @@ export default function Login() {
 
   const onSubmit = async (data: FormData) => {
     setSubmitError(null);
+    setDeviceWarning(false);
     const email = DOMPurify.sanitize(data.email.trim().toLowerCase());
 
     const { blocked, remainingMs } = isBlocked(email);
@@ -76,26 +80,53 @@ export default function Login() {
 
     clearAttempts(email);
 
-    // Log connexion in audit_logs via RPC (no direct client insert)
+    // Device tracking
+    const currentDeviceId = getDeviceId();
+
     if (authData?.user) {
+      // Log connexion audit
       supabase.rpc("log_audit", {
         _action: "login",
         _resource_type: "auth",
         _meta: { method: "password" },
       }).then(() => {});
-    }
 
-    // Redirect: check if onboarding done
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("id", authData.user!.id)
-      .single();
+      // Check previous device
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("last_device_id, onboarding_completed")
+        .eq("id", authData.user.id)
+        .single();
 
-    if (!profile?.onboarding_completed) {
-      navigate("/onboarding", { replace: true });
-    } else {
-      navigate(from, { replace: true });
+      const previousDeviceId = (profile as { last_device_id?: string | null; onboarding_completed?: boolean | null } | null)?.last_device_id;
+
+      if (previousDeviceId && previousDeviceId !== currentDeviceId) {
+        // Different device detected: sign out all other sessions, show warning
+        await supabase.auth.signOut({ scope: "others" });
+        setDeviceWarning(true);
+      }
+
+      // Update last_device_id
+      await supabase
+        .from("profiles")
+        .update({ last_device_id: currentDeviceId })
+        .eq("id", authData.user.id);
+
+      // Redirect after short delay if warning shown
+      const redirectFn = () => {
+        if (!profile?.onboarding_completed) {
+          navigate("/onboarding", { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
+      };
+
+      if (previousDeviceId && previousDeviceId !== currentDeviceId) {
+        // Let user read the warning briefly before redirect
+        setTimeout(redirectFn, 3500);
+      } else {
+        redirectFn();
+      }
     }
   };
 
@@ -146,6 +177,19 @@ export default function Login() {
               {resetMode ? "Recevez un lien de réinitialisation" : magicMode ? "Connectez-vous sans mot de passe" : "Bon retour parmi nous !"}
             </p>
           </div>
+
+          {/* Device change security warning */}
+          {deviceWarning && (
+            <div role="alert" className="mb-4 p-4 rounded-xl bg-warning/10 border border-warning/40 flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 text-warning mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-warning">Nouvel appareil détecté</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Une connexion depuis un nouvel appareil a été détectée. L'ancienne session a été déconnectée pour sécuriser votre compte. Redirection en cours…
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 shadow-card">
             {(magicSent || resetSent) ? (
@@ -258,6 +302,9 @@ export default function Login() {
                         placeholder="••••••••"
                         aria-invalid={!!errors.password}
                         {...register("password")}
+                        onPaste={(e) => e.preventDefault()}
+                        onCopy={(e) => e.preventDefault()}
+                        onCut={(e) => e.preventDefault()}
                         className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                       <button

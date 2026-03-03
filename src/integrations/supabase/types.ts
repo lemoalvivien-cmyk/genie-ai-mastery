@@ -1499,6 +1499,7 @@ export type Database = {
           has_completed_welcome: boolean | null
           id: string
           last_active_at: string | null
+          last_device_id: string | null
           level: number | null
           onboarding_completed: boolean | null
           org_id: string | null
@@ -1521,6 +1522,7 @@ export type Database = {
           has_completed_welcome?: boolean | null
           id: string
           last_active_at?: string | null
+          last_device_id?: string | null
           level?: number | null
           onboarding_completed?: boolean | null
           org_id?: string | null
@@ -1543,6 +1545,7 @@ export type Database = {
           has_completed_welcome?: boolean | null
           id?: string
           last_active_at?: string | null
+          last_device_id?: string | null
           level?: number | null
           onboarding_completed?: boolean | null
           org_id?: string | null
