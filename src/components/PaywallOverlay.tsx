@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lock, Zap, ArrowRight, Check, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const SOCIAL_PROOF_COUNT = 127;
 
@@ -26,6 +27,10 @@ export function PaywallOverlay({
   compact = false,
 }: PaywallOverlayProps) {
   const [iconHovered, setIconHovered] = useState(false);
+  const { track } = useAnalytics();
+
+  // Fire paywall_shown once on mount
+  useEffect(() => { track("paywall_shown", { feature: feature ?? "unknown", compact }); }, []);
 
   if (compact) {
     return (
@@ -38,8 +43,9 @@ export function PaywallOverlay({
               <Zap className="w-4 h-4 text-white" />
             </div>
             <p className="text-xs font-bold text-foreground">{feature ?? "Fonctionnalité Pro"}</p>
-            <Link
+          <Link
               to="/pricing"
+              onClick={() => track("paywall_clicked", { feature: feature ?? "unknown", compact: true })}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-all"
               style={{ background: "hsl(var(--accent))", boxShadow: "0 0 8px rgba(254,44,64,0.3)" }}
             >
@@ -105,6 +111,7 @@ export function PaywallOverlay({
           {/* CTA */}
           <Link
             to="/pricing"
+            onClick={() => track("paywall_clicked", { feature: feature ?? "unknown", compact: false })}
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-white font-black text-sm transition-all active:scale-[0.98]"
             style={{ background: "hsl(var(--accent))", boxShadow: "0 0 20px rgba(254,44,64,0.35)" }}
           >

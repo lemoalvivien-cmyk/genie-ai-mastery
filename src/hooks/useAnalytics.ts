@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 
 export type EventName =
+  // Navigation
+  | "page_view"
   // Acquisition
   | "pricing_viewed"
   | "checkout_started"
@@ -19,6 +21,8 @@ export type EventName =
   | "onboarding_step_done"
   | "access_code_redeemed"
   | "referral_applied"
+  | "referral_shared"
+  | "email_captured"
   // Activation
   | "first_mission_done"
   | "first_module_opened"
@@ -34,6 +38,11 @@ export type EventName =
   | "lab_run"
   | "pdf_generated"
   | "voice_used"
+  | "mission_completed"
+  | "quota_hit"
+  // Paywall / Conversion
+  | "paywall_shown"
+  | "paywall_clicked"
   // Monetisation / Retention
   | "invoice_failed"
   | "churn"
