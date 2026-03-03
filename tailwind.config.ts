@@ -59,6 +59,9 @@ export default {
         emerald: {
           DEFAULT: "hsl(var(--emerald))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+        },
         navy: {
           DEFAULT: "hsl(var(--navy))",
           light:   "hsl(var(--navy-light))",
