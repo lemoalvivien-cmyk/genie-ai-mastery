@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { productSchema, organizationSchema } from "@/lib/seo";
-import { ProFooter } from "@/pages/Index";
+import { ProFooter } from "@/components/ProFooter";
 import logoGenie from "@/assets/logo-genie.png";
 
 /* ─── Data ───────────────────────────────────────────────────── */
