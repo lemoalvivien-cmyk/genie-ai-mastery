@@ -9,8 +9,11 @@ type EventName =
   | "referral_applied"
   | "first_mission_done"
   | "chat_sent"
+  | "module_opened"
   | "module_completed"
+  | "quiz_started"
   | "quiz_passed"
+  | "quiz_failed"
   | "pdf_generated"
   | "lab_run";
 
