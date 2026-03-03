@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, CheckCircle2, XCircle, Trophy, RotateCcw, Clock, Loader2, Download } from "lucide-react";
 import type { Quiz, Module } from "@/hooks/useModules";
 import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Props {
   quiz: Quiz;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function QuizPlayer({ quiz, module: mod, onClose, onComplete }: Props) {
+  const { track } = useAnalytics();
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
@@ -24,6 +26,12 @@ export function QuizPlayer({ quiz, module: mod, onClose, onComplete }: Props) {
 
   const question = quiz.questions[currentQ];
   const passed = score >= quiz.passing_score;
+
+  // Track quiz start on mount
+  useEffect(() => {
+    track("quiz_started", { module_id: mod.id, domain: mod.domain, quiz_id: quiz.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Timer
   useEffect(() => {
@@ -69,8 +77,13 @@ export function QuizPlayer({ quiz, module: mod, onClose, onComplete }: Props) {
     const pct = Math.round((correct / quiz.questions.length) * 100);
     setScore(pct);
     setFinished(true);
-    if (pct >= quiz.passing_score) setTimeout(() => setConfetti(true), 300);
-  }, [quiz]);
+    if (pct >= quiz.passing_score) {
+      setTimeout(() => setConfetti(true), 300);
+      track("quiz_passed", { module_id: mod.id, domain: mod.domain, score: pct });
+    } else {
+      track("quiz_failed", { module_id: mod.id, domain: mod.domain, score: pct });
+    }
+  }, [quiz, mod, track]);
 
   const handleSave = async () => {
     setSaving(true);

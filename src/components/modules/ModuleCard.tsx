@@ -7,6 +7,7 @@ import {
   BookOpen, Star, Clock, ChevronRight, Trophy
 } from "lucide-react";
 import type { Module, Progress } from "@/hooks/useModules";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Fallback icons map
 const FALLBACK_ICONS: Record<string, React.FC<LucideProps>> = {
@@ -27,10 +28,11 @@ function DynamicIcon({ name, ...props }: { name: string } & Omit<LucideProps, 'r
   return <Fallback {...props} />;
 }
 
-const DOMAIN_CONFIG = {
+const DOMAIN_CONFIG: Record<string, { label: string; color: string }> = {
   ia_pro: { label: "IA Pro", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
   ia_perso: { label: "IA Perso", color: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
   cyber: { label: "Cyber", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  vibe_coding: { label: "Vibe Coding", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
 };
 
 const LEVEL_CONFIG = {
@@ -46,7 +48,8 @@ interface Props {
 }
 
 export function ModuleCard({ module, progress, onPrefetch }: Props) {
-  const domain = DOMAIN_CONFIG[module.domain];
+  const { track } = useAnalytics();
+  const domain = DOMAIN_CONFIG[module.domain] ?? DOMAIN_CONFIG.ia_pro;
   const level = LEVEL_CONFIG[module.level];
   const pct = progress?.status === "completed" ? 100
     : progress?.status === "in_progress" ? 50
@@ -58,6 +61,7 @@ export function ModuleCard({ module, progress, onPrefetch }: Props) {
     <Link
       to={`/app/modules/${module.slug}`}
       onMouseEnter={onPrefetch}
+      onClick={() => track("module_opened", { module_id: module.id, domain: module.domain, slug: module.slug })}
       className="group relative flex flex-col rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/40 hover:bg-card/80 hover:scale-[1.02] hover:shadow-glow transition-all duration-300 shadow-card overflow-hidden focus-ring"
       aria-label={`Module : ${module.title}`}
     >
