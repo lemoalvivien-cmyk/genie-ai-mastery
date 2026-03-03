@@ -36,4 +36,7 @@ verify_jwt = false
 [functions.flush-ai-usage-buffer]
 verify_jwt = false
 
+[functions.csp-report]
+verify_jwt = false
+
 
