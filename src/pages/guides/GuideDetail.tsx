@@ -126,7 +126,7 @@ export default function GuideDetail() {
               Passez à la pratique avec GENIE IA
             </h3>
             <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-              Modules interactifs, Jarvis vocal, attestations PDF vérifiables. Tout ce guide — et bien plus — en pratique.
+              Modules interactifs, KITT IA vocal, attestations PDF vérifiables. Tout ce guide — et bien plus — en pratique.
             </p>
             <Link
               to="/pricing"

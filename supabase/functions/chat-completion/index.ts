@@ -485,10 +485,10 @@ serve(async (req) => {
     // Build messages with system prompt
     const baseSystemPrompt = buildSystemPrompt(mode, persona, domain);
 
-    // Jarvis stage 1: short structured JSON — cheap model, small budget
+    // KITT IA stage 1: short structured JSON — cheap model, small budget
     const jarvisShortPrompt = `${baseSystemPrompt}
 
-INSTRUCTIONS MODE JARVIS — RÉPONSE COURTE (ÉTAPE 1) :
+INSTRUCTIONS MODE KITT IA — RÉPONSE COURTE (ÉTAPE 1) :
 Tu es ultra rassurant, patient et bienveillant. Humour léger bienvenu (1 touche par réponse).
 Tu dois TOUJOURS répondre avec un SEUL bloc JSON (rien d'autre avant ou après) :
 \`\`\`json
@@ -508,10 +508,10 @@ Règles :
 - sources : 1-2 sources réelles (ANSSI, CNIL, NIST, OWASP…). Jamais d'inventions.
 CRITIQUE : Jamais de secrets, mots de passe, clés API dans les réponses.`;
 
-    // Jarvis stage 2: deep dive — only triggered by "Explique plus"
+    // KITT IA stage 2: deep dive — only triggered by "Explique plus"
     const jarvisLongPrompt = `${baseSystemPrompt}
 
-INSTRUCTIONS MODE JARVIS — APPROFONDISSEMENT (ÉTAPE 2) :
+INSTRUCTIONS MODE KITT IA — APPROFONDISSEMENT (ÉTAPE 2) :
 L'utilisateur veut en savoir plus. Donne une explication plus riche MAIS garde le ton rassurant.
 Réponds en TEXTE SIMPLE (pas de JSON cette fois). Structure :
 1) Analogie simple du quotidien pour l'expliquer autrement
