@@ -233,17 +233,25 @@ export default function Welcome() {
           </div>
         )}
 
-        {/* Done */}
+        {/* Done — PDF CTA (Time-to-Value) */}
         {phase === "done" && (
-          <div className="flex flex-col items-center gap-6 animate-fade-in">
+          <div className="flex flex-col items-center gap-4 animate-fade-in w-full max-w-sm">
             <div className="text-4xl">🎉</div>
+            <p className="text-white/80 text-sm text-center">
+              Ta première action est faite ! Génère ton mini-rapport PDF pour le partager.
+            </p>
             <Button
-              onClick={handleDiscover}
-              className="px-10 py-4 text-lg font-bold gradient-primary shadow-glow min-h-[56px]"
-              size="lg"
+              onClick={() => navigate("/app/chat?action=pdf_rapport")}
+              className="w-full px-8 py-4 text-base font-bold gradient-primary shadow-glow min-h-[52px]"
             >
-              Découvrir GENIE IA →
+              📄 Générer mon rapport PDF →
             </Button>
+            <button
+              onClick={handleDiscover}
+              className="text-sm text-muted-foreground hover:text-white transition-colors"
+            >
+              Passer — aller au dashboard
+            </button>
           </div>
         )}
       </div>

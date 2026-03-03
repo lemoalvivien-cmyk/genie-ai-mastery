@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
@@ -235,6 +237,36 @@ export default function Jarvis() {
     const firstName = profile?.full_name?.split(" ")[0] ?? "toi";
     setMessages([{ id: "reset", role: "assistant", content: `C'est reparti, ${firstName} ! 😊 Nouvelle conversation. Que puis-je faire pour toi ?` }]);
   };
+
+  // ── Hard paywall: free users cannot access KITT ─────────────────────────────
+  if (!isPro) {
+    return (
+      <>
+        <Helmet>
+          <title>KITT IA — Copilote Pro | GENIE IA</title>
+        </Helmet>
+        <div className="flex min-h-full items-center justify-center p-6">
+          <div className="w-full max-w-sm">
+            <PaywallOverlay
+              feature="KITT IA — Copilote Vocal"
+              description="Posez vos questions en voix et texte. Formé sur l'IA, la cybersécurité, la conformité AI Act."
+            >
+              {/* Blurred preview */}
+              <div className="rounded-2xl border border-border/40 bg-card/60 p-8 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full gradient-primary" />
+                  <div className="h-3 bg-muted rounded w-32" />
+                </div>
+                <div className="h-3 bg-muted rounded w-full" />
+                <div className="h-3 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-5/6" />
+              </div>
+            </PaywallOverlay>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
