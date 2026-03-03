@@ -4,6 +4,12 @@ import logoGenie from "@/assets/logo-genie.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
 import { PanicButton } from "@/components/PanicButton";
+import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
+
+// Thin wrapper to avoid importing the full component tree
+function LegalLinks() {
+  return <LegalFooterLinks className="flex-col items-start gap-y-1" />;
+}
 
 export default function AppLayout() {
   const location = useLocation();
@@ -94,7 +100,7 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        {/* User footer */}
+        {/* ── User footer ── */}
         <div className="px-3 py-4 border-t border-border/40">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
             <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">
@@ -112,6 +118,10 @@ export default function AppLayout() {
             >
               <LogOut className="w-4 h-4" />
             </button>
+          </div>
+          {/* Legal footer links */}
+          <div className="mt-2 px-1">
+            <LegalLinks />
           </div>
         </div>
       </aside>

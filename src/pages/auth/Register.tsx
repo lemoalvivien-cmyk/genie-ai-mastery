@@ -204,7 +204,7 @@ export default function Register() {
                     {errors.password && <p role="alert" className="text-xs text-destructive mt-1">{errors.password.message}</p>}
                   </div>
 
-                  {/* CGU */}
+                   {/* CGU */}
                   <div className="flex items-start gap-3">
                     <input
                       id="accept_cgu"
@@ -215,12 +215,19 @@ export default function Register() {
                     />
                     <label htmlFor="accept_cgu" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
                       J'accepte les{" "}
-                      <Link to="/cgu" className="text-primary hover:underline">CGU</Link>{" "}
+                      <Link to="/legal/cgu" className="text-primary hover:underline">CGU</Link>{" "}
                       et la{" "}
-                      <Link to="/confidentialite" className="text-primary hover:underline">Politique de confidentialité</Link>
+                      <Link to="/legal/confidentialite" className="text-primary hover:underline">Politique de confidentialité</Link>
                     </label>
                   </div>
                   {errors.accept_cgu && <p role="alert" className="text-xs text-destructive -mt-2">{errors.accept_cgu.message}</p>}
+                  <p className="text-xs text-muted-foreground -mt-1">
+                    En créant un compte, vous acceptez nos{" "}
+                    <Link to="/legal/cgu" className="text-primary hover:underline">CGU</Link>{" "}
+                    et notre{" "}
+                    <Link to="/legal/confidentialite" className="text-primary hover:underline">Politique de confidentialité</Link>.
+                    Hébergement dans l'Union européenne — <Link to="/legal/dpa" className="text-primary hover:underline">DPA disponible</Link> pour les entreprises.
+                  </p>
 
                   {submitError && (
                     <div role="alert" className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-sm text-destructive">
