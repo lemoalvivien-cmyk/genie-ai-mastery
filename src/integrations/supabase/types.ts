@@ -47,6 +47,13 @@ export type Database = {
             foreignKeyName: "abuse_flags_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abuse_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -173,6 +180,13 @@ export type Database = {
             foreignKeyName: "ai_usage_daily_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_usage_daily_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -253,6 +267,13 @@ export type Database = {
             foreignKeyName: "app_settings_updated_by_fkey"
             columns: ["updated_by"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -298,6 +319,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artifacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -358,6 +386,13 @@ export type Database = {
             foreignKeyName: "attestations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attestations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -398,6 +433,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "audit_logs_user_id_fkey"
             columns: ["user_id"]
@@ -488,6 +530,13 @@ export type Database = {
             foreignKeyName: "campaigns_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -541,6 +590,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "chat_messages_user_id_fkey"
             columns: ["user_id"]
@@ -795,7 +851,21 @@ export type Database = {
             foreignKeyName: "flags_resolved_by_fkey"
             columns: ["resolved_by"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flags_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1194,6 +1264,13 @@ export type Database = {
             foreignKeyName: "phishing_results_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phishing_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1361,6 +1438,13 @@ export type Database = {
             foreignKeyName: "progress_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1430,6 +1514,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["referral_status"]
         }
         Relationships: [
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "referrals_referrer_id_fkey"
             columns: ["referrer_id"]
@@ -1742,6 +1833,13 @@ export type Database = {
             foreignKeyName: "user_skills_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1800,7 +1898,77 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      org_member_profiles: {
+        Row: {
+          abuse_blocked_until: string | null
+          abuse_score: number | null
+          created_at: string | null
+          full_name: string | null
+          has_completed_welcome: boolean | null
+          id: string | null
+          last_active_at: string | null
+          level: number | null
+          onboarding_completed: boolean | null
+          org_id: string | null
+          persona: Database["public"]["Enums"]["persona_type"] | null
+          preferred_mode:
+            | Database["public"]["Enums"]["preferred_mode_type"]
+            | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          streak_count: number | null
+          updated_at: string | null
+          voice_enabled: boolean | null
+        }
+        Insert: {
+          abuse_blocked_until?: string | null
+          abuse_score?: number | null
+          created_at?: string | null
+          full_name?: string | null
+          has_completed_welcome?: boolean | null
+          id?: string | null
+          last_active_at?: string | null
+          level?: number | null
+          onboarding_completed?: boolean | null
+          org_id?: string | null
+          persona?: Database["public"]["Enums"]["persona_type"] | null
+          preferred_mode?:
+            | Database["public"]["Enums"]["preferred_mode_type"]
+            | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          streak_count?: number | null
+          updated_at?: string | null
+          voice_enabled?: boolean | null
+        }
+        Update: {
+          abuse_blocked_until?: string | null
+          abuse_score?: number | null
+          created_at?: string | null
+          full_name?: string | null
+          has_completed_welcome?: boolean | null
+          id?: string | null
+          last_active_at?: string | null
+          level?: number | null
+          onboarding_completed?: boolean | null
+          org_id?: string | null
+          persona?: Database["public"]["Enums"]["persona_type"] | null
+          preferred_mode?:
+            | Database["public"]["Enums"]["preferred_mode_type"]
+            | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          streak_count?: number | null
+          updated_at?: string | null
+          voice_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_org_stats: { Args: { _org_id: string }; Returns: Json }
