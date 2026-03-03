@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrgGapsWidget } from "@/components/skills/OrgGapsWidget";
 import { PhishingRiskWidget } from "@/components/phishing/PhishingRiskWidget";
+import { OfficeHoursCard } from "@/components/OfficeHoursCard";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -658,6 +659,7 @@ export default function ManagerDashboard() {
               <TabsTrigger value="team">Équipe</TabsTrigger>
               <TabsTrigger value="campaigns">Campagnes</TabsTrigger>
               <TabsTrigger value="attestations">Attestations</TabsTrigger>
+              <TabsTrigger value="office-hours">Office Hours</TabsTrigger>
               <TabsTrigger value="settings">Paramètres</TabsTrigger>
             </TabsList>
 
@@ -911,6 +913,13 @@ export default function ManagerDashboard() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </TabsContent>
+
+            {/* ── Office Hours tab ── */}
+            <TabsContent value="office-hours" className="mt-4">
+              <div className="max-w-2xl">
+                <OfficeHoursCard />
               </div>
             </TabsContent>
 
