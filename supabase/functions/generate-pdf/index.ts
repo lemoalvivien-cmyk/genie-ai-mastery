@@ -366,6 +366,13 @@ const DEFAULT_SOP_SECTIONS = [
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ── Kill-Switch ───────────────────────────────────────────────────────────────
+  if (Deno.env.get("AI_DISABLED") === "true") {
+    return new Response(JSON.stringify({ error: "Le service est temporairement désactivé." }), {
+      status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
