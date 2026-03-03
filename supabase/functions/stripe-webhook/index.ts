@@ -33,74 +33,178 @@ serve(async (req) => {
 
   logStep("Processing event", { type: event.type });
 
+  // Helper: resolve orgId from subscription metadata or customer
+  async function resolveOrgId(subOrSession: { metadata?: Record<string, string>; customer?: string | Stripe.Customer | Stripe.DeletedCustomer | null }): Promise<string | null> {
+    const metaOrg = subOrSession.metadata?.org_id;
+    if (metaOrg) return metaOrg;
+    // Fallback: look up org by customer id
+    const customerId = typeof subOrSession.customer === "string" ? subOrSession.customer : null;
+    if (customerId) {
+      const { data } = await supabase.from("organizations").select("id").eq("stripe_customer_id", customerId).maybeSingle();
+      return data?.id ?? null;
+    }
+    return null;
+  }
+
   try {
+    // ── checkout.session.completed ────────────────────────────────────────────
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const orgId = session.metadata?.org_id;
-      const userId = session.metadata?.user_id;
+      const orgId = session.metadata?.org_id ?? null;
+      const userId = session.metadata?.user_id ?? null;
       const subscriptionId = session.subscription as string;
-      logStep("checkout.session.completed", { orgId, userId, subscriptionId });
+      const seatsRaw = session.metadata?.seats ?? "1";
+      const seats = Math.max(1, parseInt(seatsRaw, 10) || 1);
+      logStep("checkout.session.completed", { orgId, userId, subscriptionId, seats });
 
       if (orgId) {
         await supabase.from("organizations").update({
           plan: "business",
           stripe_subscription_id: subscriptionId,
           plan_source: "stripe",
-          seats_max: 25,
+          seats_max: seats * 25, // 25 seats per seat unit
         }).eq("id", orgId);
+      } else if (userId) {
+        // No org yet — create a personal one
+        const { data: profile } = await supabase.from("profiles").select("full_name, org_id").eq("id", userId).single();
+        if (!profile?.org_id) {
+          const slug = `personal-${userId.slice(0, 8)}-${Date.now()}`;
+          const { data: newOrg } = await supabase.from("organizations").insert({
+            name: profile?.full_name ? `${profile.full_name} – Business` : "Mon espace Business",
+            slug,
+            plan: "business",
+            plan_source: "stripe",
+            stripe_subscription_id: subscriptionId,
+            seats_max: seats * 25,
+          }).select("id").single();
+          if (newOrg) {
+            await supabase.from("profiles").update({ org_id: newOrg.id }).eq("id", userId);
+            await supabase.from("user_roles").upsert({ user_id: userId, role: "manager", org_id: newOrg.id });
+          }
+        }
       }
+
       if (userId) {
         await supabase.from("audit_logs").insert({
           user_id: userId,
           action: "subscription_created",
-          details: { subscription_id: subscriptionId, org_id: orgId },
+          details: { subscription_id: subscriptionId, org_id: orgId, seats },
         });
       }
+
+    // ── customer.subscription.updated ────────────────────────────────────────
     } else if (event.type === "customer.subscription.updated") {
       const sub = event.data.object as Stripe.Subscription;
-      logStep("subscription.updated", { status: sub.status, customerId: sub.customer });
-      const { data: orgs } = await supabase
-        .from("organizations")
-        .select("id")
-        .eq("stripe_subscription_id", sub.id);
-      if (orgs?.length) {
-        const newPlan = sub.status === "active" || sub.status === "trialing" ? "business" : "free";
+      logStep("subscription.updated", { status: sub.status, id: sub.id });
+
+      // Seats = sum of all quantities on subscription items
+      const totalSeats = sub.items.data.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
+      const seatsMax = totalSeats * 25;
+
+      const orgId = await resolveOrgId(sub);
+      if (orgId) {
+        const newPlan = (sub.status === "active" || sub.status === "trialing") ? "business" : "free";
+        const planSource = newPlan === "business" ? "stripe" : "none";
         await supabase.from("organizations").update({
           plan: newPlan,
-          plan_source: newPlan === "business" ? "stripe" : "none",
-        }).eq("stripe_subscription_id", sub.id);
-        await supabase.from("audit_logs").insert({
-          action: "subscription_updated",
-          details: { subscription_id: sub.id, status: sub.status, new_plan: newPlan },
-        });
+          plan_source: planSource,
+          seats_max: newPlan === "business" ? seatsMax : 1,
+        }).eq("id", orgId);
+        logStep("Updated org plan", { orgId, newPlan, seatsMax });
+      } else {
+        // Fallback: update by stripe_subscription_id
+        const { data: orgs } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_subscription_id", sub.id);
+        if (orgs?.length) {
+          const newPlan = (sub.status === "active" || sub.status === "trialing") ? "business" : "free";
+          await supabase.from("organizations").update({
+            plan: newPlan,
+            plan_source: newPlan === "business" ? "stripe" : "none",
+            seats_max: newPlan === "business" ? seatsMax : 1,
+          }).eq("stripe_subscription_id", sub.id);
+        }
       }
+
+      await supabase.from("audit_logs").insert({
+        action: "subscription_updated",
+        details: { subscription_id: sub.id, status: sub.status, seats: totalSeats },
+      });
+
+    // ── customer.subscription.deleted ────────────────────────────────────────
     } else if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object as Stripe.Subscription;
       logStep("subscription.deleted", { subscriptionId: sub.id });
-      const { data: orgs } = await supabase
-        .from("organizations")
-        .select("id")
-        .eq("stripe_subscription_id", sub.id);
-      if (orgs?.length) {
-        await supabase.from("organizations").update({
-          plan: "free",
-          stripe_subscription_id: null,
-          plan_source: "none",
-          seats_max: 1,
-        }).eq("stripe_subscription_id", sub.id);
-        await supabase.from("audit_logs").insert({
-          action: "subscription_cancelled",
-          details: { subscription_id: sub.id },
-        });
-      }
+
+      const orgId = await resolveOrgId(sub);
+      const filter = orgId
+        ? supabase.from("organizations").update({
+            plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1,
+          }).eq("id", orgId)
+        : supabase.from("organizations").update({
+            plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1,
+          }).eq("stripe_subscription_id", sub.id);
+
+      await filter;
+
+      await supabase.from("audit_logs").insert({
+        action: "subscription_cancelled",
+        details: { subscription_id: sub.id },
+      });
+
+    // ── invoice.payment_failed — dunning ─────────────────────────────────────
     } else if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as Stripe.Invoice;
-      logStep("payment_failed", { invoiceId: invoice.id });
+      logStep("payment_failed", { invoiceId: invoice.id, attemptCount: invoice.attempt_count });
+
+      const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+      if (customerId) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("id, name")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
+
+        if (org) {
+          // After 3 failed attempts → downgrade to free (Stripe handles dunning emails)
+          if ((invoice.attempt_count ?? 0) >= 3) {
+            await supabase.from("organizations").update({
+              plan: "free",
+              plan_source: "none",
+            }).eq("id", org.id);
+            logStep("Downgraded org to free after 3 failed payments", { orgId: org.id });
+          }
+        }
+      }
+
       await supabase.from("audit_logs").insert({
         action: "payment_failed",
-        details: { invoice_id: invoice.id, customer_id: invoice.customer },
+        details: {
+          invoice_id: invoice.id,
+          customer_id: customerId,
+          attempt_count: invoice.attempt_count,
+        },
       });
+
+    // ── invoice.paid — restore if previously downgraded ───────────────────────
+    } else if (event.type === "invoice.paid") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
+      if (customerId && invoice.subscription) {
+        const { data: org } = await supabase
+          .from("organizations").select("id, plan").eq("stripe_customer_id", customerId).maybeSingle();
+        if (org && org.plan === "free") {
+          // Re-activate
+          await supabase.from("organizations").update({
+            plan: "business",
+            plan_source: "stripe",
+          }).eq("id", org.id);
+          logStep("Restored org to business after successful payment", { orgId: org.id });
+        }
+      }
     }
+
   } catch (err) {
     logStep("Error handling event", { error: String(err) });
   }

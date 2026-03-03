@@ -43,7 +43,7 @@ const PRO_FEATURES = [
 const FAQ = [
   {
     q: "Comment fonctionne l'essai gratuit ?",
-    a: "14 jours complets, zéro prélèvement. Vous pouvez résilier avant la fin de l'essai sans rien payer.",
+    a: "14 jours complets, zéro prélèvement, carte nécessaire. Vous pouvez résilier avant la fin de l'essai sans rien payer. La TVA applicable est calculée automatiquement selon votre pays.",
   },
   {
     q: "Puis-je résilier quand je veux ?",
@@ -66,6 +66,20 @@ const FAQ = [
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handlePortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session");
+      if (error || data?.error) throw new Error(data?.error ?? "Erreur");
+      window.location.href = data.url;
+    } catch (err) {
+      toast({ title: "Erreur", description: err instanceof Error ? err.message : "Erreur portail", variant: "destructive" });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const { data: launchData } = useQuery({
     queryKey: ["launch-price"],
@@ -183,9 +197,19 @@ export default function Pricing() {
           </Link>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
-              <Link to="/app/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Mon espace →
-              </Link>
+              <>
+                <button
+                  onClick={handlePortal}
+                  disabled={portalLoading}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  {portalLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                  Gérer mon abonnement
+                </button>
+                <Link to="/app/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Mon espace →
+                </Link>
+              </>
             ) : (
               <>
                 <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground">Se connecter</Link>
@@ -293,7 +317,7 @@ export default function Pricing() {
                 {checkoutLoading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Redirection...</>
                 ) : (
-                  "Démarrer — Essai 24h gratuit →"
+                  "Démarrer — Essai 14 jours gratuit →"
                 )}
               </button>
             </div>
