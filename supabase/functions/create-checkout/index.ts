@@ -102,7 +102,7 @@ serve(async (req) => {
     const priceId = Deno.env.get("STRIPE_PRICE_59_TTC") ?? Deno.env.get("STRIPE_PRICE_PRO");
     if (!priceId) throw new Error("Price ID non configuré — vérifier STRIPE_PRICE_59_TTC dans les secrets");
     console.warn("[CREATE-CHECKOUT] Action requise : Vérifier que le Price ID dans le dashboard Stripe correspond exactement à l'abonnement 59€ TTC/mois");
-    logStep("Using price", { priceId, launchActive, seats });
+    logStep("Using price", { priceId, seats });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
