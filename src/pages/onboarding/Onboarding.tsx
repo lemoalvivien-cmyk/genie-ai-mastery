@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Brain, Loader2, Building2, Users } from "lucide-react";
+import { Loader2, Building2, Users, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
 import { LevelStep } from "./LevelStep";
 import { InterestStep } from "./InterestStep";
-import { CodeStep } from "./CodeStep";
+import { EmailStep } from "./EmailStep";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import logoGenie from "@/assets/logo-genie.png";
 
 export type OnboardingData = {
   persona: string;
   level: string;
   interests: string[];
 };
+
+const TOTAL_STEPS = 4;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -27,9 +30,9 @@ export default function Onboarding() {
   const [orgSize, setOrgSize] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCodeStep, setShowCodeStep] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  const totalSteps = 3;
+  const progressPct = ((step - 1) / TOTAL_STEPS) * 100;
 
   const handlePersona = (persona: string) => {
     setData((d) => ({ ...d, persona }));
@@ -43,9 +46,8 @@ export default function Onboarding() {
     setStep(3);
   };
 
-  const handleFinish = async (interests: string[]) => {
+  const handleInterests = (interests: string[]) => {
     const finalData = { ...data, interests };
-    setError(null);
     track("onboarding_step_done", { step: "interests", count: interests.length });
 
     if (finalData.persona === "dirigeant") {
@@ -54,7 +56,20 @@ export default function Onboarding() {
       return;
     }
 
-    await saveOnboarding(finalData as OnboardingData, null);
+    setData((d) => ({ ...d, interests }));
+    setStep(4);
+  };
+
+  const handleEmailStep = async (email: string | null) => {
+    // Save email lead if provided
+    if (email) {
+      try {
+        await supabase.from("email_leads").insert({ email, source: "onboarding" });
+      } catch {
+        // non-blocking
+      }
+    }
+    await saveOnboarding(data as OnboardingData, null);
   };
 
   const handleOrgSubmit = async () => {
@@ -64,6 +79,7 @@ export default function Onboarding() {
   const saveOnboarding = async (finalData: OnboardingData, org: { name: string; size: string } | null) => {
     if (!user) return;
     setSaving(true);
+    setError(null);
 
     try {
       let org_id: string | null = null;
@@ -78,19 +94,11 @@ export default function Onboarding() {
 
         if (!orgErr && orgData) {
           org_id = orgData.id;
-          await supabase.from("user_roles").upsert({
-            user_id: user.id,
-            role: "manager",
-            org_id: orgData.id,
-          });
+          await supabase.from("user_roles").upsert({ user_id: user.id, role: "manager", org_id: orgData.id });
         }
       }
 
-      const levelMap: Record<string, number> = {
-        debutant: 1,
-        intermediaire: 3,
-        avance: 5,
-      };
+      const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
       await supabase.from("profiles").update({
         persona: finalData.persona as any,
@@ -101,7 +109,10 @@ export default function Onboarding() {
 
       await fetchProfile(user.id);
       track("onboarding_step_done", { step: "completed", persona: finalData.persona });
-      setShowCodeStep(true);
+
+      // Confetti then redirect
+      setShowConfetti(true);
+      setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
     } catch {
       setError("Une erreur est survenue. Réessayez.");
     } finally {
@@ -109,130 +120,159 @@ export default function Onboarding() {
     }
   };
 
-  const goToToday = () => navigate("/app/today", { replace: true });
-
   return (
     <>
       <Helmet>
         <title>Bienvenue – GENIE IA</title>
       </Helmet>
 
-      <div className="min-h-screen gradient-hero flex items-center justify-center px-4 py-12">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/8 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
-
-        <div className="w-full max-w-2xl relative z-10">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                <Brain className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">GENIE <span className="text-gradient">IA</span></span>
+      {/* Confetti */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-yellow-400","bg-emerald-400","bg-pink-400"][i % 5]}`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-${Math.random() * 10}%`,
+                animationDelay: `${Math.random() * 1.5}s`,
+                animationDuration: `${0.8 + Math.random() * 1.5}s`,
+              }}
+            />
+          ))}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="glass rounded-3xl px-10 py-8 text-center animate-slide-up">
+              <Sparkles className="w-12 h-12 mx-auto mb-3" style={{ color: "hsl(var(--accent))" }} />
+              <p className="text-2xl font-black text-foreground">Votre Génie est prêt !</p>
+              <p className="text-muted-foreground mt-1">Redirection en cours…</p>
             </div>
-            {!showOrgForm && !showCodeStep && (
-              <>
-                <h1 className="text-2xl font-bold mb-1">Configurons votre Génie</h1>
-                <p className="text-sm text-muted-foreground">Étape {step} sur {totalSteps}</p>
-                <div className="mt-4 flex gap-1.5 justify-center" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={totalSteps}>
-                  {Array.from({ length: totalSteps }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-1.5 rounded-full transition-all duration-500 ${i < step ? "w-12 bg-primary" : "w-8 bg-border"}`}
-                    />
-                  ))}
-                </div>
-              </>
+          </div>
+        </div>
+      )}
+
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Top bar with progress */}
+        <div className="px-4 pt-6 pb-2 max-w-2xl mx-auto w-full">
+          <div className="flex items-center justify-between mb-3">
+            <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
+            {!showOrgForm && (
+              <span className="text-xs text-muted-foreground">
+                Étape {Math.min(step, TOTAL_STEPS)} / {TOTAL_STEPS}
+              </span>
             )}
           </div>
-
-          {/* Steps */}
-          {showCodeStep ? (
-            <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card animate-fade-in">
-              <CodeStep
-                onDone={goToToday}
-                onSkip={goToToday}
+          {!showOrgForm && (
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--border))" }}>
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${progressPct}%`,
+                  background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
+                  boxShadow: "0 0 8px rgba(82,87,216,0.4)",
+                }}
               />
             </div>
-          ) : !showOrgForm ? (
-            <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card">
-              {step === 1 && <PersonaStep onSelect={handlePersona} />}
-              {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
-              {step === 3 && <InterestStep onFinish={handleFinish} onBack={() => setStep(2)} saving={saving} />}
-              {error && <p role="alert" className="mt-4 text-sm text-destructive text-center">{error}</p>}
-            </div>
-          ) : (
-            /* Org creation form for Dirigeant */
-            <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 sm:p-8 shadow-card">
-              <div className="text-center mb-6">
-                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
-                  <Building2 className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <h2 className="text-xl font-bold">Créez votre espace entreprise</h2>
-                <p className="text-sm text-muted-foreground mt-1">Formez votre équipe depuis un dashboard dédié</p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="org-name" className="block text-sm font-medium mb-1.5">
-                    Nom de l'entreprise <span className="text-destructive">*</span>
-                  </label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      id="org-name"
-                      type="text"
-                      value={orgName}
-                      onChange={(e) => setOrgName(e.target.value)}
-                      placeholder="Acme SAS"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="org-size" className="block text-sm font-medium mb-1.5">
-                    Nombre d'employés estimé
-                  </label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <select
-                      id="org-size"
-                      value={orgSize}
-                      onChange={(e) => setOrgSize(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all appearance-none"
-                    >
-                      <option value="">Choisir...</option>
-                      <option value="5">1 – 10</option>
-                      <option value="25">11 – 50</option>
-                      <option value="100">51 – 200</option>
-                      <option value="500">200+</option>
-                    </select>
-                  </div>
-                </div>
-
-                {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => saveOnboarding(data as OnboardingData, null)}
-                    disabled={saving}
-                    className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all disabled:opacity-50"
-                  >
-                    Passer cette étape
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOrgSubmit}
-                    disabled={saving || !orgName.trim()}
-                    className="flex-1 py-2.5 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Créer mon espace"}
-                  </button>
-                </div>
-              </div>
-            </div>
           )}
+        </div>
+
+        {/* Card */}
+        <div className="flex-1 flex items-start justify-center px-4 py-8">
+          <div className="w-full max-w-2xl">
+            {showConfetti ? null : !showOrgForm ? (
+              <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
+                {step === 1 && <PersonaStep onSelect={handlePersona} />}
+                {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
+                {step === 3 && (
+                  <InterestStep
+                    onFinish={handleInterests}
+                    onBack={() => setStep(2)}
+                    saving={saving}
+                  />
+                )}
+                {step === 4 && (
+                  <EmailStep
+                    onFinish={handleEmailStep}
+                    onBack={() => setStep(3)}
+                    saving={saving}
+                  />
+                )}
+                {error && <p role="alert" className="mt-4 text-sm text-destructive text-center">{error}</p>}
+              </div>
+            ) : (
+              /* Org form for Dirigeant */
+              <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
+                <div className="text-center mb-6">
+                  <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
+                    <Building2 className="w-7 h-7 text-primary-foreground" />
+                  </div>
+                  <h2 className="text-xl font-bold">Créez votre espace entreprise</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Formez votre équipe depuis un dashboard dédié</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="org-name" className="block text-sm font-medium mb-1.5">
+                      Nom de l'entreprise <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        id="org-name"
+                        type="text"
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                        placeholder="Acme SAS"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        style={{ background: "hsl(var(--secondary)/0.6)", border: "1px solid hsl(var(--border))" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="org-size" className="block text-sm font-medium mb-1.5">Nombre d'employés</label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <select
+                        id="org-size"
+                        value={orgSize}
+                        onChange={(e) => setOrgSize(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all appearance-none"
+                        style={{ background: "hsl(var(--secondary)/0.6)", border: "1px solid hsl(var(--border))" }}
+                      >
+                        <option value="">Choisir...</option>
+                        <option value="5">1 – 10</option>
+                        <option value="25">11 – 50</option>
+                        <option value="100">51 – 200</option>
+                        <option value="500">200+</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => saveOnboarding(data as OnboardingData, null)}
+                      disabled={saving}
+                      className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
+                    >
+                      Passer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOrgSubmit}
+                      disabled={saving || !orgName.trim()}
+                      className="flex-1 py-2.5 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Créer mon espace"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
