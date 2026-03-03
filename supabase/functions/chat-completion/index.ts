@@ -380,15 +380,21 @@ serve(async (req) => {
     const userOverBudget = budget?.user_over_budget ?? false;
     const orgOverBudget = budget?.org_over_budget ?? false;
 
-    // Hard block: user over their personal budget (non-org free user: 3 msg/day)
-    const dailyLimit = isPro ? 500 : 3;
+    // Hard block: user over their personal budget (non-org free user: 2 msg/day)
+    const dailyLimit = isPro ? 500 : 2;
     if (todayCount >= dailyLimit || (userOverBudget && !orgId)) {
-      const msg = isPro
-        ? "Limite quotidienne de 500 messages atteinte. Revenez demain !"
-        : `Limite gratuite de 3 messages/jour atteinte. Passez à GENIE Pro pour 500 messages/jour.`;
-      return new Response(JSON.stringify({ error: msg, budget_exceeded: true }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (isPro) {
+        return new Response(JSON.stringify({ error: "Limite quotidienne de 500 messages atteinte. Revenez demain !", budget_exceeded: true }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Free user — return a KITT-style upsell message as a valid assistant response
+      return new Response(JSON.stringify({
+        content: "J'étais en train de préparer une réponse détaillée pour vous... mais votre plan gratuit est limité à 2 échanges par jour. Avec le plan Pro, je peux aller beaucoup plus loin. 🚀",
+        quota_exceeded: true,
+        budget_exceeded: true,
+        model_used: "genie-upsell",
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Org over budget: return eco mode notice + non-AI templates suggestion
