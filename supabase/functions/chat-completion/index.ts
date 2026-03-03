@@ -650,7 +650,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
         if (validationResult.content.startsWith("UNSAFE")) {
           finalContent = "Je ne suis pas en mesure de fournir cette information pour des raisons de sécurité. 🛡️";
         }
-      } catch {
+      } catch (_e) {
         // Validation failed, keep original content
       }
     }

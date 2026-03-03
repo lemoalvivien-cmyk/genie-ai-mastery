@@ -30,7 +30,7 @@ async function fetchQRCodeBytes(url: string): Promise<Uint8Array | null> {
     if (!resp.ok) return null;
     const buf = await resp.arrayBuffer();
     return new Uint8Array(buf);
-  } catch {
+  } catch (_e) {
     return null;
   }
 }
@@ -172,7 +172,7 @@ async function buildAttestation(data: {
       page.drawText(verifyUrl, { x: 138, y: y + 28, size: 7.5, font: fontOblique, color: INDIGO });
       page.drawText(`N° : ${data.attestation_id}`, { x: 138, y: y + 14, size: 7, font: fontRegular, color: GRAY });
       page.drawText("Scanner le QR code pour valider ce document", { x: 138, y: y, size: 7.5, font: fontRegular, color: GRAY });
-    } catch {
+    } catch (_e) {
       // Fallback text
       page.drawText("Vérification en ligne :", { x: 75, y: y + 38, size: 9, font: fontBold, color: NAVY });
       page.drawText(verifyUrl, { x: 75, y: y + 24, size: 7.5, font: fontOblique, color: INDIGO });
@@ -266,7 +266,7 @@ async function buildCharte(data: {
         lastPage.drawText(`Programme partenaire : ${data.partner_name}`, { x: 85, y: 24, size: 7, font: fontRegular, color: INDIGO });
       }
       lastPage.drawText(`Généré par GENIE IA — ${formatDate(new Date())}`, { x: 85, y: 12, size: 7, font: fontRegular, color: GRAY });
-    } catch {
+    } catch (_e) {
       lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par GENIE IA — ${formatDate(new Date())}`, {
         x: 30, y: 30, size: 7, font: fontRegular, color: GRAY,
       });
@@ -325,7 +325,7 @@ async function buildChecklist(data: {
         page.drawText(`Programme partenaire : ${data.partner_name}`, { x: 115, y: 34, size: 7, font: fontRegular, color: INDIGO });
       }
       page.drawText("Généré par GENIE IA", { x: 115, y: 20, size: 7, font: fontRegular, color: GRAY });
-    } catch {
+    } catch (_e) {
       page.drawText(`Formez votre équipe sur ${data.base_url}`, { x: 40, y: 62, size: 8, font: fontRegular, color: INDIGO });
       page.drawText("Généré par GENIE IA", { x: 40, y: 48, size: 7, font: fontRegular, color: GRAY });
     }
