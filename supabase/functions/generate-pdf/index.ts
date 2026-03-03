@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getClientIp, hashIp, checkIpRateLimit, recordAbuse, SHIELD_CONFIG } from "../_shared/shield.ts";
-import { PDFDocument, rgb, StandardFonts, degrees } from "https://esm.sh/pdf-lib@1.17.1";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,16 +10,33 @@ const corsHeaders = {
 };
 
 // ─── Color palette ────────────────────────────────────────────────────────────
-const NAVY   = rgb(0.08, 0.12, 0.27);
-const INDIGO = rgb(0.39, 0.40, 0.94);
+const NAVY    = rgb(0.08, 0.12, 0.27);
+const INDIGO  = rgb(0.39, 0.40, 0.94);
 const EMERALD = rgb(0.06, 0.73, 0.51);
-const GRAY   = rgb(0.40, 0.40, 0.45);
-const LIGHT  = rgb(0.96, 0.97, 1.00);
-const WHITE  = rgb(1, 1, 1);
-const AMBER  = rgb(0.96, 0.62, 0.04);
+const GRAY    = rgb(0.40, 0.40, 0.45);
+const LIGHT   = rgb(0.96, 0.97, 1.00);
+const WHITE   = rgb(1, 1, 1);
+
+// ─── QR Code generator (pure Deno - no external service) ─────────────────────
+// Generates a minimal QR-like pixel matrix for a URL
+// We use a simplified approach: fetch a QR PNG from a public API
+async function fetchQRCodeBytes(url: string): Promise<Uint8Array | null> {
+  try {
+    const encoded = encodeURIComponent(url);
+    const resp = await fetch(
+      `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encoded}&format=png&margin=2`,
+      { signal: AbortSignal.timeout(4000) }
+    );
+    if (!resp.ok) return null;
+    const buf = await resp.arrayBuffer();
+    return new Uint8Array(buf);
+  } catch {
+    return null;
+  }
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function wrapText(text: string, maxWidth: number, font: typeof StandardFonts, size: number, pdfFont: Awaited<ReturnType<PDFDocument["embedFont"]>>): string[] {
+function wrapText(text: string, maxWidth: number, pdfFont: Awaited<ReturnType<PDFDocument["embedFont"]>>, size: number): string[] {
   const words = text.split(" ");
   const lines: string[] = [];
   let current = "";
@@ -49,6 +66,7 @@ async function buildAttestation(data: {
   score_average: number;
   attestation_id: string;
   base_url: string;
+  partner_name?: string;
 }): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595, 842]); // A4
@@ -67,29 +85,30 @@ async function buildAttestation(data: {
   // Bottom border band
   page.drawRectangle({ x: 0, y: 0, width, height: 50, color: NAVY });
 
-  // Side accent line (indigo)
+  // Side accent lines (indigo)
   page.drawRectangle({ x: 0, y: 50, width: 6, height: height - 130, color: INDIGO });
   page.drawRectangle({ x: width - 6, y: 50, width: 6, height: height - 130, color: INDIGO });
 
   // Header: logo text
-  page.drawText("⚡ GENIE IA", { x: 40, y: height - 52, size: 22, font: fontBold, color: WHITE });
+  page.drawText("GENIE IA", { x: 40, y: height - 50, size: 22, font: fontBold, color: WHITE });
   page.drawText("Plateforme de Formation Professionnelle", {
-    x: 40, y: height - 70, size: 9, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
+    x: 40, y: height - 66, size: 9, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
   });
 
   // Main title
-  page.drawText("ATTESTATION DE FORMATION", {
-    x: width / 2 - fontBold.widthOfTextAtSize("ATTESTATION DE FORMATION", 20) / 2,
-    y: height - 130,
+  const titleText = "ATTESTATION DE FORMATION";
+  page.drawText(titleText, {
+    x: width / 2 - fontBold.widthOfTextAtSize(titleText, 20) / 2,
+    y: height - 128,
     size: 20, font: fontBold, color: NAVY,
   });
 
   // Decorative line under title
-  page.drawLine({ start: { x: 50, y: height - 145 }, end: { x: width - 50, y: height - 145 }, thickness: 1, color: INDIGO });
-  page.drawLine({ start: { x: 50, y: height - 148 }, end: { x: width - 50, y: height - 148 }, thickness: 0.3, color: INDIGO });
+  page.drawLine({ start: { x: 50, y: height - 143 }, end: { x: width - 50, y: height - 143 }, thickness: 1, color: INDIGO });
+  page.drawLine({ start: { x: 50, y: height - 146 }, end: { x: width - 50, y: height - 146 }, thickness: 0.3, color: INDIGO });
 
   // Certifying text
-  let y = height - 185;
+  let y = height - 183;
   page.drawText("Je soussigné(e), la plateforme GENIE IA, certifie que :", {
     x: 60, y, size: 11, font: fontOblique, color: GRAY,
   });
@@ -121,7 +140,6 @@ async function buildAttestation(data: {
   }
 
   y -= 10;
-  // Decorative separator
   page.drawLine({ start: { x: 60, y }, end: { x: width - 60, y }, thickness: 0.5, color: rgb(0.85, 0.87, 0.92) });
 
   y -= 25;
@@ -137,31 +155,66 @@ async function buildAttestation(data: {
   page.drawText(`Délivrée le : ${formatDate(now)}`, { x: 270, y: y + 8, size: 9, font: fontRegular, color: GRAY });
   page.drawText(`Valable jusqu'au : ${formatDate(validUntil)}`, { x: 270, y: y - 6, size: 9, font: fontRegular, color: GRAY });
 
-  // QR-like visual block (simplified — points to verify URL)
-  y -= 60;
+  // ── QR Code + verification block ─────────────────────────────────────────
+  y -= 75;
   const verifyUrl = `${data.base_url}/verify/${data.attestation_id}`;
-  page.drawRectangle({ x: 60, y: y - 15, width: width - 120, height: 55, color: LIGHT });
-  page.drawText("🔍 Vérification en ligne :", { x: 75, y: y + 22, size: 9, font: fontBold, color: NAVY });
-  page.drawText(verifyUrl, { x: 75, y: y + 8, size: 8, font: fontOblique, color: INDIGO });
-  page.drawText(`N° attestation : ${data.attestation_id}`, { x: 75, y: y - 6, size: 7, font: fontRegular, color: GRAY });
+
+  // Try to embed QR image
+  const qrBytes = await fetchQRCodeBytes(verifyUrl);
+  const blockH = 80;
+  page.drawRectangle({ x: 55, y: y - 15, width: width - 110, height: blockH, color: LIGHT });
+
+  if (qrBytes) {
+    try {
+      const qrImg = await pdf.embedPng(qrBytes);
+      page.drawImage(qrImg, { x: 65, y: y - 10, width: 60, height: 60 });
+      page.drawText("Vérifier l'authenticité :", { x: 138, y: y + 42, size: 9, font: fontBold, color: NAVY });
+      page.drawText(verifyUrl, { x: 138, y: y + 28, size: 7.5, font: fontOblique, color: INDIGO });
+      page.drawText(`N° : ${data.attestation_id}`, { x: 138, y: y + 14, size: 7, font: fontRegular, color: GRAY });
+      page.drawText("Scanner le QR code pour valider ce document", { x: 138, y: y, size: 7.5, font: fontRegular, color: GRAY });
+    } catch {
+      // Fallback text
+      page.drawText("Vérification en ligne :", { x: 75, y: y + 38, size: 9, font: fontBold, color: NAVY });
+      page.drawText(verifyUrl, { x: 75, y: y + 24, size: 7.5, font: fontOblique, color: INDIGO });
+      page.drawText(`N° : ${data.attestation_id}`, { x: 75, y: y + 10, size: 7, font: fontRegular, color: GRAY });
+    }
+  } else {
+    page.drawText("Vérification en ligne :", { x: 75, y: y + 38, size: 9, font: fontBold, color: NAVY });
+    page.drawText(verifyUrl, { x: 75, y: y + 24, size: 7.5, font: fontOblique, color: INDIGO });
+    page.drawText(`N° : ${data.attestation_id}`, { x: 75, y: y + 10, size: 7, font: fontRegular, color: GRAY });
+  }
+
+  // Partner mention (if present)
+  if (data.partner_name) {
+    y -= 35;
+    page.drawText(`En partenariat avec : ${data.partner_name}`, {
+      x: 60, y, size: 8, font: fontOblique, color: INDIGO,
+    });
+  }
 
   // Footer
-  page.drawText("GENIE IA — Plateforme de formation professionnelle en IA & Cybersécurité", {
-    x: width / 2 - fontRegular.widthOfTextAtSize("GENIE IA — Plateforme de formation professionnelle en IA & Cybersécurité", 8) / 2,
-    y: 20, size: 8, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
+  const footerText = "GENIE IA — Plateforme de formation professionnelle en IA & Cybersécurité — genie-ia.app";
+  page.drawText(footerText, {
+    x: width / 2 - fontRegular.widthOfTextAtSize(footerText, 7) / 2,
+    y: 20, size: 7, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
   });
 
   return pdf.save();
 }
 
-async function buildCharte(data: { org_name: string; sections: { title: string; content: string }[] }): Promise<Uint8Array> {
+async function buildCharte(data: {
+  org_name: string;
+  sections: { title: string; content: string }[];
+  type_label: string;
+  base_url: string;
+  partner_name?: string;
+}): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const fontBold    = await pdf.embedFont(StandardFonts.HelveticaBold);
   const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
 
   const addPage = () => {
     const p = pdf.addPage([595, 842]);
-    // Side accent
     p.drawRectangle({ x: 0, y: 0, width: 6, height: 842, color: INDIGO });
     return p;
   };
@@ -172,7 +225,7 @@ async function buildCharte(data: { org_name: string; sections: { title: string; 
 
   // Header
   page.drawRectangle({ x: 0, y: height - 80, width, height: 80, color: NAVY });
-  page.drawText("CHARTE D'UTILISATION DE L'INTELLIGENCE ARTIFICIELLE", {
+  page.drawText(data.type_label, {
     x: 30, y: height - 48, size: 12, font: fontBold, color: WHITE,
   });
   page.drawText(data.org_name, { x: 30, y: height - 65, size: 10, font: fontRegular, color: LIGHT });
@@ -186,25 +239,58 @@ async function buildCharte(data: { org_name: string; sections: { title: string; 
     page.drawText(section.title, { x: 30, y: y + 3, size: 11, font: fontBold, color: NAVY });
     y -= 28;
 
-    const lines = wrapText(section.content, width - 80, StandardFonts.Helvetica, 9, fontRegular);
+    const lines = wrapText(section.content, width - 80, fontRegular, 9);
     for (const line of lines) {
-      if (y < 60) { page = addPage(); y = height - 40; }
+      if (y < 80) { page = addPage(); y = height - 40; }
       page.drawText(line, { x: 30, y, size: 9, font: fontRegular, color: GRAY });
       y -= 14;
     }
     y -= 10;
   }
 
-  // Footer
+  // ── Viral footer on last page ──────────────────────────────────────────────
   const lastPage = pdf.getPages()[pdf.getPageCount() - 1];
-  lastPage.drawText(`Généré par GENIE IA — ${formatDate(new Date())} — À faire valider par votre DPO/juriste`, {
-    x: 30, y: 20, size: 7, font: fontRegular, color: GRAY,
-  });
+  const lastH = lastPage.getSize().height;
+
+  // Get QR code for landing page
+  const landingQr = await fetchQRCodeBytes(data.base_url);
+  lastPage.drawLine({ start: { x: 20, y: 78 }, end: { x: width - 20, y: 78 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.85) });
+
+  if (landingQr) {
+    try {
+      const qrImg = await pdf.embedPng(landingQr);
+      lastPage.drawImage(qrImg, { x: 25, y: 10, width: 50, height: 50 });
+      lastPage.drawText("Formez votre équipe sur GENIE IA", { x: 85, y: 52, size: 9, font: fontBold, color: NAVY });
+      lastPage.drawText(data.base_url, { x: 85, y: 38, size: 8, font: fontRegular, color: INDIGO });
+      if (data.partner_name) {
+        lastPage.drawText(`Programme partenaire : ${data.partner_name}`, { x: 85, y: 24, size: 7, font: fontRegular, color: INDIGO });
+      }
+      lastPage.drawText(`Généré par GENIE IA — ${formatDate(new Date())}`, { x: 85, y: 12, size: 7, font: fontRegular, color: GRAY });
+    } catch {
+      lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par GENIE IA — ${formatDate(new Date())}`, {
+        x: 30, y: 30, size: 7, font: fontRegular, color: GRAY,
+      });
+    }
+  } else {
+    lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par GENIE IA — ${formatDate(new Date())}`, {
+      x: 30, y: 42, size: 8, font: fontRegular, color: NAVY,
+    });
+    if (data.partner_name) {
+      lastPage.drawText(`Programme partenaire : ${data.partner_name}`, { x: 30, y: 28, size: 7, font: fontRegular, color: INDIGO });
+    }
+    lastPage.drawText(`${formatDate(new Date())}`, { x: 30, y: 14, size: 7, font: fontRegular, color: GRAY });
+  }
 
   return pdf.save();
 }
 
-async function buildChecklist(data: { title: string; items: string[]; module_title: string; base_url: string }): Promise<Uint8Array> {
+async function buildChecklist(data: {
+  title: string;
+  items: string[];
+  module_title: string;
+  base_url: string;
+  partner_name?: string;
+}): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595, 842]);
   const { width, height } = page.getSize();
@@ -213,7 +299,7 @@ async function buildChecklist(data: { title: string; items: string[]; module_tit
 
   page.drawRectangle({ x: 0, y: 0, width, height, color: WHITE });
   page.drawRectangle({ x: 0, y: height - 80, width, height: 80, color: NAVY });
-  page.drawText("✓ " + data.title, { x: 40, y: height - 50, size: 18, font: fontBold, color: WHITE });
+  page.drawText(data.title, { x: 40, y: height - 50, size: 16, font: fontBold, color: WHITE });
   page.drawText(data.module_title, { x: 40, y: height - 68, size: 9, font: fontRegular, color: LIGHT });
 
   let y = height - 110;
@@ -225,12 +311,31 @@ async function buildChecklist(data: { title: string; items: string[]; module_tit
     if (y < 100) break;
   }
 
-  // Footer QR-like
-  page.drawLine({ start: { x: 40, y: 75 }, end: { x: width - 40, y: 75 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.85) });
-  page.drawText(`Formez votre équipe sur ${data.base_url}`, {
-    x: 40, y: 55, size: 8, font: fontRegular, color: INDIGO,
-  });
-  page.drawText("Généré par GENIE IA", { x: 40, y: 40, size: 7, font: fontRegular, color: GRAY });
+  // ── Viral footer + QR ─────────────────────────────────────────────────────
+  page.drawLine({ start: { x: 40, y: 90 }, end: { x: width - 40, y: 90 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.85) });
+
+  const landingQr = await fetchQRCodeBytes(data.base_url);
+  if (landingQr) {
+    try {
+      const qrImg = await pdf.embedPng(landingQr);
+      page.drawImage(qrImg, { x: 40, y: 10, width: 60, height: 60 });
+      page.drawText("Formez votre équipe à l'IA et la cybersécurité", { x: 115, y: 62, size: 9, font: fontBold, color: NAVY });
+      page.drawText(data.base_url, { x: 115, y: 48, size: 8, font: fontRegular, color: INDIGO });
+      if (data.partner_name) {
+        page.drawText(`Programme partenaire : ${data.partner_name}`, { x: 115, y: 34, size: 7, font: fontRegular, color: INDIGO });
+      }
+      page.drawText("Généré par GENIE IA", { x: 115, y: 20, size: 7, font: fontRegular, color: GRAY });
+    } catch {
+      page.drawText(`Formez votre équipe sur ${data.base_url}`, { x: 40, y: 62, size: 8, font: fontRegular, color: INDIGO });
+      page.drawText("Généré par GENIE IA", { x: 40, y: 48, size: 7, font: fontRegular, color: GRAY });
+    }
+  } else {
+    page.drawText(`Formez votre équipe sur ${data.base_url}`, { x: 40, y: 70, size: 8, font: fontRegular, color: INDIGO });
+    if (data.partner_name) {
+      page.drawText(`Programme partenaire : ${data.partner_name}`, { x: 40, y: 56, size: 7, font: fontRegular, color: INDIGO });
+    }
+    page.drawText("Généré par GENIE IA", { x: 40, y: 42, size: 7, font: fontRegular, color: GRAY });
+  }
 
   return pdf.save();
 }
@@ -285,40 +390,66 @@ serve(async (req) => {
     }
     const userId = authData.claims.sub as string;
 
-    // ── Shield: IP rate limit for demo PDF generation ─────────────────────────
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // ── Shield: IP rate limit ─────────────────────────────────────────────────
     const clientIp = getClientIp(req);
     const ipHash = await hashIp(clientIp);
-    const ipCheck = await checkIpRateLimit(ipHash, "demo", SHIELD_CONFIG.demo.maxRequests, SHIELD_CONFIG.demo.windowHours);
+    const ipCheck = await checkIpRateLimit(ipHash, "generate-pdf", 20, 24);
     if (!ipCheck.allowed) {
       recordAbuse(null, ipHash, "rate_exceeded", "low", { endpoint: "generate-pdf" });
-      return new Response(JSON.stringify({ error: "Limite atteinte : 1 PDF gratuit par IP par 24h. Créez un compte pour continuer." }), {
+      return new Response(JSON.stringify({ error: "Trop de requêtes. Réessayez plus tard." }), {
         status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" },
       });
     }
 
     const body = await req.json();
-    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
-    const { type, module_id, attestation_id, org_name, base_url = "https://genie-ia.app" } = body;
+    const { type, module_id, attestation_id, org_name, base_url = "https://genie-ia.app", referral_code } = body;
+
+    // ── Quota check ───────────────────────────────────────────────────────────
+    // Get user's org_id for quota calculation
+    const { data: userProfile } = await supabaseAdmin
+      .from("profiles").select("org_id, full_name").eq("id", userId).single();
+    const orgId = userProfile?.org_id ?? null;
+
+    const { data: quotaResult } = await supabaseAdmin.rpc("can_execute", {
+      _user_id: userId,
+      _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
+      _kind: "pdf_generated",
+    });
+
+    if (quotaResult && quotaResult.allowed === false) {
+      return new Response(JSON.stringify({
+        error: "quota_exceeded",
+        message: `Quota PDF atteint (${quotaResult.current_usage}/${quotaResult.limit} ce mois). Passez à GENIE Pro pour plus.`,
+        quota: quotaResult,
+      }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ── Resolve partner name if referral_code provided ────────────────────────
+    let partnerName: string | undefined;
+    if (referral_code) {
+      const { data: referralData } = await supabaseAdmin.rpc("resolve_referral", { _code: referral_code });
+      if (referralData?.found) {
+        partnerName = referralData.partner_name as string;
+      }
+    }
 
     let pdfBytes: Uint8Array;
     let filename = "";
     let attestId = attestation_id;
 
     if (type === "attestation") {
-      // Fetch user profile
-      const { data: profile } = await serviceClient
-        .from("profiles").select("full_name, org_id").eq("id", userId).single();
-      
       // Fetch org if needed
       let orgName: string | undefined;
-      if (profile?.org_id) {
-        const { data: org } = await serviceClient
-          .from("organizations").select("name").eq("id", profile.org_id).single();
+      if (orgId) {
+        const { data: org } = await supabaseAdmin
+          .from("organizations").select("name").eq("id", orgId).single();
         orgName = org?.name;
       }
 
       // Fetch completed modules
-      const { data: progRows } = await serviceClient
+      const { data: progRows } = await supabaseAdmin
         .from("progress")
         .select("score, completed_at, module_id, modules(title)")
         .eq("user_id", userId)
@@ -337,9 +468,9 @@ serve(async (req) => {
 
       // Upsert attestation record
       if (!attestId) {
-        const { data: att } = await serviceClient.from("attestations").insert({
+        const { data: att } = await supabaseAdmin.from("attestations").insert({
           user_id: userId,
-          org_id: profile?.org_id ?? null,
+          org_id: orgId ?? null,
           modules_completed: modules,
           score_average: avg,
         }).select("id").single();
@@ -347,12 +478,13 @@ serve(async (req) => {
       }
 
       pdfBytes = await buildAttestation({
-        full_name: profile?.full_name ?? "Utilisateur",
+        full_name: userProfile?.full_name ?? "Utilisateur",
         org_name: orgName ?? org_name,
         modules,
         score_average: avg,
         attestation_id: attestId,
         base_url,
+        partner_name: partnerName,
       });
       filename = `attestation_${new Date().toISOString().slice(0, 10)}.pdf`;
 
@@ -360,6 +492,9 @@ serve(async (req) => {
       pdfBytes = await buildCharte({
         org_name: org_name ?? "Votre Organisation",
         sections: DEFAULT_CHARTE_SECTIONS,
+        type_label: "CHARTE D'UTILISATION DE L'INTELLIGENCE ARTIFICIELLE",
+        base_url,
+        partner_name: partnerName,
       });
       filename = "charte_ia_interne.pdf";
 
@@ -367,12 +502,14 @@ serve(async (req) => {
       pdfBytes = await buildCharte({
         org_name: org_name ?? "Votre Organisation",
         sections: DEFAULT_SOP_SECTIONS,
+        type_label: "SOP CYBERSÉCURITÉ — PROCÉDURES OPÉRATIONNELLES",
+        base_url,
+        partner_name: partnerName,
       });
       filename = "sop_cybersecurite.pdf";
 
     } else if (type === "checklist") {
-      // Fetch module deliverables for checklist items
-      const { data: mod } = await serviceClient
+      const { data: mod } = await supabaseAdmin
         .from("modules").select("title, deliverables").eq("id", module_id).single();
 
       const deliverables = (mod?.deliverables ?? []) as { type: string; items?: string[]; title: string }[];
@@ -395,6 +532,7 @@ serve(async (req) => {
         items,
         module_title: mod?.title ?? "",
         base_url,
+        partner_name: partnerName,
       });
       filename = `checklist_${mod?.title?.toLowerCase().replace(/\s+/g, "_") ?? "module"}.pdf`;
 
@@ -404,45 +542,49 @@ serve(async (req) => {
       });
     }
 
+    // ── Increment quota counter ───────────────────────────────────────────────
+    supabaseAdmin.rpc("increment_usage", {
+      _user_id: userId,
+      _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
+      _kind: "pdf_generated",
+      _amount: 1,
+    }).then(() => {}).catch(() => {});
+
     // Upload to storage
     const storagePath = `${userId}/${Date.now()}_${filename}`;
-    const { error: uploadErr } = await serviceClient.storage
+    const { error: uploadErr } = await supabaseAdmin.storage
       .from("pdfs")
       .upload(storagePath, pdfBytes, { contentType: "application/pdf", upsert: true });
 
     if (uploadErr) {
       console.error("Storage upload error:", uploadErr);
-      // Fall back to direct download even if storage fails
     }
 
     // Generate signed URL (24h)
     let signedUrl: string | null = null;
     if (!uploadErr) {
-      const { data: signed } = await serviceClient.storage
+      const { data: signed } = await supabaseAdmin.storage
         .from("pdfs")
         .createSignedUrl(storagePath, 86400);
       signedUrl = signed?.signedUrl ?? null;
 
-    // Update attestation with pdf_url
+      // Update attestation with pdf_url
       if (type === "attestation" && attestId && signedUrl) {
-        await serviceClient.from("attestations")
+        await supabaseAdmin.from("attestations")
           .update({ pdf_url: signedUrl })
           .eq("id", attestId);
       }
 
-      // Save artifact record for Artifact Forge history
+      // Save artifact record
       const artifactTitles: Record<string, string> = {
         checklist: "Checklist — Module",
         charte: "Charte IA Interne",
         sop: "SOP Cybersécurité",
         attestation: "Attestation de Formation",
-        memo_vibe: "Mémo Vibe Coding",
       };
-      const { data: profileForOrg } = await serviceClient
-        .from("profiles").select("org_id").eq("id", userId).single();
-      await serviceClient.from("artifacts").insert({
+      await supabaseAdmin.from("artifacts").insert({
         user_id: userId,
-        org_id: profileForOrg?.org_id ?? null,
+        org_id: orgId ?? null,
         type,
         title: body.artifact_title ?? artifactTitles[type] ?? filename,
         session_id: body.session_id ?? null,
