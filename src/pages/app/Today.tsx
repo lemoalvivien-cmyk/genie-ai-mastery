@@ -364,12 +364,12 @@ export default function Today() {
     setScore(missionScore);
     const prevLongest = streak?.longest_streak ?? 0;
     await completeMission(mission.id, xp, missionScore, timeSpent);
-    // Track first mission completion
+    // Track mission completion
     try {
       await supabase.from("analytics_events").insert({
         actor_user_id: session?.user?.id ?? null,
         org_id: profile?.org_id ?? null,
-        event_name: "first_mission_done",
+        event_name: "mission_completed",
         properties: {
           mission_id: mission.id,
           domain: mission.domain,

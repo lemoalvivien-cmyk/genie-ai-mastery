@@ -5,8 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
@@ -74,6 +75,16 @@ function RefCapture() {
   return null;
 }
 
+// Tracks page views on every route change
+function PageViewTracker() {
+  const location = useLocation();
+  const { track } = useAnalytics();
+  useEffect(() => {
+    track("page_view", { path: location.pathname });
+  }, [location.pathname]);
+  return null;
+}
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -83,6 +94,7 @@ const App = () => (
         <BrowserRouter>
           <AuthInitializer>
             <RefCapture />
+            <PageViewTracker />
             <CookieBanner />
             <Suspense fallback={<PageLoader />}>
               <Routes>

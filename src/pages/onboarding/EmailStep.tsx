@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Props {
   onFinish: (email: string | null) => void;
@@ -10,6 +11,7 @@ interface Props {
 export function EmailStep({ onFinish, onBack, saving }: Props) {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
+  const { track } = useAnalytics();
 
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
@@ -17,6 +19,7 @@ export function EmailStep({ onFinish, onBack, saving }: Props) {
     e.preventDefault();
     setTouched(true);
     if (email.trim() && !isValid) return;
+    if (email.trim() && isValid) track("email_captured", { source: "onboarding" });
     onFinish(email.trim() || null);
   };
 

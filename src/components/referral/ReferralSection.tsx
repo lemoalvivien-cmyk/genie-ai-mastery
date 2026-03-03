@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Deterministic code: GENIE-[4 chars from userId]
 function generateReferralCode(userId: string): string {
@@ -28,6 +29,7 @@ export default function ReferralSection() {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { track } = useAnalytics();
 
   const myCode = userId ? generateReferralCode(userId) : "GENIE-XXXX";
   const referralLink = `${window.location.origin}/?ref=${myCode}`;
@@ -55,11 +57,13 @@ export default function ReferralSection() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast({ title: "Lien copié !" });
+    track("referral_shared", { method: "copy" });
   };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({ title: "GENIE IA", url: referralLink });
+      track("referral_shared", { method: "native_share" });
     } else {
       handleCopy();
     }

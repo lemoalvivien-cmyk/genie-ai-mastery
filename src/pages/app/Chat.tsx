@@ -11,6 +11,7 @@ import DOMPurify from "dompurify";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -327,12 +328,20 @@ export default function Chat() {
           },
         });
 
-        if (error) throw error;
         if (data?.error && !data?.quota_exceeded) {
           if (data.error.includes("Limite") || data.error.includes("heure")) {
             toast({ title: "Limite atteinte", description: data.error, variant: "destructive" });
           }
           throw new Error(data.error);
+        }
+
+        if (data?.quota_exceeded) {
+          // Fire quota_hit event (fire-and-forget)
+          supabase.from("analytics_events").insert({
+            actor_user_id: session?.user?.id ?? null,
+            event_name: "quota_hit",
+            properties: { plan: "free", path: window.location.pathname },
+          }).then(() => {});
         }
 
         const assistantMsg: Message = {
