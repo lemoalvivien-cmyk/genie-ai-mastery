@@ -877,6 +877,65 @@ export type Database = {
           },
         ]
       }
+      forge_log: {
+        Row: {
+          duration_ms: number | null
+          error: string | null
+          id: string
+          model_validator: string | null
+          model_writer: string | null
+          module_id: string | null
+          module_slug: string | null
+          new_version: number | null
+          old_version: number | null
+          run_at: string
+          threat_source: string | null
+          threat_title: string | null
+          validation_passed: boolean
+          validation_reason: string | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model_validator?: string | null
+          model_writer?: string | null
+          module_id?: string | null
+          module_slug?: string | null
+          new_version?: number | null
+          old_version?: number | null
+          run_at?: string
+          threat_source?: string | null
+          threat_title?: string | null
+          validation_passed?: boolean
+          validation_reason?: string | null
+        }
+        Update: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model_validator?: string | null
+          model_writer?: string | null
+          module_id?: string | null
+          module_slug?: string | null
+          new_version?: number | null
+          old_version?: number | null
+          run_at?: string
+          threat_source?: string | null
+          threat_title?: string | null
+          validation_passed?: boolean
+          validation_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forge_log_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ip_rate_limits: {
         Row: {
           blocked_until: string | null
