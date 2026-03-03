@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import {
   RefreshCw, ShieldAlert, Bot, Code2, Globe,
   AlertTriangle, CheckCircle2, ExternalLink, ChevronDown, ChevronUp, Loader2,
@@ -26,6 +27,16 @@ const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ElementType; co
   cyber:        { label: "Cyber",        icon: ShieldAlert, color: "text-destructive border-destructive/30 bg-destructive/5" },
   vibe_coding:  { label: "Vibe Coding",  icon: Code2,      color: "text-accent border-accent/30 bg-accent/5" },
   general:      { label: "Général",      icon: Globe,      color: "text-muted-foreground border-border/30 bg-muted/5" },
+};
+
+// Which domains are most relevant per persona
+const PERSONA_DOMAIN_PRIORITY: Record<string, string[]> = {
+  dirigeant:    ["cyber", "ia_pro", "ia_perso", "vibe_coding"],
+  salarie:      ["cyber", "ia_perso", "ia_pro", "vibe_coding"],
+  independant:  ["cyber", "ia_pro", "vibe_coding", "ia_perso"],
+  jeune:        ["ia_perso", "vibe_coding", "ia_pro", "cyber"],
+  parent:       ["cyber", "ia_perso", "ia_pro", "vibe_coding"],
+  senior:       ["cyber", "ia_perso", "ia_pro", "vibe_coding"],
 };
 
 function ConfidenceBadge({ value, isVerified }: { value: number; isVerified: boolean }) {
@@ -58,7 +69,6 @@ function BriefCard({ brief }: { brief: Brief }) {
 
   return (
     <div className={`rounded-2xl border p-3.5 space-y-2.5 transition-all ${cfg.color}`}>
-      {/* Header */}
       <div className="flex items-start gap-2">
         <div className="shrink-0 mt-0.5">
           <Icon className="w-4 h-4" />
@@ -73,10 +83,8 @@ function BriefCard({ brief }: { brief: Brief }) {
         </div>
       </div>
 
-      {/* Summary */}
       <p className="text-xs text-foreground/80 leading-relaxed">{brief.kid_summary}</p>
 
-      {/* Expand toggle */}
       {(brief.action_plan?.length > 0 || brief.sources?.length > 0) && (
         <button
           onClick={() => setExpanded(!expanded)}
@@ -89,7 +97,6 @@ function BriefCard({ brief }: { brief: Brief }) {
 
       {expanded && (
         <div className="space-y-2.5 pt-1 border-t border-current/10">
-          {/* Action plan */}
           {brief.action_plan?.length > 0 && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
@@ -108,7 +115,6 @@ function BriefCard({ brief }: { brief: Brief }) {
             </div>
           )}
 
-          {/* Sources */}
           {brief.sources?.length > 0 ? (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
@@ -145,17 +151,20 @@ const FILTER_DOMAINS = ["all", "cyber", "ia_pro", "ia_perso", "vibe_coding"] as 
 type FilterDomain = (typeof FILTER_DOMAINS)[number];
 
 export function NouveautesPanel() {
+  const { profile } = useAuth();
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<FilterDomain>("all");
+
+  const persona = (profile?.persona as string | null) ?? null;
 
   const loadBriefs = useCallback(async () => {
     const { data, error } = await supabase
       .from("briefs")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(30);
 
     if (error) {
       console.error("Error loading briefs:", error);
@@ -178,14 +187,10 @@ export function NouveautesPanel() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      // 1. Fetch new RSS items
       const { error: fetchError } = await supabase.functions.invoke("fetch-sources");
       if (fetchError) throw fetchError;
-
-      // 2. Generate briefs from new items
       const { error: briefError } = await supabase.functions.invoke("generate-briefs");
       if (briefError) throw briefError;
-
       await loadBriefs();
       toast({ title: "🔄 Nouveautés mises à jour !", description: "Sources refetchées + briefs générés." });
     } catch (err) {
@@ -199,7 +204,20 @@ export function NouveautesPanel() {
     }
   };
 
-  const filtered = filter === "all" ? briefs : briefs.filter((b) => b.domain === filter);
+  // Sort by persona-priority when showing "all"
+  const sortedBriefs = (() => {
+    if (filter !== "all" || !persona) return briefs;
+    const priority = PERSONA_DOMAIN_PRIORITY[persona] ?? [];
+    return [...briefs].sort((a, b) => {
+      const ai = priority.indexOf(a.domain);
+      const bi = priority.indexOf(b.domain);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+  })();
+
+  const filtered = filter === "all" ? sortedBriefs : sortedBriefs.filter((b) => b.domain === filter);
+  // Top 5 shown by default (show all if a domain filter is active)
+  const displayed = filter === "all" ? filtered.slice(0, 5) : filtered;
 
   return (
     <div className="space-y-3">
@@ -212,6 +230,11 @@ export function NouveautesPanel() {
               — no source, no claim
             </span>
           </h3>
+          {persona && (
+            <p className="text-[10px] text-muted-foreground">
+              Triées pour ton profil <strong>{persona}</strong>
+            </p>
+          )}
         </div>
         <Button
           size="sm"
@@ -245,9 +268,7 @@ export function NouveautesPanel() {
               }`}
             >
               {d === "all" ? "Tout" : cfg?.label ?? d}
-              {count > 0 && (
-                <span className="ml-1 opacity-60">{count}</span>
-              )}
+              {count > 0 && <span className="ml-1 opacity-60">{count}</span>}
             </button>
           );
         })}
@@ -259,11 +280,11 @@ export function NouveautesPanel() {
           <Loader2 className="w-4 h-4 animate-spin" />
           Chargement…
         </div>
-      ) : filtered.length === 0 ? (
+      ) : displayed.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/40 p-6 text-center space-y-2">
           <p className="text-muted-foreground text-xs">Aucun brief disponible.</p>
           <p className="text-muted-foreground text-[10px]">
-            Clique "Rafraîchir" pour récupérer les dernières actualités depuis les sources.
+            Clique "Rafraîchir" pour récupérer les dernières actualités.
           </p>
           <Button size="sm" variant="outline" className="mt-2 text-xs h-7" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <RefreshCw className="w-3 h-3 mr-1" />}
@@ -272,9 +293,17 @@ export function NouveautesPanel() {
         </div>
       ) : (
         <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-0.5 scrollbar-thin">
-          {filtered.map((brief) => (
+          {displayed.map((brief) => (
             <BriefCard key={brief.id} brief={brief} />
           ))}
+          {filter === "all" && filtered.length > 5 && (
+            <button
+              onClick={() => setFilter("all")}
+              className="w-full text-center text-[10px] text-muted-foreground hover:text-foreground py-1 transition-colors"
+            >
+              + {filtered.length - 5} autres nouveautés — utilise les filtres pour voir tout
+            </button>
+          )}
         </div>
       )}
     </div>

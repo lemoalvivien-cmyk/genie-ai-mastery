@@ -40,3 +40,10 @@ verify_jwt = false
 verify_jwt = false
 
 
+[functions.check-launch-price]
+verify_jwt = false
+
+[functions.daily-cron]
+verify_jwt = false
+
+
