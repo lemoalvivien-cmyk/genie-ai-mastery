@@ -550,6 +550,133 @@ export default function Index() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════
+            SECTION 4b — ARRÊTEZ DE VOUS FAIRE ARNAQUER
+        ══════════════════════════════════════════════════════════ */}
+        <section className="relative z-10 px-4 sm:px-8 py-24 overflow-hidden">
+          {/* precision grid bg */}
+          <div className="absolute inset-0 precision-grid opacity-[0.025] pointer-events-none" />
+          {/* cold steel left-border accent */}
+          <div className="absolute left-0 top-16 bottom-16 w-px" style={{ background: "linear-gradient(to bottom, transparent, hsl(var(--accent)/0.6), transparent)" }} />
+
+          <div className="max-w-5xl mx-auto relative">
+            {/* Label chip */}
+            <div className="flex items-center gap-3 mb-8">
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold tracking-widest uppercase data-strip"
+                style={{
+                  background: "hsl(var(--accent)/0.08)",
+                  border: "1px solid hsl(var(--accent)/0.3)",
+                  color: "hsl(var(--accent))",
+                }}
+              >
+                ▮ ANALYSE DE MARCHÉ
+              </div>
+            </div>
+
+            {/* H2 — aggressive */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.02] tracking-tight mb-8 max-w-3xl">
+              <span className="text-foreground">Arrêtez de vous</span>
+              <br />
+              <span style={{
+                background: "linear-gradient(135deg, hsl(var(--accent)), hsl(354 65% 36%))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+                faire arnaquer.
+              </span>
+            </h2>
+
+            {/* Body copy — direct, unfiltered */}
+            <div
+              className="glass rounded-sm p-8 mb-12 max-w-3xl"
+              style={{ borderLeft: "3px solid hsl(var(--accent)/0.6)" }}
+            >
+              <p className="text-base sm:text-lg text-foreground/90 leading-relaxed mb-4">
+                Le marché regorge de pseudo-formateurs IA vendant des slides obsolètes à prix d'or.
+              </p>
+              <p className="text-base sm:text-lg font-black text-foreground leading-relaxed mb-4">
+                GENIE IA est une <span style={{ color: "hsl(var(--primary))" }}>machine de guerre autonome.</span>
+              </p>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Nous ne vendons pas des formations. Nous vendons la{" "}
+                <span className="text-foreground font-semibold">conformité légale instantanée</span>{" "}
+                et des{" "}
+                <span className="text-foreground font-semibold">preuves de compétences mathématiquement vérifiables</span>{" "}
+                pour vos équipes.
+              </p>
+            </div>
+
+            {/* 3 Targets */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+              {[
+                {
+                  label: "DIRIGEANTS",
+                  metric: "0",
+                  unit: "risque légal",
+                  headline: "Zéro exposition.",
+                  body: "NIS2, RGPD, AI Act — votre organisation est blindée. Attestations auditables, trail complet, conformité prouvable en 48h.",
+                  icon: Shield,
+                  color: "hsl(var(--primary))",
+                },
+                {
+                  label: "EMPLOYÉS",
+                  metric: "∞",
+                  unit: "disponibilité",
+                  headline: "Tuteur infaillible.",
+                  body: "KITT IA répond à chaque question, à 3h du matin comme en réunion. Jamais fatigué. Jamais obsolète. Toujours aligné à votre niveau réel.",
+                  icon: Bot,
+                  color: "hsl(var(--emerald))",
+                },
+                {
+                  label: "ENTREPRISES",
+                  metric: "−80%",
+                  unit: "vs consultant",
+                  headline: "Remplacement des consultants.",
+                  body: "Fini les missions à 1 500€/jour pour un PowerPoint. GENIE IA fait le travail de structuration, formation et certification en continu.",
+                  icon: BarChart3,
+                  color: "hsl(var(--warning))",
+                },
+              ].map(({ label, metric, unit, headline, body, icon: Icon, color }) => (
+                <div
+                  key={label}
+                  className="group bg-background p-8 flex flex-col gap-5 transition-colors hover:bg-card cursor-default"
+                >
+                  {/* Top line */}
+                  <div className="flex items-center justify-between">
+                    <span className="data-strip text-xs tracking-widest" style={{ color: "hsl(var(--muted-foreground))" }}>{label}</span>
+                    <Icon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" style={{ color }} />
+                  </div>
+
+                  {/* Big metric */}
+                  <div>
+                    <span
+                      className="text-5xl font-black tabular-nums leading-none"
+                      style={{ fontFamily: "'JetBrains Mono', monospace", color }}
+                    >
+                      {metric}
+                    </span>
+                    <span className="block text-xs text-muted-foreground data-strip mt-1">{unit}</span>
+                  </div>
+
+                  {/* Headline + body */}
+                  <div>
+                    <h3 className="text-base font-black text-foreground mb-2">{headline}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+                  </div>
+
+                  {/* Bottom border pulse */}
+                  <div
+                    className="h-px w-0 group-hover:w-full transition-all duration-500"
+                    style={{ background: color }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════
             SECTION 5 — FEATURES
         ══════════════════════════════════════════════════════════ */}
         <section className="relative z-10 px-4 sm:px-8 py-20 bg-background/50">
