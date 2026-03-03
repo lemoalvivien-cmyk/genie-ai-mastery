@@ -1,208 +1,353 @@
 import { Helmet } from "react-helmet-async";
-import { BookOpen, BarChart3, MessageSquare, Shield, Users, Code2, Sparkles, Flame, ChevronRight } from "lucide-react";
+import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useEffect } from "react";
 
-function MiniCalendar({ last7Days }: { last7Days: string[] }) {
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-    const iso = d.toISOString().split("T")[0];
-    const label = ["D", "L", "M", "M", "J", "V", "S"][d.getDay()];
-    const done = last7Days.includes(iso);
-    days.push({ label, done, iso });
-  }
-  return (
-    <div className="flex gap-1.5">
-      {days.map((d) => (
-        <div key={d.iso} className="flex flex-col items-center gap-1">
-          <div
-            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-              d.done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {d.done ? "✓" : ""}
-          </div>
-          <span className="text-[10px] text-muted-foreground">{d.label}</span>
-        </div>
-      ))}
-    </div>
-  );
+// ── Animated counter ────────────────────────────────────────────────────────────
+function AnimatedNumber({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  const prev = useRef(0);
+  useEffect(() => {
+    const target = value;
+    const start = prev.current;
+    prev.current = target;
+    let frame: number;
+    const duration = 600;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - startTime) / duration, 1);
+      setDisplay(Math.round(start + (target - start) * p));
+      if (p < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value]);
+  return <>{display}</>;
 }
 
 export default function Dashboard() {
-  const { profile, signOut, session } = useAuth();
+  const { profile, session } = useAuth();
   const firstName = profile?.full_name?.split(" ")[0] || "vous";
-  const { isManager } = useAuth();
-  const { streak, todayLog, loading: streakLoading, last7Days } = useStreak();
+  const { streak, todayLog, loading: streakLoading } = useStreak();
+  const { data: sub } = useSubscription();
   const userId = session?.user?.id;
   const { track } = useAnalytics();
   const [searchParams] = useSearchParams();
 
-  // Track checkout_success when returning from Stripe
   useEffect(() => {
-    if (searchParams.get("payment") === "success") {
-      track("checkout_success");
-    }
+    if (searchParams.get("payment") === "success") track("checkout_success");
   }, []);
 
-  const { data: statsData } = useQuery({
-    queryKey: ["dashboard-stats", userId],
+  // Dashboard stats
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats-v2", userId],
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
     queryFn: async () => {
-      const { count: completedModules } = await supabase
-        .from("progress")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId!)
-        .eq("status", "completed");
-      const { data: scores } = await supabase
-        .from("progress")
-        .select("score")
-        .eq("user_id", userId!)
-        .eq("status", "completed")
-        .not("score", "is", null);
-      const avgScore = scores && scores.length > 0
-        ? Math.round(scores.reduce((s, r) => s + (r.score ?? 0), 0) / scores.length)
-        : null;
-      const { count: attestations } = await supabase
-        .from("attestations")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId!);
-      return { completedModules: completedModules ?? 0, avgScore, attestations: attestations ?? 0 };
+      const [completedRes, scoresRes, quizRes, recentProgressRes, messagesRes] = await Promise.all([
+        supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed"),
+        supabase.from("progress").select("score").eq("user_id", userId!).eq("status", "completed").not("score", "is", null),
+        supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed").not("score", "is", null).gte("score", 70),
+        supabase.from("progress").select("module_id, updated_at, status, modules(title, domain, slug)").eq("user_id", userId!).order("updated_at", { ascending: false }).limit(4),
+        // Count today's messages for free users
+        supabase.from("chat_messages").select("*", { count: "exact", head: true }).eq("user_id", userId!).gte("created_at", new Date().toISOString().split("T")[0]),
+      ]);
+      return {
+        completedModules: completedRes.count ?? 0,
+        quizPassed: quizRes.count ?? 0,
+        recentProgress: recentProgressRes.data ?? [],
+        todayMessages: messagesRes.count ?? 0,
+      };
     },
   });
 
+  const isFree = !sub?.isActive;
+  const maxMessages = sub?.maxMessagesPerDay ?? 5;
+  const usedMessages = stats?.todayMessages ?? 0;
+  const quotaExhausted = isFree && usedMessages >= maxMessages;
+
+  const totalXP = streak?.total_xp ?? 0;
+  const currentStreak = streak?.current_streak ?? 0;
   const missionDone = !!todayLog;
 
-  const cards = [
-    { icon: BookOpen, title: "Modules", description: "Continuez votre apprentissage", href: "/app/modules", color: "from-indigo-500/20 to-purple-500/20" },
-    { icon: MessageSquare, title: "Chat IA", description: "Posez vos questions à votre Génie", href: "/app/chat", color: "from-cyan-500/20 to-teal-500/20" },
-    { icon: BarChart3, title: "Progression", description: "Suivez vos statistiques", href: "/app/progress", color: "from-emerald-500/20 to-green-500/20" },
-    { icon: Shield, title: "Cybersécurité", description: "Modules sécurité dédiés", href: "/app/modules?domain=cyber", color: "from-amber-500/20 to-orange-500/20" },
-    { icon: Code2, title: "Vibe Coding", description: "Créez vos apps avec l'IA", href: "/app/modules?domain=vibe_coding", color: "from-emerald-500/20 to-teal-500/20", isNew: true },
-    ...(isManager ? [{ icon: Users, title: "Espace Manager", description: "Gérez votre équipe", href: "/manager", color: "from-violet-500/20 to-pink-500/20" }] : []),
+  // Weekly progress: 7 missions possible, count days with log in last 7
+  const weeklyDone = 0; // will use last7Days if needed — simplified here
+
+  const metrics = [
+    { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
+    { label: "Modules", value: stats?.completedModules ?? 0, icon: BookOpen, color: "text-cyan-400" },
+    { label: "Quiz réussis", value: stats?.quizPassed ?? 0, icon: CheckCircle, color: "text-emerald-400" },
+    { label: "Série", value: currentStreak, icon: Flame, color: "text-[hsl(var(--accent))]" },
   ];
 
-  // XP level calc (simple: 100 XP per level)
-  const totalXP = streak?.total_xp ?? 0;
-  const level = Math.floor(totalXP / 100) + 1;
-  const xpInLevel = totalXP % 100;
+  const DOMAIN_LABELS: Record<string, string> = {
+    cyber: "🛡️ Cyber",
+    ia_pro: "🤖 IA Pro",
+    ia_perso: "💡 IA Perso",
+    vibe_coding: "⚡ Vibe Coding",
+  };
 
   return (
     <>
       <Helmet>
         <title>Dashboard – GENIE IA</title>
       </Helmet>
-      <div className="gradient-hero min-h-full">
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-          {/* Welcome message */}
-          <div className="animate-slide-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-sm text-primary mb-3">
-              ✨ Bienvenue sur GENIE IA
+
+      <div className="min-h-full" style={{ background: "#13151E" }}>
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+          {/* ── 1. Header ── */}
+          <div className="flex items-center justify-between animate-slide-up">
+            <div>
+              <p className="text-sm text-muted-foreground">Bon retour 👋</p>
+              <h1 className="text-2xl font-black" style={{ color: "#E8E9F0" }}>
+                Bonjour, {firstName}
+              </h1>
             </div>
-            <h1 className="text-3xl font-bold">
-              Bienvenue <span className="text-gradient">{firstName}</span> !
-            </h1>
-            <p className="text-muted-foreground mt-1">Votre Génie est prêt. Que voulez-vous apprendre aujourd'hui ?</p>
+            {currentStreak > 0 && (
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-sm"
+                style={{ background: "rgba(254,44,64,0.15)", border: "1px solid rgba(254,44,64,0.4)", color: "#FE2C40" }}
+              >
+                <Flame className="w-4 h-4" />
+                {currentStreak} jour{currentStreak > 1 ? "s" : ""}
+              </div>
+            )}
           </div>
 
-          {/* Mon Parcours streak card */}
-          <div className="p-5 rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm shadow-card animate-slide-up">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <h2 className="font-semibold text-sm text-primary">Mon parcours</h2>
+          {/* ── 2. Barre progression journalière ── */}
+          <div
+            className="p-4 rounded-2xl animate-slide-up"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold" style={{ color: "#E8E9F0" }}>
+                Progression du jour
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {missionDone ? "1" : "0"}/1 mission
+              </span>
             </div>
-            <div className="flex items-center gap-6 flex-wrap">
-              {/* Streak */}
-              <div className="flex items-center gap-2">
-                <Flame className="w-8 h-8 text-orange-400" />
-                <div>
-                  <div className="text-3xl font-black text-gradient">{streakLoading ? "—" : (streak?.current_streak ?? 0)}</div>
-                  <div className="text-xs text-muted-foreground">jours d'affilée</div>
-                </div>
-              </div>
-
-              {/* Mini calendar */}
-              <div className="flex-1 min-w-0">
-                <MiniCalendar last7Days={last7Days} />
-              </div>
-
-              {/* XP */}
-              <div className="text-right">
-                <div className="text-2xl font-black text-gradient">{totalXP}</div>
-                <div className="text-xs text-muted-foreground">XP total · Niv. {level}</div>
-                <div className="w-20 h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${xpInLevel}%` }} />
-                </div>
-              </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: missionDone ? "100%" : "0%",
+                  background: "linear-gradient(90deg, #5257D8, #FE2C40)",
+                }}
+              />
             </div>
+          </div>
 
+          {/* ── 3. Mission du jour ── */}
+          {!missionDone && (
             <Link
               to="/app/today"
-              className="mt-4 flex items-center justify-between w-full px-4 py-3 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 transition-colors group"
+              className="block animate-slide-up group"
             >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">
-                  {missionDone ? "Mission du jour ✓" : "Mission du jour →"}
-                </span>
-                {!missionDone && (
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                )}
-              </div>
-              <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
+              <div
+                className="p-5 rounded-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.01]"
+                style={{
+                  background: "rgba(82,87,216,0.08)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  border: "1px solid rgba(82,87,216,0.3)",
+                  boxShadow: "0 0 24px rgba(82,87,216,0.15)",
+                }}
+              >
+                {/* Glow pulse */}
+                <div
+                  className="absolute inset-0 rounded-2xl animate-pulse pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(82,87,216,0.12) 0%, transparent 70%)" }}
+                />
 
-          {/* Stats row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Modules complétés", value: String(statsData?.completedModules ?? 0) },
-              { label: "Série en cours", value: `${streak?.current_streak ?? 0} 🔥` },
-              { label: "Score moyen", value: statsData?.avgScore ? `${statsData.avgScore}%` : "—" },
-              { label: "Attestations", value: String(statsData?.attestations ?? 0) },
-            ].map((s) => (
-              <div key={s.label} className="p-4 rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm">
-                <div className="text-2xl font-bold text-gradient">{s.value}</div>
-                <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {cards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <Link
-                  key={card.title}
-                  to={card.href}
-                  className={`group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-gradient-to-br ${card.color} hover:border-primary/40 hover:scale-[1.02] transition-all duration-300 shadow-card relative overflow-hidden`}
-                >
-                  <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center group-hover:shadow-glow transition-all">
-                    <Icon className="w-6 h-6 text-primary-foreground" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <div className="font-semibold flex items-center gap-2">
-                      {card.title}
-                      {"isNew" in card && card.isNew && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">
-                          NOUVEAU
-                        </span>
-                      )}
+                <div className="relative flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span
+                        className="w-2 h-2 rounded-full animate-pulse"
+                        style={{ background: "#FE2C40" }}
+                      />
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Mission du jour
+                      </span>
                     </div>
-                    <div className="text-sm text-muted-foreground">{card.description}</div>
+                    <h2 className="text-lg font-bold" style={{ color: "#E8E9F0" }}>
+                      Votre défi vous attend
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      3 minutes · Gagnez du XP
+                    </p>
                   </div>
-                </Link>
+                  <div
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all group-hover:brightness-110"
+                    style={{ background: "#FE2C40", color: "#fff" }}
+                  >
+                    Commencer
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {missionDone && (
+            <div
+              className="p-5 rounded-2xl animate-slide-up"
+              style={{
+                background: "rgba(16,185,129,0.08)",
+                border: "1px solid rgba(16,185,129,0.25)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-8 h-8 text-emerald-400 shrink-0" />
+                <div>
+                  <p className="font-bold text-emerald-400">Mission du jour accomplie ! 🎉</p>
+                  <p className="text-sm text-muted-foreground">Revenez demain pour continuer votre série.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── 4. Grille 2x2 métriques ── */}
+          <div className="grid grid-cols-2 gap-3 animate-slide-up">
+            {metrics.map((m) => {
+              const Icon = m.icon;
+              return (
+                <div
+                  key={m.label}
+                  className="p-4 rounded-2xl"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className={`w-4 h-4 ${m.color}`} />
+                    <span className="text-xs text-muted-foreground">{m.label}</span>
+                  </div>
+                  <div className={`text-3xl font-black ${m.color}`}>
+                    {streakLoading ? "—" : <AnimatedNumber value={m.value} />}
+                  </div>
+                </div>
               );
             })}
           </div>
+
+          {/* ── 5. Upsell contextuel (FREE + quota épuisé) ── */}
+          {quotaExhausted && (
+            <div
+              className="p-5 rounded-2xl animate-slide-up relative overflow-hidden"
+              style={{
+                background: "rgba(82,87,216,0.07)",
+                border: "1px solid transparent",
+                backgroundClip: "padding-box",
+              }}
+            >
+              {/* Gradient border trick */}
+              <div
+                className="absolute inset-0 rounded-2xl pointer-events-none"
+                style={{
+                  padding: "1px",
+                  background: "linear-gradient(135deg, #5257D8, #FE2C40)",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMaskComposite: "xor",
+                  maskComposite: "exclude",
+                }}
+              />
+
+              <div className="relative space-y-4">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)" }}
+                  >
+                    <Crown className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold" style={{ color: "#E8E9F0" }}>
+                      Débloquez tout GENIE IA
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Vous avez utilisé {usedMessages}/{maxMessages} message{maxMessages > 1 ? "s" : ""} KITT aujourd'hui. Passez Pro pour un accès illimité.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Barre quota pleine */}
+                <div>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                    <span>Messages utilisés</span>
+                    <span className="font-semibold" style={{ color: "#FE2C40" }}>{usedMessages}/{maxMessages}</span>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: "100%",
+                        background: "#FE2C40",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <Link
+                  to="/pricing"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
+                  style={{ background: "#FE2C40", color: "#fff" }}
+                >
+                  <Crown className="w-4 h-4" />
+                  Passer Pro — 14 jours gratuits →
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* ── 6. Derniers modules ── */}
+          {(stats?.recentProgress?.length ?? 0) > 0 && (
+            <div className="animate-slide-up">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Votre progression
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {(stats?.recentProgress ?? []).map((p: any) => (
+                  <Link
+                    key={p.module_id}
+                    to={`/app/modules/${p.modules?.slug ?? p.module_id}`}
+                    className="p-3.5 rounded-xl transition-all hover:scale-[1.02]"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    <div className="text-xs text-muted-foreground mb-1">
+                      {DOMAIN_LABELS[p.modules?.domain] ?? p.modules?.domain ?? "Module"}
+                    </div>
+                    <div
+                      className="text-sm font-semibold leading-snug line-clamp-2"
+                      style={{ color: "#E8E9F0" }}
+                    >
+                      {p.modules?.title ?? "Module"}
+                    </div>
+                    {p.status === "completed" && (
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <CheckCircle className="w-3 h-3 text-emerald-400" />
+                        <span className="text-xs text-emerald-400">Complété</span>
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </>
