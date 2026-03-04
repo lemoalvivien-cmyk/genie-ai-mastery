@@ -152,13 +152,35 @@ serve(async (req) => {
       logStep("subscription.deleted", { subscriptionId: sub.id });
 
       const orgId = await resolveOrgId(sub);
-      // On cancellation: downgrade to free + enable read-only mode
-      const cancelUpdate = { plan: "free", stripe_subscription_id: null, plan_source: "none", seats_max: 1, is_read_only: true };
+
+      // PASSE D · #13 — Grace period : accès maintenu jusqu'à current_period_end
+      // Le downgrade immédiat est remplacé par un basculement en read_only sans downgrade plan
+      // Le plan passe à "free" seulement APRÈS la fin de la période payée
+      const now = Math.floor(Date.now() / 1000);
+      const periodEnd = sub.current_period_end ?? now;
+      const gracePeriodActive = periodEnd > now;
+
+      const cancelUpdate = gracePeriodActive
+        ? {
+            // Garde l'accès Pro mais marque is_read_only pour signaler l'annulation
+            plan: "business" as const,
+            plan_source: "stripe_cancelling",
+            is_read_only: false,
+          }
+        : {
+            plan: "free" as const,
+            stripe_subscription_id: null,
+            plan_source: "none",
+            seats_max: 1,
+            is_read_only: true,
+          };
+
       const filter = orgId
         ? supabase.from("organizations").update(cancelUpdate).eq("id", orgId)
         : supabase.from("organizations").update(cancelUpdate).eq("stripe_subscription_id", sub.id);
 
       await filter;
+      logStep("Subscription cancelled", { orgId, gracePeriodActive, periodEnd });
 
       await supabase.from("audit_logs").insert({
         action: "subscription_cancelled",
