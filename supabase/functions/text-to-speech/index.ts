@@ -36,20 +36,21 @@ serve(async (req) => {
       });
     }
 
-    const supabaseAnon = createClient(
+    // PASSE B · #8 — getUser() pour vérification réseau du token
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } },
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } },
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authError } = await supabaseAnon.auth.getClaims(token);
-    if (authError || !authData?.claims) {
+    const { data: userData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !userData.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const userId = authData.claims.sub as string;
+    const userId = userData.user.id;
 
     const { text, voice = "loongstella_v2", speed = 1.0 } = await req.json();
 
@@ -62,13 +63,6 @@ serve(async (req) => {
     const truncatedText = text.trim().slice(0, 500);
     // Rough estimate: ~150 chars/sec spoken at normal speed
     const estimatedSeconds = Math.ceil(truncatedText.length / 150);
-
-    // Admin client for quota checks
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      { auth: { persistSession: false } },
-    );
 
     // Get user org
     const { data: profile } = await supabaseAdmin
@@ -112,8 +106,7 @@ serve(async (req) => {
     );
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("DashScope TTS error:", response.status, errText);
+      await response.text(); // consume body
       throw new Error(`DashScope error ${response.status}`);
     }
 
@@ -138,11 +131,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error("text-to-speech error:", err);
-    const corsHeaders = getCorsHeaders(req);
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "TTS failed" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } },
     );
   }
 });
