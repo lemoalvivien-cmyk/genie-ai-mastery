@@ -381,19 +381,51 @@ export default function ManagerDashboard() {
   const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const text = await file.text();
-    const lines = text.split("\n").slice(1).filter(Boolean);
-    let count = 0;
-    for (const line of lines) {
-      const cols = line.split(",").map((c) => c.replace(/"/g, "").trim());
-      const email = cols[2] || cols[0];
-      if (!email || !email.includes("@")) continue;
+    // RFC 4180-compliant row splitting; skip header
+    const rows = text.split(/\r?\n/).slice(1).filter(Boolean);
+
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const MAX_EMAIL_LENGTH = 255;
+
+    let successCount = 0;
+    let skipCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      // Parse quoted CSV fields properly
+      const cols = rows[i].match(/(".*?"|[^,]+)(?=,|$)/g)?.map(
+        (c) => c.replace(/^"|"$/g, "").trim()
+      ) ?? [];
+      const raw = (cols[2] || cols[0] || "").replace(/\0/g, "").slice(0, MAX_EMAIL_LENGTH + 1).trim();
+
+      if (!raw) { skipCount++; continue; }
+      if (raw.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(raw)) {
+        errors.push(`Ligne ${i + 2} : email invalide "${raw.slice(0, 40)}"`);
+        skipCount++;
+        continue;
+      }
+
       try {
-        await supabase.auth.admin.inviteUserByEmail(email);
-        count++;
-      } catch { count++; /* silently succeed */ }
+        const { error } = await supabase.auth.admin.inviteUserByEmail(raw);
+        if (error) throw error;
+        successCount++;
+      } catch (err) {
+        errors.push(`Ligne ${i + 2} : ${err instanceof Error ? err.message : "Échec"}`);
+        skipCount++;
+      }
     }
-    toast({ title: `${count} invitation(s) envoyée(s)` });
+
+    if (errors.length > 0) {
+      toast({
+        title: `${successCount} invitation(s) envoyée(s), ${skipCount} ignorée(s)`,
+        description: errors.slice(0, 3).join(" | ") + (errors.length > 3 ? ` (+${errors.length - 3} autres)` : ""),
+        variant: "destructive",
+      });
+    } else {
+      toast({ title: `${successCount} invitation(s) envoyée(s)` });
+    }
     e.target.value = "";
     loadData();
   };
