@@ -15,9 +15,6 @@ function getCorsHeaders(req: Request) {
   };
 }
 
-// keep corsHeaders alias for compatibility
-
-};
 
 // Simple SHA-256 hash via Web Crypto
 async function sha256(message: string): Promise<string> {
