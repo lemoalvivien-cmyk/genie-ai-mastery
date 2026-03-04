@@ -3,7 +3,7 @@ import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp } fr
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect, useRef, useState } from "react";
