@@ -30,16 +30,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-    // Verify user from token
-    const supabaseAnon = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    // PASSE B · #8 — getUser() au lieu de getClaims() pour vérification réseau
+    const supabaseService = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false } });
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAnon.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: userData, error: authError } = await supabaseService.auth.getUser(token);
+    if (authError || !userData.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
-    const userId = claimsData.claims.sub;
+    const userId = userData.user.id;
 
     const { utterance, assistant_reply, skill_ids, module_id } = await req.json();
 
@@ -50,8 +48,7 @@ serve(async (req) => {
       });
     }
 
-    // Use service role for upsert
-    const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
+    // Already created above with service role
 
     // Fetch existing p_mastery values for these skills
     const { data: existing } = await supabaseService
@@ -110,7 +107,6 @@ Retourne uniquement un JSON: {"scores": {"<skill_id>": <nouveau_score_float>, ..
 
     if (!llmResponse.ok) {
       // Silently fail – don't block user
-      console.error("LLM error", llmResponse.status);
       return new Response(JSON.stringify({ ok: false, reason: "llm_error" }), { headers: corsHeaders });
     }
 
@@ -126,7 +122,6 @@ Retourne uniquement un JSON: {"scores": {"<skill_id>": <nouveau_score_float>, ..
         scores = parsed.scores ?? {};
       }
     } catch (_e) {
-      console.error("JSON parse error", rawContent);
       return new Response(JSON.stringify({ ok: false, reason: "parse_error" }), { headers: corsHeaders });
     }
 
@@ -163,7 +158,6 @@ Retourne uniquement un JSON: {"scores": {"<skill_id>": <nouveau_score_float>, ..
 
     return new Response(JSON.stringify({ ok: true, updates }), { headers: corsHeaders });
   } catch (err) {
-    console.error("score-utterance error", err);
     // Always return 200 to not block user
     return new Response(JSON.stringify({ ok: false, error: String(err) }), {
       status: 200,

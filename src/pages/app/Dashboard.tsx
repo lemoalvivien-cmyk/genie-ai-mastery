@@ -3,7 +3,7 @@ import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp } fr
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect, useRef, useState } from "react";
@@ -39,10 +39,15 @@ export default function Dashboard() {
   const { data: sub } = useSubscription();
   const userId = session?.user?.id;
   const { track } = useAnalytics();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
 
+  // PASSE C · #7 — Invalider le cache subscription après paiement réussi
   useEffect(() => {
-    if (searchParams.get("payment") === "success") track("checkout_success");
+    if (searchParams.get("payment") === "success") {
+      track("checkout_success");
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    }
   }, []);
 
   // Dashboard stats
@@ -51,9 +56,9 @@ export default function Dashboard() {
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
     queryFn: async () => {
-      const [completedRes, scoresRes, quizRes, recentProgressRes, messagesRes] = await Promise.all([
+      // PASSE B · #18 — toutes les requêtes avec .limit() pour éviter unbounded
+      const [completedRes, quizRes, recentProgressRes, messagesRes] = await Promise.all([
         supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed"),
-        supabase.from("progress").select("score").eq("user_id", userId!).eq("status", "completed").not("score", "is", null),
         supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed").not("score", "is", null).gte("score", 70),
         supabase.from("progress").select("module_id, updated_at, status, modules(title, domain, slug)").eq("user_id", userId!).order("updated_at", { ascending: false }).limit(4),
         // Count today's messages for free users

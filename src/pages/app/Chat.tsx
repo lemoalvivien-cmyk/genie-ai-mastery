@@ -525,6 +525,7 @@ export default function Chat() {
                   onKeyDown={handleKeyDown}
                   placeholder="Posez votre question à KITT IA..."
                   className="min-h-[52px] max-h-36 resize-none pr-12 text-sm transition-all"
+                  maxLength={2000}
                   style={{
                     background: "#1A1D2E",
                     border: "1px solid rgba(82,87,216,0.4)",

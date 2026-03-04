@@ -29,28 +29,23 @@ serve(async (req) => {
       });
     }
 
-    // User supabase client (for auth check)
-    const userSupabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } },
-    );
-
-    // Service role client (for privileged operations)
+    // Service role client (for ALL operations including auth verification)
     const adminSupabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } },
     );
 
+    // PASSE B · #4 — getUser() au lieu de getClaims() pour vérification réseau
     const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authError } = await userSupabase.auth.getClaims(token);
-    if (authError || !authData?.claims) {
+    const { data: userData, error: authError } = await adminSupabase.auth.getUser(token);
+    if (authError || !userData.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const userId = authData.claims.sub as string;
+    const userId = userData.user.id;
 
     const { code } = await req.json();
     if (!code || typeof code !== "string") {
@@ -163,7 +158,6 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error("redeem-code error:", err);
     return new Response(
       JSON.stringify({ error: "Une erreur est survenue" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
