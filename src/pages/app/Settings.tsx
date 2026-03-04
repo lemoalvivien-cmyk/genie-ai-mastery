@@ -56,7 +56,7 @@ export default function Settings() {
         .from("profiles")
         .update({
           full_name: editName.trim() || null,
-          persona: editPersona as "salarie" | "dirigeant" | "manager" | "jeune" | "independant" | "parent" | "senior",
+          persona: editPersona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
           preferred_mode: editMode2 as "normal" | "enfant" | "expert",
         })
         .eq("id", session.user.id);
