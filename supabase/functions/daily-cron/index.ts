@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
 
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    "Authorization": `Bearer ${cronSecret}`,
     "apikey": SUPABASE_ANON_KEY,
   };
 
