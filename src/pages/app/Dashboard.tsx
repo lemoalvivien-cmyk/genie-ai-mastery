@@ -58,7 +58,13 @@ export default function Dashboard() {
     queryFn: async () => {
       const [completedRes, scoresRes, quizRes, recentProgressRes, messagesRes] = await Promise.all([
         supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed"),
-        supabase.from("progress").select("score").eq("user_id", userId!).eq("status", "completed").not("score", "is", null),
+      const { data: scoresRes } = await supabase
+        .from("progress")
+        .select("score")
+        .eq("user_id", userId!)
+        .eq("status", "completed")
+        .not("score", "is", null)
+        .limit(200);
         supabase.from("progress").select("*", { count: "exact", head: true }).eq("user_id", userId!).eq("status", "completed").not("score", "is", null).gte("score", 70),
         supabase.from("progress").select("module_id, updated_at, status, modules(title, domain, slug)").eq("user_id", userId!).order("updated_at", { ascending: false }).limit(4),
         // Count today's messages for free users
