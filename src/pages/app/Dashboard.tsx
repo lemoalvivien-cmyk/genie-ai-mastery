@@ -39,10 +39,15 @@ export default function Dashboard() {
   const { data: sub } = useSubscription();
   const userId = session?.user?.id;
   const { track } = useAnalytics();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
 
+  // PASSE C · #7 — Invalider le cache subscription après paiement réussi
   useEffect(() => {
-    if (searchParams.get("payment") === "success") track("checkout_success");
+    if (searchParams.get("payment") === "success") {
+      track("checkout_success");
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    }
   }, []);
 
   // Dashboard stats
