@@ -2,9 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const logStep = (step: string, details?: unknown) =>
-  console.log(`[STRIPE-WEBHOOK] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
-
+const logStep = (step: string, details?: unknown) => {
+  if (Deno.env.get("DEBUG_WEBHOOK") === "true") {
+    console.log(`[STRIPE-WEBHOOK] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
+  }
+};
 serve(async (req) => {
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
