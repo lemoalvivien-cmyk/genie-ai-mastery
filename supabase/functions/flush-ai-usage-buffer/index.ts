@@ -15,7 +15,6 @@ function getCorsHeaders(req: Request) {
       "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   };
 }
-};
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -35,7 +34,6 @@ serve(async (req) => {
       { auth: { persistSession: false } },
     );
 
-    // Validate the user is admin using their JWT
     const userClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -48,7 +46,6 @@ serve(async (req) => {
       });
     }
 
-    // Check admin role
     const { data: roleData } = await supabase
       .from("user_roles")
       .select("role")
@@ -62,7 +59,6 @@ serve(async (req) => {
       });
     }
 
-    // Get buffer rows (batch 200)
     const { data: bufferRows, error: fetchErr } = await supabase
       .from("ai_usage_buffer")
       .select("*")
@@ -82,7 +78,6 @@ serve(async (req) => {
 
     for (const row of bufferRows) {
       try {
-        // Check if row exists in ai_usage_daily
         const { data: existing } = await supabase
           .from("ai_usage_daily")
           .select("id, tokens_in, tokens_out, cost_estimate")
@@ -116,7 +111,6 @@ serve(async (req) => {
           if (insertErr) throw insertErr;
         }
 
-        // Delete from buffer
         await supabase.from("ai_usage_buffer").delete().eq("id", row.id);
         processed++;
       } catch (_e) {
@@ -124,7 +118,6 @@ serve(async (req) => {
       }
     }
 
-    // Reset logging_errors counter if all processed
     const { count: remaining } = await supabase
       .from("ai_usage_buffer")
       .select("*", { count: "exact", head: true });
