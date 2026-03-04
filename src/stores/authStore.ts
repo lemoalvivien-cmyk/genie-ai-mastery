@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { supabase } from "@/integrations/supabase/client";
+import { queryClient } from "@/lib/queryClient";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface Profile {
@@ -63,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const userRoles = (roles ?? []).map((r: { role: string }) => r.role);
 
       if (data) set({ profile: data as Profile, serverRoles: userRoles });
-    } catch {
+    } catch (_e) {
       // Profile might not exist yet (trigger delay)
     }
   },
@@ -71,15 +72,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     const userId = get().user?.id;
     if (userId) {
-      // Fire-and-forget logout audit log via RPC (no direct client insert)
+      // Fire-and-forget logout audit log via RPC
       supabase.rpc("log_audit", {
         _action: "logout",
         _resource_type: "auth",
         _meta: { method: "explicit" },
       }).then(() => {});
     }
+
     await supabase.auth.signOut();
+
+    // PASSE A · #2 — Purge totale : state + React Query cache + localStorage tokens
     set({ user: null, session: null, profile: null, serverRoles: [] });
+    queryClient.clear();
+
+    // Supprimer les artefacts localStorage Supabase pour bloquer le bouton retour
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("sb-") || key === "genie_last_activity") {
+        localStorage.removeItem(key);
+      }
+    });
   },
 
   reset: () =>

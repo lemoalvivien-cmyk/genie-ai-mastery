@@ -2,7 +2,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
@@ -43,17 +44,6 @@ const LegalCenter = lazy(() => import("./pages/legal/LegalCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 2 * 60 * 1000,      // 2 min default — avoids redundant refetches
-      gcTime: 10 * 60 * 1000,        // 10 min cache retention
-      retry: 1,                       // one retry on error, not 3
-      refetchOnWindowFocus: false,    // no background refetch on tab switch
-    },
-  },
-});
-
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -66,7 +56,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Captures ?ref= query param globally and persists to localStorage
+// Captures ?ref= query param globally and persists to sessionStorage
 function RefCapture() {
   const [searchParams] = useSearchParams();
   useEffect(() => {
@@ -105,7 +95,7 @@ const App = () => (
                 <Route path="/register" element={<Register />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-              {/* Onboarding — authenticated but before full app */}
+                {/* Onboarding — authenticated but before full app */}
                 <Route
                   path="/onboarding"
                   element={
@@ -129,75 +119,112 @@ const App = () => (
                   <Route path="modules" element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
                   <Route path="chat" element={<Chat />} />
-                   <Route path="today" element={<Today />} />
-                   <Route path="jarvis" element={<Jarvis />} />
-                   <Route path="settings" element={<Settings />} />
-                   <Route path="labs/phishing" element={<PhishingLab />} />
+                  {/* PASSE A · #3 — requirePro sur toutes les routes premium */}
+                  <Route
+                    path="today"
+                    element={
+                      <ProtectedRoute requirePro>
+                        <Today />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="jarvis"
+                    element={
+                      <ProtectedRoute requirePro>
+                        <Jarvis />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="settings" element={<Settings />} />
+                  <Route
+                    path="labs/phishing"
+                    element={
+                      <ProtectedRoute requirePro>
+                        <PhishingLab />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
 
-                  <Route
-                    path="/admin/growth"
-                    element={
-                      <ProtectedRoute requireRole="admin">
-                        <GrowthDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/control-room"
-                    element={
-                      <ProtectedRoute requireRole="admin">
-                        <ControlRoom />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/ops"
-                    element={
-                      <ProtectedRoute requireRole="admin">
-                        <OpsCenter />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/runbook"
-                    element={
-                      <ProtectedRoute requireRole="admin">
-                        <Runbook />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/*"
-                    element={
-                      <ProtectedRoute requireRole="admin">
-                        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-                          <p>Admin Dashboard (à venir)</p>
-                        </div>
-                      </ProtectedRoute>
-                    }
-                  />
+                {/* Admin routes */}
+                <Route
+                  path="/admin/growth"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <GrowthDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/control-room"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <ControlRoom />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/ops"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <OpsCenter />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/runbook"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <Runbook />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+                        <p>Admin Dashboard (à venir)</p>
+                      </div>
+                    </ProtectedRoute>
+                  }
+                />
 
-                 {/* Manager routes */}
-                 <Route
-                   path="/manager"
-                   element={
-                     <ProtectedRoute requireRole="manager" requirePro>
-                       <ManagerDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
+                {/* Manager routes */}
+                <Route
+                  path="/manager"
+                  element={
+                    <ProtectedRoute requireRole="manager" requirePro>
+                      <ManagerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/verify/:id" element={<VerifyAttestation />} />
-                <Route path="/partner" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
+                <Route
+                  path="/partner"
+                  element={
+                    <ProtectedRoute>
+                      <PartnerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Hidden God Mode — email-gated */}
-                <Route path="/admin-god-mode" element={<ProtectedRoute requireRole="admin"><GodMode /></ProtectedRoute>} />
+                <Route
+                  path="/admin-god-mode"
+                  element={
+                    <ProtectedRoute requireRole="admin">
+                      <GodMode />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/guides" element={<GuideList />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
 
-                {/* Legal centre — new routes */}
+                {/* Legal centre */}
                 <Route path="/legal" element={<LegalCenter />} />
                 <Route path="/legal/:slug" element={<LegalCenter />} />
 
