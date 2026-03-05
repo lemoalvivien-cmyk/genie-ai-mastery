@@ -481,6 +481,26 @@ export default function GenieOSChat() {
             rows={1}
             disabled={isLoading}
           />
+          {/* Voice mode button */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/os/voice")}
+            className="h-11 w-11 flex-shrink-0 border-border hover:border-pink-400/50 hover:text-pink-400"
+            title="Basculer en mode vocal"
+          >
+            <Mic className="w-4 h-4" />
+          </Button>
+          {/* Parallel agents button */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/os/agents-runtime")}
+            className="h-11 w-11 flex-shrink-0 border-border hover:border-cyan-400/50 hover:text-cyan-400"
+            title="Agents Runtime (parallèle)"
+          >
+            <Network className="w-4 h-4" />
+          </Button>
           <Button
             onClick={() => send()}
             disabled={!input.trim() || isLoading}
@@ -489,6 +509,10 @@ export default function GenieOSChat() {
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground/50 text-center mt-2">
+          <Mic className="w-3 h-3 inline mr-1" />Mode vocal disponible ·
+          <Network className="w-3 h-3 inline mx-1" />Agents parallèles disponibles
+        </p>
       </div>
     </div>
   );
