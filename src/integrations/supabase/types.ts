@@ -1246,6 +1246,130 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_chunks: {
+        Row: {
+          chunk_index: number | null
+          content: string
+          created_at: string | null
+          document_id: string | null
+          embedding: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          chunk_index?: number | null
+          content: string
+          created_at?: string | null
+          document_id?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          chunk_index?: number | null
+          content?: string
+          created_at?: string | null
+          document_id?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_documents: {
+        Row: {
+          content: string
+          created_at: string | null
+          file_path: string | null
+          id: string
+          metadata: Json | null
+          source_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_documents_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_sources: {
+        Row: {
+          created_at: string | null
+          file_path: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          type: string
+          updated_at: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          type?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          type?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace_items: {
         Row: {
           category: string | null
@@ -2666,6 +2790,26 @@ export type Database = {
       }
       reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
       resolve_referral: { Args: { _code: string }; Returns: Json }
+      search_knowledge_fts: {
+        Args: { _limit?: number; _query: string; _user_id: string }
+        Returns: {
+          chunk_id: string
+          content: string
+          document_id: string
+          similarity: number
+          title: string
+        }[]
+      }
+      search_knowledge_semantic: {
+        Args: { _embedding: string; _limit?: number; _user_id: string }
+        Returns: {
+          chunk_id: string
+          content: string
+          document_id: string
+          similarity: number
+          title: string
+        }[]
+      }
       upsert_skill_mastery: {
         Args: { _p_mastery: number; _skill_id: string; _user_id: string }
         Returns: Json
