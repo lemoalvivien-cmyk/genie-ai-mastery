@@ -66,12 +66,10 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: "Explore",
+    label: "Ops",
     items: [
-      { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
-      { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
-      { to: "/os/store", icon: Store, label: "AI Store", color: "text-violet-400" },
-      { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
+      { to: "/os/system", icon: Activity, label: "System Health", color: "text-emerald-400" },
+      { to: "/os/logs",   icon: FileText, label: "Logs Central",  color: "text-sky-400" },
     ],
   },
 ];

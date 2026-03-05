@@ -299,6 +299,8 @@ const App = () => (
                   <Route path="revenue" element={<RevenueEngine />} />
                   <Route path="enterprise" element={<EnterpriseDashboard />} />
                   <Route path="revenue-analytics" element={<RevenueAnalytics />} />
+                  <Route path="system" element={<SystemHealth />} />
+                  <Route path="logs" element={<LogsViewer />} />
                   <Route path="start" element={<SmartOnboarding />} />
                 </Route>
 
