@@ -1,15 +1,18 @@
 /**
  * cost-guard — Budget Kill-Switch Middleware
  *
- * Two modes:
- *  1. PRE-CHECK  (method GET or POST with { action: "check" })
- *     → Returns { allowed, used_today, daily_limit, remaining }
- *     → Call this BEFORE sending a request to OpenRouter/Qwen.
- *     → Returns HTTP 429 if budget is exceeded.
+ * Deux modes :
+ *  1. PRE-CHECK  (GET ou POST { action: "check" })
+ *     → Retourne { allowed, used_today, daily_limit, remaining }
+ *     → Appeler AVANT d'envoyer une requête LLM.
+ *     → Retourne HTTP 429 si le budget est dépassé.
  *
- *  2. ACCOUNTING (POST with { action: "record", cost_eur })
- *     → Increments used_today by cost_eur for the org.
- *     → Call this AFTER receiving the LLM response.
+ *  2. ACCOUNTING (POST { action: "record", cost_eur })
+ *     → Incrémente used_today pour l'org.
+ *     → Appeler APRÈS avoir reçu la réponse LLM.
+ *
+ * PASSE A — Fix : getClaims() → getUser() (source de vérité serveur)
+ * PASSE A — Fix : userId extrait de user.id (pas claims.sub)
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -40,23 +43,23 @@ serve(async (req) => {
     });
 
   try {
-    // ── Auth ──────────────────────────────────────────────────────────────
+    // ── Auth ──────────────────────────────────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
 
-    const supabase = createClient(
+    // PASSE A — getUser() vérifie côté serveur (vs getClaims qui lisait le JWT en local)
+    const supabaseAnon = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authError } = await supabase.auth.getClaims(token);
-    if (authError || !authData?.claims) return json({ error: "Unauthorized" }, 401);
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser();
+    if (authError || !user) return json({ error: "Unauthorized" }, 401);
 
-    const userId = authData.claims.sub as string;
+    const userId = user.id;
 
-    // ── Resolve org_id ───────────────────────────────────────────────────
+    // ── Admin client pour les opérations DB ──────────────────────────────────
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -71,7 +74,7 @@ serve(async (req) => {
 
     const orgId: string | null = profile?.org_id ?? null;
 
-    // ── Parse body ───────────────────────────────────────────────────────
+    // ── Parse body ───────────────────────────────────────────────────────────
     let action = "check";
     let costDelta = 0;
 
@@ -80,12 +83,12 @@ serve(async (req) => {
         const body = await req.json();
         action = body.action ?? "check";
         costDelta = Number(body.cost_eur ?? 0);
-      } catch {
-        // keep defaults
+      } catch (_e) {
+        // garder les valeurs par défaut
       }
     }
 
-    // ── Global kill-switch (env var takes priority) ───────────────────────
+    // ── Kill-switch global (priorité maximale) ───────────────────────────────
     if (Deno.env.get("AI_DISABLED") === "true") {
       return json({
         allowed: false,
@@ -94,14 +97,14 @@ serve(async (req) => {
       }, 503);
     }
 
-    // ── DB kill-switch ────────────────────────────────────────────────────
+    // ── Kill-switch DB ────────────────────────────────────────────────────────
     const { data: killSwitch } = await supabaseAdmin
       .from("app_settings")
       .select("value")
       .eq("key", "ai_kill_switch")
       .single();
 
-    if (killSwitch?.value?.disabled === true) {
+    if ((killSwitch?.value as { disabled?: boolean } | null)?.disabled === true) {
       return json({
         allowed: false,
         reason: "ai_disabled",
@@ -109,19 +112,19 @@ serve(async (req) => {
       }, 503);
     }
 
-    // ── No org → individual user, skip org budget check ───────────────────
+    // ── Pas d'org → user individuel, skip vérif budget org ───────────────────
     if (!orgId) {
       return json({ allowed: true, reason: "no_org", used_today: 0, daily_limit: null, remaining: null });
     }
 
-    // ── Call check_and_increment_ai_budget ────────────────────────────────
+    // ── Vérif + incrémentation budget ────────────────────────────────────────
     const { data: budgetResult, error: budgetError } = await supabaseAdmin.rpc(
       "check_and_increment_ai_budget",
       { _org_id: orgId, _cost_delta: action === "record" ? costDelta : 0 },
     );
 
     if (budgetError) {
-      // Fail open — never block a user due to a DB error
+      // Fail open — ne jamais bloquer à cause d'une erreur DB
       console.error("[cost-guard] budget RPC error:", budgetError.message);
       return json({ allowed: true, reason: "db_error", error: budgetError.message });
     }
@@ -135,8 +138,7 @@ serve(async (req) => {
     };
 
     if (!budget.allowed) {
-      // ── BLOCK — return 429 with Retry-After ───────────────────────────
-      // Calculate seconds until midnight UTC
+      // Calcul du Retry-After jusqu'à minuit UTC
       const now = new Date();
       const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
       const retryAfterSeconds = Math.ceil((midnight.getTime() - now.getTime()) / 1000);
@@ -147,12 +149,11 @@ serve(async (req) => {
         used_today: budget.used_today,
         daily_limit: budget.daily_limit,
         remaining: 0,
-        message: `Limite journalière atteinte (${budget.used_today.toFixed(4)} € / ${budget.daily_limit} €). Les appels IA sont suspendus jusqu'à minuit UTC.`,
+        message: `Limite journalière atteinte (${budget.used_today.toFixed(4)} € / ${budget.daily_limit} €). Les appels IA reprennent à minuit UTC.`,
         retry_after_seconds: retryAfterSeconds,
       }, 429);
     }
 
-    // ── ALLOWED ───────────────────────────────────────────────────────────
     return json({
       allowed: true,
       used_today: budget.used_today,

@@ -158,7 +158,9 @@ export default function Pricing() {
     }
   };
 
+  // PASSE E — Mutex checkout : isSubmitting flag empêche le double-clic
   const handleCheckout = async () => {
+    if (checkoutLoading) return; // guard double-clic
     if (!isAuthenticated) { navigate("/register?redirect=/pricing"); return; }
     setCheckoutLoading(true);
     track("checkout_started");

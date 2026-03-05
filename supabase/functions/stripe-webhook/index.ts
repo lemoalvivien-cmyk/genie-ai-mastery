@@ -7,6 +7,7 @@ const logStep = (step: string, details?: unknown) => {
     console.log(`[STRIPE-WEBHOOK] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
   }
 };
+
 serve(async (req) => {
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
@@ -33,7 +34,24 @@ serve(async (req) => {
     { auth: { persistSession: false } },
   );
 
-  logStep("Processing event", { type: event.type });
+  logStep("Processing event", { type: event.type, id: event.id });
+
+  // ── PASSE E — Idempotency : vérifie si cet event a déjà été traité ─────────
+  // Utilise l'event.id Stripe comme clé d'idempotence dans audit_logs.
+  // Si un doublon de webhook arrive, on renvoie 200 immédiatement sans doublon DB.
+  const { data: existingEvent } = await supabase
+    .from("audit_logs")
+    .select("id")
+    .eq("action", "stripe_event_processed")
+    .eq("resource_id", event.id)
+    .maybeSingle();
+
+  if (existingEvent) {
+    logStep("Event already processed — skipping (idempotency)", { eventId: event.id });
+    return new Response(JSON.stringify({ received: true, duplicate: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   // Helper: resolve orgId from subscription metadata or customer
   async function resolveOrgId(subOrSession: { metadata?: Record<string, string>; customer?: string | Stripe.Customer | Stripe.DeletedCustomer | null }): Promise<string | null> {
@@ -273,6 +291,18 @@ serve(async (req) => {
 
   } catch (err) {
     logStep("Error handling event", { error: String(err) });
+  }
+
+  // ── PASSE E — Marque l'event comme traité pour l'idempotence ─────────────
+  try {
+    await supabase.from("audit_logs").insert({
+      action: "stripe_event_processed",
+      resource_id: event.id,
+      resource_type: "stripe_event",
+      details: { event_type: event.type },
+    });
+  } catch (_e) {
+    // Non-fatal : l'audit ne doit jamais bloquer le 200
   }
 
   return new Response(JSON.stringify({ received: true }), {
