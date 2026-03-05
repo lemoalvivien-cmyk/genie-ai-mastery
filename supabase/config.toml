@@ -90,3 +90,6 @@ verify_jwt = false
 [functions.god-mode]
 verify_jwt = false
 
+[functions.genie-os-chat]
+verify_jwt = false
+
