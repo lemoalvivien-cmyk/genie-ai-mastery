@@ -105,3 +105,6 @@ verify_jwt = false
 [functions.genieos-action-engine]
 verify_jwt = false
 
+[functions.genieos-data-engine]
+verify_jwt = false
+

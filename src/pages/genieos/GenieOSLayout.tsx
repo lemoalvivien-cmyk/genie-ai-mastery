@@ -19,6 +19,8 @@ const NAV_ITEMS = [
   { to: "/os/business", icon: BarChart2, label: "Business", color: "text-pink-400" },
   { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
   { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
+  { to: "/os/ai-watch", icon: Sparkles, label: "AI Watch", color: "text-amber-400" },
+  { to: "/os/opportunities", icon: BarChart2, label: "Opportunités", color: "text-emerald-400" },
 ];
 
 export default function GenieOSLayout() {
