@@ -4,7 +4,7 @@ import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
-  Command, Building2,
+  Command, Building2, FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CopilotPanel } from "@/components/genieos/CopilotPanel";
