@@ -70,6 +70,8 @@ const CoFounder = lazy(() => import("./pages/genieos/CoFounder"));
 const AgentEconomy = lazy(() => import("./pages/genieos/AgentEconomy"));
 const Autopilot = lazy(() => import("./pages/genieos/Autopilot"));
 const MemoryTimeline = lazy(() => import("./pages/genieos/MemoryTimeline"));
+const CommandCenter = lazy(() => import("./pages/genieos/CommandCenter"));
+const RevenueEngine = lazy(() => import("./pages/genieos/RevenueEngine"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -288,6 +290,8 @@ const App = () => (
                   <Route path="economy" element={<AgentEconomy />} />
                   <Route path="autopilot" element={<Autopilot />} />
                   <Route path="timeline" element={<MemoryTimeline />} />
+                  <Route path="control" element={<CommandCenter />} />
+                  <Route path="revenue" element={<RevenueEngine />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
