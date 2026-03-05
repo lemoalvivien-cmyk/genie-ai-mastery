@@ -168,10 +168,10 @@ export default function ManagerDashboard() {
       const [orgRes, statsRes, teamRes, campaignsRes, attestationsRes, modulesRes, budgetRes] = await Promise.all([
         supabase.from("organizations").select("*").eq("id", profile.org_id).single(),
         supabase.rpc("calculate_org_stats", { _org_id: profile.org_id }),
-        supabase.from("profiles").select("id, full_name, email, last_active_at").eq("org_id", profile.org_id),
-        supabase.from("campaigns").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false }),
-        supabase.from("attestations").select("*").eq("org_id", profile.org_id).order("generated_at", { ascending: false }),
-        supabase.from("modules").select("id, title").eq("is_published", true),
+        supabase.from("profiles").select("id, full_name, email, last_active_at").eq("org_id", profile.org_id).limit(200),
+        supabase.from("campaigns").select("id, title, description, status, deadline, module_ids, target_group, created_at").eq("org_id", profile.org_id).order("created_at", { ascending: false }).limit(50),
+        supabase.from("attestations").select("id, user_id, generated_at, score_average, pdf_url, valid_until").eq("org_id", profile.org_id).order("generated_at", { ascending: false }).limit(100),
+        supabase.from("modules").select("id, title").eq("is_published", true).limit(200),
         supabase.rpc("check_budget", { _user_id: profile.id, _org_id: profile.org_id }),
       ]);
 
