@@ -32,13 +32,13 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  marketing:   "bg-pink-500/10 text-pink-400 border-pink-500/20",
-  sales:       "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  research:    "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  development: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  finance:     "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  support:     "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  analytics:   "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  marketing:   "bg-primary/10 text-primary border-primary/20",
+  sales:       "bg-accent text-accent-foreground border-border",
+  research:    "bg-secondary text-secondary-foreground border-border",
+  development: "bg-primary/15 text-primary border-primary/30",
+  finance:     "bg-muted text-foreground border-border",
+  support:     "bg-secondary/50 text-secondary-foreground border-border",
+  analytics:   "bg-accent/50 text-accent-foreground border-border",
   general:     "bg-muted text-muted-foreground border-border",
 };
 

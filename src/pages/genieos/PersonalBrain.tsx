@@ -57,7 +57,7 @@ export default function PersonalBrain() {
       supabase.from("user_brain_profile").select("*").single(),
       supabase.from("user_goals").select("*").eq("status", "active").order("priority", { ascending: false }),
     ]);
-    setProfile(profileData);
+    setProfile(profileData ? { ...profileData, personality: (profileData.personality as Record<string, number>) ?? {} } : null);
     setGoals(goalsData ?? []);
     setLoading(false);
   }
