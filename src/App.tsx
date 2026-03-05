@@ -73,6 +73,8 @@ const MemoryTimeline = lazy(() => import("./pages/genieos/MemoryTimeline"));
 const CommandCenter = lazy(() => import("./pages/genieos/CommandCenter"));
 const RevenueEngine = lazy(() => import("./pages/genieos/RevenueEngine"));
 const SmartOnboarding = lazy(() => import("./pages/genieos/SmartOnboarding"));
+const EnterpriseDashboard = lazy(() => import("./pages/genieos/EnterpriseDashboard"));
+const RevenueAnalytics = lazy(() => import("./pages/genieos/RevenueAnalytics"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">

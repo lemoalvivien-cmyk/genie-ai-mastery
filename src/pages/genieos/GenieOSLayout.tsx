@@ -25,6 +25,8 @@ const NAV_SECTIONS = [
     label: "Revenue",
     items: [
       { to: "/os/revenue", icon: DollarSign, label: "Revenue Engine", color: "text-green-400" },
+      { to: "/os/revenue-analytics", icon: BarChart2, label: "Revenue Analytics", color: "text-emerald-400" },
+      { to: "/os/enterprise", icon: Building2, label: "Enterprise", color: "text-amber-400" },
       { to: "/os/cofounder", icon: Handshake, label: "Co-Founder IA", color: "text-emerald-400" },
       { to: "/os/opportunities", icon: TrendingUp, label: "Opportunités", color: "text-emerald-400" },
       { to: "/os/economy", icon: Store, label: "Agent Economy", color: "text-violet-400" },
