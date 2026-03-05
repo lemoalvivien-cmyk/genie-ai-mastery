@@ -46,7 +46,7 @@ const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
 
 // GENIE OS
 const GenieOSLayout = lazy(() => import("./pages/genieos/GenieOSLayout"));
-const GenieOSDashboard = lazy(() => import("./pages/genieos/GenieOSDashboard"));
+// GenieOSDashboard supprimé (Passe B — code mort remplacé par CommandCenter)
 const GenieOSChat = lazy(() => import("./pages/genieos/GenieOSChat"));
 const AgentBuilder = lazy(() => import("./pages/genieos/AgentBuilder"));
 const AutomationModule = lazy(() => import("./pages/genieos/AutomationModule"));
