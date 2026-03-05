@@ -971,6 +971,198 @@ export type Database = {
           },
         ]
       }
+      genieos_agents: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          executions: number | null
+          id: string
+          last_executed_at: string | null
+          metadata: Json | null
+          name: string
+          objective: string | null
+          status: string | null
+          system_prompt: string | null
+          tools: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          executions?: number | null
+          id?: string
+          last_executed_at?: string | null
+          metadata?: Json | null
+          name: string
+          objective?: string | null
+          status?: string | null
+          system_prompt?: string | null
+          tools?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          executions?: number | null
+          id?: string
+          last_executed_at?: string | null
+          metadata?: Json | null
+          name?: string
+          objective?: string | null
+          status?: string | null
+          system_prompt?: string | null
+          tools?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      genieos_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json | null
+          model_used: string | null
+          module: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          model_used?: string | null
+          module?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          model_used?: string | null
+          module?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      genieos_projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          stack: Json | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          stack?: Json | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          stack?: Json | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      genieos_user_memory: {
+        Row: {
+          context_summary: string | null
+          preferences: Json | null
+          primary_goals: string[] | null
+          recent_topics: string[] | null
+          skill_level: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          context_summary?: string | null
+          preferences?: Json | null
+          primary_goals?: string[] | null
+          recent_topics?: string[] | null
+          skill_level?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          context_summary?: string | null
+          preferences?: Json | null
+          primary_goals?: string[] | null
+          recent_topics?: string[] | null
+          skill_level?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      genieos_workflows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          status: string | null
+          steps: Json | null
+          tools: string | null
+          trigger_event: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          status?: string | null
+          steps?: Json | null
+          tools?: string | null
+          trigger_event?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          status?: string | null
+          steps?: Json | null
+          tools?: string | null
+          trigger_event?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ip_rate_limits: {
         Row: {
           blocked_until: string | null
