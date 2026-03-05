@@ -165,8 +165,8 @@ export default function Opportunities() {
       {/* Header */}
       <div className="flex-shrink-0 px-6 py-4 border-b border-border bg-card/50">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
+          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-primary" />
           </div>
           <div>
             <h1 className="text-base font-bold text-foreground">Business Intelligence</h1>
@@ -180,8 +180,8 @@ export default function Opportunities() {
         {messages.length === 0 && !loading && (
           <div className="space-y-6">
             <div className="text-center py-6">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-7 h-7 text-emerald-400" />
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="w-7 h-7 text-primary" />
               </div>
               <h2 className="text-base font-bold text-foreground">Business Agent</h2>
               <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
@@ -198,8 +198,8 @@ export default function Opportunities() {
                     onClick={() => sendQuery(p.query, p.type)}
                     className="flex items-start gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/50 text-left transition-all group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon className="w-4 h-4 text-emerald-400" />
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                       <Icon className="w-4 h-4 text-primary" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground">{p.label}</p>
