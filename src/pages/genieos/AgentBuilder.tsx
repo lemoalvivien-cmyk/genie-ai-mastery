@@ -1,4 +1,4 @@
-import { Bot, Plus, Play, Trash2, ChevronRight, Save, X } from "lucide-react";
+import { Bot, Plus, Play, Trash2, ChevronRight, Save, X, Zap, Square } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useGenieOSMemory, GenieOSAgent } from "@/hooks/useGenieOSMemory";
+import { useAgentRuntime } from "@/hooks/useAgentRuntime";
+import { AgentExecutionPanel } from "@/components/genieos/AgentExecutionPanel";
 import { toast } from "@/hooks/use-toast";
 
 const AGENT_TEMPLATES = [
@@ -28,11 +30,14 @@ const EMPTY_FORM: AgentFormData = { name: "", description: "", objective: "", sy
 
 export default function AgentBuilder() {
   const location = useLocation();
-  const { agents, saveAgent, deleteAgent, updateAgent, isLoading } = useGenieOSMemory();
+  const { agents, saveAgent, deleteAgent, updateAgent } = useGenieOSMemory();
+  const { state: execState, runAgent, reset: resetExec, isRunning } = useAgentRuntime();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<AgentFormData>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
   const [activeAgent, setActiveAgent] = useState<string | null>(null);
+  const [runningAgentId, setRunningAgentId] = useState<string | null>(null);
+  const [customObjective, setCustomObjective] = useState<Record<string, string>>({});
 
   // Accept prefill from chat orchestrator
   useEffect(() => {
@@ -71,6 +76,18 @@ export default function AgentBuilder() {
   const handleToggleStatus = async (agent: GenieOSAgent) => {
     const newStatus = agent.status === "active" ? "draft" : "active";
     await updateAgent(agent.id, { status: newStatus });
+  };
+
+  const handleRunAgent = async (agent: GenieOSAgent) => {
+    const objective = customObjective[agent.id] || agent.objective || `Exécute les tâches assignées à l'agent "${agent.name}"`;
+    setRunningAgentId(agent.id);
+    resetExec();
+    await runAgent(objective, agent);
+  };
+
+  const handleStopAgent = () => {
+    resetExec();
+    setRunningAgentId(null);
   };
 
   const useTemplate = (tpl: typeof AGENT_TEMPLATES[0]) => {
@@ -154,11 +171,21 @@ export default function AgentBuilder() {
           </div>
         )}
 
+        {/* Execution panel */}
+        {execState.phase !== "idle" && (
+          <div className="mb-6">
+            <AgentExecutionPanel
+              state={execState}
+              onClose={() => { resetExec(); setRunningAgentId(null); }}
+            />
+          </div>
+        )}
+
         {/* My agents */}
         {agents.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Mes agents</h2>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {agents.map(agent => (
                 <div key={agent.id} className="rounded-xl border border-border bg-card overflow-hidden">
                   <div
@@ -195,12 +222,50 @@ export default function AgentBuilder() {
                       </button>
                     </div>
                   </div>
-                  {activeAgent === agent.id && agent.system_prompt && (
-                    <div className="px-4 pb-4 border-t border-border pt-3">
-                      <p className="text-xs text-muted-foreground mb-1 font-medium">Prompt système :</p>
-                      <pre className="text-xs text-muted-foreground bg-background rounded-lg p-3 border border-border overflow-x-auto whitespace-pre-wrap font-mono">
-                        {agent.system_prompt}
-                      </pre>
+
+                  {/* Expanded section: system prompt + run agent */}
+                  {activeAgent === agent.id && (
+                    <div className="border-t border-border">
+                      {/* Custom objective input */}
+                      <div className="px-4 pt-3 pb-2">
+                        <p className="text-xs text-muted-foreground mb-1.5 font-medium">Objectif d'exécution :</p>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder={agent.objective || `Objectif pour ${agent.name}…`}
+                            value={customObjective[agent.id] ?? ""}
+                            onChange={e => setCustomObjective(prev => ({ ...prev, [agent.id]: e.target.value }))}
+                            className="text-xs bg-background border-border h-8"
+                            onClick={e => e.stopPropagation()}
+                          />
+                          {runningAgentId === agent.id && isRunning ? (
+                            <Button
+                              size="sm"
+                              onClick={e => { e.stopPropagation(); handleStopAgent(); }}
+                              className="bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 h-8 px-3 flex-shrink-0"
+                            >
+                              <Square className="w-3 h-3 mr-1.5" /> Stop
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              onClick={e => { e.stopPropagation(); handleRunAgent(agent); }}
+                              disabled={isRunning}
+                              className="gradient-primary text-white h-8 px-3 flex-shrink-0"
+                            >
+                              <Zap className="w-3 h-3 mr-1.5" /> Run Agent
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {agent.system_prompt && (
+                        <div className="px-4 pb-4">
+                          <p className="text-xs text-muted-foreground mb-1 font-medium">Prompt système :</p>
+                          <pre className="text-xs text-muted-foreground bg-background rounded-lg p-3 border border-border overflow-x-auto whitespace-pre-wrap font-mono">
+                            {agent.system_prompt}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -93,3 +93,6 @@ verify_jwt = false
 [functions.genie-os-chat]
 verify_jwt = false
 
+[functions.genieos-agent-runtime]
+verify_jwt = false
+

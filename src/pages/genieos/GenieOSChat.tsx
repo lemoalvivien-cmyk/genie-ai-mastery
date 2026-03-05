@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useGenieOSMemory, AI_ROUTER_CLIENT } from "@/hooks/useGenieOSMemory";
+import { useAgentRuntime } from "@/hooks/useAgentRuntime";
+import { AgentExecutionPanel } from "@/components/genieos/AgentExecutionPanel";
 
 type Message = { role: "user" | "assistant"; content: string };
 type Module = "assistant" | "agent_builder" | "automation" | "app_builder" | "ai_tools" | "business";
@@ -39,7 +41,25 @@ const QUICK_PROMPTS = [
   "Analyse le business model d'une newsletter IA",
 ];
 
-// ── Intent patterns for orchestration ────────────────────────────
+// ── Agent execution intent patterns ────────────────────────────
+const AGENT_EXEC_PATTERNS = [
+  /analys[e]?[r]?\s+(ce\s+|le\s+|ce\s+)?march[eé]/i,
+  /trouv[e]?[r]?\s+\d+\s+prospect/i,
+  /lanc[e]?[r]?\s+(un\s+)?agent/i,
+  /ex[eé]cut[e]?[r]?\s+(un\s+)?agent/i,
+  /recherch[e]?[r]?\s+et\s+(analys[e]?[r]?|r[eé]sum[e]?[r]?)/i,
+  /g[eé]n[eè]r[e]?[r]?\s+un\s+rapport/i,
+  /automatiquement\s+(analys|recherch|cr[eé]e|g[eé]n[eè]r)/i,
+];
+
+function detectAgentExecIntent(text: string): string | null {
+  for (const p of AGENT_EXEC_PATTERNS) {
+    if (p.test(text)) return text.trim();
+  }
+  return null;
+}
+
+// ── Navigation intent patterns for orchestration ────────────────────────────
 const INTENT_PATTERNS: Array<{
   regex: RegExp;
   module: string;
@@ -115,6 +135,8 @@ export default function GenieOSChat() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [detectedIntent, setDetectedIntent] = useState<NavigationIntent | null>(null);
   const [activeModel, setActiveModel] = useState<string>(AI_ROUTER_CLIENT.assistant);
+  const [agentExecObjective, setAgentExecObjective] = useState<string | null>(null);
+  const { state: execState, runAgent, reset: resetExec, isRunning: agentRunning } = useAgentRuntime();
   const bottomRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -145,6 +167,10 @@ export default function GenieOSChat() {
     const intent = detectIntent(content);
     if (intent) setDetectedIntent(intent);
     else setDetectedIntent(null);
+
+    // Detect agent execution intent
+    const agentIntent = detectAgentExecIntent(content);
+    if (agentIntent) setAgentExecObjective(agentIntent);
 
     const userMsg: Message = { role: "user", content };
     const nextMessages = [...messages, userMsg];
@@ -376,7 +402,46 @@ export default function GenieOSChat() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Orchestrator intent card */}
+      {/* Agent Execution Panel (inline in chat) */}
+      {execState.phase !== "idle" && (
+        <div className="flex-shrink-0 mx-4 mb-2">
+          <AgentExecutionPanel
+            state={execState}
+            onClose={() => { resetExec(); setAgentExecObjective(null); }}
+          />
+        </div>
+      )}
+
+      {/* Agent execution intent card */}
+      {agentExecObjective && execState.phase === "idle" && !isLoading && (
+        <div className="flex-shrink-0 mx-4 mb-2">
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5">
+            <span className="text-lg">🤖</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">
+                Action détectée : <strong>Exécution d'agent</strong>
+              </p>
+              <p className="text-xs text-muted-foreground truncate">Objectif : {agentExecObjective}</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => { runAgent(agentExecObjective); setAgentExecObjective(null); }}
+              disabled={agentRunning}
+              className="gradient-primary text-white flex-shrink-0 text-xs h-8 px-3"
+            >
+              <Zap className="w-3 h-3 mr-1" /> Lancer
+            </Button>
+            <button
+              onClick={() => setAgentExecObjective(null)}
+              className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation orchestrator intent card */}
       {detectedIntent && !isLoading && (
         <div className="flex-shrink-0 mx-4 mb-2">
           <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5">
