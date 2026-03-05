@@ -288,6 +288,51 @@ export type Database = {
           },
         ]
       }
+      agent_revenue: {
+        Row: {
+          agent_id: string | null
+          commission_amount_eur: number
+          commission_rate: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          net_amount_eur: number
+          paid_at: string | null
+          sale_amount_eur: number
+          seller_id: string
+          status: string
+          transaction_type: string
+        }
+        Insert: {
+          agent_id?: string | null
+          commission_amount_eur?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          net_amount_eur?: number
+          paid_at?: string | null
+          sale_amount_eur?: number
+          seller_id: string
+          status?: string
+          transaction_type?: string
+        }
+        Update: {
+          agent_id?: string | null
+          commission_amount_eur?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          net_amount_eur?: number
+          paid_at?: string | null
+          sale_amount_eur?: number
+          seller_id?: string
+          status?: string
+          transaction_type?: string
+        }
+        Relationships: []
+      }
       agent_sales: {
         Row: {
           agent_economy_id: string | null
@@ -1021,6 +1066,63 @@ export type Database = {
           },
         ]
       }
+      credit_balance: {
+        Row: {
+          balance: number
+          id: string
+          lifetime_earned: number
+          lifetime_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       csp_reports: {
         Row: {
           blocked_uri: string | null
@@ -1628,6 +1730,57 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      genieos_usage_limits: {
+        Row: {
+          actions_per_day: number
+          agents_max: number
+          ai_watch_enabled: boolean
+          analytics_enabled: boolean
+          api_access_enabled: boolean
+          autopilot_enabled: boolean
+          created_at: string
+          credits_per_month: number
+          data_engine_enabled: boolean
+          id: string
+          multi_agent_enabled: boolean
+          plan: string
+          revenue_engine_enabled: boolean
+          white_label_enabled: boolean
+        }
+        Insert: {
+          actions_per_day?: number
+          agents_max?: number
+          ai_watch_enabled?: boolean
+          analytics_enabled?: boolean
+          api_access_enabled?: boolean
+          autopilot_enabled?: boolean
+          created_at?: string
+          credits_per_month?: number
+          data_engine_enabled?: boolean
+          id?: string
+          multi_agent_enabled?: boolean
+          plan: string
+          revenue_engine_enabled?: boolean
+          white_label_enabled?: boolean
+        }
+        Update: {
+          actions_per_day?: number
+          agents_max?: number
+          ai_watch_enabled?: boolean
+          analytics_enabled?: boolean
+          api_access_enabled?: boolean
+          autopilot_enabled?: boolean
+          created_at?: string
+          credits_per_month?: number
+          data_engine_enabled?: boolean
+          id?: string
+          multi_agent_enabled?: boolean
+          plan?: string
+          revenue_engine_enabled?: boolean
+          white_label_enabled?: boolean
         }
         Relationships: []
       }

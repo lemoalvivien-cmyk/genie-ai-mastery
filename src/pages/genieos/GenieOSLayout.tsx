@@ -4,7 +4,7 @@ import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
-  Command,
+  Command, Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CopilotPanel } from "@/components/genieos/CopilotPanel";
@@ -25,6 +25,8 @@ const NAV_SECTIONS = [
     label: "Revenue",
     items: [
       { to: "/os/revenue", icon: DollarSign, label: "Revenue Engine", color: "text-green-400" },
+      { to: "/os/revenue-analytics", icon: BarChart2, label: "Revenue Analytics", color: "text-emerald-400" },
+      { to: "/os/enterprise", icon: Building2, label: "Enterprise", color: "text-amber-400" },
       { to: "/os/cofounder", icon: Handshake, label: "Co-Founder IA", color: "text-emerald-400" },
       { to: "/os/opportunities", icon: TrendingUp, label: "Opportunités", color: "text-emerald-400" },
       { to: "/os/economy", icon: Store, label: "Agent Economy", color: "text-violet-400" },
