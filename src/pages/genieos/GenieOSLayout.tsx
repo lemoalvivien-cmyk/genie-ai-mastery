@@ -6,6 +6,7 @@ import {
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CopilotPanel } from "@/components/genieos/CopilotPanel";
 
 const NAV_SECTIONS = [
   {
@@ -13,6 +14,7 @@ const NAV_SECTIONS = [
     items: [
       { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
       { to: "/os/control", icon: Activity, label: "Command Center", color: "text-primary" },
+      { to: "/os/start", icon: Sparkles, label: "Démarrage", color: "text-amber-400" },
       { to: "/os/voice", icon: Mic, label: "Voice OS", color: "text-pink-400" },
     ],
   },
@@ -185,6 +187,7 @@ export default function GenieOSLayout() {
           <Outlet />
         </main>
       </div>
+      <CopilotPanel />
     </div>
   );
 }

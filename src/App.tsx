@@ -72,6 +72,7 @@ const Autopilot = lazy(() => import("./pages/genieos/Autopilot"));
 const MemoryTimeline = lazy(() => import("./pages/genieos/MemoryTimeline"));
 const CommandCenter = lazy(() => import("./pages/genieos/CommandCenter"));
 const RevenueEngine = lazy(() => import("./pages/genieos/RevenueEngine"));
+const SmartOnboarding = lazy(() => import("./pages/genieos/SmartOnboarding"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -292,6 +293,7 @@ const App = () => (
                   <Route path="timeline" element={<MemoryTimeline />} />
                   <Route path="control" element={<CommandCenter />} />
                   <Route path="revenue" element={<RevenueEngine />} />
+                  <Route path="start" element={<SmartOnboarding />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

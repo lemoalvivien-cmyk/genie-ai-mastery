@@ -5,13 +5,45 @@ import { Link } from "react-router-dom";
 import {
   Bot, Zap, TrendingUp, Eye, Activity, Sparkles, Plane,
   Clock, ChevronRight, Loader2, CheckCircle2, AlertCircle,
-  DollarSign, Target, Brain, ArrowUpRight,
+  DollarSign, Target, Brain, ArrowUpRight, Rocket, Plus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { DailyDigest } from "@/components/genieos/DailyDigest";
+
+/* ── 3 Hero Actions ── */
+const HERO_ACTIONS = [
+  {
+    label: "Créer un agent",
+    desc: "Configurez un agent IA personnalisé",
+    to: "/os/agents",
+    icon: Bot,
+    gradient: "from-primary/20 to-primary/5",
+    iconColor: "text-primary",
+    borderColor: "border-primary/30",
+  },
+  {
+    label: "Trouver une opportunité",
+    desc: "Laissez l'IA analyser votre marché",
+    to: "/os/revenue",
+    icon: DollarSign,
+    gradient: "from-green-500/20 to-green-500/5",
+    iconColor: "text-green-400",
+    borderColor: "border-green-500/30",
+  },
+  {
+    label: "Construire un produit",
+    desc: "Générez une architecture complète",
+    to: "/os/builder",
+    icon: Rocket,
+    gradient: "from-orange-500/20 to-orange-500/5",
+    iconColor: "text-orange-400",
+    borderColor: "border-orange-500/30",
+  },
+];
 
 /* ── Widget: Agent Activity ── */
 function AgentActivityWidget() {
@@ -47,7 +79,14 @@ function AgentActivityWidget() {
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground mx-auto" />
       ) : executions.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-3">Aucune exécution récente</p>
+        <div className="text-center py-3">
+          <p className="text-xs text-muted-foreground mb-2">Aucune exécution récente</p>
+          <Link to="/os/agents">
+            <Button size="sm" variant="outline" className="h-6 text-xs gap-1">
+              <Plus className="w-3 h-3" /> Créer un agent
+            </Button>
+          </Link>
+        </div>
       ) : (
         <div className="space-y-2">
           {(executions as any[]).map((ex) => (
@@ -162,7 +201,7 @@ function AIWatchWidget() {
           <Eye className="w-4 h-4 text-amber-400" />
           <span className="text-sm font-semibold text-foreground">AI Watch</span>
           {unread > 0 && (
-            <Badge className="h-4 text-xs px-1.5 bg-amber-500 text-white">{unread}</Badge>
+            <Badge className="h-4 text-xs px-1.5 bg-amber-500/20 text-amber-400 border-amber-500/30">{unread}</Badge>
           )}
         </div>
         <Link to="/os/ai-watch">
@@ -348,75 +387,7 @@ function RevenueSummaryWidget() {
   );
 }
 
-/* ── Main Command Center ── */
-export default function CommandCenter() {
-  const user = useAuthStore((s) => s.user);
-
-  // Quick stats
-  const { data: timelineCount = 0 } = useQuery({
-    queryKey: ["cmd_timeline_count", user?.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("memory_timeline")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id);
-      return count ?? 0;
-    },
-    enabled: !!user?.id,
-  });
-
-  const QUICK_LINKS = [
-    { label: "Chat IA", to: "/os", icon: Activity, color: "text-primary" },
-    { label: "Revenue", to: "/os/revenue", icon: DollarSign, color: "text-green-400" },
-    { label: "Autopilot", to: "/os/autopilot", icon: Plane, color: "text-sky-400" },
-    { label: "Timeline", to: "/os/timeline", icon: Clock, color: "text-indigo-400" },
-    { label: "Skills", to: "/os/skills", icon: Brain, color: "text-purple-400" },
-    { label: "Co-Founder", to: "/os/cofounder", icon: TrendingUp, color: "text-emerald-400" },
-  ];
-
-  return (
-    <div className="h-full overflow-y-auto bg-background p-4 md:p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Activity className="w-6 h-6 text-primary" />
-            Command Center
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Cockpit central — {timelineCount} événements en mémoire
-          </p>
-        </div>
-
-        {/* Quick links */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {QUICK_LINKS.map(({ label, to, icon: Icon, color }) => (
-            <Link key={to} to={to}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card hover:border-primary/30 hover:bg-muted/30 transition-all group">
-              <Icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", color)} />
-              <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
-            </Link>
-          ))}
-        </div>
-
-        {/* Widget grid */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <AgentActivityWidget />
-          <OpportunityWidget />
-          <AIWatchWidget />
-          <AutopilotWidget />
-          <SkillWidget />
-          <RevenueSummaryWidget />
-        </div>
-
-        {/* Memory timeline preview */}
-        <MemoryPreview />
-      </div>
-    </div>
-  );
-}
-
+/* ── Memory Preview ── */
 function MemoryPreview() {
   const user = useAuthStore((s) => s.user);
   const { data: events = [] } = useQuery({
@@ -463,6 +434,122 @@ function MemoryPreview() {
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Secondary quick links ── */
+const SECONDARY_LINKS = [
+  { label: "Co-Founder IA", to: "/os/cofounder", icon: TrendingUp, color: "text-emerald-400" },
+  { label: "Autopilot", to: "/os/autopilot", icon: Plane, color: "text-sky-400" },
+  { label: "Timeline", to: "/os/timeline", icon: Clock, color: "text-indigo-400" },
+  { label: "Skills", to: "/os/skills", icon: Brain, color: "text-purple-400" },
+  { label: "AI Watch", to: "/os/ai-watch", icon: Eye, color: "text-amber-400" },
+  { label: "Chat IA", to: "/os", icon: Activity, color: "text-primary" },
+];
+
+/* ── Main Command Center ── */
+export default function CommandCenter() {
+  const user = useAuthStore((s) => s.user);
+
+  const { data: timelineCount = 0 } = useQuery({
+    queryKey: ["cmd_timeline_count", user?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("memory_timeline")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+      return count ?? 0;
+    },
+    enabled: !!user?.id,
+  });
+
+  return (
+    <div className="h-full overflow-y-auto bg-background p-4 md:p-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Activity className="w-6 h-6 text-primary" />
+              Command Center
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              {timelineCount > 0
+                ? `${timelineCount} événements en mémoire — votre IA vous suit en permanence`
+                : "Votre cockpit central intelligent"}
+            </p>
+          </div>
+          <Link to="/os/start">
+            <Button variant="outline" size="sm" className="gap-1.5 hidden md:flex">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              Personnaliser
+            </Button>
+          </Link>
+        </div>
+
+        {/* 3 Hero Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {HERO_ACTIONS.map(({ label, desc, to, icon: Icon, gradient, iconColor, borderColor }) => (
+            <Link key={to} to={to}>
+              <div className={cn(
+                "group relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] cursor-pointer",
+                `bg-gradient-to-br ${gradient}`,
+                borderColor
+              )}>
+                <div className={cn("w-10 h-10 rounded-xl bg-background/40 flex items-center justify-center mb-3", )}>
+                  <Icon className={cn("w-5 h-5", iconColor)} />
+                </div>
+                <p className="text-sm font-bold text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                <ChevronRight className={cn("absolute top-4 right-4 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity", iconColor)} />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Main grid: widgets + digest */}
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Left col: widgets */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AgentActivityWidget />
+              <OpportunityWidget />
+              <AIWatchWidget />
+              <AutopilotWidget />
+              <SkillWidget />
+              <RevenueSummaryWidget />
+            </div>
+            <MemoryPreview />
+          </div>
+
+          {/* Right col: Daily Digest */}
+          <div className="space-y-4">
+            <DailyDigest />
+
+            {/* Secondary links */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                Accès rapide
+              </p>
+              <div className="space-y-1">
+                {SECONDARY_LINKS.map(({ label, to, icon: Icon, color }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors group"
+                  >
+                    <Icon className={cn("w-3.5 h-3.5 flex-shrink-0", color)} />
+                    <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
+                    <ChevronRight className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
