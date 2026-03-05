@@ -18,36 +18,39 @@ interface LegalFooterLinksProps {
 
 export const LegalFooterLinks = forwardRef<HTMLElement, LegalFooterLinksProps>(
   function LegalFooterLinks({ className = "" }, _ref) {
-  const [showCookiePanel, setShowCookiePanel] = useState(false);
+    const [showCookiePanel, setShowCookiePanel] = useState(false);
 
-  return (
-    <>
-      <nav
-        aria-label="Liens légaux"
-        className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground ${className}`}
-      >
-        {LEGAL_LINKS.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            className="hover:text-foreground transition-colors"
-          >
-            {link.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => setShowCookiePanel(true)}
-          className="hover:text-foreground transition-colors underline underline-offset-2 cursor-pointer"
+    return (
+      <>
+        <nav
+          aria-label="Liens légaux"
+          className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground ${className}`}
         >
-          Gérer mes cookies
-        </button>
-      </nav>
+          {LEGAL_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="hover:text-foreground transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <button
+            onClick={() => setShowCookiePanel(true)}
+            className="hover:text-foreground transition-colors underline underline-offset-2 cursor-pointer"
+          >
+            Gérer mes cookies
+          </button>
+        </nav>
 
-      {showCookiePanel && (
-        <CookieBanner forcePanel onClose={() => setShowCookiePanel(false)} />
-      )}
-    </>
-  );
-}
+        {showCookiePanel && (
+          <CookieBanner forcePanel onClose={() => setShowCookiePanel(false)} />
+        )}
+      </>
+    );
+  },
+);
+
+LegalFooterLinks.displayName = "LegalFooterLinks";
 
 export default LegalFooterLinks;
