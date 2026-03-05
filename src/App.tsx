@@ -290,6 +290,8 @@ const App = () => (
                   <Route path="economy" element={<AgentEconomy />} />
                   <Route path="autopilot" element={<Autopilot />} />
                   <Route path="timeline" element={<MemoryTimeline />} />
+                  <Route path="control" element={<CommandCenter />} />
+                  <Route path="revenue" element={<RevenueEngine />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
