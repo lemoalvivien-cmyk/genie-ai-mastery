@@ -161,6 +161,83 @@ export type Database = {
           },
         ]
       }
+      activity_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          module: string | null
+          resource_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resource_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resource_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agent_economy: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          downloads: number | null
+          id: string
+          is_free: boolean | null
+          is_published: boolean | null
+          owner_id: string
+          price_eur: number | null
+          revenue_total: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          downloads?: number | null
+          id?: string
+          is_free?: boolean | null
+          is_published?: boolean | null
+          owner_id: string
+          price_eur?: number | null
+          revenue_total?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          downloads?: number | null
+          id?: string
+          is_free?: boolean | null
+          is_published?: boolean | null
+          owner_id?: string
+          price_eur?: number | null
+          revenue_total?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_economy_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_executions: {
         Row: {
           agent_id: string | null
@@ -207,6 +284,44 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_sales: {
+        Row: {
+          agent_economy_id: string | null
+          amount_eur: number | null
+          buyer_id: string
+          created_at: string | null
+          id: string
+          seller_id: string
+          transaction_type: string | null
+        }
+        Insert: {
+          agent_economy_id?: string | null
+          amount_eur?: number | null
+          buyer_id: string
+          created_at?: string | null
+          id?: string
+          seller_id: string
+          transaction_type?: string | null
+        }
+        Update: {
+          agent_economy_id?: string | null
+          amount_eur?: number | null
+          buyer_id?: string
+          created_at?: string | null
+          id?: string
+          seller_id?: string
+          transaction_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_sales_agent_economy_id_fkey"
+            columns: ["agent_economy_id"]
+            isOneToOne: false
+            referencedRelation: "agent_economy"
             referencedColumns: ["id"]
           },
         ]
@@ -1863,6 +1978,42 @@ export type Database = {
           },
         ]
       }
+      memory_timeline: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          importance: string | null
+          is_pinned: boolean | null
+          metadata: Json | null
+          summary: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          importance?: string | null
+          is_pinned?: boolean | null
+          metadata?: Json | null
+          summary?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          importance?: string | null
+          is_pinned?: boolean | null
+          metadata?: Json | null
+          summary?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       modules: {
         Row: {
           confidence_score: number | null
@@ -2575,6 +2726,50 @@ export type Database = {
           },
         ]
       }
+      skill_graph: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          slug: string
+        }
+        Insert: {
+          category: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          slug: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_graph_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "skill_graph"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_mastery: {
         Row: {
           id: string
@@ -3000,6 +3195,44 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_skill_levels: {
+        Row: {
+          id: string
+          last_activity_at: string | null
+          level: number | null
+          skill_id: string
+          updated_at: string | null
+          user_id: string
+          xp: number | null
+        }
+        Insert: {
+          id?: string
+          last_activity_at?: string | null
+          level?: number | null
+          skill_id: string
+          updated_at?: string | null
+          user_id: string
+          xp?: number | null
+        }
+        Update: {
+          id?: string
+          last_activity_at?: string | null
+          level?: number | null
+          skill_id?: string
+          updated_at?: string | null
+          user_id?: string
+          xp?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skill_levels_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skill_graph"
             referencedColumns: ["id"]
           },
         ]
