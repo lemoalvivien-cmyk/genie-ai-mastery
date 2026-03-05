@@ -246,6 +246,18 @@ const App = () => (
                 <Route path="/rgpd" element={<Legal />} />
                 <Route path="/security" element={<Legal />} />
 
+                {/* GENIE OS */}
+                <Route path="/os" element={<GenieOSLayout />}>
+                  <Route index element={<GenieOSChat />} />
+                  <Route path="dashboard" element={<GenieOSDashboard />} />
+                  <Route path="agents" element={<AgentBuilder />} />
+                  <Route path="automation" element={<AutomationModule />} />
+                  <Route path="app-builder" element={<AppBuilder />} />
+                  <Route path="ai-tools" element={<AIToolsExplorer />} />
+                  <Route path="marketplace" element={<Marketplace />} />
+                  <Route path="business" element={<BusinessAnalysis />} />
+                </Route>
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
