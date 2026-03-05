@@ -4,9 +4,12 @@ import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
+  Command,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CopilotPanel } from "@/components/genieos/CopilotPanel";
+import { CommandPalette, useCommandPalette } from "@/components/genieos/CommandPalette";
+import { ContextualAI } from "@/components/genieos/ContextualAI";
 
 const NAV_SECTIONS = [
   {
@@ -75,6 +78,7 @@ export default function GenieOSLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPalette();
 
   const SidebarContent = () => (
     <>
@@ -90,6 +94,30 @@ export default function GenieOSLayout() {
           </div>
         )}
       </div>
+
+      {/* CMD+K search trigger */}
+      {!collapsed && (
+        <div className="px-3 py-2 border-b border-border">
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/30 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all text-xs"
+          >
+            <Command className="w-3 h-3 flex-shrink-0" />
+            <span className="flex-1 text-left">Rechercher…</span>
+            <kbd className="text-[10px] border border-border rounded px-1 bg-background">K</kbd>
+          </button>
+        </div>
+      )}
+      {collapsed && (
+        <div className="px-2 py-2 border-b border-border">
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="w-full flex items-center justify-center p-1.5 rounded-lg border border-border hover:border-primary/30 text-muted-foreground hover:text-foreground transition-all"
+          >
+            <Command className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-1">
@@ -177,16 +205,26 @@ export default function GenieOSLayout() {
           <button onClick={() => setMobileOpen(true)} className="text-muted-foreground hover:text-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-1">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="font-bold text-sm">GENIE <span className="text-primary">OS</span></span>
           </div>
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Command className="w-4 h-4" />
+          </button>
         </header>
 
         <main className="flex-1 overflow-hidden">
           <Outlet />
         </main>
       </div>
+
+      {/* Global overlays */}
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <ContextualAI />
       <CopilotPanel />
     </div>
   );
