@@ -274,7 +274,7 @@ export default function Opportunities() {
           <button
             onClick={() => sendQuery(input)}
             disabled={!input.trim() || loading}
-            className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium disabled:opacity-40 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-40 transition-colors flex items-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
             {loading ? "" : "Analyser"}
