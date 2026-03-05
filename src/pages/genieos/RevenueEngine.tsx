@@ -41,31 +41,33 @@ export default function RevenueEngine() {
   const [activeTab, setActiveTab] = useState<"search" | "leads" | "opportunities">("search");
   const abortRef = useRef<AbortController | null>(null);
 
-  /* Leads */
+  /* Leads — PASSE D : limit(100) pour éviter le O(n) unbounded */
   const { data: leads = [] } = useQuery({
     queryKey: ["revenue_leads", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase
         .from("revenue_leads")
-        .select("*")
+        .select("id, company_name, industry, pain_point, website, opportunity_score, status, created_at")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
       return data ?? [];
     },
     enabled: !!user?.id,
   });
 
-  /* Opportunities */
+  /* Opportunities — PASSE D : limit(100) + colonnes sélectionnées */
   const { data: opportunities = [] } = useQuery({
     queryKey: ["revenue_opportunities", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase
         .from("revenue_opportunities")
-        .select("*")
+        .select("id, title, description, market, estimated_value_eur, probability, tags, action_plan, status, created_at")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
       return data ?? [];
     },
     enabled: !!user?.id,

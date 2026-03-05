@@ -299,7 +299,8 @@ function RevenueSummaryWidget() {
       const { data } = await supabase
         .from("revenue_leads")
         .select("id, status, opportunity_score")
-        .eq("user_id", user!.id);
+        .eq("user_id", user!.id)
+        .limit(200); // PASSE D — borne la requête, calcul agrégé côté client acceptable
       return data ?? [];
     },
     enabled: !!user?.id,
