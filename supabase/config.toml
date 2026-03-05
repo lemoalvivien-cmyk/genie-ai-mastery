@@ -96,3 +96,9 @@ verify_jwt = false
 [functions.genieos-agent-runtime]
 verify_jwt = false
 
+[functions.genieos-multi-agent-runtime]
+verify_jwt = false
+
+[functions.genieos-knowledge]
+verify_jwt = false
+
