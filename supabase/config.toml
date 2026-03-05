@@ -108,3 +108,6 @@ verify_jwt = false
 [functions.genieos-data-engine]
 verify_jwt = false
 
+[functions.genieos-auto-builder]
+verify_jwt = false
+

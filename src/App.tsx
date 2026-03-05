@@ -273,6 +273,9 @@ const App = () => (
                   <Route path="agents-runtime" element={<AgentsRuntime />} />
                   <Route path="ai-watch" element={<AIWatch />} />
                   <Route path="opportunities" element={<Opportunities />} />
+                  <Route path="store" element={<AIStore />} />
+                  <Route path="brain" element={<PersonalBrain />} />
+                  <Route path="builder" element={<AutoBuilder />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

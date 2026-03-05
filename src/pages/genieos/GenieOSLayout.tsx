@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
+  Brain, Wand2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
