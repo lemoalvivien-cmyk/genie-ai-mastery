@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 
 const LEGAL_LINKS = [
@@ -16,7 +16,8 @@ interface LegalFooterLinksProps {
   className?: string;
 }
 
-export function LegalFooterLinks({ className = "" }: LegalFooterLinksProps) {
+export const LegalFooterLinks = forwardRef<HTMLElement, LegalFooterLinksProps>(
+  function LegalFooterLinks({ className = "" }, _ref) {
   const [showCookiePanel, setShowCookiePanel] = useState(false);
 
   return (
