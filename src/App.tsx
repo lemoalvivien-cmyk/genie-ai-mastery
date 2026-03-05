@@ -44,6 +44,17 @@ const LegalCenter = lazy(() => import("./pages/legal/LegalCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PartnerDashboard = lazy(() => import("./pages/partner/PartnerDashboard"));
 
+// GENIE OS
+const GenieOSLayout = lazy(() => import("./pages/genieos/GenieOSLayout"));
+const GenieOSDashboard = lazy(() => import("./pages/genieos/GenieOSDashboard"));
+const GenieOSChat = lazy(() => import("./pages/genieos/GenieOSChat"));
+const AgentBuilder = lazy(() => import("./pages/genieos/AgentBuilder"));
+const AutomationModule = lazy(() => import("./pages/genieos/AutomationModule"));
+const AppBuilder = lazy(() => import("./pages/genieos/AppBuilder"));
+const AIToolsExplorer = lazy(() => import("./pages/genieos/AIToolsExplorer"));
+const Marketplace = lazy(() => import("./pages/genieos/Marketplace"));
+const BusinessAnalysis = lazy(() => import("./pages/genieos/BusinessAnalysis"));
+
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <Loader2 className="w-8 h-8 animate-spin text-primary" />
