@@ -6,6 +6,7 @@ import {
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CopilotPanel } from "@/components/genieos/CopilotPanel";
 
 const NAV_SECTIONS = [
   {
