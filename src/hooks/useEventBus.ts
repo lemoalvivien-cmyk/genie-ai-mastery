@@ -88,13 +88,13 @@ export async function enqueueJob(
 ): Promise<string | null> {
   const { data, error } = await supabase
     .from("job_queue")
-    .insert({
+    .insert([{
       user_id: userId,
       job_type: job.job_type,
-      payload: job.payload ?? {},
+      payload: (job.payload ?? {}) as Record<string, unknown>,
       priority: job.priority ?? 5,
       scheduled_at: job.scheduled_at ?? new Date().toISOString(),
-    })
+    }])
     .select("id")
     .single();
 
@@ -113,12 +113,12 @@ export async function logSystem(
   level: "debug" | "info" | "warn" | "error" | "fatal" = "info",
   metadata?: Record<string, unknown>
 ): Promise<void> {
-  await supabase.from("system_logs").insert({
+  await supabase.from("system_logs").insert([{
     user_id: userId,
     module,
     event,
     message,
     level,
-    metadata: metadata ?? {},
-  });
+    metadata: (metadata ?? {}) as Record<string, unknown>,
+  }]);
 }
