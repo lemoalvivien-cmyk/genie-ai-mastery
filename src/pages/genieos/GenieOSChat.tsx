@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Send, Loader2, Sparkles, User, Copy, Check, RotateCcw,
-  Bot, Zap, Code2, BarChart2, Cpu, ArrowRight, X, Cpu as RouterIcon,
+  Bot, Zap, Code2, BarChart2, Cpu, ArrowRight, X, Cpu as RouterIcon, Mic, Network,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
