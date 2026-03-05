@@ -268,6 +268,8 @@ const App = () => (
                   <Route path="actions" element={<ActionsPage />} />
                   <Route path="voice" element={<VoiceAssistant />} />
                   <Route path="agents-runtime" element={<AgentsRuntime />} />
+                  <Route path="ai-watch" element={<AIWatch />} />
+                  <Route path="opportunities" element={<Opportunities />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
