@@ -187,6 +187,7 @@ export default function GenieOSLayout() {
           <Outlet />
         </main>
       </div>
+      <CopilotPanel />
     </div>
   );
 }
