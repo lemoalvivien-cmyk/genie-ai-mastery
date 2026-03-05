@@ -282,6 +282,12 @@ const App = () => (
                   <Route path="store" element={<AIStore />} />
                   <Route path="brain" element={<PersonalBrain />} />
                   <Route path="builder" element={<AutoBuilder />} />
+                  {/* New GENIE OS modules */}
+                  <Route path="skills" element={<SkillGraph />} />
+                  <Route path="cofounder" element={<CoFounder />} />
+                  <Route path="economy" element={<AgentEconomy />} />
+                  <Route path="autopilot" element={<Autopilot />} />
+                  <Route path="timeline" element={<MemoryTimeline />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
