@@ -2726,6 +2726,150 @@ export type Database = {
           },
         ]
       }
+      revenue_leads: {
+        Row: {
+          company_name: string | null
+          contact_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          industry: string | null
+          metadata: Json | null
+          notes: string | null
+          opportunity_score: number | null
+          pain_point: string | null
+          source: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          opportunity_score?: number | null
+          pain_point?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          opportunity_score?: number | null
+          pain_point?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      revenue_opportunities: {
+        Row: {
+          action_plan: Json | null
+          created_at: string | null
+          description: string | null
+          estimated_value_eur: number | null
+          id: string
+          market: string | null
+          metadata: Json | null
+          probability: number | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_plan?: Json | null
+          created_at?: string | null
+          description?: string | null
+          estimated_value_eur?: number | null
+          id?: string
+          market?: string | null
+          metadata?: Json | null
+          probability?: number | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_plan?: Json | null
+          created_at?: string | null
+          description?: string | null
+          estimated_value_eur?: number | null
+          id?: string
+          market?: string | null
+          metadata?: Json | null
+          probability?: number | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      revenue_reports: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          estimated_pipeline_eur: number | null
+          id: string
+          leads_generated: number | null
+          opportunities_found: number | null
+          report_type: string
+          summary: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          estimated_pipeline_eur?: number | null
+          id?: string
+          leads_generated?: number | null
+          opportunities_found?: number | null
+          report_type: string
+          summary?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          estimated_pipeline_eur?: number | null
+          id?: string
+          leads_generated?: number | null
+          opportunities_found?: number | null
+          report_type?: string
+          summary?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       skill_graph: {
         Row: {
           category: string
