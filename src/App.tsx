@@ -61,6 +61,9 @@ const VoiceAssistant = lazy(() => import("./pages/genieos/VoiceAssistant"));
 const AgentsRuntime = lazy(() => import("./pages/genieos/AgentsRuntime"));
 const AIWatch = lazy(() => import("./pages/genieos/AIWatch"));
 const Opportunities = lazy(() => import("./pages/genieos/Opportunities"));
+const AIStore = lazy(() => import("./pages/genieos/AIStore"));
+const PersonalBrain = lazy(() => import("./pages/genieos/PersonalBrain"));
+const AutoBuilder = lazy(() => import("./pages/genieos/AutoBuilder"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
