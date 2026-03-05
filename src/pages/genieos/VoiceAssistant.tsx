@@ -48,7 +48,7 @@ export default function VoiceAssistant() {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [visualizerTick, setVisualizerTick] = useState(0);
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -151,7 +151,8 @@ export default function VoiceAssistant() {
   }, [messages, speak]);
 
   const startListening = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ title: "Non supporté", description: "Votre navigateur ne supporte pas la reconnaissance vocale.", variant: "destructive" });
       return;
