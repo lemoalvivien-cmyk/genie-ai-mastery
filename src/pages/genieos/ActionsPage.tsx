@@ -237,7 +237,7 @@ export default function ActionsPage() {
                   Confirmation requise
                 </div>
                 <p className="text-xs text-muted-foreground">{state.pendingConfirmation.message}</p>
-                <div className="flex gap-2">
+                  <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="destructive"
@@ -246,7 +246,7 @@ export default function ActionsPage() {
                   >
                     Confirmer l'exécution réelle
                   </Button>
-                  <Button size="sm" variant="outline" className="text-xs" onClick={() => setState(s => ({ ...s, pendingConfirmation: null }))}>
+                  <Button size="sm" variant="outline" className="text-xs" onClick={() => updateState({ pendingConfirmation: null })}>
                     Annuler
                   </Button>
                 </div>
