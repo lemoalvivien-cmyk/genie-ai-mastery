@@ -4,7 +4,7 @@ import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
   Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
-  Command, Building2,
+  Command, Building2, FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CopilotPanel } from "@/components/genieos/CopilotPanel";
@@ -68,10 +68,17 @@ const NAV_SECTIONS = [
   {
     label: "Explore",
     items: [
-      { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
+      { to: "/os/ai-tools",    icon: Cpu,   label: "AI Tools",    color: "text-purple-400" },
       { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
-      { to: "/os/store", icon: Store, label: "AI Store", color: "text-violet-400" },
-      { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
+      { to: "/os/store",       icon: Store, label: "AI Store",    color: "text-violet-400" },
+      { to: "/os/actions",     icon: Play,  label: "Actions",     color: "text-rose-400" },
+    ],
+  },
+  {
+    label: "Ops",
+    items: [
+      { to: "/os/system", icon: Activity, label: "System Health", color: "text-emerald-400" },
+      { to: "/os/logs",   icon: FileText, label: "Logs Central",  color: "text-sky-400" },
     ],
   },
 ];

@@ -75,6 +75,8 @@ const RevenueEngine = lazy(() => import("./pages/genieos/RevenueEngine"));
 const SmartOnboarding = lazy(() => import("./pages/genieos/SmartOnboarding"));
 const EnterpriseDashboard = lazy(() => import("./pages/genieos/EnterpriseDashboard"));
 const RevenueAnalytics = lazy(() => import("./pages/genieos/RevenueAnalytics"));
+const SystemHealth = lazy(() => import("./pages/genieos/SystemHealth"));
+const LogsViewer = lazy(() => import("./pages/genieos/LogsViewer"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -297,6 +299,8 @@ const App = () => (
                   <Route path="revenue" element={<RevenueEngine />} />
                   <Route path="enterprise" element={<EnterpriseDashboard />} />
                   <Route path="revenue-analytics" element={<RevenueAnalytics />} />
+                  <Route path="system" element={<SystemHealth />} />
+                  <Route path="logs" element={<LogsViewer />} />
                   <Route path="start" element={<SmartOnboarding />} />
                 </Route>
 

@@ -288,6 +288,51 @@ export type Database = {
           },
         ]
       }
+      agent_logs: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          duration_ms: number | null
+          execution_id: string | null
+          id: string
+          input: Json | null
+          level: string
+          message: string
+          output: Json | null
+          step: string | null
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          execution_id?: string | null
+          id?: string
+          input?: Json | null
+          level?: string
+          message: string
+          output?: Json | null
+          step?: string | null
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          execution_id?: string | null
+          id?: string
+          input?: Json | null
+          level?: string
+          message?: string
+          output?: Json | null
+          step?: string | null
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_revenue: {
         Row: {
           agent_id: string | null
@@ -1475,6 +1520,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          created_at: string
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean
+          source: string
+          stack_trace: string | null
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean
+          source?: string
+          stack_trace?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean
+          source?: string
+          stack_trace?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       flags: {
         Row: {
           chat_message_id: string | null
@@ -1888,6 +1972,95 @@ export type Database = {
           window_start?: string
         }
         Relationships: []
+      }
+      job_queue: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          job_type: string
+          max_attempts: number
+          org_id: string | null
+          payload: Json
+          priority: number
+          scheduled_at: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_type: string
+          max_attempts?: number
+          org_id?: string | null
+          payload?: Json
+          priority?: number
+          scheduled_at?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_type?: string
+          max_attempts?: number
+          org_id?: string | null
+          payload?: Json
+          priority?: number
+          scheduled_at?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_results: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          id: string
+          job_id: string
+          result: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          job_id: string
+          result?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          job_id?: string
+          result?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_results_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_queue"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_chunks: {
         Row: {
@@ -3253,6 +3426,39 @@ export type Database = {
           tags?: string[] | null
           type?: string
           url?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          module: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          level?: string
+          message: string
+          metadata?: Json | null
+          module: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          module?: string
+          user_id?: string | null
         }
         Relationships: []
       }
