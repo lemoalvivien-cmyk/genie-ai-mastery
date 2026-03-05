@@ -51,8 +51,9 @@ export default function KnowledgeBase() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("knowledge_documents")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("id, title, content, status, created_at, metadata, source_id")
+        .order("created_at", { ascending: false })
+        .limit(200);
       if (error) throw error;
       return (data ?? []) as Document[];
     },

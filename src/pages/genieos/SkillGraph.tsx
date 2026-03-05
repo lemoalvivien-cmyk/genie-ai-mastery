@@ -37,9 +37,11 @@ export default function SkillGraph() {
   const { data: skills = [] } = useQuery({
     queryKey: ["skill_graph"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("skill_graph").select("*").order("category");
+      const { data, error } = await supabase.from("skill_graph")
+        .select("id, name, category, description, icon")
+        .order("category")
+        .limit(200);
       if (error) throw error;
-      return data;
     },
   });
 
