@@ -2,18 +2,20 @@ import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
-  ChevronLeft, ChevronRight, Menu, X, Sparkles,
+  ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
   { to: "/os/agents", icon: Bot, label: "Agent Builder", color: "text-emerald-400" },
+  { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-cyan-400" },
   { to: "/os/automation", icon: Zap, label: "Automation", color: "text-yellow-400" },
   { to: "/os/app-builder", icon: Code2, label: "App Builder", color: "text-blue-400" },
   { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
   { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
   { to: "/os/business", icon: BarChart2, label: "Business", color: "text-pink-400" },
+  { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
 ];
 
 export default function GenieOSLayout() {
