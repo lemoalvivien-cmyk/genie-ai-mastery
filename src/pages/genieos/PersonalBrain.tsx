@@ -55,7 +55,7 @@ export default function PersonalBrain() {
     setLoading(true);
     const [{ data: profileData }, { data: goalsData }] = await Promise.all([
       supabase.from("user_brain_profile").select("*").single(),
-      supabase.from("user_goals").select("*").eq("status", "active").order("priority", { ascending: false }),
+      supabase.from("user_goals").select("*").eq("status", "active").order("priority", { ascending: false }).limit(50),
     ]);
     setProfile(profileData ? { ...profileData, personality: (profileData.personality as Record<string, number>) ?? {} } : null);
     setGoals(goalsData ?? []);
