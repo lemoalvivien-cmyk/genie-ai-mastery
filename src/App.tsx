@@ -64,6 +64,12 @@ const Opportunities = lazy(() => import("./pages/genieos/Opportunities"));
 const AIStore = lazy(() => import("./pages/genieos/AIStore"));
 const PersonalBrain = lazy(() => import("./pages/genieos/PersonalBrain"));
 const AutoBuilder = lazy(() => import("./pages/genieos/AutoBuilder"));
+// GENIE OS — New modules
+const SkillGraph = lazy(() => import("./pages/genieos/SkillGraph"));
+const CoFounder = lazy(() => import("./pages/genieos/CoFounder"));
+const AgentEconomy = lazy(() => import("./pages/genieos/AgentEconomy"));
+const Autopilot = lazy(() => import("./pages/genieos/Autopilot"));
+const MemoryTimeline = lazy(() => import("./pages/genieos/MemoryTimeline"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -276,6 +282,12 @@ const App = () => (
                   <Route path="store" element={<AIStore />} />
                   <Route path="brain" element={<PersonalBrain />} />
                   <Route path="builder" element={<AutoBuilder />} />
+                  {/* New GENIE OS modules */}
+                  <Route path="skills" element={<SkillGraph />} />
+                  <Route path="cofounder" element={<CoFounder />} />
+                  <Route path="economy" element={<AgentEconomy />} />
+                  <Route path="autopilot" element={<Autopilot />} />
+                  <Route path="timeline" element={<MemoryTimeline />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
