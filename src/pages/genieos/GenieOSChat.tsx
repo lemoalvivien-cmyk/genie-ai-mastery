@@ -168,6 +168,10 @@ export default function GenieOSChat() {
     if (intent) setDetectedIntent(intent);
     else setDetectedIntent(null);
 
+    // Detect agent execution intent
+    const agentIntent = detectAgentExecIntent(content);
+    if (agentIntent) setAgentExecObjective(agentIntent);
+
     const userMsg: Message = { role: "user", content };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
@@ -398,7 +402,46 @@ export default function GenieOSChat() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Orchestrator intent card */}
+      {/* Agent Execution Panel (inline in chat) */}
+      {execState.phase !== "idle" && (
+        <div className="flex-shrink-0 mx-4 mb-2">
+          <AgentExecutionPanel
+            state={execState}
+            onClose={() => { resetExec(); setAgentExecObjective(null); }}
+          />
+        </div>
+      )}
+
+      {/* Agent execution intent card */}
+      {agentExecObjective && execState.phase === "idle" && !isLoading && (
+        <div className="flex-shrink-0 mx-4 mb-2">
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5">
+            <span className="text-lg">🤖</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground">
+                Action détectée : <strong>Exécution d'agent</strong>
+              </p>
+              <p className="text-xs text-muted-foreground truncate">Objectif : {agentExecObjective}</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => { runAgent(agentExecObjective); setAgentExecObjective(null); }}
+              disabled={agentRunning}
+              className="gradient-primary text-white flex-shrink-0 text-xs h-8 px-3"
+            >
+              <Zap className="w-3 h-3 mr-1" /> Lancer
+            </Button>
+            <button
+              onClick={() => setAgentExecObjective(null)}
+              className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation orchestrator intent card */}
       {detectedIntent && !isLoading && (
         <div className="flex-shrink-0 mx-4 mb-2">
           <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5">
