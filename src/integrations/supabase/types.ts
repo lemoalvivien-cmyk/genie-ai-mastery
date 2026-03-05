@@ -853,6 +853,166 @@ export type Database = {
         }
         Relationships: []
       }
+      data_documents: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          domain: string | null
+          id: string
+          is_processed: boolean | null
+          metadata: Json | null
+          published_at: string | null
+          relevance_score: number | null
+          source_id: string | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          is_processed?: boolean | null
+          metadata?: Json | null
+          published_at?: string | null
+          relevance_score?: number | null
+          source_id?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          is_processed?: boolean | null
+          metadata?: Json | null
+          published_at?: string | null
+          relevance_score?: number | null
+          source_id?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_documents_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "data_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_sources: {
+        Row: {
+          config: Json | null
+          created_at: string | null
+          error_msg: string | null
+          fetch_count: number | null
+          id: string
+          is_active: boolean | null
+          last_fetched_at: string | null
+          name: string
+          status: string | null
+          type: string
+          updated_at: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string | null
+          error_msg?: string | null
+          fetch_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_fetched_at?: string | null
+          name: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string | null
+          error_msg?: string | null
+          fetch_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_fetched_at?: string | null
+          name?: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_updates: {
+        Row: {
+          created_at: string | null
+          document_id: string | null
+          id: string
+          importance: string | null
+          is_read: boolean | null
+          metadata: Json | null
+          summary: string | null
+          title: string
+          update_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_id?: string | null
+          id?: string
+          importance?: string | null
+          is_read?: boolean | null
+          metadata?: Json | null
+          summary?: string | null
+          title?: string
+          update_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          document_id?: string | null
+          id?: string
+          importance?: string | null
+          is_read?: boolean | null
+          metadata?: Json | null
+          summary?: string | null
+          title?: string
+          update_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_updates_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "data_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       edge_errors: {
         Row: {
           created_at: string
