@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useGenieOSMemory, AI_ROUTER_CLIENT } from "@/hooks/useGenieOSMemory";
+import { useAgentRuntime } from "@/hooks/useAgentRuntime";
+import { AgentExecutionPanel } from "@/components/genieos/AgentExecutionPanel";
 
 type Message = { role: "user" | "assistant"; content: string };
 type Module = "assistant" | "agent_builder" | "automation" | "app_builder" | "ai_tools" | "business";
