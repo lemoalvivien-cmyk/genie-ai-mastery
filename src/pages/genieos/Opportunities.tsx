@@ -216,8 +216,8 @@ export default function Opportunities() {
         {messages.map((msg, i) => (
           <div key={i} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
             {msg.role === "assistant" && (
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 mr-3 mt-1">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 rounded-lg bg-accent/50 border border-border flex items-center justify-center flex-shrink-0 mr-3 mt-1">
+                <TrendingUp className="w-4 h-4 text-primary" />
               </div>
             )}
             <div
@@ -239,8 +239,8 @@ export default function Opportunities() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 mr-3 mt-1">
-              <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+            <div className="w-8 h-8 rounded-lg bg-accent/50 border border-border flex items-center justify-center flex-shrink-0 mr-3 mt-1">
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
             </div>
             <div className="bg-card border border-border rounded-xl px-4 py-3">
               <p className="text-sm text-muted-foreground">{progress || "Analyse en cours..."}</p>
@@ -248,7 +248,7 @@ export default function Opportunities() {
                 {[0, 1, 2].map((j) => (
                   <div
                     key={j}
-                    className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"
+                    className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"
                     style={{ animationDelay: `${j * 0.15}s` }}
                   />
                 ))}
