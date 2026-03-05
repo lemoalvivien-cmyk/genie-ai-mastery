@@ -295,6 +295,8 @@ const App = () => (
                   <Route path="timeline" element={<MemoryTimeline />} />
                   <Route path="control" element={<CommandCenter />} />
                   <Route path="revenue" element={<RevenueEngine />} />
+                  <Route path="enterprise" element={<EnterpriseDashboard />} />
+                  <Route path="revenue-analytics" element={<RevenueAnalytics />} />
                   <Route path="start" element={<SmartOnboarding />} />
                 </Route>
 
