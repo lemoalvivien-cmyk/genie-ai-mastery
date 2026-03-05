@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
-  ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database,
+  ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
   { to: "/os/business", icon: BarChart2, label: "Business", color: "text-pink-400" },
   { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
+  { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
 ];
 
 export default function GenieOSLayout() {

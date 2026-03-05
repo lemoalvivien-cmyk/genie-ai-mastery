@@ -56,6 +56,7 @@ const Marketplace = lazy(() => import("./pages/genieos/Marketplace"));
 const BusinessAnalysis = lazy(() => import("./pages/genieos/BusinessAnalysis"));
 const MultiAgentRunner = lazy(() => import("./pages/genieos/MultiAgentRunner"));
 const KnowledgeBase = lazy(() => import("./pages/genieos/KnowledgeBase"));
+const ActionsPage = lazy(() => import("./pages/genieos/ActionsPage"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -260,6 +261,7 @@ const App = () => (
                   <Route path="marketplace" element={<Marketplace />} />
                   <Route path="business" element={<BusinessAnalysis />} />
                   <Route path="knowledge" element={<KnowledgeBase />} />
+                  <Route path="actions" element={<ActionsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
