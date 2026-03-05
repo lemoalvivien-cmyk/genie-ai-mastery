@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   Sparkles, X, ChevronRight, Bot, DollarSign, Zap,
-  TrendingUp, Brain, Eye, Loader2, Lightbulb,
+  TrendingUp, Brain, Eye, Loader2, Lightbulb, Rocket,
 } from "lucide-react";
 
 interface Suggestion {
@@ -153,6 +153,16 @@ function useCopilotSuggestions() {
         priority: "normal",
       },
       {
+        id: "build_agent",
+        label: "Créer votre premier agent",
+        detail: "Automatisez vos tâches avec un agent IA",
+        action: "Créer",
+        to: "/os/agents",
+        icon: Rocket,
+        color: "text-orange-400",
+        priority: "normal",
+      },
+      {
         id: "skill_up",
         label: "Améliorer vos compétences IA",
         detail: "Votre Skill Graph attend des données",
@@ -184,13 +194,13 @@ export function CopilotPanel() {
         onClick={() => setOpen(!open)}
         className={cn(
           "fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl shadow-lg transition-all duration-200",
-          "bg-primary text-primary-foreground hover:brightness-110",
+          "bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.97]",
           open && "opacity-0 pointer-events-none"
         )}
       >
         <Sparkles className="w-4 h-4" />
         <span className="text-sm font-semibold">Copilot</span>
-        {urgentCount > 0 && !open && (
+        {urgentCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
             {urgentCount}
           </span>
@@ -263,9 +273,9 @@ export function CopilotPanel() {
           {/* Footer */}
           <div className="px-4 py-2.5 border-t border-border bg-card/50 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Mise à jour en temps réel</span>
-            <Link to="/os" onClick={() => setOpen(false)}>
+            <Link to="/os/control" onClick={() => setOpen(false)}>
               <Button variant="ghost" size="sm" className="h-6 text-xs gap-1 text-primary">
-                Chat IA <ChevronRight className="w-3 h-3" />
+                Dashboard <ChevronRight className="w-3 h-3" />
               </Button>
             </Link>
           </div>

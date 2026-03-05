@@ -71,6 +71,13 @@ export function DailyDigest() {
     weekday: "long", day: "numeric", month: "long",
   });
 
+  // Suggested actions based on missing data
+  const SUGGESTED_ACTIONS = [
+    { label: "Lancer le Revenue Engine", to: "/os/revenue", icon: DollarSign, color: "text-green-400" },
+    { label: "Activer la veille IA", to: "/os/ai-watch", icon: Eye, color: "text-amber-400" },
+    { label: "Configurer l'Autopilot", to: "/os/autopilot", icon: Zap, color: "text-primary" },
+  ];
+
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       {/* Header */}
@@ -85,69 +92,72 @@ export function DailyDigest() {
         {isLoading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-4">
         {!hasContent && !isLoading ? (
-          <div className="py-6 text-center space-y-2">
-            <Sparkles className="w-8 h-8 text-muted-foreground mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Aucune activité aujourd'hui — vos agents démarrent bientôt
+          /* Empty state with suggested actions */
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground text-center pt-2 pb-1">
+              Aucune activité aujourd'hui — voici par où commencer
             </p>
-            <Link to="/os/autopilot">
-              <Button size="sm" variant="outline" className="gap-1 mt-1">
-                <Zap className="w-3 h-3" /> Activer l'Autopilot
-              </Button>
-            </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {SUGGESTED_ACTIONS.map((action) => (
+                <Link key={action.to} to={action.to}>
+                  <div className="flex items-center gap-2.5 p-3 rounded-lg border border-border hover:border-primary/30 bg-card/50 hover:bg-primary/5 transition-all cursor-pointer group">
+                    <action.icon className={cn("w-4 h-4 flex-shrink-0", action.color)} />
+                    <span className="text-xs text-foreground font-medium group-hover:text-primary transition-colors">{action.label}</span>
+                    <ChevronRight className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         ) : (
-          <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Signaux IA */}
-            {updates.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Eye className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                      Veille IA
-                    </span>
-                  </div>
-                  <Link to="/os/ai-watch">
-                    <Button variant="ghost" size="sm" className="h-5 text-xs px-1.5 gap-1 text-muted-foreground">
-                      Voir <ChevronRight className="w-3 h-3" />
-                    </Button>
-                  </Link>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Veille IA</span>
                 </div>
+                <Link to="/os/ai-watch">
+                  <Button variant="ghost" size="sm" className="h-5 text-xs px-1.5 gap-1 text-muted-foreground">
+                    Voir <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </Link>
+              </div>
+              {updates.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Aucun signal aujourd'hui</p>
+              ) : (
                 <div className="space-y-1.5">
                   {(updates as any[]).map((u) => (
                     <div key={u.id} className="flex items-start gap-2">
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5",
-                        u.importance === "high" || u.importance === "critical"
-                          ? "bg-amber-400"
-                          : "bg-muted-foreground"
-                      )} />
+                      <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5", u.importance === "high" || u.importance === "critical" ? "bg-amber-400" : "bg-muted-foreground")} />
                       <p className="text-xs text-foreground line-clamp-2">{u.title}</p>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Opportunités du jour */}
-            {opps.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5 text-green-400" />
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                      Opportunités
-                    </span>
-                  </div>
-                  <Link to="/os/revenue">
-                    <Button variant="ghost" size="sm" className="h-5 text-xs px-1.5 gap-1 text-muted-foreground">
-                      Voir <ChevronRight className="w-3 h-3" />
-                    </Button>
-                  </Link>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-green-400" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Opportunités</span>
                 </div>
+                <Link to="/os/revenue">
+                  <Button variant="ghost" size="sm" className="h-5 text-xs px-1.5 gap-1 text-muted-foreground">
+                    Voir <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </Link>
+              </div>
+              {opps.length === 0 ? (
+                <Link to="/os/revenue">
+                  <p className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">Lance le Revenue Engine →</p>
+                </Link>
+              ) : (
                 <div className="space-y-1.5">
                   {(opps as any[]).map((o) => (
                     <div key={o.id} className="flex items-center gap-2">
@@ -161,18 +171,18 @@ export function DailyDigest() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Activité du jour */}
-            {timeline.length > 0 && (
-              <div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Zap className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                    Actions suggérées
-                  </span>
-                </div>
+            {/* Actions suggérées */}
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Actions suggérées</span>
+              </div>
+              {timeline.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Aucune action récente</p>
+              ) : (
                 <div className="space-y-1.5">
                   {(timeline as any[]).map((t) => (
                     <div key={t.id} className="flex items-center gap-2">
@@ -184,9 +194,9 @@ export function DailyDigest() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-          </>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

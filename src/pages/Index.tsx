@@ -1,179 +1,163 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
-  AlertTriangle, CheckCircle, BookOpen, Bot, BarChart3,
-  FileText, Users, Zap, Loader2, Mail, Star, ArrowRight,
-  Shield, Mic, Globe, Lock, Download, Smartphone, X
+  Bot, Zap, Code2, BarChart3, Users, Globe, ArrowRight, CheckCircle,
+  Star, Sparkles, Rocket, Brain, TrendingUp, Play, ChevronRight,
+  Mail, Loader2, X, Smartphone,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import logoGenie from "@/assets/logo-genie.png";
-import { OfficeHoursCard } from "@/components/OfficeHoursCard";
 import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 
-/* ─── CONFIGURABLE CONSTANTS ─────────────────────────────────── */
-const LAUNCH_DEADLINE = new Date("2026-04-15T23:59:59");
-const LAUNCH_CODE = "LAUNCH40";
-const LAUNCH_SPOTS_REMAINING = 23;
-
-const TRUSTED_BY = ["BNP Paribas", "Crédit Agricole", "KPMG", "Alten", "Freelances"];
-
-const TESTIMONIALS = [
-  {
-    name: "Sophie M.",
-    title: "Responsable RH",
-    company: "Groupe Alten",
-    quote: "En 2 semaines, toute mon équipe avait une attestation IA. Enfin quelque chose de concret.",
-    avatar: "SM",
-  },
-  {
-    name: "Thomas R.",
-    title: "Consultant indépendant",
-    company: "Freelance",
-    quote: "KITT IA a remplacé 3 outils différents. L'interface vocale est bluffante.",
-    avatar: "TR",
-  },
-  {
-    name: "Camille D.",
-    title: "Directrice Digitale",
-    company: "KPMG France",
-    quote: "La certification vérifiable nous a permis de justifier la formation auprès de l'OPCO.",
-    avatar: "CD",
-  },
+const STATS = [
+  { value: "2 400+", label: "Agents créés" },
+  { value: "850+", label: "Opportunités générées" },
+  { value: "98%", label: "Satisfaction" },
+  { value: "3 min", label: "Pour démarrer" },
 ];
 
-const PROBLEMS = [
+const HOW_IT_WORKS = [
   {
-    icon: AlertTriangle,
-    title: "Formations à 3 000€",
-    body: "Des programmes hors de portée, souvent obsolètes avant même la fin du cursus.",
+    step: "01",
+    icon: Bot,
+    title: "Créer un agent",
+    desc: "Configurez un agent IA personnalisé en quelques clics. Il travaille pour vous en autonomie.",
+    color: "text-primary",
+    bg: "bg-primary/10 border-primary/20",
   },
   {
-    icon: AlertTriangle,
-    title: "Jargon incompréhensible",
-    body: '"Prompting avancé", "RAG", "NIS2" — sans jamais expliquer concrètement ce que ça change pour vous.',
+    step: "02",
+    icon: TrendingUp,
+    title: "Analyser un marché",
+    desc: "Le Revenue Engine scanne les marchés, détecte des opportunités et génère des leads qualifiés.",
+    color: "text-green-400",
+    bg: "bg-green-500/10 border-green-500/20",
   },
   {
-    icon: AlertTriangle,
-    title: "Zéro preuve de compétence",
-    body: "Pas d'attestation, pas d'audit trail, pas de preuve pour votre OPCO ou vos clients.",
-  },
-];
-
-const SOLUTIONS = [
-  {
-    icon: CheckCircle,
-    title: "59€ TTC/mois",
-    body: "Couverture légale totale pour votre organisation. 25 sièges inclus, Evidence Vault illimité. Sans engagement.",
-  },
-  {
-    icon: CheckCircle,
-    title: "Expliqué pour les humains",
-    body: "Chaque concept est traduit en langage clair, avec des cas pratiques immédiats.",
-  },
-  {
-    icon: CheckCircle,
-    title: "Attestation vérifiable",
-    body: "PDF signé cryptographiquement. Valide pour OPCO, CPF et audits de conformité.",
+    step: "03",
+    icon: Code2,
+    title: "Construire un produit",
+    desc: "L'Auto Builder génère une architecture complète pour votre SaaS, app ou service IA.",
+    color: "text-orange-400",
+    bg: "bg-orange-500/10 border-orange-500/20",
   },
 ];
 
 const FEATURES = [
   {
-    icon: BookOpen,
-    title: "Modules + Quiz + Attestation",
-    desc: "500+ modules IA/Cyber/Vibe Coding. Quiz adaptatifs. PDFs vérifiables signés.",
-  },
-  {
     icon: Bot,
-    title: "KITT IA Copilote",
-    desc: "Votre copilote vocal IA. Répond, forme, génère — en langage naturel.",
-  },
-  {
-    icon: Zap,
-    title: "Missions quotidiennes",
-    desc: "5 minutes par jour suffisent. Streak, XP, progressivement vers l'expert.",
+    title: "Agents IA autonomes",
+    desc: "Créez des agents qui travaillent pour vous 24h/24 — génération de leads, veille, automatisation.",
+    color: "text-primary",
   },
   {
     icon: BarChart3,
-    title: "Dashboard Cockpit",
-    desc: "Suivi de progression, compétences, usage IA — tout visible en un coup d'œil.",
+    title: "Business Intelligence",
+    desc: "Détectez des opportunités business en temps réel grâce à l'analyse de marché assistée par IA.",
+    color: "text-green-400",
+  },
+  {
+    icon: Zap,
+    title: "Automatisation totale",
+    desc: "Générez des workflows Make, Zapier ou n8n. Automatisez les tâches répétitives sans coder.",
+    color: "text-yellow-400",
+  },
+  {
+    icon: Code2,
+    title: "AI Builder",
+    desc: "Prototypez et construisez des produits IA complets avec architecture, stack et roadmap générés automatiquement.",
+    color: "text-blue-400",
+  },
+  {
+    icon: Brain,
+    title: "Mémoire intelligente",
+    desc: "GENIE OS se souvient de vos projets, objectifs et préférences. Chaque session est personnalisée.",
+    color: "text-purple-400",
   },
   {
     icon: Globe,
-    title: "Multi-domaines",
-    desc: "IA Pro, IA Perso, Cybersécurité, Vibe Coding. Un seul outil pour tout.",
-  },
-  {
-    icon: Users,
-    title: "Compatible équipe",
-    desc: "25 sièges inclus. Manager dashboard, alertes, rapports RH exportables.",
+    title: "Veille IA mondiale",
+    desc: "Restez à la pointe : tendances, outils, acteurs — un flux curé d'intelligence artificielle.",
+    color: "text-cyan-400",
   },
 ];
 
-/* ─── Countdown hook ─────────────────────────────────────────── */
-function useCountdown(target: Date) {
-  const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
-  useEffect(() => {
-    const tick = () => {
-      const diff = Math.max(0, target.getTime() - Date.now());
-      const totalSec = Math.floor(diff / 1000);
-      setTimeLeft({
-        h: Math.floor(totalSec / 3600),
-        m: Math.floor((totalSec % 3600) / 60),
-        s: totalSec % 60,
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [target]);
-  return timeLeft;
-}
+const USE_CASES = [
+  {
+    icon: Rocket,
+    title: "Entrepreneurs",
+    desc: "Validez votre idée, trouvez vos premiers clients et construisez votre produit IA 10x plus vite.",
+    cta: "Démarrer maintenant",
+  },
+  {
+    icon: Users,
+    title: "Freelances",
+    desc: "Automatisez votre prospection, créez des livrables IA premium et multipliez vos revenus.",
+    cta: "Voir comment",
+  },
+  {
+    icon: BarChart3,
+    title: "Entreprises",
+    desc: "Déployez des agents IA sur mesure, automatisez vos processus et pilotez votre croissance.",
+    cta: "Explorer",
+  },
+  {
+    icon: Code2,
+    title: "Créateurs SaaS",
+    desc: "Du concept à l'architecture en minutes. Générez votre MVP IA avec le Co-Founder IA.",
+    cta: "Builder maintenant",
+  },
+];
 
+const TESTIMONIALS = [
+  {
+    name: "Sophie M.",
+    role: "Entrepreneur, Paris",
+    quote: "En 3 jours, GENIE OS m'a aidé à valider mon idée, générer 40 leads et construire le MVP. Bluffant.",
+    avatar: "SM",
+    stars: 5,
+  },
+  {
+    name: "Thomas R.",
+    role: "Freelance Growth",
+    quote: "J'ai remplacé 5 outils différents. Le Revenue Engine a trouvé 12 opportunités qualifiées en une semaine.",
+    avatar: "TR",
+    stars: 5,
+  },
+  {
+    name: "Camille D.",
+    role: "Directrice Innovation",
+    quote: "Notre équipe a automatisé 60% de ses tâches répétitives. Les agents IA tournent 24h/24.",
+    avatar: "CD",
+    stars: 5,
+  },
+];
 
-/* ─── Main component ─────────────────────────────────────────── */
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [emailLead, setEmailLead] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailDone, setEmailDone] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-  const [installOutcome, setInstallOutcome] = useState<string | null>(null);
-
-  const { isInstallable, isInstalled, isIOS, triggerInstall } = usePWAInstall();
-
-  const { h, m, s } = useCountdown(LAUNCH_DEADLINE);
+  const { isInstallable, isIOS, triggerInstall } = usePWAInstall();
 
   useEffect(() => {
     const ref = searchParams.get("ref");
     if (ref) sessionStorage.setItem("genie_ref", ref.toUpperCase());
   }, [searchParams]);
 
-  const handleCheckout = async () => {
-    if (!isAuthenticated) {
-      navigate("/register?redirect=/pricing");
-      return;
-    }
-    setCheckoutLoading(true);
-    try {
-      const referralCode = sessionStorage.getItem("genie_ref") ?? undefined;
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { seats: 1, ...(referralCode ? { referral_code: referralCode } : {}) },
-      });
-      if (error || data?.error) throw new Error(data?.error ?? "Erreur checkout");
-      window.location.href = data.url;
-    } catch (err) {
-      toast({ title: "Erreur", description: err instanceof Error ? err.message : "Impossible de créer la session.", variant: "destructive" });
-    } finally {
-      setCheckoutLoading(false);
+  const handleCTA = () => {
+    if (isAuthenticated) {
+      navigate("/os/control");
+    } else {
+      navigate("/register");
     }
   };
 
@@ -186,8 +170,7 @@ export default function Index() {
     }
     setEmailLoading(true);
     try {
-      const { error } = await supabase.from("email_leads").insert({ email, source: "landing_prompts" });
-      if (error) throw error;
+      await supabase.from("email_leads").insert({ email, source: "landing_genieos" });
       setEmailDone(true);
       toast({ title: "✅ C'est parti !", description: "Vérifiez votre boîte mail." });
     } catch {
@@ -197,24 +180,14 @@ export default function Index() {
     }
   };
 
-  const pad = (n: number) => String(n).padStart(2, "0");
-
   const handleInstall = async () => {
     const result = await triggerInstall();
-    if (result === "ios") {
-      setShowIOSInstructions(true);
-    } else if (result === "accepted") {
-      setInstallOutcome("accepted");
-      toast({ title: "🎉 Application installée !", description: "GENIE IA est maintenant sur votre écran d'accueil." });
-    } else if (result === "unavailable") {
-      // Fallback: open install page
-      window.open("/", "_blank");
-    }
+    if (result === "ios") setShowIOSInstructions(true);
   };
 
   return (
     <>
-      {/* iOS Install Instructions Modal */}
+      {/* iOS Install Modal */}
       {showIOSInstructions && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowIOSInstructions(false)}>
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -228,34 +201,20 @@ export default function Index() {
               </button>
             </div>
             <ol className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">1</span>
-                <span>Appuyez sur le bouton <strong className="text-foreground">Partager</strong> <span className="text-lg">⎙</span> en bas de Safari</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">2</span>
-                <span>Faites défiler et appuyez sur <strong className="text-foreground">« Sur l'écran d'accueil »</strong></span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">3</span>
-                <span>Appuyez sur <strong className="text-foreground">« Ajouter »</strong> en haut à droite</span>
-              </li>
+              <li className="flex items-start gap-3"><span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">1</span><span>Appuyez sur <strong className="text-foreground">Partager ⎙</strong> dans Safari</span></li>
+              <li className="flex items-start gap-3"><span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">2</span><span>Appuyez sur <strong className="text-foreground">« Sur l'écran d'accueil »</strong></span></li>
+              <li className="flex items-start gap-3"><span className="shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">3</span><span>Appuyez sur <strong className="text-foreground">« Ajouter »</strong></span></li>
             </ol>
-            <button
-              onClick={() => setShowIOSInstructions(false)}
-              className="mt-5 w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
-            >
-              Compris !
-            </button>
+            <button onClick={() => setShowIOSInstructions(false)} className="mt-5 w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm">Compris !</button>
           </div>
         </div>
       )}
 
       <Helmet>
-        <title>GENIE IA – Formez-vous à l'IA. Prouvez-le.</title>
-        <meta name="description" content="La seule plateforme qui forme, évalue et certifie vos compétences IA. Pour les pros, les curieux, les PME. 59€ TTC/mois." />
-        <meta property="og:title" content="GENIE IA – Formez-vous à l'IA. Prouvez-le." />
-        <meta property="og:description" content="Formations IA, Cyber, Vibe Coding. Attestations vérifiables. KITT IA copilote vocal. 59€ TTC/mois." />
+        <title>GENIE OS – Votre copilote IA pour créer, automatiser et générer des opportunités business</title>
+        <meta name="description" content="GENIE OS combine agents IA, automatisations et intelligence business dans un seul système. Créez votre premier agent en 3 minutes." />
+        <meta property="og:title" content="GENIE OS – Copilote IA Business" />
+        <meta property="og:description" content="Agents IA autonomes, Revenue Engine, Auto Builder. La machine économique IA complète." />
         <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://genie-ai-mastery.lovable.app/" />
@@ -268,519 +227,256 @@ export default function Index() {
 
       <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden">
 
-        {/* ══════════════════════════════════════════════════════════
-            URGENCY BANNER (sticky)
-        ══════════════════════════════════════════════════════════ */}
-        <div
-          className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white text-center"
-          style={{ background: "linear-gradient(90deg, #FE2C40 0%, #5257D8 100%)" }}
-        >
-          <span>🔥 Offre de lancement : -40% avec le code</span>
-          <code className="bg-white/20 px-2 py-0.5 rounded font-mono tracking-widest">{LAUNCH_CODE}</code>
-          <span>— Plus que {LAUNCH_SPOTS_REMAINING} places</span>
-          <span className="flex items-center gap-1 opacity-90">
-            · Expire dans
-            <span className="font-mono">{pad(h)}:{pad(m)}:{pad(s)}</span>
-          </span>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════
-            NAVBAR
-        ══════════════════════════════════════════════════════════ */}
-        <header className="relative z-40 flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/30 bg-background/90 backdrop-blur-md">
-          <img src={logoGenie} alt="GENIE IA" className="h-9 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(82,87,216,0.4))" }} />
+        {/* ── NAVBAR ── */}
+        <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 py-3.5 border-b border-border/40 bg-background/90 backdrop-blur-md">
+          <img src={logoGenie} alt="GENIE OS" className="h-8 w-auto" />
           <nav className="flex items-center gap-3">
             <Link to="/pricing" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Tarifs</Link>
             <Link to="/guides" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Guides</Link>
             {isAuthenticated ? (
-              <Link to="/app/dashboard" className="text-sm font-semibold text-primary hover:brightness-110 transition-colors">
-                Mon espace →
+              <Link to="/os/control" className="text-sm font-semibold text-primary hover:brightness-110 transition-colors">
+                Mon GENIE OS →
               </Link>
             ) : (
               <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Connexion</Link>
             )}
             <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white shadow-[0_0_15px_rgba(254,44,64,0.3)] hover:shadow-[0_0_25px_rgba(254,44,64,0.5)] transition-all active:scale-[0.97]"
+              onClick={handleCTA}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white shadow-glow hover:brightness-110 transition-all active:scale-[0.97]"
               style={{ background: "hsl(var(--accent))" }}
             >
-              {checkoutLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-              Démarrer gratuitement
+              Essayer gratuitement
             </button>
           </nav>
         </header>
 
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 1 — HERO (100vh)
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-4 sm:px-6 py-20 text-center overflow-hidden">
-          {/* Animated grid background */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.03]"
-            style={{
-              backgroundImage: `linear-gradient(rgba(82,87,216,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(82,87,216,0.8) 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-              animation: "grid-move 20s linear infinite",
-            }}
-          />
-          {/* Ambient glow */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full pointer-events-none blur-3xl"
-            style={{ background: "radial-gradient(ellipse, rgba(82,87,216,0.12) 0%, transparent 70%)" }} />
+        {/* ══════════════════ HERO ══════════════════ */}
+        <section className="relative flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-4 sm:px-6 py-20 text-center overflow-hidden">
+          {/* Grid background */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `linear-gradient(rgba(82,87,216,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(82,87,216,0.8) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
+          {/* Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full pointer-events-none blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(82,87,216,0.1) 0%, transparent 70%)" }} />
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-medium mb-6 animate-slide-up">
+            <Sparkles className="w-3 h-3" />
+            Copilote IA Business — 2026
+          </div>
 
           {/* Headline */}
-          <h1 className="relative text-5xl sm:text-6xl md:text-7xl font-black leading-[1.05] tracking-tight mb-5 max-w-3xl animate-slide-up">
-            <span className="text-foreground">Formez-vous à l'IA.</span>
+          <h1 className="relative text-5xl sm:text-6xl md:text-7xl font-black leading-[1.05] tracking-tight mb-5 max-w-4xl animate-slide-up">
+            <span className="text-foreground">Votre copilote IA pour</span>
             <br />
-            <span
-              className="font-black"
-              style={{
-                background: "linear-gradient(135deg, #5257D8, #FE2C40)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Prouvez-le.
+            <span className="font-black" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              créer, automatiser
             </span>
+            <br />
+            <span className="text-foreground">et générer des opportunités</span>
           </h1>
 
           <p className="relative text-lg sm:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed animate-slide-up" style={{ animationDelay: "80ms" }}>
-            La seule plateforme qui forme, évalue et certifie vos compétences IA.
-            <br className="hidden sm:block" /> Pour les pros, les curieux, les PME.
+            GENIE OS combine <strong className="text-foreground">agents IA</strong>, <strong className="text-foreground">automatisations</strong> et{" "}
+            <strong className="text-foreground">intelligence business</strong> dans un seul système.
           </p>
 
           {/* CTAs */}
           <div className="relative flex flex-col sm:flex-row gap-3 mb-16 animate-slide-up" style={{ animationDelay: "160ms" }}>
-            {/* Primary CTA — shake on hover */}
             <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-white font-black text-base transition-all active:scale-[0.97]"
-              style={{
-                background: "hsl(var(--accent))",
-                boxShadow: "0 0 20px rgba(254,44,64,0.35)",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.animation = "cta-shake 0.4s ease"}
-              onMouseLeave={(e) => e.currentTarget.style.animation = ""}
+              onClick={handleCTA}
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-white font-black text-base transition-all active:scale-[0.97] hover:brightness-110"
+              style={{ background: "hsl(var(--accent))", boxShadow: "0 0 30px rgba(254,44,64,0.3)" }}
             >
-              {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-              Démarrer gratuitement →
+              <Sparkles className="w-4 h-4" />
+              Essayer GENIE OS gratuitement
             </button>
-
-            {/* Secondary CTA */}
             <Link
-              to="/app/chat"
+              to="/os/start"
               className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-base transition-all hover:bg-primary/10"
               style={{ border: "1px solid rgba(82,87,216,0.5)", color: "hsl(var(--primary))" }}
             >
-              <Bot className="w-4 h-4" />
-              Voir la démo KITT IA
+              <Play className="w-4 h-4" />
+              Voir la démo
             </Link>
           </div>
 
-          {/* Install App Banner */}
-          {!isInstalled && (isInstallable || isIOS) && installOutcome !== "accepted" && (
-            <div
-              className="relative w-full max-w-md mb-8 animate-slide-up"
-              style={{ animationDelay: "200ms" }}
-            >
-              <button
-                onClick={handleInstall}
-                className="w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl border border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                    <Download className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-foreground">Télécharger votre Appli</p>
-                    <p className="text-xs text-muted-foreground">
-                      {isIOS ? "Ajouter à l'écran d'accueil (iOS)" : "Installer sur Android / Desktop"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <Smartphone className="w-4 h-4 text-primary" />
-                  <ArrowRight className="w-4 h-4 text-primary" />
-                </div>
-              </button>
-            </div>
-          )}
-
-          {/* Trust indicators */}
-          <div className="relative flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground animate-fade-in" style={{ animationDelay: "300ms" }}>
-            <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-primary" /> Hébergement EU</span>
-            <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-primary" /> RGPD natif</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Attestations vérifiables</span>
-            <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5 text-primary" /> Sans engagement</span>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 2 — SOCIAL PROOF
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-16 border-y border-border/20">
-          <div className="max-w-5xl mx-auto">
-            {/* Trusted by */}
-            <div className="text-center mb-10">
-              <p className="text-sm text-muted-foreground mb-5 uppercase tracking-widest font-medium">Utilisé par des équipes chez</p>
-              <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-                {TRUSTED_BY.map((name) => (
-                  <span key={name} className="text-sm font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-                    {name}
-                  </span>
-                ))}
+          {/* Stats */}
+          <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full animate-slide-up" style={{ animationDelay: "240ms" }}>
+            {STATS.map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-2xl font-black text-foreground">{s.value}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
               </div>
-            </div>
-
-            {/* Counter */}
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl glass">
-                <span
-                  className="text-3xl font-black tabular-nums"
-                  style={{ color: "hsl(var(--primary))" }}
-                >
-                  🚀 Early
-                </span>
-                <span className="text-base font-semibold text-foreground">accès lancement</span>
-              </div>
-            </div>
-
-            {/* Testimonials */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {TESTIMONIALS.map((t) => (
-                <div key={t.name} className="glass rounded-2xl p-6 hover-glow transition-all">
-                  <p className="text-sm text-foreground leading-relaxed mb-5 italic">"{t.quote}"</p>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                      style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))" }}
-                    >
-                      {t.avatar}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.title} · {t.company}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 3 — PROBLÈME
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-20 bg-background">
+        {/* ══════════════════ HOW IT WORKS ══════════════════ */}
+        <section className="py-24 px-4 sm:px-6 bg-card/30 border-y border-border/40">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-black text-foreground leading-tight">
-                3 problèmes que<br />
-                <span style={{ background: "linear-gradient(135deg, #FE2C40, #c41830)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                  personne ne résout
-                </span>
-              </h2>
+            <div className="text-center mb-14">
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Comment ça marche</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Trois actions puissantes. Un système cohérent.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {PROBLEMS.map((p) => (
-                <div key={p.title} className="glass rounded-2xl p-6 border border-accent/20 hover:border-accent/40 transition-all">
-                  <p.icon className="w-6 h-6 mb-4" style={{ color: "hsl(var(--accent))" }} />
-                  <h3 className="font-black text-foreground text-lg mb-2">{p.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{p.body}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {HOW_IT_WORKS.map((item) => (
+                <div key={item.step} className="relative p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all group">
+                  <div className="absolute top-4 right-4 text-4xl font-black text-muted/20">{item.step}</div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border mb-4 ${item.bg}`}>
+                    <item.icon className={`w-6 h-6 ${item.color}`} />
+                  </div>
+                  <h3 className="font-bold text-foreground text-lg mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <div className="flex items-center gap-1 mt-4 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    Essayer <ChevronRight className="w-3 h-3" />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 4 — SOLUTION
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-20">
+        {/* ══════════════════ FEATURES ══════════════════ */}
+        <section className="py-24 px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-black leading-tight">
-                <span
-                  style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
-                >
-                  GENIE IA règle tout ça.
-                </span>
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {SOLUTIONS.map((s) => (
-                <div key={s.title} className="glass rounded-2xl p-6 border border-primary/20 hover:border-primary/40 transition-all hover-glow">
-                  <s.icon className="w-6 h-6 mb-4" style={{ color: "#22C55E" }} />
-                  <h3 className="font-black text-foreground text-lg mb-2">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 4b — ARRÊTEZ DE VOUS FAIRE ARNAQUER
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-24 overflow-hidden">
-          {/* precision grid bg */}
-          <div className="absolute inset-0 precision-grid opacity-[0.025] pointer-events-none" />
-          {/* cold steel left-border accent */}
-          <div className="absolute left-0 top-16 bottom-16 w-px" style={{ background: "linear-gradient(to bottom, transparent, hsl(var(--accent)/0.6), transparent)" }} />
-
-          <div className="max-w-5xl mx-auto relative">
-            {/* Label chip */}
-            <div className="flex items-center gap-3 mb-8">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold tracking-widest uppercase data-strip"
-                style={{
-                  background: "hsl(var(--accent)/0.08)",
-                  border: "1px solid hsl(var(--accent)/0.3)",
-                  color: "hsl(var(--accent))",
-                }}
-              >
-                ▮ ANALYSE DE MARCHÉ
-              </div>
-            </div>
-
-            {/* H2 — aggressive */}
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.02] tracking-tight mb-8 max-w-3xl">
-              <span className="text-foreground">Arrêtez de vous</span>
-              <br />
-              <span style={{
-                background: "linear-gradient(135deg, hsl(var(--accent)), hsl(354 65% 36%))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                faire arnaquer.
-              </span>
-            </h2>
-
-            {/* Body copy — direct, unfiltered */}
-            <div
-              className="glass rounded-sm p-8 mb-12 max-w-3xl"
-              style={{ borderLeft: "3px solid hsl(var(--accent)/0.6)" }}
-            >
-              <p className="text-base sm:text-lg text-foreground/90 leading-relaxed mb-4">
-                Le marché regorge de pseudo-formateurs IA vendant des slides obsolètes à prix d'or.
-              </p>
-              <p className="text-base sm:text-lg font-black text-foreground leading-relaxed mb-4">
-                GENIE IA est une <span style={{ color: "hsl(var(--primary))" }}>machine de guerre autonome.</span>
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Nous ne vendons pas des formations. Nous vendons la{" "}
-                <span className="text-foreground font-semibold">conformité légale instantanée</span>{" "}
-                et des{" "}
-                <span className="text-foreground font-semibold">preuves de compétences mathématiquement vérifiables</span>{" "}
-                pour vos équipes.
-              </p>
-            </div>
-
-            {/* 3 Targets */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
-              {[
-                {
-                  label: "DIRIGEANTS",
-                  metric: "0",
-                  unit: "risque légal",
-                  headline: "Zéro exposition.",
-                  body: "NIS2, RGPD, AI Act — votre organisation est blindée. Attestations auditables, trail complet, conformité prouvable en 48h.",
-                  icon: Shield,
-                  color: "hsl(var(--primary))",
-                },
-                {
-                  label: "EMPLOYÉS",
-                  metric: "∞",
-                  unit: "disponibilité",
-                  headline: "Tuteur infaillible.",
-                  body: "KITT IA répond à chaque question, à 3h du matin comme en réunion. Jamais fatigué. Jamais obsolète. Toujours aligné à votre niveau réel.",
-                  icon: Bot,
-                  color: "hsl(var(--emerald))",
-                },
-                {
-                  label: "ENTREPRISES",
-                  metric: "−80%",
-                  unit: "vs consultant",
-                  headline: "Remplacement des consultants.",
-                  body: "Fini les missions à 1 500€/jour pour un PowerPoint. GENIE IA fait le travail de structuration, formation et certification en continu.",
-                  icon: BarChart3,
-                  color: "hsl(var(--warning))",
-                },
-              ].map(({ label, metric, unit, headline, body, icon: Icon, color }) => (
-                <div
-                  key={label}
-                  className="group bg-background p-8 flex flex-col gap-5 transition-colors hover:bg-card cursor-default"
-                >
-                  {/* Top line */}
-                  <div className="flex items-center justify-between">
-                    <span className="data-strip text-xs tracking-widest" style={{ color: "hsl(var(--muted-foreground))" }}>{label}</span>
-                    <Icon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" style={{ color }} />
-                  </div>
-
-                  {/* Big metric */}
-                  <div>
-                    <span
-                      className="text-5xl font-black tabular-nums leading-none"
-                      style={{ fontFamily: "'JetBrains Mono', monospace", color }}
-                    >
-                      {metric}
-                    </span>
-                    <span className="block text-xs text-muted-foreground data-strip mt-1">{unit}</span>
-                  </div>
-
-                  {/* Headline + body */}
-                  <div>
-                    <h3 className="text-base font-black text-foreground mb-2">{headline}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
-                  </div>
-
-                  {/* Bottom border pulse */}
-                  <div
-                    className="h-px w-0 group-hover:w-full transition-all duration-500"
-                    style={{ background: color }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 5 — FEATURES
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-20 bg-background/50">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-black text-foreground">
-                Tout ce qu'il vous faut.<br />
-                <span
-                  style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-mid)))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
-                >
-                  Dans un seul outil.
-                </span>
-              </h2>
+            <div className="text-center mb-14">
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Fonctionnalités principales</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Tout ce dont vous avez besoin pour automatiser, analyser et construire.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {FEATURES.map((f) => (
-                <div key={f.title} className="glass rounded-2xl p-6 group hover:border-primary/40 hover-glow transition-all">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all group-hover:scale-110"
-                    style={{ background: "linear-gradient(135deg, hsl(var(--primary)/0.2), hsl(var(--primary)/0.1))", border: "1px solid hsl(var(--primary)/0.2)" }}
-                  >
-                    <f.icon className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
-                  </div>
-                  <h3 className="font-bold text-foreground text-base mb-1.5">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                <div key={f.title} className="p-5 rounded-xl border border-border bg-card hover:border-primary/20 transition-all">
+                  <f.icon className={`w-6 h-6 mb-3 ${f.color}`} />
+                  <h3 className="font-semibold text-foreground mb-1.5 text-sm">{f.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
               ))}
-            </div>
-
-            {/* CTA under features */}
-            <div className="text-center mt-12">
-              <button
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-white font-black text-lg transition-all active:scale-[0.97]"
-                style={{ background: "hsl(var(--accent))", boxShadow: "0 0 25px rgba(254,44,64,0.35)" }}
-              >
-                {checkoutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-                Démarrer gratuitement →
-              </button>
             </div>
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            SECTION 6 — EMAIL CAPTURE
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 px-4 sm:px-8 py-20">
-          <div className="max-w-xl mx-auto text-center">
-            {/* Glow behind */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[500px] h-[300px] rounded-full blur-3xl opacity-10"
-                style={{ background: "radial-gradient(ellipse, hsl(var(--primary)) 0%, transparent 70%)" }} />
+        {/* ══════════════════ USE CASES ══════════════════ */}
+        <section className="py-24 px-4 sm:px-6 bg-card/30 border-y border-border/40">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Cas d'usage</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">GENIE OS s'adapte à votre activité, votre niveau et vos objectifs.</p>
             </div>
-            <div className="relative">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-white mb-6"
-                style={{ background: "linear-gradient(135deg, hsl(var(--primary)/0.8), hsl(var(--accent)/0.8))" }}
-              >
-                <Mail className="w-3.5 h-3.5" /> Gratuit
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">
-                Recevez 3 prompts IA<br />gratuits par email
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Prêts à l'emploi. Testés par des pros. Utiles dès aujourd'hui.
-              </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {USE_CASES.map((u) => (
+                <div key={u.title} className="group p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all cursor-pointer" onClick={handleCTA}>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                      <u.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-foreground mb-1">{u.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{u.desc}</p>
+                      <span className="inline-flex items-center gap-1 text-xs text-primary font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                        {u.cta} <ArrowRight className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
+        {/* ══════════════════ SOCIAL PROOF ══════════════════ */}
+        <section className="py-24 px-4 sm:px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">Ce qu'ils disent</h2>
+              <div className="flex items-center justify-center gap-1 mt-2">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
+                <span className="text-sm text-muted-foreground ml-2">4.9/5 • 200+ utilisateurs</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {TESTIMONIALS.map((t) => (
+                <div key={t.name} className="p-5 rounded-xl border border-border bg-card space-y-3">
+                  <div className="flex gap-0.5">
+                    {[...Array(t.stars)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />)}
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed">"{t.quote}"</p>
+                  <div className="flex items-center gap-2.5 pt-1">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">{t.avatar}</div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════ CTA FINAL ══════════════════ */}
+        <section className="py-24 px-4 sm:px-6 bg-card/30 border-t border-border/40">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-medium mb-6">
+              <CheckCircle className="w-3 h-3" />
+              Gratuit pour commencer · Sans carte bancaire
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-4">
+              Créez votre premier agent
+            </h2>
+            <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+              Rejoignez 2 400+ utilisateurs qui automatisent leur business avec GENIE OS.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+              <button
+                onClick={handleCTA}
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-white font-black text-base transition-all hover:brightness-110 active:scale-[0.97]"
+                style={{ background: "hsl(var(--accent))", boxShadow: "0 0 30px rgba(254,44,64,0.3)" }}
+              >
+                <Sparkles className="w-4 h-4" />
+                Essayer GENIE OS →
+              </button>
+              <Link
+                to="/os/agents"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-base transition-all hover:bg-primary/10"
+                style={{ border: "1px solid rgba(82,87,216,0.5)", color: "hsl(var(--primary))" }}
+              >
+                <Bot className="w-4 h-4" />
+                Créer votre premier agent
+              </Link>
+            </div>
+
+            {/* Email capture */}
+            <div className="max-w-md mx-auto">
+              <p className="text-xs text-muted-foreground mb-3">Ou recevez une démo personnalisée</p>
               {emailDone ? (
-                <div className="glass rounded-2xl p-6 border border-primary/30">
-                  <CheckCircle className="w-8 h-8 mx-auto mb-3" style={{ color: "#22C55E" }} />
-                  <p className="font-bold text-foreground">C'est dans votre boîte mail !</p>
-                  <p className="text-sm text-muted-foreground mt-1">Vérifiez vos spams si besoin.</p>
+                <div className="flex items-center justify-center gap-2 text-sm text-green-400">
+                  <CheckCircle className="w-4 h-4" /> On vous contacte bientôt !
                 </div>
               ) : (
-                <form onSubmit={handleEmailCapture} className="flex flex-col sm:flex-row gap-3">
+                <form onSubmit={handleEmailCapture} className="flex gap-2">
                   <input
                     type="email"
                     value={emailLead}
                     onChange={(e) => setEmailLead(e.target.value)}
-                    placeholder="votre@email.pro"
-                    required
-                    className="flex-1 px-4 py-3.5 rounded-xl border border-border/60 bg-card/60 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all backdrop-blur-sm"
+                    placeholder="votre@email.com"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                   />
                   <button
                     type="submit"
                     disabled={emailLoading}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-white font-bold text-sm transition-all active:scale-[0.97] shrink-0"
-                    style={{ background: "hsl(var(--accent))", boxShadow: "0 0 15px rgba(254,44,64,0.3)" }}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all"
                   >
-                    {emailLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                    Recevoir →
+                    {emailLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                    Envoyer
                   </button>
                 </form>
               )}
-
-              <p className="text-xs text-muted-foreground mt-4">
-                Rejoignez les premiers professionnels GENIE. Zéro spam, désinscription en 1 clic.
-              </p>
             </div>
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            OFFICE HOURS
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative py-20 px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto">
-            <OfficeHoursCard />
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            FOOTER
-        ══════════════════════════════════════════════════════════ */}
         <ProFooter />
       </div>
-
-      {/* CTA shake keyframe */}
-      <style>{`
-        @keyframes cta-shake {
-          0%, 100% { transform: translateX(0); }
-          20% { transform: translateX(-3px) rotate(-1deg); }
-          40% { transform: translateX(3px) rotate(1deg); }
-          60% { transform: translateX(-2px); }
-          80% { transform: translateX(2px); }
-        }
-        @keyframes grid-move {
-          0% { backgroundPosition: 0 0; }
-          100% { backgroundPosition: 40px 40px; }
-        }
-      `}</style>
     </>
   );
 }
