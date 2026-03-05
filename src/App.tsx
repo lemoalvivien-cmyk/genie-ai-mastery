@@ -57,6 +57,8 @@ const BusinessAnalysis = lazy(() => import("./pages/genieos/BusinessAnalysis"));
 const MultiAgentRunner = lazy(() => import("./pages/genieos/MultiAgentRunner"));
 const KnowledgeBase = lazy(() => import("./pages/genieos/KnowledgeBase"));
 const ActionsPage = lazy(() => import("./pages/genieos/ActionsPage"));
+const VoiceAssistant = lazy(() => import("./pages/genieos/VoiceAssistant"));
+const AgentsRuntime = lazy(() => import("./pages/genieos/AgentsRuntime"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -262,6 +264,8 @@ const App = () => (
                   <Route path="business" element={<BusinessAnalysis />} />
                   <Route path="knowledge" element={<KnowledgeBase />} />
                   <Route path="actions" element={<ActionsPage />} />
+                  <Route path="voice" element={<VoiceAssistant />} />
+                  <Route path="agents-runtime" element={<AgentsRuntime />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

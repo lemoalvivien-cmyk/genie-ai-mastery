@@ -2,14 +2,16 @@ import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
-  ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play,
+  ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
+  { to: "/os/voice", icon: Mic, label: "Voice OS", color: "text-pink-400" },
   { to: "/os/agents", icon: Bot, label: "Agent Builder", color: "text-emerald-400" },
-  { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-cyan-400" },
+  { to: "/os/agents-runtime", icon: Radio, label: "Agents Runtime", color: "text-cyan-400" },
+  { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-sky-400" },
   { to: "/os/automation", icon: Zap, label: "Automation", color: "text-yellow-400" },
   { to: "/os/app-builder", icon: Code2, label: "App Builder", color: "text-blue-400" },
   { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
