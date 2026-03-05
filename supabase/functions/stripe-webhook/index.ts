@@ -293,6 +293,18 @@ serve(async (req) => {
     logStep("Error handling event", { error: String(err) });
   }
 
+  // ── PASSE E — Marque l'event comme traité pour l'idempotence ─────────────
+  try {
+    await supabase.from("audit_logs").insert({
+      action: "stripe_event_processed",
+      resource_id: event.id,
+      resource_type: "stripe_event",
+      details: { event_type: event.type },
+    });
+  } catch (_e) {
+    // Non-fatal : l'audit ne doit jamais bloquer le 200
+  }
+
   return new Response(JSON.stringify({ received: true }), {
     headers: { "Content-Type": "application/json" },
   });
