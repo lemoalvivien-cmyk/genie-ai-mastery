@@ -151,7 +151,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown) :
   ]
 }
 
-Génère 2 à 5 tâches. Chaque tâche doit avoir un rôle clair et distinct. Assigne le bon agent à chaque tâche.`;
+Génère 3 à 5 tâches. Chaque tâche doit avoir un rôle clair et distinct. Assigne le bon agent à chaque tâche.`;
 
   const raw = await callAI("google/gemini-2.5-pro", [{ role: "user", content: prompt }], 1000);
   try {
@@ -255,7 +255,7 @@ serve(async (req) => {
   }
 
   const body = await req.json();
-  const { objective, memory_context, use_knowledge = true } = body;
+  const { objective, memory_context, use_knowledge = true, parallel = false } = body;
 
   if (!objective) {
     return new Response(JSON.stringify({ error: "objective is required" }), {
@@ -291,37 +291,101 @@ serve(async (req) => {
         } catch (_e) { /* no knowledge available */ }
       }
 
-      // Phase 3: Execute agents sequentially
-      const previousResults: Array<{ agent: string; task: string; result: string }> = [];
+      // Phase 3: Execute agents
+      // In parallel mode: run independent tasks concurrently
       const updatedTasks = [...plan.tasks];
+      await send({ type: "phase", phase: "executing", message: `⚡ Lancement de ${updatedTasks.length} agents${parallel ? " en parallèle" : ""}...` });
 
-      await send({ type: "phase", phase: "executing", message: `⚡ Lancement de ${updatedTasks.length} agents...` });
+      if (parallel && updatedTasks.length > 1) {
+        // Run all tasks in parallel, collect results
+        const previousResults: Array<{ agent: string; task: string; result: string }> = [];
 
-      for (let i = 0; i < updatedTasks.length; i++) {
-        const task = updatedTasks[i];
-        const agent = AGENTS[task.agent] ?? AGENTS.research;
-        task.status = "running";
+        // Split into parallel batches: first N-1 tasks parallel, last task sequential (needs prior results)
+        const parallelTasks = updatedTasks.slice(0, Math.max(1, updatedTasks.length - 1));
+        const sequentialTasks = updatedTasks.slice(Math.max(1, updatedTasks.length - 1));
 
-        await send({
-          type: "agent_start",
-          task_id: task.id,
-          agent: task.agent,
-          agent_name: agent.name,
-          agent_icon: agent.icon,
-          task_description: task.task,
+        // Mark parallel tasks as running
+        for (const task of parallelTasks) {
+          const agentDef = AGENTS[task.agent] ?? AGENTS.research;
+          task.status = "running";
+          await send({
+            type: "agent_start",
+            task_id: task.id,
+            agent: task.agent,
+            agent_name: agentDef.name,
+            agent_icon: agentDef.icon,
+            task_description: task.task,
+          });
+        }
+
+        // Execute parallel tasks concurrently
+        const parallelPromises = parallelTasks.map(async (task) => {
+          const agentDef = AGENTS[task.agent] ?? AGENTS.research;
+          try {
+            const result = await executeAgentTask(task, objective, [], knowledgeContext);
+            task.result = result;
+            task.status = "done";
+            await send({ type: "agent_done", task_id: task.id, agent: task.agent, result });
+            return { agent: agentDef.name, task: task.task, result };
+          } catch (err) {
+            task.status = "error";
+            await send({ type: "agent_error", task_id: task.id, error: String(err) });
+            return { agent: agentDef.name, task: task.task, result: `Error: ${String(err)}` };
+          }
         });
 
-        try {
-          const result = await executeAgentTask(task, objective, previousResults, knowledgeContext);
-          task.result = result;
-          task.status = "done";
-          previousResults.push({ agent: agent.name, task: task.task, result });
+        const parallelResults = await Promise.all(parallelPromises);
+        previousResults.push(...parallelResults);
 
-          await send({ type: "agent_done", task_id: task.id, agent: task.agent, result });
-        } catch (err) {
-          task.status = "error";
-          task.result = `Erreur: ${String(err)}`;
-          await send({ type: "agent_error", task_id: task.id, error: String(err) });
+        // Run sequential tasks using parallel results
+        for (const task of sequentialTasks) {
+          const agentDef = AGENTS[task.agent] ?? AGENTS.research;
+          task.status = "running";
+          await send({
+            type: "agent_start",
+            task_id: task.id,
+            agent: task.agent,
+            agent_name: agentDef.name,
+            agent_icon: agentDef.icon,
+            task_description: task.task,
+          });
+          try {
+            const result = await executeAgentTask(task, objective, previousResults, knowledgeContext);
+            task.result = result;
+            task.status = "done";
+            previousResults.push({ agent: agentDef.name, task: task.task, result });
+            await send({ type: "agent_done", task_id: task.id, agent: task.agent, result });
+          } catch (err) {
+            task.status = "error";
+            await send({ type: "agent_error", task_id: task.id, error: String(err) });
+          }
+        }
+      } else {
+        // Sequential mode
+        const previousResults: Array<{ agent: string; task: string; result: string }> = [];
+        for (let i = 0; i < updatedTasks.length; i++) {
+          const task = updatedTasks[i];
+          const agent = AGENTS[task.agent] ?? AGENTS.research;
+          task.status = "running";
+          await send({
+            type: "agent_start",
+            task_id: task.id,
+            agent: task.agent,
+            agent_name: agent.name,
+            agent_icon: agent.icon,
+            task_description: task.task,
+          });
+          try {
+            const result = await executeAgentTask(task, objective, previousResults, knowledgeContext);
+            task.result = result;
+            task.status = "done";
+            previousResults.push({ agent: agent.name, task: task.task, result });
+            await send({ type: "agent_done", task_id: task.id, agent: task.agent, result });
+          } catch (err) {
+            task.status = "error";
+            task.result = `Erreur: ${String(err)}`;
+            await send({ type: "agent_error", task_id: task.id, error: String(err) });
+          }
         }
       }
 
