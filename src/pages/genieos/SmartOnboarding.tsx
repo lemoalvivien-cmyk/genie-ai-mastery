@@ -187,14 +187,14 @@ export default function SmartOnboarding() {
             context_summary: `Activité: ${data.activity}, Niveau: ${data.level}, Objectifs: ${data.objectives.join(", ")}`,
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id" });
-          await supabase.from("memory_timeline").insert({
+          await supabase.from("memory_timeline").insert([{
             user_id: user.id,
             title: "Onboarding GENIE OS complété",
             summary: `Plan généré avec ${generatedPlan.agents.length} agents recommandés`,
             event_type: "insight",
             importance: "high",
-            metadata: { plan: generatedPlan, onboarding_data: data },
-          });
+            metadata: { plan: generatedPlan, onboarding_data: data } as any,
+          }]);
         }
       } catch (e) { /* non-blocking */ }
       setSaving(false);
