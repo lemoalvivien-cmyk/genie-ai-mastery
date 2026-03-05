@@ -95,6 +95,72 @@ export type Database = {
         }
         Relationships: []
       }
+      action_logs: {
+        Row: {
+          action_type: string
+          agent_id: string | null
+          confirmed_by_user: boolean | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          execution_id: string | null
+          id: string
+          input: Json
+          mode: string
+          output: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          agent_id?: string | null
+          confirmed_by_user?: boolean | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          execution_id?: string | null
+          id?: string
+          input?: Json
+          mode?: string
+          output?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          agent_id?: string | null
+          confirmed_by_user?: boolean | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          execution_id?: string | null
+          id?: string
+          input?: Json
+          mode?: string
+          output?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_logs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_logs_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "agent_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_executions: {
         Row: {
           agent_id: string | null
