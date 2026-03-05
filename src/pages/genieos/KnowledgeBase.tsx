@@ -337,15 +337,15 @@ export default function KnowledgeBase() {
 
               {/* Mode selector */}
               <div className="flex gap-2 mb-4">
-                {(["text", "url", "upload"] as IngestMode[]).map((mode) => (
+              {(["text", "url", "upload"] as IngestMode[]).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setIngestMode(mode)}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border",
                       ingestMode === mode
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        ? "bg-primary/10 text-primary border-primary/20"
+                        : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
                     {mode === "text" && <><FileText className="w-3.5 h-3.5" />Texte</>}
