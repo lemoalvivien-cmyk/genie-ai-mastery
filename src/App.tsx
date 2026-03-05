@@ -293,6 +293,7 @@ const App = () => (
                   <Route path="timeline" element={<MemoryTimeline />} />
                   <Route path="control" element={<CommandCenter />} />
                   <Route path="revenue" element={<RevenueEngine />} />
+                  <Route path="start" element={<SmartOnboarding />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
