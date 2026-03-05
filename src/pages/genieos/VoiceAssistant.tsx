@@ -48,7 +48,8 @@ export default function VoiceAssistant() {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [visualizerTick, setVisualizerTick] = useState(0);
 
-  const recognitionRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
