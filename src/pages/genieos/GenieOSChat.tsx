@@ -41,7 +41,25 @@ const QUICK_PROMPTS = [
   "Analyse le business model d'une newsletter IA",
 ];
 
-// ── Intent patterns for orchestration ────────────────────────────
+// ── Agent execution intent patterns ────────────────────────────
+const AGENT_EXEC_PATTERNS = [
+  /analys[e]?[r]?\s+(ce\s+|le\s+|ce\s+)?march[eé]/i,
+  /trouv[e]?[r]?\s+\d+\s+prospect/i,
+  /lanc[e]?[r]?\s+(un\s+)?agent/i,
+  /ex[eé]cut[e]?[r]?\s+(un\s+)?agent/i,
+  /recherch[e]?[r]?\s+et\s+(analys[e]?[r]?|r[eé]sum[e]?[r]?)/i,
+  /g[eé]n[eè]r[e]?[r]?\s+un\s+rapport/i,
+  /automatiquement\s+(analys|recherch|cr[eé]e|g[eé]n[eè]r)/i,
+];
+
+function detectAgentExecIntent(text: string): string | null {
+  for (const p of AGENT_EXEC_PATTERNS) {
+    if (p.test(text)) return text.trim();
+  }
+  return null;
+}
+
+// ── Navigation intent patterns for orchestration ────────────────────────────
 const INTENT_PATTERNS: Array<{
   regex: RegExp;
   module: string;
@@ -117,6 +135,8 @@ export default function GenieOSChat() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [detectedIntent, setDetectedIntent] = useState<NavigationIntent | null>(null);
   const [activeModel, setActiveModel] = useState<string>(AI_ROUTER_CLIENT.assistant);
+  const [agentExecObjective, setAgentExecObjective] = useState<string | null>(null);
+  const { state: execState, runAgent, reset: resetExec, isRunning: agentRunning } = useAgentRuntime();
   const bottomRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
