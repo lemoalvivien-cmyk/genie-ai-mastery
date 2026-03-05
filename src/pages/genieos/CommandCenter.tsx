@@ -24,6 +24,8 @@ const HERO_ACTIONS = [
     gradient: "from-primary/20 to-primary/5",
     iconColor: "text-primary",
     borderColor: "border-primary/30",
+    hoverBorder: "hover:border-primary/50",
+    glow: "hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]",
   },
   {
     label: "Trouver une opportunité",
@@ -33,6 +35,8 @@ const HERO_ACTIONS = [
     gradient: "from-green-500/20 to-green-500/5",
     iconColor: "text-green-400",
     borderColor: "border-green-500/30",
+    hoverBorder: "hover:border-green-500/50",
+    glow: "hover:shadow-[0_0_20px_rgba(34,197,94,0.1)]",
   },
   {
     label: "Construire un produit",
@@ -42,6 +46,8 @@ const HERO_ACTIONS = [
     gradient: "from-orange-500/20 to-orange-500/5",
     iconColor: "text-orange-400",
     borderColor: "border-orange-500/30",
+    hoverBorder: "hover:border-orange-500/50",
+    glow: "hover:shadow-[0_0_20px_rgba(249,115,22,0.1)]",
   },
 ];
 
@@ -63,12 +69,15 @@ function AgentActivityWidget() {
     refetchInterval: 15000,
   });
 
+  const running = (executions as any[]).filter((e) => e.status === "running").length;
+
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Bot className="w-4 h-4 text-emerald-400" />
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-sm font-semibold text-foreground">Agents Actifs</span>
+          {running > 0 && <Badge className="h-4 text-xs px-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30">{running}</Badge>}
         </div>
         <Link to="/os/agents-runtime">
           <Button variant="ghost" size="sm" className="h-6 text-xs px-2 gap-1 text-muted-foreground">
@@ -80,7 +89,7 @@ function AgentActivityWidget() {
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground mx-auto" />
       ) : executions.length === 0 ? (
         <div className="text-center py-3">
-          <p className="text-xs text-muted-foreground mb-2">Aucune exécution récente</p>
+          <p className="text-xs text-muted-foreground mb-2">Aucun agent actif</p>
           <Link to="/os/agents">
             <Button size="sm" variant="outline" className="h-6 text-xs gap-1">
               <Plus className="w-3 h-3" /> Créer un agent
@@ -157,7 +166,7 @@ function OpportunityWidget() {
         <>
           <div className="text-lg font-bold text-foreground mb-2">
             {totalPipeline.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            <span className="text-xs font-normal text-muted-foreground ml-1">pipeline total</span>
+            <span className="text-xs font-normal text-muted-foreground ml-1">pipeline</span>
           </div>
           <div className="space-y-1.5">
             {(opps as any[]).map((opp) => (
@@ -199,7 +208,7 @@ function AIWatchWidget() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Eye className="w-4 h-4 text-amber-400" />
-          <span className="text-sm font-semibold text-foreground">AI Watch</span>
+          <span className="text-sm font-semibold text-foreground">Veille IA</span>
           {unread > 0 && (
             <Badge className="h-4 text-xs px-1.5 bg-amber-500/20 text-amber-400 border-amber-500/30">{unread}</Badge>
           )}
@@ -213,7 +222,7 @@ function AIWatchWidget() {
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground mx-auto" />
       ) : updates.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-3">Lance la veille IA pour recevoir des signaux</p>
+        <p className="text-xs text-muted-foreground text-center py-3">Active la veille IA pour recevoir des signaux</p>
       ) : (
         <div className="space-y-2">
           {(updates as any[]).map((u) => (
@@ -276,62 +285,6 @@ function AutopilotWidget() {
             </div>
           ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Widget: Skill Progress ── */
-function SkillWidget() {
-  const user = useAuthStore((s) => s.user);
-  const { data: levels = [] } = useQuery({
-    queryKey: ["cmd_skill_levels", user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("user_skill_levels")
-        .select("level, skill:skill_graph(name, category)")
-        .eq("user_id", user!.id)
-        .order("level", { ascending: false })
-        .limit(4);
-      return data ?? [];
-    },
-    enabled: !!user?.id,
-  });
-
-  const totalXP = (levels as any[]).reduce((s, l) => s + (l.level ?? 0), 0);
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Brain className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-semibold text-foreground">Skill Graph</span>
-        </div>
-        <Link to="/os/skills">
-          <Button variant="ghost" size="sm" className="h-6 text-xs px-2 gap-1 text-muted-foreground">
-            Voir <ChevronRight className="w-3 h-3" />
-          </Button>
-        </Link>
-      </div>
-      {levels.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-3">Commence à t'entraîner pour voir ta progression</p>
-      ) : (
-        <>
-          <div className="text-lg font-bold text-foreground mb-2">
-            {totalXP}<span className="text-xs font-normal text-muted-foreground ml-1">pts cumulés</span>
-          </div>
-          <div className="space-y-1.5">
-            {(levels as any[]).map((l, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="w-16 h-1 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full rounded-full bg-purple-400" style={{ width: `${l.level ?? 0}%` }} />
-                </div>
-                <span className="text-xs text-muted-foreground truncate">{(l.skill as any)?.name ?? "—"}</span>
-                <span className="text-xs text-purple-400 ml-auto">{l.level}%</span>
-              </div>
-            ))}
-          </div>
-        </>
       )}
     </div>
   );
@@ -420,7 +373,7 @@ function MemoryPreview() {
         </div>
         <Link to="/os/timeline">
           <Button variant="ghost" size="sm" className="h-6 text-xs px-2 gap-1 text-muted-foreground">
-            Timeline complète <ArrowUpRight className="w-3 h-3" />
+            Timeline <ArrowUpRight className="w-3 h-3" />
           </Button>
         </Link>
       </div>
@@ -452,104 +405,81 @@ const SECONDARY_LINKS = [
 /* ── Main Command Center ── */
 export default function CommandCenter() {
   const user = useAuthStore((s) => s.user);
-
-  const { data: timelineCount = 0 } = useQuery({
-    queryKey: ["cmd_timeline_count", user?.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("memory_timeline")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id);
-      return count ?? 0;
-    },
-    enabled: !!user?.id,
-  });
+  const firstName = user?.email?.split("@")[0] ?? "là";
 
   return (
-    <div className="h-full overflow-y-auto bg-background p-4 md:p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
-        {/* Header */}
-        <div className="flex items-start justify-between">
+        {/* ── Header ── */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Activity className="w-6 h-6 text-primary" />
-              Command Center
+            <h1 className="text-2xl font-black text-foreground tracking-tight">
+              Bonjour, <span className="text-gradient">{firstName}</span> 👋
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {timelineCount > 0
-                ? `${timelineCount} événements en mémoire — votre IA vous suit en permanence`
-                : "Votre cockpit central intelligent"}
-            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">Que voulez-vous accomplir aujourd'hui ?</p>
           </div>
           <Link to="/os/start">
-            <Button variant="outline" size="sm" className="gap-1.5 hidden md:flex">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              Personnaliser
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/10">
+              <Sparkles className="w-3 h-3" />
+              Onboarding
             </Button>
           </Link>
         </div>
 
-        {/* 3 Hero Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {HERO_ACTIONS.map(({ label, desc, to, icon: Icon, gradient, iconColor, borderColor }) => (
-            <Link key={to} to={to}>
-              <div className={cn(
-                "group relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] cursor-pointer",
-                `bg-gradient-to-br ${gradient}`,
-                borderColor
-              )}>
-                <div className={cn("w-10 h-10 rounded-xl bg-background/40 flex items-center justify-center mb-3", )}>
-                  <Icon className={cn("w-5 h-5", iconColor)} />
-                </div>
-                <p className="text-sm font-bold text-foreground">{label}</p>
+        {/* ── 3 Hero Actions ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {HERO_ACTIONS.map(({ label, desc, to, icon: Icon, gradient, iconColor, borderColor, hoverBorder, glow }) => (
+            <Link
+              key={to}
+              to={to}
+              className={cn(
+                "group relative flex flex-col gap-3 p-5 rounded-2xl border bg-gradient-to-br transition-all duration-200",
+                borderColor, hoverBorder, gradient, glow
+              )}
+            >
+              <div className={cn("w-10 h-10 rounded-xl bg-card/80 border border-border flex items-center justify-center")}>
+                <Icon className={cn("w-5 h-5", iconColor)} />
+              </div>
+              <div>
+                <p className="font-bold text-foreground text-sm">{label}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-                <ChevronRight className={cn("absolute top-4 right-4 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity", iconColor)} />
+              </div>
+              <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors mt-auto">
+                Commencer <ChevronRight className="w-3 h-3" />
               </div>
             </Link>
           ))}
         </div>
 
-        {/* Main grid: widgets + digest */}
-        <div className="grid gap-4 md:grid-cols-3">
-          {/* Left col: widgets */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AgentActivityWidget />
-              <OpportunityWidget />
-              <AIWatchWidget />
-              <AutopilotWidget />
-              <SkillWidget />
-              <RevenueSummaryWidget />
-            </div>
-            <MemoryPreview />
-          </div>
+        {/* ── Daily Digest ── */}
+        <DailyDigest />
 
-          {/* Right col: Daily Digest */}
-          <div className="space-y-4">
-            <DailyDigest />
+        {/* ── Widget Grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AgentActivityWidget />
+          <OpportunityWidget />
+          <AIWatchWidget />
+          <RevenueSummaryWidget />
+          <AutopilotWidget />
+          <MemoryPreview />
+        </div>
 
-            {/* Secondary links */}
-            <div className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                Accès rapide
-              </p>
-              <div className="space-y-1">
-                {SECONDARY_LINKS.map(({ label, to, icon: Icon, color }) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors group"
-                  >
-                    <Icon className={cn("w-3.5 h-3.5 flex-shrink-0", color)} />
-                    <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
-                    <ChevronRight className="w-3 h-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                ))}
-              </div>
-            </div>
+        {/* ── Quick Links ── */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Accès rapide</p>
+          <div className="flex flex-wrap gap-2">
+            {SECONDARY_LINKS.map(({ label, to, icon: Icon, color }) => (
+              <Link key={to} to={to}>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs border-border hover:border-primary/30 hover:bg-primary/5">
+                  <Icon className={cn("w-3 h-3", color)} />
+                  {label}
+                </Button>
+              </Link>
+            ))}
           </div>
         </div>
+
       </div>
     </div>
   );
