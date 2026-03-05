@@ -58,6 +58,29 @@ const AVAILABLE_TOOLS = {
       return `[url_scraper]: Content from ${params.url} — in production, connect a real scraper service.`;
     },
   },
+  knowledge_search: {
+    name: "knowledge_search",
+    description: "Search the user's personal knowledge base for relevant documents and context",
+    execute: async (params: { query: string; user_id?: string }) => {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      if (!params.user_id) return "[knowledge_search]: No user context available.";
+      try {
+        const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+        const sb = createClient(supabaseUrl, supabaseServiceKey);
+        const { data } = await sb.rpc("search_knowledge_fts", {
+          _user_id: params.user_id,
+          _query: params.query,
+          _limit: 3,
+        });
+        if (!data || data.length === 0) return `[knowledge_search]: No documents found for "${params.query}".`;
+        const results = data.map((r: { title: string; content: string }) => `[${r.title}]: ${r.content}`).join("\n\n");
+        return `[knowledge_search] Résultats pour "${params.query}":\n\n${results}`;
+      } catch (_e) {
+        return `[knowledge_search]: Search failed for "${params.query}".`;
+      }
+    },
+  },
 };
 
 type StepStatus = "pending" | "running" | "done" | "error";

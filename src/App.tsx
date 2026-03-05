@@ -54,6 +54,8 @@ const AppBuilder = lazy(() => import("./pages/genieos/AppBuilder"));
 const AIToolsExplorer = lazy(() => import("./pages/genieos/AIToolsExplorer"));
 const Marketplace = lazy(() => import("./pages/genieos/Marketplace"));
 const BusinessAnalysis = lazy(() => import("./pages/genieos/BusinessAnalysis"));
+const MultiAgentRunner = lazy(() => import("./pages/genieos/MultiAgentRunner"));
+const KnowledgeBase = lazy(() => import("./pages/genieos/KnowledgeBase"));
 
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -251,11 +253,13 @@ const App = () => (
                   <Route index element={<GenieOSChat />} />
                   <Route path="dashboard" element={<GenieOSDashboard />} />
                   <Route path="agents" element={<AgentBuilder />} />
+                  <Route path="multi-agent" element={<MultiAgentRunner />} />
                   <Route path="automation" element={<AutomationModule />} />
                   <Route path="app-builder" element={<AppBuilder />} />
                   <Route path="ai-tools" element={<AIToolsExplorer />} />
                   <Route path="marketplace" element={<Marketplace />} />
                   <Route path="business" element={<BusinessAnalysis />} />
+                  <Route path="knowledge" element={<KnowledgeBase />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
