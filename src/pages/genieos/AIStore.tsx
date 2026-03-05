@@ -62,7 +62,7 @@ export default function AIStore() {
     setLoading(true);
     const { data: storeData } = await supabase
       .from("agent_store_items")
-      .select("id, name, description, category, tags, icon, install_count, rating_avg, rating_count, is_official, is_public, system_prompt, tools, config, use_cases, version")
+      .select("id, name, description, category, tags, icon, install_count, rating_avg, rating_count, is_official, author_name, version, use_cases")
       .eq("is_public", true)
       .order("install_count", { ascending: false })
       .limit(100);

@@ -40,7 +40,7 @@ export default function ReferralSection() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("referrals")
-        .select("id, referral_code, referred_email, status, created_at, completed_at, reward_credited")
+        .select("id, referral_code, referred_email, status, created_at, completed_at")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
