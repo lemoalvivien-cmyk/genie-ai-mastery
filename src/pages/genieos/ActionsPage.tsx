@@ -47,7 +47,7 @@ interface ActionLog {
 
 export default function ActionsPage() {
   const { user } = useAuth();
-  const { state, run, stop, reset } = useActionEngine();
+  const { state, run, stop, reset, updateState } = useActionEngine();
   const [objective, setObjective] = useState("");
   const [mode, setMode] = useState<ActionMode>("simulation");
   const [autonomous, setAutonomous] = useState(false);
