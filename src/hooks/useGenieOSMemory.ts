@@ -10,7 +10,7 @@ export interface GenieOSAgent {
   objective: string;
   system_prompt: string;
   tools: unknown[];
-  status: "draft" | "active" | "archived";
+  status: string;
   executions: number;
   last_executed_at: string | null;
   metadata: Record<string, unknown>;
@@ -26,7 +26,7 @@ export interface GenieOSWorkflow {
   trigger_event: string;
   steps: unknown[];
   tools: string;
-  status: "draft" | "active";
+  status: string;
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -39,7 +39,6 @@ export interface UserMemory {
   recent_topics: string[];
   context_summary: string;
   preferences: Record<string, unknown>;
-  updated_at?: string;
 }
 
 // Mirror of AI_ROUTER from edge function — keep in sync
@@ -54,6 +53,10 @@ export const AI_ROUTER_CLIENT: Record<string, string> = {
   code:          "gemini-2.5-flash",
 };
 
+// Use typed any to bypass missing generated types for new tables
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
 export function useGenieOSMemory() {
   const [agents, setAgents] = useState<GenieOSAgent[]>([]);
   const [workflows, setWorkflows] = useState<GenieOSWorkflow[]>([]);
@@ -66,21 +69,9 @@ export function useGenieOSMemory() {
     setIsLoading(true);
     try {
       const [agentsRes, workflowsRes, memoryRes] = await Promise.all([
-        supabase
-          .from("genieos_agents" as never)
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(50),
-        supabase
-          .from("genieos_workflows" as never)
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(50),
-        supabase
-          .from("genieos_user_memory" as never)
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle(),
+        db.from("genieos_agents").select("*").order("created_at", { ascending: false }).limit(50),
+        db.from("genieos_workflows").select("*").order("created_at", { ascending: false }).limit(50),
+        db.from("genieos_user_memory").select("*").eq("user_id", session.user.id).maybeSingle(),
       ]);
       if (agentsRes.data) setAgents(agentsRes.data as GenieOSAgent[]);
       if (workflowsRes.data) setWorkflows(workflowsRes.data as GenieOSWorkflow[]);
@@ -100,27 +91,25 @@ export function useGenieOSMemory() {
     agent: Pick<GenieOSAgent, "name" | "description" | "objective" | "system_prompt" | "tools">
   ): Promise<GenieOSAgent | null> => {
     if (!session?.user?.id) return null;
-    const { data, error } = await supabase
-      .from("genieos_agents" as never)
-      .insert({ ...agent, user_id: session.user.id } as never)
+    const res = await db.from("genieos_agents")
+      .insert({ ...agent, user_id: session.user.id })
       .select()
       .single();
-    if (error || !data) return null;
-    const saved = data as GenieOSAgent;
+    if (res.error || !res.data) return null;
+    const saved = res.data as GenieOSAgent;
     setAgents(prev => [saved, ...prev]);
     return saved;
   }, [session?.user?.id]);
 
   const updateAgent = useCallback(async (id: string, updates: Partial<GenieOSAgent>) => {
-    await supabase
-      .from("genieos_agents" as never)
-      .update({ ...updates, updated_at: new Date().toISOString() } as never)
+    await db.from("genieos_agents")
+      .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("id", id);
     setAgents(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
   }, []);
 
   const deleteAgent = useCallback(async (id: string) => {
-    await supabase.from("genieos_agents" as never).delete().eq("id", id);
+    await db.from("genieos_agents").delete().eq("id", id);
     setAgents(prev => prev.filter(a => a.id !== id));
   }, []);
 
@@ -128,19 +117,18 @@ export function useGenieOSMemory() {
     wf: Pick<GenieOSWorkflow, "name" | "description" | "trigger_event" | "steps" | "tools">
   ): Promise<GenieOSWorkflow | null> => {
     if (!session?.user?.id) return null;
-    const { data, error } = await supabase
-      .from("genieos_workflows" as never)
-      .insert({ ...wf, user_id: session.user.id } as never)
+    const res = await db.from("genieos_workflows")
+      .insert({ ...wf, user_id: session.user.id })
       .select()
       .single();
-    if (error || !data) return null;
-    const saved = data as GenieOSWorkflow;
+    if (res.error || !res.data) return null;
+    const saved = res.data as GenieOSWorkflow;
     setWorkflows(prev => [saved, ...prev]);
     return saved;
   }, [session?.user?.id]);
 
   const deleteWorkflow = useCallback(async (id: string) => {
-    await supabase.from("genieos_workflows" as never).delete().eq("id", id);
+    await db.from("genieos_workflows").delete().eq("id", id);
     setWorkflows(prev => prev.filter(w => w.id !== id));
   }, []);
 
@@ -151,41 +139,38 @@ export function useGenieOSMemory() {
   ) => {
     if (!session?.user?.id || messages.length < 2) return;
     const title = messages[0]?.content?.slice(0, 60) ?? "Conversation";
-    await supabase.from("genieos_conversations" as never).insert({
+    await db.from("genieos_conversations").insert({
       user_id: session.user.id,
       module,
       messages,
       title,
       model_used: modelUsed,
-    } as never);
+    });
   }, [session?.user?.id]);
 
   const updateMemory = useCallback(async (updates: Partial<UserMemory>) => {
     if (!session?.user?.id) return;
-    await supabase
-      .from("genieos_user_memory" as never)
-      .upsert({
-        user_id: session.user.id,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      } as never, { onConflict: "user_id" });
+    await db.from("genieos_user_memory").upsert({
+      user_id: session.user.id,
+      ...updates,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
     setMemory(prev => prev ? { ...prev, ...updates } : updates as UserMemory);
   }, [session?.user?.id]);
 
   const addRecentTopic = useCallback(async (topic: string) => {
-    if (!topic) return;
+    if (!topic || !session?.user?.id) return;
     setMemory(prev => {
       const current = prev?.recent_topics ?? [];
       const updated = [topic, ...current.filter(t => t !== topic)].slice(0, 10);
-      // Persist asynchronously
-      if (session?.user?.id) {
-        supabase.from("genieos_user_memory" as never).upsert({
-          user_id: session.user.id,
-          recent_topics: updated,
-          updated_at: new Date().toISOString(),
-        } as never, { onConflict: "user_id" }).then(() => {/* no-op */});
-      }
-      return prev ? { ...prev, recent_topics: updated } : { skill_level: "beginner", primary_goals: [], recent_topics: updated, context_summary: "", preferences: {} };
+      db.from("genieos_user_memory").upsert({
+        user_id: session.user.id,
+        recent_topics: updated,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      return prev
+        ? { ...prev, recent_topics: updated }
+        : { skill_level: "beginner", primary_goals: [], recent_topics: updated, context_summary: "", preferences: {} };
     });
   }, [session?.user?.id]);
 
