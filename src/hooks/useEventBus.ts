@@ -86,22 +86,23 @@ export async function enqueueJob(
   userId: string,
   job: JobPayload
 ): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await supabase
     .from("job_queue")
     .insert([{
       user_id: userId,
       job_type: job.job_type,
-      payload: (job.payload ?? {}) as Record<string, unknown>,
+      payload: (job.payload ?? {}) as unknown as import("@/integrations/supabase/types").Json,
       priority: job.priority ?? 5,
       scheduled_at: job.scheduled_at ?? new Date().toISOString(),
-    }])
+    }] as any)
     .select("id")
     .single();
 
   if (error || !data) return null;
 
-  emit("job_queued", { job_id: data.id, job_type: job.job_type }, "job_queue");
-  return data.id;
+  emit("job_queued", { job_id: (data as { id: string }).id, job_type: job.job_type }, "job_queue");
+  return (data as { id: string }).id;
 }
 
 /** Log a system event */
@@ -113,12 +114,13 @@ export async function logSystem(
   level: "debug" | "info" | "warn" | "error" | "fatal" = "info",
   metadata?: Record<string, unknown>
 ): Promise<void> {
-  await supabase.from("system_logs").insert([{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase.from("system_logs") as any).insert([{
     user_id: userId,
     module,
     event,
     message,
     level,
-    metadata: (metadata ?? {}) as Record<string, unknown>,
+    metadata: metadata ?? {},
   }]);
 }

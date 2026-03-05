@@ -13,7 +13,8 @@ interface LogEntry {
   module?: string;
   event?: string;
   message: string;
-  metadata?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: any;
   created_at: string;
   source: "system" | "agent" | "error";
   agent_id?: string;
