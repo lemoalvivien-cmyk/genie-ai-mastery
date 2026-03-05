@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
-  Brain, Wand2, Handshake, Clock, Plane, TrendingUp,
+  Brain, Wand2, Handshake, Clock, Plane, TrendingUp, Activity, DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
