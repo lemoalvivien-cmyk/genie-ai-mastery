@@ -211,6 +211,155 @@ export type Database = {
           },
         ]
       }
+      agent_store_installs: {
+        Row: {
+          agent_id: string | null
+          config: Json | null
+          id: string
+          installed_at: string | null
+          is_active: boolean | null
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          config?: Json | null
+          id?: string
+          installed_at?: string | null
+          is_active?: boolean | null
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          config?: Json | null
+          id?: string
+          installed_at?: string | null
+          is_active?: boolean | null
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_store_installs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_store_installs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "agent_store_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_store_items: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          category: string
+          config: Json | null
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          install_count: number | null
+          is_official: boolean | null
+          is_public: boolean | null
+          name: string
+          rating_avg: number | null
+          rating_count: number | null
+          system_prompt: string | null
+          tags: string[] | null
+          tools: Json | null
+          updated_at: string | null
+          use_cases: string[] | null
+          version: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          config?: Json | null
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          install_count?: number | null
+          is_official?: boolean | null
+          is_public?: boolean | null
+          name: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          system_prompt?: string | null
+          tags?: string[] | null
+          tools?: Json | null
+          updated_at?: string | null
+          use_cases?: string[] | null
+          version?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          config?: Json | null
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          install_count?: number | null
+          is_official?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          system_prompt?: string | null
+          tags?: string[] | null
+          tools?: Json | null
+          updated_at?: string | null
+          use_cases?: string[] | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      agent_store_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_store_ratings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "agent_store_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_budgets: {
         Row: {
           daily_limit: number
@@ -2671,6 +2820,78 @@ export type Database = {
           },
         ]
       }
+      user_activity: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          module: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          module?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          module?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_brain_profile: {
+        Row: {
+          ai_tools_used: string[] | null
+          expertise_level: string | null
+          interests: string[] | null
+          last_analyzed_at: string | null
+          learning_style: string | null
+          personality: Json | null
+          primary_language: string | null
+          summary: string | null
+          top_skills: string[] | null
+          updated_at: string | null
+          user_id: string
+          work_domain: string | null
+        }
+        Insert: {
+          ai_tools_used?: string[] | null
+          expertise_level?: string | null
+          interests?: string[] | null
+          last_analyzed_at?: string | null
+          learning_style?: string | null
+          personality?: Json | null
+          primary_language?: string | null
+          summary?: string | null
+          top_skills?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          work_domain?: string | null
+        }
+        Update: {
+          ai_tools_used?: string[] | null
+          expertise_level?: string | null
+          interests?: string[] | null
+          last_analyzed_at?: string | null
+          learning_style?: string | null
+          personality?: Json | null
+          primary_language?: string | null
+          summary?: string | null
+          top_skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          work_domain?: string | null
+        }
+        Relationships: []
+      }
       user_daily_log: {
         Row: {
           completed_date: string
@@ -2711,6 +2932,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_goals: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          priority: number | null
+          progress: number | null
+          status: string | null
+          target_date: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          priority?: number | null
+          progress?: number | null
+          status?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          priority?: number | null
+          progress?: number | null
+          status?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
