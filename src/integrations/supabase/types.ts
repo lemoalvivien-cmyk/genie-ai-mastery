@@ -95,6 +95,56 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_executions: {
+        Row: {
+          agent_id: string | null
+          completed_at: string | null
+          error: string | null
+          id: string
+          metadata: Json | null
+          objective: string
+          result: string | null
+          started_at: string | null
+          status: string | null
+          steps: Json | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json | null
+          objective?: string
+          result?: string | null
+          started_at?: string | null
+          status?: string | null
+          steps?: Json | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json | null
+          objective?: string
+          result?: string | null
+          started_at?: string | null
+          status?: string | null
+          steps?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_budgets: {
         Row: {
           daily_limit: number
@@ -1195,6 +1245,124 @@ export type Database = {
           window_start?: string
         }
         Relationships: []
+      }
+      marketplace_items: {
+        Row: {
+          category: string | null
+          content: Json
+          created_at: string | null
+          description: string
+          id: string
+          is_featured: boolean | null
+          is_public: boolean | null
+          name: string
+          rating_avg: number | null
+          rating_count: number | null
+          tags: string[] | null
+          type: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content?: Json
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: Json
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_ratings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_usage: {
+        Row: {
+          id: string
+          item_id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_usage_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       modules: {
         Row: {
@@ -2446,6 +2614,10 @@ export type Database = {
         Returns: boolean
       }
       increment_logging_errors: { Args: never; Returns: undefined }
+      increment_marketplace_usage: {
+        Args: { _item_id: string }
+        Returns: undefined
+      }
       increment_usage: {
         Args: {
           _amount?: number
