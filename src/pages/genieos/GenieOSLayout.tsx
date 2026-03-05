@@ -3,28 +3,63 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Bot, Zap, Code2, Cpu, Store, BarChart2, MessageSquare,
   ChevronLeft, ChevronRight, Menu, Sparkles, Network, Database, Play, Mic, Radio,
-  Brain, Wand2,
+  Brain, Wand2, Handshake, Clock, Plane, TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
-  { to: "/os/voice", icon: Mic, label: "Voice OS", color: "text-pink-400" },
-  { to: "/os/agents", icon: Bot, label: "Agent Builder", color: "text-emerald-400" },
-  { to: "/os/agents-runtime", icon: Radio, label: "Agents Runtime", color: "text-cyan-400" },
-  { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-sky-400" },
-  { to: "/os/automation", icon: Zap, label: "Automation", color: "text-yellow-400" },
-  { to: "/os/app-builder", icon: Code2, label: "App Builder", color: "text-blue-400" },
-  { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
-  { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
-  { to: "/os/business", icon: BarChart2, label: "Business", color: "text-pink-400" },
-  { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
-  { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
-  { to: "/os/ai-watch", icon: Sparkles, label: "AI Watch", color: "text-amber-400" },
-  { to: "/os/opportunities", icon: BarChart2, label: "Opportunités", color: "text-emerald-400" },
-  { to: "/os/store", icon: Store, label: "AI Store", color: "text-violet-400" },
-  { to: "/os/brain", icon: Brain, label: "AI Brain", color: "text-rose-400" },
-  { to: "/os/builder", icon: Wand2, label: "Auto Builder", color: "text-orange-400" },
+const NAV_SECTIONS = [
+  {
+    label: "Core",
+    items: [
+      { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
+      { to: "/os/voice", icon: Mic, label: "Voice OS", color: "text-pink-400" },
+    ],
+  },
+  {
+    label: "Intelligence",
+    items: [
+      { to: "/os/skills", icon: Brain, label: "Skill Graph", color: "text-purple-400" },
+      { to: "/os/cofounder", icon: Handshake, label: "Co-Founder IA", color: "text-emerald-400" },
+      { to: "/os/opportunities", icon: TrendingUp, label: "Opportunités", color: "text-emerald-400" },
+      { to: "/os/ai-watch", icon: Sparkles, label: "AI Watch", color: "text-amber-400" },
+    ],
+  },
+  {
+    label: "Agents",
+    items: [
+      { to: "/os/agents", icon: Bot, label: "Agent Builder", color: "text-emerald-400" },
+      { to: "/os/agents-runtime", icon: Radio, label: "Agents Runtime", color: "text-cyan-400" },
+      { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-sky-400" },
+      { to: "/os/autopilot", icon: Plane, label: "Autopilot", color: "text-sky-400" },
+      { to: "/os/economy", icon: Store, label: "Agent Economy", color: "text-violet-400" },
+    ],
+  },
+  {
+    label: "Build",
+    items: [
+      { to: "/os/automation", icon: Zap, label: "Automation", color: "text-yellow-400" },
+      { to: "/os/app-builder", icon: Code2, label: "App Builder", color: "text-blue-400" },
+      { to: "/os/builder", icon: Wand2, label: "Auto Builder", color: "text-orange-400" },
+      { to: "/os/business", icon: BarChart2, label: "Business", color: "text-pink-400" },
+    ],
+  },
+  {
+    label: "Data & Memory",
+    items: [
+      { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
+      { to: "/os/brain", icon: Brain, label: "AI Brain", color: "text-rose-400" },
+      { to: "/os/timeline", icon: Clock, label: "Memory Timeline", color: "text-indigo-400" },
+    ],
+  },
+  {
+    label: "Explore",
+    items: [
+      { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
+      { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
+      { to: "/os/store", icon: Store, label: "AI Store", color: "text-violet-400" },
+      { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
+    ],
+  },
 ];
 
 export default function GenieOSLayout() {
@@ -35,7 +70,7 @@ export default function GenieOSLayout() {
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className={cn("flex items-center gap-3 px-4 py-5 border-b border-border", collapsed && "justify-center px-2")}>
+      <div className={cn("flex items-center gap-3 px-4 py-4 border-b border-border", collapsed && "justify-center px-2")}>
         <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow-sm">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
@@ -48,31 +83,40 @@ export default function GenieOSLayout() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ to, icon: Icon, label, color }) => {
-          const isActive = to === "/os"
-            ? location.pathname === "/os"
-            : location.pathname.startsWith(to);
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group",
-                collapsed && "justify-center px-2",
-                isActive
-                  ? "bg-primary/10 text-foreground border border-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <Icon className={cn("w-4 h-4 flex-shrink-0", isActive ? color : "group-hover:text-foreground")} />
-              {!collapsed && (
-                <span className="text-sm font-medium truncate">{label}</span>
-              )}
-            </NavLink>
-          );
-        })}
+      <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-1">
+        {NAV_SECTIONS.map(({ label, items }) => (
+          <div key={label}>
+            {!collapsed && (
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 py-1.5">
+                {label}
+              </p>
+            )}
+            {items.map(({ to, icon: Icon, label: itemLabel, color }) => {
+              const isActive = to === "/os"
+                ? location.pathname === "/os"
+                : location.pathname.startsWith(to);
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group",
+                    collapsed && "justify-center px-2",
+                    isActive
+                      ? "bg-primary/10 text-foreground border border-primary/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                >
+                  <Icon className={cn("w-4 h-4 flex-shrink-0", isActive ? color : "group-hover:text-foreground")} />
+                  {!collapsed && (
+                    <span className="text-sm font-medium truncate">{itemLabel}</span>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Collapse toggle (desktop) */}
