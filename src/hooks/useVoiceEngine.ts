@@ -46,7 +46,6 @@ export function useVoiceEngine({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
-      console.warn("SpeechRecognition not supported — falling back to text input");
       return;
     }
 

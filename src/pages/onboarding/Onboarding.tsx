@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Building2, Users, Sparkles, CreditCard, CheckCircle } from "lucide-react";
+import { Loader2, Building2, Users, Sparkles, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
@@ -94,6 +94,7 @@ export default function Onboarding() {
         persona: data.persona as never,
         level: ({ debutant: 1, intermediaire: 3, avance: 5 } as Record<string, number>)[data.level ?? "debutant"] ?? 1,
         onboarding_completed: true,
+        has_completed_welcome: true,
         org_id: orgData.id,
         role: "manager",
       }).eq("id", user.id);
@@ -112,9 +113,8 @@ export default function Onboarding() {
         return;
       }
       window.location.href = checkoutData.url;
-    } catch (e) {
+    } catch {
       setError("Une erreur est survenue. Réessayez.");
-      console.error(e);
     } finally {
       setSaving(false);
     }
@@ -145,14 +145,14 @@ export default function Onboarding() {
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
       await supabase.from("profiles").update({
-        persona: finalData.persona as any,
+        persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
         onboarding_completed: true,
+        has_completed_welcome: true,
         ...(org_id ? { org_id, role: "manager" } : {}),
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      // ── Cash event: onboarding fully completed ────────────────────────────
       track("onboarding_done", { persona: finalData.persona, level: finalData.level, has_org: !!org_id });
 
       // Confetti then redirect

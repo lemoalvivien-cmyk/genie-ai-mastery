@@ -290,12 +290,12 @@ export default function Index() {
               Essayer GENIE OS gratuitement
             </button>
             <Link
-              to="/os/start"
+              to="/register"
               className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-base transition-all hover:bg-primary/10"
               style={{ border: "1px solid rgba(82,87,216,0.5)", color: "hsl(var(--primary))" }}
             >
               <Play className="w-4 h-4" />
-              Voir la démo
+              Voir comment ça marche
             </Link>
           </div>
 

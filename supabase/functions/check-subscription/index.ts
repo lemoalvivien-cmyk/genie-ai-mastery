@@ -65,7 +65,7 @@ serve(async (req) => {
 
     logStep("Org data", { plan: org?.plan, source: org?.plan_source });
 
-    const isPaidPlan = org?.plan === "business" || org?.plan === "compliance" || org?.plan === "partner";
+    const isPaidPlan = org?.plan === "pro" || org?.plan === "business" || org?.plan === "compliance" || org?.plan === "partner";
     const isSubscribed = isPaidPlan && (org?.plan_source === "stripe" || org?.plan_source === "access_code");
 
     let renewalDate: string | null = null;

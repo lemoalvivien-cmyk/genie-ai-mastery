@@ -17,19 +17,18 @@ const NAV_SECTIONS = [
     items: [
       { to: "/os", icon: MessageSquare, label: "Chat IA", color: "text-primary" },
       { to: "/os/control", icon: Activity, label: "Command Center", color: "text-primary" },
-      { to: "/os/start", icon: Sparkles, label: "Démarrage", color: "text-amber-400" },
       { to: "/os/voice", icon: Mic, label: "Voice OS", color: "text-pink-400" },
+      { to: "/os/start", icon: Sparkles, label: "Démarrage rapide", color: "text-amber-400" },
     ],
   },
   {
     label: "Revenue",
     items: [
       { to: "/os/revenue", icon: DollarSign, label: "Revenue Engine", color: "text-green-400" },
-      { to: "/os/revenue-analytics", icon: BarChart2, label: "Revenue Analytics", color: "text-emerald-400" },
-      { to: "/os/enterprise", icon: Building2, label: "Enterprise", color: "text-amber-400" },
-      { to: "/os/cofounder", icon: Handshake, label: "Co-Founder IA", color: "text-emerald-400" },
+      { to: "/os/revenue-analytics", icon: BarChart2, label: "Analytics", color: "text-emerald-400" },
       { to: "/os/opportunities", icon: TrendingUp, label: "Opportunités", color: "text-emerald-400" },
-      { to: "/os/economy", icon: Store, label: "Agent Economy", color: "text-violet-400" },
+      { to: "/os/cofounder", icon: Handshake, label: "Co-Founder IA", color: "text-emerald-400" },
+      { to: "/os/enterprise", icon: Building2, label: "Enterprise", color: "text-amber-400" },
     ],
   },
   {
@@ -37,16 +36,18 @@ const NAV_SECTIONS = [
     items: [
       { to: "/os/skills", icon: Brain, label: "Skill Graph", color: "text-purple-400" },
       { to: "/os/ai-watch", icon: Sparkles, label: "AI Watch", color: "text-amber-400" },
+      { to: "/os/brain", icon: Database, label: "AI Brain", color: "text-rose-400" },
+      { to: "/os/timeline", icon: Clock, label: "Memory", color: "text-indigo-400" },
       { to: "/os/autopilot", icon: Plane, label: "Autopilot", color: "text-sky-400" },
-      { to: "/os/timeline", icon: Clock, label: "Memory Timeline", color: "text-indigo-400" },
     ],
   },
   {
     label: "Agents",
     items: [
       { to: "/os/agents", icon: Bot, label: "Agent Builder", color: "text-emerald-400" },
-      { to: "/os/agents-runtime", icon: Radio, label: "Agents Runtime", color: "text-cyan-400" },
+      { to: "/os/agents-runtime", icon: Radio, label: "Runtime", color: "text-cyan-400" },
       { to: "/os/multi-agent", icon: Network, label: "Multi-Agents", color: "text-sky-400" },
+      { to: "/os/economy", icon: Store, label: "Agent Economy", color: "text-violet-400" },
     ],
   },
   {
@@ -59,26 +60,19 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: "Data & Memory",
+    label: "Knowledge",
     items: [
-      { to: "/os/knowledge", icon: Database, label: "Knowledge", color: "text-indigo-400" },
-      { to: "/os/brain", icon: Brain, label: "AI Brain", color: "text-rose-400" },
-    ],
-  },
-  {
-    label: "Explore",
-    items: [
-      { to: "/os/ai-tools",    icon: Cpu,   label: "AI Tools",    color: "text-purple-400" },
-      { to: "/os/marketplace", icon: Store, label: "Marketplace", color: "text-orange-400" },
-      { to: "/os/store",       icon: Store, label: "AI Store",    color: "text-violet-400" },
-      { to: "/os/actions",     icon: Play,  label: "Actions",     color: "text-rose-400" },
+      { to: "/os/knowledge", icon: Database, label: "Knowledge Base", color: "text-indigo-400" },
+      { to: "/os/ai-tools", icon: Cpu, label: "AI Tools", color: "text-purple-400" },
+      { to: "/os/store", icon: Store, label: "AI Store", color: "text-violet-400" },
+      { to: "/os/actions", icon: Play, label: "Actions", color: "text-rose-400" },
     ],
   },
   {
     label: "Ops",
     items: [
       { to: "/os/system", icon: Activity, label: "System Health", color: "text-emerald-400" },
-      { to: "/os/logs",   icon: FileText, label: "Logs Central",  color: "text-sky-400" },
+      { to: "/os/logs", icon: FileText, label: "Logs Central", color: "text-sky-400" },
     ],
   },
 ];

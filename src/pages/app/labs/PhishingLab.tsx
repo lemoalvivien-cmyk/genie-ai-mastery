@@ -377,8 +377,8 @@ export default function PhishingLab() {
           total_clues: em.clues.filter((c) => c.isPhishing).length,
         });
       }
-    } catch (err) {
-      console.error("Error saving phishing results:", err);
+    } catch {
+      // Phishing results save failure — non-blocking
     } finally {
       setSaving(false);
     }

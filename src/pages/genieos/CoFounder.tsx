@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
+import { captureError } from "@/lib/sentry";
 import {
   Handshake, Send, Loader2, Sparkles, BarChart2,
   Lightbulb, Map, Users, TrendingUp, ChevronRight, RefreshCw
@@ -106,8 +107,10 @@ export default function CoFounder() {
         metadata: { idea, steps: collectedSteps.length },
         importance: "high",
       });
-    } catch (e: any) {
-      if (e.name !== "AbortError") console.error(e);
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name !== "AbortError") {
+        captureError(e, { component: "CoFounder" });
+      }
     } finally {
       setLoading(false);
       setCurrentStep("");

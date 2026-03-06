@@ -36,7 +36,7 @@ export function captureError(
   context?: Record<string, string>,
 ) {
   if (!DSN) {
-    console.error("[Sentry no-op]", err, context);
+    // Silent in dev when no Sentry DSN configured
     return;
   }
   Sentry.withScope((scope) => {

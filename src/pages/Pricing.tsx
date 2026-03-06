@@ -19,22 +19,24 @@ const LAUNCH_CODE = "LAUNCH40";
 const LAUNCH_SPOTS_REMAINING = 23;
 
 const FREE_FEATURES: { label: string; included: boolean }[] = [
-  { label: "1 module par domaine", included: true },
-  { label: "1 message KITT IA / jour", included: true },
-  { label: "Quiz basiques", included: true },
-  { label: "Attestations de compétence", included: false },
-  { label: "Missions quotidiennes", included: false },
-  { label: "Accès illimité aux modules", included: false },
+  { label: "Chat IA (2 messages/jour)", included: true },
+  { label: "1 agent IA créé", included: true },
+  { label: "Modules de formation IA", included: true },
+  { label: "Agents autonomes illimités", included: false },
+  { label: "Revenue Engine", included: false },
+  { label: "Auto Builder", included: false },
+  { label: "Co-Founder IA", included: false },
   { label: "Support prioritaire", included: false },
 ];
 
 const PRO_FEATURES: string[] = [
-  "Modules illimités (IA, Cyber, Vibe Coding)",
-  "KITT IA illimité (500 messages / jour)",
-  "Quiz adaptatifs illimités",
+  "Agents IA autonomes illimités",
+  "Chat IA (500 messages/jour)",
+  "Revenue Engine — génération de leads IA",
+  "Auto Builder — prototypage produit IA",
+  "Co-Founder IA — validation et roadmap",
+  "Knowledge Base & AI Brain personnalisés",
   "Attestations PDF vérifiables",
-  "Missions quotidiennes + streaks",
-  "Dashboard cockpit complet",
   "Support prioritaire",
   "Sans engagement — résiliation en 2 clics",
 ];
@@ -42,15 +44,15 @@ const PRO_FEATURES: string[] = [
 const FAQ = [
   {
     q: "C'est quoi la différence avec ChatGPT ?",
-    a: "ChatGPT est un outil. GENIE IA est une méthode : modules structurés + quiz + attestation + copilote. Vous ne restez pas seul face à l'écran.",
+    a: "ChatGPT est un outil généraliste. GENIE OS est un système complet : agents autonomes, Revenue Engine, Co-Founder IA et mémoire persistante. Vous ne posez plus des questions — vous pilotez une machine.",
   },
   {
     q: "Je suis débutant total, c'est pour moi ?",
-    a: "Oui. L'onboarding adapte tout à votre niveau. 70% de nos utilisateurs n'avaient jamais utilisé l'IA avant de rejoindre GENIE IA.",
+    a: "Oui. L'onboarding adapte tout à votre niveau. Le Smart Onboarding vous guide pas à pas pour créer votre premier agent en 3 minutes.",
   },
   {
-    q: "L'attestation a-t-elle une valeur ?",
-    a: "C'est une attestation de compétence vérifiable, pas un diplôme d'État. Elle prouve à un employeur ou client que vous maîtrisez les fondamentaux. Acceptée par les OPCO.",
+    q: "Les agents tournent vraiment en autonomie ?",
+    a: "Oui. Une fois configurés, vos agents exécutent leurs missions (veille, génération de leads, analyse) sans intervention manuelle. Vous recevez les résultats directement.",
   },
   {
     q: "Je peux annuler quand je veux ?",
