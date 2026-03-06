@@ -146,14 +146,14 @@ export default function Onboarding() {
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
       await supabase.from("profiles").update({
-        persona: finalData.persona as any,
+        persona: finalData.persona as string,
         level: levelMap[finalData.level] ?? 1,
         onboarding_completed: true,
+        has_completed_welcome: true,
         ...(org_id ? { org_id, role: "manager" } : {}),
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      // ── Cash event: onboarding fully completed ────────────────────────────
       track("onboarding_done", { persona: finalData.persona, level: finalData.level, has_org: !!org_id });
 
       // Confetti then redirect
