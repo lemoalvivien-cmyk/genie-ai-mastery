@@ -146,7 +146,7 @@ export default function Onboarding() {
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
       await supabase.from("profiles").update({
-        persona: finalData.persona as string,
+        persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
         onboarding_completed: true,
         has_completed_welcome: true,
