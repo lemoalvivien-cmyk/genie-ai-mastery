@@ -113,9 +113,8 @@ export default function Onboarding() {
         return;
       }
       window.location.href = checkoutData.url;
-    } catch (e) {
+    } catch {
       setError("Une erreur est survenue. Réessayez.");
-      console.error(e);
     } finally {
       setSaving(false);
     }
