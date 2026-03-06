@@ -186,7 +186,7 @@ export default function VoiceAssistant() {
       if (e.error === "no-speech") {
         startListening(); // restart on silence
       } else {
-        console.warn("Speech recognition error:", e.error);
+        // Speech recognition error — non-critical
       }
     };
     recognition.onend = () => {

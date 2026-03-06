@@ -167,7 +167,6 @@ export function NouveautesPanel() {
       .limit(30);
 
     if (error) {
-      console.error("Error loading briefs:", error);
       return;
     }
 

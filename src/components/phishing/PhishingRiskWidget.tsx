@@ -59,8 +59,8 @@ export function PhishingRiskWidget({ orgId }: PhishingRiskWidgetProps) {
         setAtRiskCount(atRisk);
         setTotalTested(tested);
         setRiskPct(pct);
-      } catch (err) {
-        console.error("PhishingRiskWidget error:", err);
+      } catch {
+        // PhishingRiskWidget load failure — non-critical
       } finally {
         setLoading(false);
       }

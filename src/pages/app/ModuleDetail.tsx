@@ -67,7 +67,6 @@ export default function ModuleDetail() {
       },
     }).then(({ data, error }) => {
       if (error || !data?.success) {
-        console.error("Auto-attestation error", error ?? data?.error);
         return;
       }
       if (data.signed_url) setAttestationUrl(data.signed_url);
