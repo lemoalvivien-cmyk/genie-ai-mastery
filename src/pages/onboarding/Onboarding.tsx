@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Building2, Users, Sparkles, CreditCard, CheckCircle } from "lucide-react";
+import { Loader2, Building2, Users, Sparkles, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
@@ -94,6 +94,7 @@ export default function Onboarding() {
         persona: data.persona as never,
         level: ({ debutant: 1, intermediaire: 3, avance: 5 } as Record<string, number>)[data.level ?? "debutant"] ?? 1,
         onboarding_completed: true,
+        has_completed_welcome: true,
         org_id: orgData.id,
         role: "manager",
       }).eq("id", user.id);
