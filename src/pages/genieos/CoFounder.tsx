@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
+import { captureError } from "@/lib/sentry";
 import {
   Handshake, Send, Loader2, Sparkles, BarChart2,
   Lightbulb, Map, Users, TrendingUp, ChevronRight, RefreshCw
