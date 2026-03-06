@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Bot, Zap, Code2, BarChart3, Users, Globe, ArrowRight, CheckCircle,
