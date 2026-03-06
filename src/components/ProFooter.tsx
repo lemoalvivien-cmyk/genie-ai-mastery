@@ -12,7 +12,7 @@ export function ProFooter() {
           <div className="space-y-4">
             <img src={logoGenie} alt="GENIE IA" className="h-9 w-auto" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              La plateforme qui forme, évalue et certifie vos compétences IA.
+              Votre copilote IA pour créer, automatiser et générer des opportunités business.
             </p>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> RGPD natif</span>
