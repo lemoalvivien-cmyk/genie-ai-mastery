@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Bot, Zap, Code2, BarChart3, Users, Globe, ArrowRight, CheckCircle,
   Star, Sparkles, Rocket, Brain, TrendingUp, Play, ChevronRight,
   Mail, Loader2, X, Smartphone,
 } from "lucide-react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
@@ -141,17 +141,11 @@ const TESTIMONIALS = [
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [emailLead, setEmailLead] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailDone, setEmailDone] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const { isInstallable, isIOS, triggerInstall } = usePWAInstall();
-
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) sessionStorage.setItem("genie_ref", ref.toUpperCase());
-  }, [searchParams]);
 
   const handleCTA = () => {
     if (isAuthenticated) {

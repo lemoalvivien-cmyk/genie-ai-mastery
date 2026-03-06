@@ -371,13 +371,12 @@ export default function Settings() {
                 ))}
               </div>
               <hr className="border-border/40" />
-              <button
-                disabled
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted/40 text-muted-foreground text-sm cursor-not-allowed opacity-60"
-                title="Fonctionnalité à venir"
+              <Link
+                to="/legal/rgpd"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-muted-foreground text-sm hover:text-foreground hover:border-primary/40 transition-all"
               >
-                Exporter mes données (bientôt)
-              </button>
+                Exercer mes droits RGPD (accès, suppression, export)
+              </Link>
             </div>
           </div>
         </main>
