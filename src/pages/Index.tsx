@@ -148,10 +148,7 @@ export default function Index() {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const { isInstallable, isIOS, triggerInstall } = usePWAInstall();
 
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) sessionStorage.setItem("genie_ref", ref.toUpperCase());
-  }, [searchParams]);
+  // Ref capture handled globally by App.tsx RefCapture component
 
   const handleCTA = () => {
     if (isAuthenticated) {
