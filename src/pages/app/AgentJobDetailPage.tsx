@@ -190,7 +190,7 @@ export default function AgentJobDetailPage() {
               <div className="flex items-center gap-2">
                 <Server className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-xs font-medium text-foreground">Panneau Runtime</span>
-                {isDevHarness && <Badge variant="outline" className="text-xs border-yellow-400/30 text-yellow-400">DEV_ONLY</Badge>}
+                {isDevHarness && <Badge variant="outline" className="text-xs border-warning/30 text-warning">DEV_ONLY</Badge>}
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <RuntimeField label="Nom" value={runtime?.name ?? job.runtime_id.slice(0, 8)} />
