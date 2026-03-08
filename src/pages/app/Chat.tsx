@@ -13,6 +13,8 @@ import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
+import { KITTModePanel } from "@/components/chat/KITTModePanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -246,6 +248,9 @@ export default function Chat() {
   const contextSkillIds = (searchParams.get("skill_ids") ?? "").split(",").filter(Boolean);
   const contextModuleId = searchParams.get("module_id") ?? undefined;
   const [ecoMode, setEcoMode] = useState(false);
+  const [kittMode, setKittMode] = useState<KITTMode>("coaching");
+  const { data: kittContext } = useKITTContext();
+  const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
 
   // Dynamic welcome message
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
@@ -263,7 +268,7 @@ export default function Chat() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
-  const [hasProgress] = useState(false); // TODO: fetch from progress table
+  // hasProgress is now derived from real kittContext data (replaced the hardcoded false)
   const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
   // ── Semantic adaptation engine ─────────────────────────────────────────────
@@ -273,6 +278,8 @@ export default function Chat() {
   const adaptationLevel = Math.min(2, consecutiveFailures);
   const consecutiveFailuresRef = useRef(consecutiveFailures);
   consecutiveFailuresRef.current = consecutiveFailures;
+  const kittModeRef = useRef(kittMode);
+  kittModeRef.current = kittMode;
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -373,6 +380,10 @@ export default function Chat() {
             session_id: sessionId,
             request_type: "chat",
             adaptation_level: currentAdaptation,
+            kitt_context: {
+              ...(kittContext ?? {}),
+              kitt_mode: kittModeRef.current,
+            },
           },
         });
 
@@ -488,15 +499,37 @@ export default function Chat() {
             </div>
           )}
           {adaptationLevel >= 2 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] text-amber-400 font-medium animate-pulse">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[hsl(var(--warning)/0.15)] border border-[hsl(var(--warning)/0.3)] text-[10px] text-[hsl(var(--warning))] font-medium animate-pulse">
               🧒 Mode analogies activé
             </span>
           )}
           {adaptationLevel === 1 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400 font-medium">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium">
               💡 Mode simplifié
             </span>
           )}
+        </div>
+
+        {/* ── KITT Mode Panel ── */}
+        <div className="shrink-0 px-4 sm:px-6 pb-2">
+          <div className="max-w-2xl mx-auto">
+            <KITTModePanel
+              mode={kittMode}
+              onModeChange={(m) => {
+                setKittMode(m);
+                // Inject the mode change into chat as a system suggestion
+                if (m === "diagnostic") {
+                  sendMessage("Lance mon diagnostic de niveau sur les 4 domaines.");
+                } else if (m === "synthesis") {
+                  sendMessage("Génère mon bilan de progression complet.");
+                } else if (m === "remediation" && kittContext?.top_gap) {
+                  sendMessage(`Aide-moi à corriger ma lacune sur : ${kittContext.top_gap.name}`);
+                }
+              }}
+              context={kittContext ?? null}
+              isPro={isPro}
+            />
+          </div>
         </div>
 
         {/* ── Messages ── */}

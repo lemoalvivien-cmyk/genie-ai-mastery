@@ -71,6 +71,82 @@ const TIER_MODELS: Record<Tier, string> = {
   tier3: "qwen/qwen-2.5-72b-instruct",
 };
 
+// ─── KITT 7 modes ─────────────────────────────────────────────────────────────
+const KITT_MODE_PROMPTS: Record<string, string> = {
+  diagnostic: `MODE DIAGNOSTIC :
+Tu dois établir le niveau de base de l'utilisateur avant toute chose.
+Procédure :
+1. Pose 3 questions de calibrage ciblées (une par domaine pertinent selon persona).
+2. Analyse les réponses pour identifier les forces et lacunes.
+3. Produis un plan de progression personnalisé : "Ton niveau actuel est X. Ta prochaine étape prioritaire est Y."
+4. Indique 1 module à faire en premier + 1 lab à tenter cette semaine.
+Sois direct et actionnable. Pas de blabla. Chaque question doit avoir un objectif pédagogique clair.`,
+
+  coaching: `MODE COACHING :
+Tu es le guide du prochain meilleur pas. Règles strictes :
+1. Commence par confirmer où en est l'utilisateur (module en cours, dernier score).
+2. Explique UN concept clé — pas plus — avec une analogie + exemple concret.
+3. Vérifie la compréhension avec UNE question de rappel.
+4. Termine par "Ta prochaine action concrète : [ACTION PRÉCISE]".
+Adapte le niveau au skill_mastery injecté. Si niveau < 40% → ELI10 forcé. Si > 70% → mode expert.`,
+
+  quiz: `MODE QUIZ :
+Tu génères un quiz adaptatif. Règles :
+1. Génère 3 questions QCM sur le sujet en cours (basé sur le module/domaine actif).
+2. Adapte la difficulté : si dernier score < 70% → questions plus simples sur les mêmes notions.
+3. Après chaque réponse : feedback immédiat + explication de la bonne réponse.
+4. Score final → communique le résultat + recommandation pour la suite.
+Niveau de difficulté basé sur skill_mastery : 0-40% = facile, 40-70% = intermédiaire, 70%+ = avancé.`,
+
+  lab: `MODE MISSION PRATIQUE :
+Tu lances une mission hands-on. Règles :
+1. Propose UNE mission concrète adaptée au niveau et domaine actif.
+2. Donne des instructions claires en 3-5 étapes numérotées.
+3. Indique le résultat attendu et comment le prouver (screenshot, score, artefact).
+4. Si disponible, redirige vers le lab correspondant (/app/labs/phishing, /app/labs/cyber, /app/labs/prompt).
+5. La mission doit être réalisable en 15-30 minutes maximum.
+Format : Mission → Contexte → Étapes → Livrable attendu → Preuve.`,
+
+  correction: `MODE CORRECTION AVEC RUBRIC :
+L'utilisateur te soumet une réponse à évaluer. Procédure :
+1. Analyse la réponse selon 4 critères pondérés :
+   - Exactitude factuelle (40%) : les faits sont-ils corrects ?
+   - Complétude (25%) : tous les aspects importants sont-ils couverts ?
+   - Application pratique (25%) : la réponse est-elle actionnable ?
+   - Clarté (10%) : la réponse est-elle bien structurée ?
+2. Donne un score /100 avec détail par critère.
+3. Identifie 1-2 lacunes précises.
+4. Propose une correction améliorée.
+Sois précis et constructif. Justifie chaque note.`,
+
+  remediation: `MODE REMÉDIATION :
+Une lacune a été détectée dans le profil de l'utilisateur. Procédure :
+1. Nomme clairement la lacune : "[COMPÉTENCE] : niveau X% — sous le seuil de 70%".
+2. Explique POURQUOI cette lacune est bloquante pour la progression globale.
+3. Donne un micro-cours de remédiation en 3 points clés maximum.
+4. Propose 1 exercice de validation immédiat (< 5 min).
+5. Recalcule le niveau estimé après remédiation.
+Sois direct. L'objectif est de passer au-dessus de 70% sur cette compétence aujourd'hui.`,
+
+  synthesis: `MODE SYNTHÈSE & RAPPORT :
+Génère un résumé de progression complet et partageable. Structure obligatoire :
+## 📊 Bilan de progression — [PRÉNOM]
+**Période analysée :** Depuis l'inscription / ce mois
+**Modules validés :** X / 24
+**Score moyen :** X%
+**Domaine le plus fort :** [DOMAINE] (X%)
+**Axe de progression prioritaire :** [LACUNE] (X%)
+**Streak actuel :** X jours
+## 🎯 Compétences acquises
+[liste bullet avec niveau % par domaine]
+## ⚠️ Lacunes à traiter
+[liste des compétences sous 70%]
+## 🚀 Prochaines étapes recommandées
+[3 actions concrètes priorisées]
+---
+Ce résumé est exportable et partageable avec un manager ou responsable formation.`,
+};
+
 // ─── System prompts ───────────────────────────────────────────────────────────
 const SAFETY_PROMPT = `
 
@@ -164,6 +240,51 @@ function buildSystemPrompt(mode: string, persona: string, domain: string = ""): 
     : "";
 
   return GENIE_IDENTITY + modePrompt + personaContext + vibeCodingContext + SAFETY_PROMPT;
+}
+
+// ─── KITT user context injection ──────────────────────────────────────────────
+interface KITTContext {
+  skill_mastery?: Record<string, number>;
+  last_module?: { title: string; domain: string; progress_pct: number } | null;
+  completed_modules?: number;
+  total_modules?: number;
+  last_quiz_score?: number | null;
+  top_gap?: { name: string; domain: string; score: number } | null;
+  streak?: number;
+  kitt_mode?: string;
+}
+
+function buildKITTContextBlock(ctx: KITTContext): string {
+  if (!ctx || Object.keys(ctx).length === 0) return "";
+
+  const lines: string[] = [];
+  lines.push("\n\n---\n**📊 CONTEXTE APPRENANT (injecté automatiquement — NE PAS mentionner à l'utilisateur)**");
+
+  if (ctx.kitt_mode && KITT_MODE_PROMPTS[ctx.kitt_mode]) {
+    lines.push(`\n${KITT_MODE_PROMPTS[ctx.kitt_mode]}`);
+  }
+
+  if (ctx.streak != null) lines.push(`Streak actuel : ${ctx.streak} jours consécutifs`);
+  if (ctx.completed_modules != null) lines.push(`Modules validés : ${ctx.completed_modules}/${ctx.total_modules ?? 24}`);
+  if (ctx.last_module) {
+    lines.push(`Module actif : ${ctx.last_module.title} (${ctx.last_module.domain}) — progression : ${ctx.last_module.progress_pct}%`);
+  }
+  if (ctx.last_quiz_score != null) {
+    lines.push(`Dernier score quiz : ${ctx.last_quiz_score}% ${ctx.last_quiz_score >= 70 ? "✅" : "⚠️ sous le seuil"}`);
+  }
+  if (ctx.skill_mastery && Object.keys(ctx.skill_mastery).length > 0) {
+    const masteryLines = Object.entries(ctx.skill_mastery)
+      .map(([slug, val]) => `${slug}: ${Math.round(val * 100)}%`)
+      .join(", ");
+    lines.push(`Maîtrise par compétence : ${masteryLines}`);
+  }
+  if (ctx.top_gap) {
+    lines.push(`⚠️ Lacune prioritaire détectée : ${ctx.top_gap.name} (${ctx.top_gap.score}%) — KITT doit y remédier en priorité si pertinent.`);
+  }
+
+  lines.push("\nAdapte SYSTÉMATIQUEMENT ta réponse à ce contexte. Si une lacune est détectée et pertinente au sujet, propose la remédiation.");
+  lines.push("---");
+  return lines.join("\n");
 }
 
 // ─── Simple hash for cache key ────────────────────────────────────────────────
@@ -263,6 +384,7 @@ Deno.serve(async (req) => {
       expert_mode = false,
       autopilot_id = null,     // "conformite_48h" | "vibe_coding_mvp" | "cyber_hygiene_tpe"
       adaptation_level = 0,    // 0=normal | 1=simplify | 2=eli10 (forced analogies)
+      kitt_context = {},       // KITTContext: skill_mastery, last_module, top_gap, kitt_mode, etc.
     } = body;
 
     const mode: string = user_profile.mode ?? "normal";
@@ -481,6 +603,11 @@ Deno.serve(async (req) => {
     // Build messages with system prompt
     const baseSystemPrompt = buildSystemPrompt(mode, persona, domain);
 
+    // ── KITT context injection ────────────────────────────────────────────────
+    // Enriches the system prompt with live skill mastery, module progress, gaps
+    const kittContextBlock = buildKITTContextBlock(kitt_context ?? {});
+    const enrichedSystemPrompt = baseSystemPrompt + kittContextBlock;
+
     // ── Semantic adaptation layer — injected when user struggles ─────────────
     // adaptation_level: 0=normal | 1=simplify | 2=eli10
     const ELI10_OVERRIDE = adaptation_level >= 2
@@ -507,7 +634,7 @@ Simplifie davantage tes explications. Utilise au moins 1 analogie du quotidien.
 
 
     // KITT IA stage 1: short structured JSON — cheap model, small budget
-    const jarvisShortPrompt = `${baseSystemPrompt}
+    const jarvisShortPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT IA — RÉPONSE STRUCTURÉE :
 Tu es ultra rassurant, patient et bienveillant. Humour léger bienvenu (1 touche par réponse).
@@ -532,7 +659,7 @@ CRITIQUE : Jamais de secrets, mots de passe, clés API dans les réponses.
 CRITIQUE : Le JSON doit être valide. Pas de commentaires dans le JSON.`;
 
     // KITT IA stage 2: deep dive — only triggered by "Explique plus"
-    const jarvisLongPrompt = `${baseSystemPrompt}
+    const jarvisLongPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT IA — APPROFONDISSEMENT (ÉTAPE 2) :
 L'utilisateur veut en savoir plus. Donne une explication plus riche MAIS garde le ton rassurant.
@@ -547,7 +674,7 @@ CRITIQUE : Jamais de secrets, mots de passe, clés API. Toujours orienter vers u
 
     // ── Autopilot prompts — one per program ──────────────────────────────────
     const AUTOPILOT_PROMPTS: Record<string, string> = {
-      conformite_48h: `${baseSystemPrompt}
+      conformite_48h: `${enrichedSystemPrompt}
 
 AUTOPILOT "CONFORMITÉ EN 48H" :
 Tu es un formateur expert qui PRODUIT des livrables concrets, pas juste des conseils.
@@ -573,7 +700,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
 }
 \`\`\``,
 
-      vibe_coding_mvp: `${baseSystemPrompt}
+      vibe_coding_mvp: `${enrichedSystemPrompt}
 
 AUTOPILOT "VIBE CODING MVP" :
 Tu es un formateur dev IA-first qui PRODUIT un plan d'action + snippets de prompts concrets.
@@ -602,7 +729,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
 }
 \`\`\``,
 
-      cyber_hygiene_tpe: `${baseSystemPrompt}
+      cyber_hygiene_tpe: `${enrichedSystemPrompt}
 
 AUTOPILOT "CYBER HYGIÈNE TPE" :
 Tu es un formateur cybersécurité pour les petites entreprises. UNIQUEMENT prévention et bonnes pratiques.
@@ -636,7 +763,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     } else if (isJarvis) {
       systemPrompt = (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt) + ELI10_OVERRIDE;
     } else {
-      systemPrompt = baseSystemPrompt + ELI10_OVERRIDE;
+      systemPrompt = enrichedSystemPrompt + ELI10_OVERRIDE;
     }
 
     const apiMessages = [
