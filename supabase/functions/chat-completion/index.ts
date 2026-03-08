@@ -700,7 +700,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
 }
 \`\`\``,
 
-      vibe_coding_mvp: `${baseSystemPrompt}
+      vibe_coding_mvp: `${enrichedSystemPrompt}
 
 AUTOPILOT "VIBE CODING MVP" :
 Tu es un formateur dev IA-first qui PRODUIT un plan d'action + snippets de prompts concrets.
