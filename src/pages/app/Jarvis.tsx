@@ -449,17 +449,34 @@ export default function Jarvis() {
           </div>
         </div>
 
-        {/* ── RIGHT: Cockpit ──────────────────────────────────────────────── */}
+        {/* ── RIGHT: Copilot Dock / Cockpit ───────────────────────────── */}
         <div className={`${showCockpit ? "flex flex-col flex-1" : "hidden"} lg:flex lg:flex-col lg:w-[340px] xl:w-[380px] shrink-0 bg-card/20`}>
-          {/* Cockpit header */}
-          <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border/40">
-            <div className="flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold">Cockpit</span>
-            </div>
+          {/* Tab bar */}
+          <div className="shrink-0 flex items-center border-b border-border/40">
+            <button
+              onClick={() => setShowDock(false)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors border-b-2 ${
+                !showDock ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Cockpit
+            </button>
+            <button
+              onClick={() => setShowDock(true)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors border-b-2 relative ${
+                showDock ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Plan d'action
+              {copilot.dockVisible && copilot.plan.length > 0 && !showDock && (
+                <span className="absolute top-2 right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
+            </button>
             <button
               onClick={() => setShowCockpit(false)}
-              className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              className="lg:hidden p-2 mr-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
               title="Retour au chat"
             >
               <MessageSquare className="w-4 h-4" />
@@ -467,7 +484,18 @@ export default function Jarvis() {
           </div>
 
           <div className="flex-1 overflow-hidden">
-            <CockpitPanel />
+            {showDock
+              ? <CopilotDock
+                  plan={copilot.plan}
+                  immediateAction={copilot.immediateAction}
+                  proofType={copilot.proofType}
+                  completedSteps={copilot.completedSteps}
+                  onMarkDone={copilot.markStepDone}
+                  onDismiss={() => setShowDock(false)}
+                  actionPath={copilot.actionPath}
+                />
+              : <CockpitPanel />
+            }
           </div>
         </div>
 
