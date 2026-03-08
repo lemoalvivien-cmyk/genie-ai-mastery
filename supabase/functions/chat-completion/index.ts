@@ -329,45 +329,36 @@ serve(async (req) => {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const [rateLimitResult, budgetResult, quotaResult, planData] = await Promise.all([
+    // Resolve plan server-side (fail-open on DB error)
+    let isPro = false;
+    let orgId: string | null = null;
+    try {
+      const planResult = await requireProPlan(supabaseAdmin, userId, corsHeaders);
+      isPro = planResult.isPro;
+      orgId = planResult.orgId;
+    } catch (e) {
+      // requireProPlan throws a Response on plan failure — pass it through
+      if (e instanceof Response) return e;
+      // Unexpected error → fail-open
+      console.error("[chat-completion] plan check error (fail-open):", e);
+      isPro = false;
+    }
+
+    const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
       supabaseAdmin
         .from("chat_messages")
         .select("*", { count: "exact", head: true })
         .eq("user_id", userId)
         .eq("role", "user")
         .gte("created_at", todayStart.toISOString()),
-      supabaseAdmin.rpc("check_budget", { _user_id: userId, _org_id: null }),
+      supabaseAdmin.rpc("check_budget", { _user_id: userId, _org_id: orgId }),
       supabaseAdmin.rpc("can_execute", {
         _user_id: userId,
-        _org_id: "00000000-0000-0000-0000-000000000000",
+        _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
         _kind: "ai_tokens_out",
-      }),
-      // Resolve plan using shared subscription helper (fail-open)
-      (async () => {
-        const { checkFreeUserDailyLimit: _check, ...mod } = await import("../_shared/subscription.ts");
-        return mod;
-      })().then(async (mod) => {
-        const { data: pRes } = await supabaseAdmin
-          .from("profiles").select("org_id, role").eq("id", userId).single();
-        const orgId = pRes?.org_id ?? null;
-        const { data: roleRes } = await supabaseAdmin
-          .from("user_roles").select("role").eq("user_id", userId).in("role", ["manager", "admin"]);
-        const isManager = (roleRes ?? []).some((r: { role: string }) => ["manager", "admin"].includes(r.role));
-        let isPro = isManager;
-        if (!isPro && orgId) {
-          const { data: org } = await supabaseAdmin
-            .from("organizations").select("plan, plan_source, is_read_only").eq("id", orgId).single();
-          if (org && !org.is_read_only) {
-            const proPlansList = ["pro", "business", "enterprise", "partner", "launch"];
-            isPro = proPlansList.includes(org.plan ?? "") &&
-              ["stripe", "access_code", "manual"].includes(org.plan_source ?? "");
-          }
-        }
-        return { isPro, orgId, isManager };
       }),
     ]);
 
-    const { isPro, orgId } = planData;
     const todayCount = rateLimitResult.count ?? 0;
     const quota = quotaResult.data as { allowed: boolean; current_usage: number; limit: number; remaining: number } | null;
 
