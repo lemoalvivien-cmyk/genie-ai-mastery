@@ -176,6 +176,7 @@ const App = () => (
                   }
                 >
                   <Route path="welcome"       element={<Welcome />} />
+                  <Route path="first-victory" element={<FirstVictory />} />
                   <Route path="dashboard"     element={<Dashboard />} />
                   <Route path="modules"       element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
