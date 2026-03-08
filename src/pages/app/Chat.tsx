@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
-import { fireScoreUtterance } from "@/hooks/useSkillMastery";
+import { fireScoreUtterance, useConversationalScoring } from "@/hooks/useSkillMastery";
 import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -264,6 +264,7 @@ export default function Chat() {
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
   const [hasProgress] = useState(false); // TODO: fetch from progress table
+  const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
   // ── Semantic adaptation engine ─────────────────────────────────────────────
   // Tracks consecutive "failure signals" (wrong quiz answers or explicit confusion)
@@ -401,16 +402,28 @@ export default function Chat() {
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
         if (data.eco_mode) setEcoMode(true);
 
-        // Fire-and-forget skill mastery scoring (async, never blocks UI)
-        if (contextSkillIds.length && session?.access_token && !data.quota_exceeded) {
-          fireScoreUtterance({
-            utterance: text,
-            assistantReply: data.content ?? "",
-            skillIds: contextSkillIds,
-            moduleId: contextModuleId,
-            accessToken: session.access_token,
-          });
+        // Invisible conversational skill scoring — fire-and-forget, never blocks UI
+        // Works in all chat contexts: with or without explicit skill_ids from a module
+        if (session?.access_token && !data.quota_exceeded && data.content) {
+          if (contextSkillIds.length) {
+            // Module context: score explicit skills (UUID list)
+            fireScoreUtterance({
+              utterance: text,
+              assistantReply: data.content,
+              skillIds: contextSkillIds,
+              moduleId: contextModuleId,
+              accessToken: session.access_token,
+            });
+          } else {
+            // Free-form chat: auto-detect skills from conversation
+            scoreExchange({
+              utterance: text,
+              assistantReply: data.content,
+              accessToken: session.access_token,
+            });
+          }
         }
+
 
         if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");

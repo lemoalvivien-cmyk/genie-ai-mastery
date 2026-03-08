@@ -756,6 +756,38 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
       });
     }
 
+    // ── Invisible skill scoring — fire-and-forget, never blocks user ─────────
+    // Always evaluate on regular chat (not autopilot/eco/upsell) using service role
+    // so score-utterance runs server-to-server without the user's JWT.
+    if (!ecoMode && !orgOverBudget && sanitized && finalContent) {
+      const scoreUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/score-utterance`;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const scorePayload = JSON.stringify({
+        utterance: sanitized,
+        assistant_reply: finalContent,
+        // Auto-detected skill pool — score-utterance will pick relevant ones via LLM
+        skill_ids: [] as string[],
+        auto_detect: true,
+        user_id: userId,
+      });
+
+      const scoreFetch = fetch(scoreUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceKey}`,
+        },
+        body: scorePayload,
+      }).catch(() => {}); // silently ignore — never block user
+
+      // Use EdgeRuntime.waitUntil if available (Deno Deploy), fallback to fire-and-forget
+      // deno-lint-ignore no-explicit-any
+      const runtime = (globalThis as any).EdgeRuntime;
+      if (runtime?.waitUntil) {
+        runtime.waitUntil(scoreFetch);
+      }
+    }
+
     // Log successful request (fire-and-forget)
     logRequest({ ...logCtx, orgId: orgId ?? null }, 200);
     return new Response(JSON.stringify({
