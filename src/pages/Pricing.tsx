@@ -291,6 +291,7 @@ export default function Pricing() {
   };
 
   const handleCheckout = async () => {
+    // Passe E : mutex checkout — double-clic impossible
     if (checkoutLoading) return;
     if (!isAuthenticated) {
       navigate("/register?redirect=/pricing");
@@ -312,6 +313,8 @@ export default function Pricing() {
       );
       if (error || data?.error)
         throw new Error(data?.error ?? "Erreur checkout");
+      // Passe E : stocker flag pending pour réconciliation post-redirect
+      sessionStorage.setItem("genie_payment_pending", "1");
       window.location.href = data.url;
     } catch (err) {
       toast({

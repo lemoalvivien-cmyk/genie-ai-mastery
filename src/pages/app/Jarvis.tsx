@@ -182,11 +182,21 @@ export default function Jarvis() {
     const userText = sanitize(text ?? input).trim();
     if (!userText || isLoading) return;
 
+    // Passe D/G : longueur max + protection iOS zoom
+    if (userText.length > 8000) {
+      toast({ title: "Message trop long", description: "Maximum 8000 caractères.", variant: "destructive" });
+      return;
+    }
+
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: userText };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
     setKittState("thinking");
+
+    // Passe D : AbortController 30s timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const { data, error } = await supabase.functions.invoke("chat-completion", {
@@ -211,16 +221,11 @@ export default function Jarvis() {
       if (data?.error) throw new Error(data.error);
 
       const raw: string = data?.content ?? "Je n'ai pas pu générer une réponse. Réessaie !";
-
-      // Parse structured JSON response (Jarvis mode)
       const parsed = parseJarvisResponse(raw);
-
-      // Display the message field (or fallback to raw text)
       const displayContent = parsed.message || raw;
       const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent };
       setMessages(prev => [...prev, assistantMsg]);
 
-      // Apply plan to CopilotDock if there's a plan
       if (parsed.plan.length > 0 || parsed.immediate_action) {
         copilot.applyResponse(parsed);
         setShowDock(true);
@@ -229,13 +234,17 @@ export default function Jarvis() {
       setKittState("speaking");
       if (voiceEnabled) speak(displayContent.slice(0, 200));
     } catch (err) {
+      const isAbort = err instanceof Error && err.name === "AbortError";
       toast({
-        title: "Erreur",
-        description: err instanceof Error ? err.message : "Problème de connexion.",
+        title: isAbort ? "Timeout" : "Erreur",
+        description: isAbort
+          ? "La requête a pris trop de temps. Vérifiez votre connexion."
+          : err instanceof Error ? err.message : "Problème de connexion.",
         variant: "destructive",
       });
       setKittState("idle");
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak, copilot]);

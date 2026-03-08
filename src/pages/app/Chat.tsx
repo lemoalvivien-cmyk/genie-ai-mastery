@@ -346,11 +346,17 @@ export default function Chat() {
       const text = sanitizeInput(raw);
       if (!text || isLoading) return;
 
+      // Guard: longueur maximale (Passe D)
+      if (text.length > 8000) {
+        toast({ title: "Message trop long", description: "Maximum 8000 caractères.", variant: "destructive" });
+        return;
+      }
+
       // ── Adaptation: bump failure counter if confused ─────────────────────
       const isConfused = isFailureSignal || detectConfusion(text);
       const newFailures = isConfused
         ? Math.min(2, consecutiveFailuresRef.current + 1)
-        : Math.max(0, consecutiveFailuresRef.current - 1); // success slowly resets
+        : Math.max(0, consecutiveFailuresRef.current - 1);
       setConsecutiveFailures(newFailures);
       const currentAdaptation = Math.min(2, newFailures);
 
@@ -361,6 +367,10 @@ export default function Chat() {
       setMessages((prev) => [...prev, userMsg, loadingMsg]);
       setIsLoading(true);
       setKittState("thinking");
+
+      // Passe D : AbortController 30s timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       try {
         const apiMessages = [...messagesRef.current, userMsg]
@@ -395,7 +405,6 @@ export default function Chat() {
         }
 
         if (data?.quota_exceeded) {
-          // Fire quota_hit event (fire-and-forget)
           supabase.from("analytics_events").insert({
             actor_user_id: session?.user?.id ?? null,
             event_name: "quota_hit",
@@ -413,11 +422,8 @@ export default function Chat() {
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
         if (data.eco_mode) setEcoMode(true);
 
-        // Invisible conversational skill scoring — fire-and-forget, never blocks UI
-        // Works in all chat contexts: with or without explicit skill_ids from a module
         if (session?.access_token && !data.quota_exceeded && data.content) {
           if (contextSkillIds.length) {
-            // Module context: score explicit skills (UUID list)
             fireScoreUtterance({
               utterance: text,
               assistantReply: data.content,
@@ -426,7 +432,6 @@ export default function Chat() {
               accessToken: session.access_token,
             });
           } else {
-            // Free-form chat: auto-detect skills from conversation
             scoreExchange({
               utterance: text,
               assistantReply: data.content,
@@ -435,11 +440,14 @@ export default function Chat() {
           }
         }
 
-
         if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");
       } catch (err) {
-        const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
+        // Passe D : finally garantit que le spinner est toujours retiré
+        const isAbort = err instanceof Error && err.name === "AbortError";
+        const errMsg = isAbort
+          ? "La requête a pris trop de temps. Vérifiez votre connexion et réessayez."
+          : err instanceof Error ? err.message : "Erreur inconnue";
         setMessages((prev) =>
           prev.filter((m) => m.id !== "loading").concat({
             id: crypto.randomUUID(),
@@ -449,6 +457,7 @@ export default function Chat() {
         );
         setKittState("idle");
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
         textareaRef.current?.focus();
       }
