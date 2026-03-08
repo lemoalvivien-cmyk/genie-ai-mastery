@@ -22,9 +22,12 @@ const Register       = lazy(() => import("./pages/auth/Register"));
 const ResetPassword  = lazy(() => import("./pages/auth/ResetPassword"));
 
 // ── App ──────────────────────────────────────────────────────────
-const Onboarding     = lazy(() => import("./pages/onboarding/Onboarding"));
-const Welcome        = lazy(() => import("./pages/app/Welcome"));
-const FirstVictory   = lazy(() => import("./pages/app/FirstVictory"));
+const Onboarding        = lazy(() => import("./pages/onboarding/Onboarding"));
+const Welcome           = lazy(() => import("./pages/app/Welcome"));
+const FirstVictory      = lazy(() => import("./pages/app/FirstVictory"));
+const OnboardingQuiz    = lazy(() => import("./pages/app/onboarding/OnboardingQuiz"));
+const OnboardingResult  = lazy(() => import("./pages/app/onboarding/OnboardingResult"));
+const OnboardingUnlock  = lazy(() => import("./pages/app/onboarding/OnboardingUnlock"));
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
 const Modules        = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail   = lazy(() => import("./pages/app/ModuleDetail"));
