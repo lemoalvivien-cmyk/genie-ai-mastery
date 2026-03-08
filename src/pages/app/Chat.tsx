@@ -13,6 +13,8 @@ import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
+import { KITTModePanel } from "@/components/chat/KITTModePanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
