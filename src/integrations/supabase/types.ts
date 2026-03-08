@@ -1249,6 +1249,8 @@ export type Database = {
           deadline: string | null
           description: string | null
           id: string
+          is_auto: boolean | null
+          last_sent_at: string | null
           module_ids: string[]
           org_id: string
           status: Database["public"]["Enums"]["campaign_status"] | null
@@ -1261,6 +1263,8 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          is_auto?: boolean | null
+          last_sent_at?: string | null
           module_ids?: string[]
           org_id: string
           status?: Database["public"]["Enums"]["campaign_status"] | null
@@ -1273,6 +1277,8 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          is_auto?: boolean | null
+          last_sent_at?: string | null
           module_ids?: string[]
           org_id?: string
           status?: Database["public"]["Enums"]["campaign_status"] | null

@@ -19,6 +19,9 @@ verify_jwt = false
 [functions.daily-cron]
 verify_jwt = false
 
+[functions.monthly-report]
+verify_jwt = false
+
 [functions.fetch-sources]
 verify_jwt = false
 
