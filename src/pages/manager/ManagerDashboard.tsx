@@ -119,6 +119,8 @@ export default function ManagerDashboard() {
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { logEvent } = useAuditTrail();
+  const [exportingDossier, setExportingDossier] = useState(false);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
   const { data: weeklyReport, refetch: refetchReport } = useWeeklyReport(orgId);
 
