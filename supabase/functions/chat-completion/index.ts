@@ -603,6 +603,11 @@ Deno.serve(async (req) => {
     // Build messages with system prompt
     const baseSystemPrompt = buildSystemPrompt(mode, persona, domain);
 
+    // ── KITT context injection ────────────────────────────────────────────────
+    // Enriches the system prompt with live skill mastery, module progress, gaps
+    const kittContextBlock = buildKITTContextBlock(kitt_context ?? {});
+    const enrichedSystemPrompt = baseSystemPrompt + kittContextBlock;
+
     // ── Semantic adaptation layer — injected when user struggles ─────────────
     // adaptation_level: 0=normal | 1=simplify | 2=eli10
     const ELI10_OVERRIDE = adaptation_level >= 2
