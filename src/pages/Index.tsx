@@ -312,7 +312,6 @@ export default function Index() {
   const [emailDone, setEmailDone] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const { isInstallable, isIOS, triggerInstall } = usePWAInstall();
-  const kittRef = useRef<HTMLDivElement>(null);
 
   const handleCTA = () => {
     if (isAuthenticated) navigate("/app/dashboard");
