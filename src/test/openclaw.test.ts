@@ -141,7 +141,88 @@ describe("OpenClaw — Payload Validation", () => {
   });
 });
 
-// ── 4. Security: aucun secret dans le code client ────────────────────────────
+// ── 4. Org-scope authorization logic ────────────────────────────────────────
+// Réplique la logique de guard dans dispatch-job et cron-manager côté serveur.
+interface CallerContext {
+  userId: string;
+  orgId: string | null;
+  isAdmin: boolean;
+  isManager: boolean;
+}
+
+interface JobRecord {
+  user_id: string;
+  org_id: string;
+}
+
+function canDispatch(caller: CallerContext, job: JobRecord): boolean {
+  const isOwner = caller.userId === job.user_id;
+  const isManagerOfJobOrg = caller.isManager && caller.orgId !== null && caller.orgId === job.org_id;
+  return isOwner || caller.isAdmin || isManagerOfJobOrg;
+}
+
+function canCreateScheduledJob(caller: CallerContext, targetOrgId: string): boolean {
+  if (caller.isAdmin) return true;
+  if (!caller.orgId) return false;
+  return caller.isManager && caller.orgId === targetOrgId;
+}
+
+describe("OpenClaw — Org-Scope Authorization", () => {
+  const orgA = "org-aaa";
+  const orgB = "org-bbb";
+
+  it("owner peut dispatcher son propre job", () => {
+    const caller: CallerContext = { userId: "user-1", orgId: orgA, isAdmin: false, isManager: false };
+    const job: JobRecord = { user_id: "user-1", org_id: orgA };
+    expect(canDispatch(caller, job)).toBe(true);
+  });
+
+  it("manager de l'org A peut dispatcher un job de l'org A", () => {
+    const caller: CallerContext = { userId: "mgr-1", orgId: orgA, isAdmin: false, isManager: true };
+    const job: JobRecord = { user_id: "user-1", org_id: orgA };
+    expect(canDispatch(caller, job)).toBe(true);
+  });
+
+  it("manager de l'org A NE peut PAS dispatcher un job de l'org B (cross-org interdit)", () => {
+    const caller: CallerContext = { userId: "mgr-1", orgId: orgA, isAdmin: false, isManager: true };
+    const job: JobRecord = { user_id: "user-2", org_id: orgB };
+    expect(canDispatch(caller, job)).toBe(false);
+  });
+
+  it("admin peut dispatcher n'importe quel job", () => {
+    const caller: CallerContext = { userId: "admin-1", orgId: null, isAdmin: true, isManager: false };
+    const job: JobRecord = { user_id: "user-2", org_id: orgB };
+    expect(canDispatch(caller, job)).toBe(true);
+  });
+
+  it("utilisateur sans rôle ne peut pas dispatcher le job d'un autre", () => {
+    const caller: CallerContext = { userId: "user-3", orgId: orgA, isAdmin: false, isManager: false };
+    const job: JobRecord = { user_id: "user-1", org_id: orgA };
+    expect(canDispatch(caller, job)).toBe(false);
+  });
+
+  it("manager peut créer une routine pour son org", () => {
+    const caller: CallerContext = { userId: "mgr-1", orgId: orgA, isAdmin: false, isManager: true };
+    expect(canCreateScheduledJob(caller, orgA)).toBe(true);
+  });
+
+  it("manager NE peut PAS créer une routine pour une autre org (cross-org interdit)", () => {
+    const caller: CallerContext = { userId: "mgr-1", orgId: orgA, isAdmin: false, isManager: true };
+    expect(canCreateScheduledJob(caller, orgB)).toBe(false);
+  });
+
+  it("admin peut créer une routine pour n'importe quelle org", () => {
+    const caller: CallerContext = { userId: "admin-1", orgId: null, isAdmin: true, isManager: false };
+    expect(canCreateScheduledJob(caller, orgB)).toBe(true);
+  });
+
+  it("manager sans org ne peut créer aucune routine", () => {
+    const caller: CallerContext = { userId: "mgr-orphan", orgId: null, isAdmin: false, isManager: true };
+    expect(canCreateScheduledJob(caller, orgA)).toBe(false);
+  });
+});
+
+// ── 5. Security: aucun secret dans le code client ────────────────────────────
 describe("OpenClaw — Sécurité Zéro Client", () => {
   it("OPENCLAW_API_TOKEN ne doit pas être présent en tant que variable VITE_", () => {
     // Seules les variables VITE_* sont injectées dans le bundle client.

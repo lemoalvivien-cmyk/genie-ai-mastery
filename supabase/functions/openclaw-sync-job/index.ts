@@ -2,7 +2,11 @@
  * openclaw-sync-job
  * Reçoit les callbacks de statut depuis OpenClaw (webhook).
  * Persiste résultats, logs et artefacts. JAMAIS d'invention de résultats.
- * Vérifie la signature OPENCLAW_WEBHOOK_SECRET si configuré.
+ *
+ * SÉCURITÉ ZERO-TRUST :
+ * - Si OPENCLAW_WEBHOOK_SECRET configuré → HMAC-SHA256 obligatoire, toute requête sans signature valide est rejetée.
+ * - Si OPENCLAW_WEBHOOK_SECRET ABSENT → exige un JWT utilisateur authentifié côté serveur (auth.getUser).
+ *   Un callback anonyme n'est JAMAIS accepté.
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -40,27 +44,35 @@ serve(async (req) => {
 
   const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-  // ── Verify webhook signature (if configured) ───────────────
+  // ── PATH 1 : Webhook signé par HMAC (appels depuis OpenClaw runtime) ────────
   if (OPENCLAW_WEBHOOK_SECRET) {
     const signature = req.headers.get("X-OpenClaw-Signature") ?? "";
-    const body = await req.text();
-
-    if (!signature || !OPENCLAW_WEBHOOK_SECRET) {
-      return new Response(JSON.stringify({ error: "Missing webhook signature" }), {
+    if (!signature) {
+      return new Response(JSON.stringify({ error: "Missing webhook signature (X-OpenClaw-Signature)" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // HMAC-SHA256 verification
+    const body = await req.text();
+
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       "raw", encoder.encode(OPENCLAW_WEBHOOK_SECRET),
       { name: "HMAC", hash: "SHA-256" }, false, ["verify"]
     );
-    const sigBytes = Uint8Array.from(atob(signature), c => c.charCodeAt(0));
-    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(body));
 
+    let sigBytes: Uint8Array;
+    try {
+      sigBytes = Uint8Array.from(atob(signature), c => c.charCodeAt(0));
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid signature encoding" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(body));
     if (!valid) {
       return new Response(JSON.stringify({ error: "Invalid webhook signature" }), {
         status: 401,
@@ -68,7 +80,6 @@ serve(async (req) => {
       });
     }
 
-    // Parse the already-read body
     let payload: OpenClawCallback;
     try {
       payload = JSON.parse(body) as OpenClawCallback;
@@ -78,14 +89,34 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
     return await processCallback(sb, payload, corsHeaders);
   }
 
-  // ── No secret: require auth token (internal calls) ────────
+  // ── PATH 2 : Pas de secret configuré — JWT utilisateur OBLIGATOIRE ────────
+  // Un callback anonyme n'est JAMAIS accepté. L'absence de OPENCLAW_WEBHOOK_SECRET
+  // ne crée PAS une backdoor publique.
   const authHeader = req.headers.get("Authorization") ?? "";
   const token = authHeader.replace("Bearer ", "");
 
-  // Allow service role internal calls
+  if (!token) {
+    return new Response(JSON.stringify({
+      error: "Unauthorized: provide either a signed webhook (X-OpenClaw-Signature) or a valid Bearer JWT",
+    }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Valider le JWT côté serveur
+  const { data: { user }, error: authErr } = await sb.auth.getUser(token);
+  if (authErr || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized: invalid or expired JWT" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   let payload: OpenClawCallback;
   try {
     payload = await req.json() as OpenClawCallback;
@@ -96,20 +127,22 @@ serve(async (req) => {
     });
   }
 
-  // Verify the job exists and token belongs to its owner (or is service role)
-  if (token) {
-    const { data: { user } } = await sb.auth.getUser(token);
-    if (user) {
-      const { data: job } = await sb.from("openclaw_jobs").select("user_id").eq("id", payload.job_id).single();
-      if (!job || job.user_id !== user.id) {
-        const { data: roles } = await sb.rpc("get_my_roles");
-        const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
-        if (!isAdmin) {
-          return new Response(JSON.stringify({ error: "Forbidden" }), {
-            status: 403,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+  // Vérifier que l'utilisateur est propriétaire du job OU admin
+  if (payload.job_id) {
+    const { data: job } = await sb
+      .from("openclaw_jobs")
+      .select("user_id, org_id")
+      .eq("id", payload.job_id)
+      .single();
+
+    if (job && job.user_id !== user.id) {
+      const { data: roles } = await sb.rpc("get_my_roles");
+      const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: "Forbidden: you do not own this job" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
   }
@@ -131,7 +164,6 @@ async function processCallback(
     });
   }
 
-  // ── Load job to verify it exists ──────────────────────────
   const { data: job } = await sb.from("openclaw_jobs").select("id, status").eq("id", job_id).single();
   if (!job) {
     return new Response(JSON.stringify({ error: "Job not found" }), {
@@ -148,18 +180,15 @@ async function processCallback(
     metadata: payload.metadata ?? {},
   });
 
-  // ── Process event type ────────────────────────────────────
   if (event_type === "progress") {
-    // No status change, just log
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...headers, "Content-Type": "application/json" },
     });
   }
 
   if (event_type === "completed") {
-    // CRITICAL: only persist what OpenClaw actually returned
+    // CRITICAL: ne jamais inventer un résultat si OpenClaw n'en fournit pas
     if (!payload.result_summary && !payload.result_json) {
-      // Mark as failed if no result provided — we do NOT invent results
       await sb.from("openclaw_jobs").update({
         status: "failed",
         error_message: "OpenClaw returned completed event without result data",
