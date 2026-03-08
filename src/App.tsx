@@ -40,8 +40,13 @@ const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
 const GodMode         = lazy(() => import("./pages/admin/GodMode"));
 
 // ── Other protected ──────────────────────────────────────────────
-const ManagerDashboard  = lazy(() => import("./pages/manager/ManagerDashboard"));
-const PartnerDashboard  = lazy(() => import("./pages/partner/PartnerDashboard"));
+const ManagerDashboard      = lazy(() => import("./pages/manager/ManagerDashboard"));
+const ManagerOpenClawPage   = lazy(() => import("./pages/manager/ManagerOpenClawPage"));
+const PartnerDashboard      = lazy(() => import("./pages/partner/PartnerDashboard"));
+
+// ── OpenClaw Agent Jobs ───────────────────────────────────────────
+const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
+const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
 
 // ── Public pages ─────────────────────────────────────────────────
 const Pricing           = lazy(() => import("./pages/Pricing"));
