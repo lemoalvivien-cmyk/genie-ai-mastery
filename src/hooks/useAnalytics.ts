@@ -52,7 +52,10 @@ export type EventName =
   | "jarvis_used"
   | "panic_button_used"
   | "phishing_lab_started"
-  | "attestation_verified";
+  | "attestation_verified"
+  | "onboarding_quiz_done"
+  | "onboarding_pdf_generated"
+  | "onboarding_completed";
 
 interface EventPayload {
   actor_user_id: string | null;

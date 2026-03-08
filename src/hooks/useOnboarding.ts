@@ -38,7 +38,8 @@ export function useOnboarding() {
     track("onboarding_quiz_done", { score, user_id: user.id });
 
     // Persist score in sessionStorage for result page
-    sessionStorage.setItem("onboarding_quiz_score", JSON.stringify({ score, correct: Math.round((score / 100) * 3), total: 3 }));
+    const correctCount = Math.round((score / 100) * 3);
+    sessionStorage.setItem("onboarding_quiz_score", JSON.stringify({ score, correct: correctCount, total: 3 }));
 
     navigate("/app/onboarding/result", { replace: false });
   }, [user, navigate, track]);
