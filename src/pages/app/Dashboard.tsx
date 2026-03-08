@@ -313,7 +313,14 @@ export default function Dashboard() {
           )}
 
           {/* ── 6. Derniers modules ── */}
-          {(stats?.recentProgress?.length ?? 0) > 0 && (
+          {isDashboardLoading ? (
+            <div className="animate-slide-up space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <div className="grid grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+              </div>
+            </div>
+          ) : (stats?.recentProgress?.length ?? 0) > 0 ? (
             <div className="animate-slide-up">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-4 h-4 text-muted-foreground" />
