@@ -101,7 +101,7 @@ verify_jwt = true
 [functions.cost-guard]
 verify_jwt = true
 
-[functions.god-mode]
+[functions.admin-operations]
 verify_jwt = true
 
 [functions.genie-os-chat]
