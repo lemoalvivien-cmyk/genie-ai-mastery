@@ -2451,6 +2451,311 @@ export type Database = {
           },
         ]
       }
+      openclaw_artifacts: {
+        Row: {
+          artifact_type: string
+          created_at: string
+          id: string
+          job_id: string
+          metadata: Json
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string | null
+        }
+        Insert: {
+          artifact_type: string
+          created_at?: string
+          id?: string
+          job_id: string
+          metadata?: Json
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Update: {
+          artifact_type?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          metadata?: Json
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "openclaw_artifacts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "openclaw_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      openclaw_job_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          job_id: string
+          message: string
+          metadata: Json
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          job_id: string
+          message: string
+          metadata?: Json
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          job_id?: string
+          message?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "openclaw_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "openclaw_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      openclaw_jobs: {
+        Row: {
+          approval_required: boolean
+          approved_at: string | null
+          approved_by: string | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          job_type: string
+          org_id: string
+          payload: Json
+          prompt: string
+          result_json: Json | null
+          result_summary: string | null
+          risk_level: string
+          runtime_id: string
+          started_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_type: string
+          org_id: string
+          payload?: Json
+          prompt: string
+          result_json?: Json | null
+          result_summary?: string | null
+          risk_level?: string
+          runtime_id: string
+          started_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          org_id?: string
+          payload?: Json
+          prompt?: string
+          result_json?: Json | null
+          result_summary?: string | null
+          risk_level?: string
+          runtime_id?: string
+          started_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "openclaw_jobs_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_runtime_id_fkey"
+            columns: ["runtime_id"]
+            isOneToOne: false
+            referencedRelation: "openclaw_runtimes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      openclaw_policies: {
+        Row: {
+          active: boolean
+          allowed_tools: string[]
+          created_at: string
+          id: string
+          max_artifacts: number
+          max_runtime_seconds: number
+          network_mode: string
+          org_id: string
+          policy_name: string
+          require_approval_for: string[]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          allowed_tools?: string[]
+          created_at?: string
+          id?: string
+          max_artifacts?: number
+          max_runtime_seconds?: number
+          network_mode?: string
+          org_id: string
+          policy_name: string
+          require_approval_for?: string[]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          allowed_tools?: string[]
+          created_at?: string
+          id?: string
+          max_artifacts?: number
+          max_runtime_seconds?: number
+          network_mode?: string
+          org_id?: string
+          policy_name?: string
+          require_approval_for?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "openclaw_policies_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      openclaw_runtimes: {
+        Row: {
+          base_url: string
+          created_at: string
+          created_by: string | null
+          environment: string
+          id: string
+          is_default: boolean
+          last_healthcheck_at: string | null
+          name: string
+          org_id: string
+          status: string
+          tool_profile: string
+          updated_at: string
+        }
+        Insert: {
+          base_url: string
+          created_at?: string
+          created_by?: string | null
+          environment: string
+          id?: string
+          is_default?: boolean
+          last_healthcheck_at?: string | null
+          name: string
+          org_id: string
+          status?: string
+          tool_profile: string
+          updated_at?: string
+        }
+        Update: {
+          base_url?: string
+          created_at?: string
+          created_by?: string | null
+          environment?: string
+          id?: string
+          is_default?: boolean
+          last_healthcheck_at?: string | null
+          name?: string
+          org_id?: string
+          status?: string
+          tool_profile?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "openclaw_runtimes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_runtimes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_runtimes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_budgets: {
         Row: {
           daily_cost_cap: number
@@ -3954,6 +4259,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
+      get_openclaw_policy: { Args: { _org_id: string }; Returns: Json }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -4037,6 +4343,15 @@ export type Database = {
       }
       upsert_skill_mastery: {
         Args: { _p_mastery: number; _skill_id: string; _user_id: string }
+        Returns: Json
+      }
+      validate_openclaw_job: {
+        Args: {
+          _job_type: string
+          _org_id: string
+          _runtime_id: string
+          _user_id: string
+        }
         Returns: Json
       }
     }

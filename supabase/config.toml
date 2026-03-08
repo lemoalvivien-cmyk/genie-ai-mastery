@@ -111,3 +111,18 @@ verify_jwt = false
 [functions.genieos-auto-builder]
 verify_jwt = false
 
+[functions.openclaw-create-job]
+verify_jwt = false
+
+[functions.openclaw-dispatch-job]
+verify_jwt = false
+
+[functions.openclaw-sync-job]
+verify_jwt = false
+
+[functions.openclaw-runtime-health]
+verify_jwt = false
+
+[functions.openclaw-cron-manager]
+verify_jwt = false
+
