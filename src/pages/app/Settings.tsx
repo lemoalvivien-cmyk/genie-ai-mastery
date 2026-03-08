@@ -29,6 +29,7 @@ const MODE_OPTIONS = [
 export default function Settings() {
   const { profile, session, refetchProfile } = useAuth();
   const { data: sub, isLoading } = useSubscription();
+  const { toast } = useToast();
   const [portalLoading, setPortalLoading] = useState(false);
   const [seatsLoading, setSeatsLoading] = useState(false);
   const [pendingSeats, setPendingSeats] = useState<number | null>(null);
