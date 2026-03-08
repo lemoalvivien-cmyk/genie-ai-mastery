@@ -384,6 +384,7 @@ Deno.serve(async (req) => {
       expert_mode = false,
       autopilot_id = null,     // "conformite_48h" | "vibe_coding_mvp" | "cyber_hygiene_tpe"
       adaptation_level = 0,    // 0=normal | 1=simplify | 2=eli10 (forced analogies)
+      kitt_context = {},       // KITTContext: skill_mastery, last_module, top_gap, kitt_mode, etc.
     } = body;
 
     const mode: string = user_profile.mode ?? "normal";
