@@ -40,8 +40,13 @@ const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
 const GodMode         = lazy(() => import("./pages/admin/GodMode"));
 
 // ── Other protected ──────────────────────────────────────────────
-const ManagerDashboard  = lazy(() => import("./pages/manager/ManagerDashboard"));
-const PartnerDashboard  = lazy(() => import("./pages/partner/PartnerDashboard"));
+const ManagerDashboard      = lazy(() => import("./pages/manager/ManagerDashboard"));
+const ManagerOpenClawPage   = lazy(() => import("./pages/manager/ManagerOpenClawPage"));
+const PartnerDashboard      = lazy(() => import("./pages/partner/PartnerDashboard"));
+
+// ── OpenClaw Agent Jobs ───────────────────────────────────────────
+const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
+const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
 
 // ── Public pages ─────────────────────────────────────────────────
 const Pricing           = lazy(() => import("./pages/Pricing"));
@@ -183,8 +188,17 @@ const App = () => (
                     element={<ProtectedRoute requirePro><Jarvis /></ProtectedRoute>}
                   />
                   <Route
-                    path="labs/phishing"
+                   path="labs/phishing"
                     element={<ProtectedRoute requirePro><PhishingLab /></ProtectedRoute>}
+                  />
+                  {/* ── OpenClaw Agent Jobs ─────────────────────────────── */}
+                  <Route
+                    path="agent-jobs"
+                    element={<ProtectedRoute requirePro><AgentJobsPage /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="agent-jobs/:id"
+                    element={<ProtectedRoute requirePro><AgentJobDetailPage /></ProtectedRoute>}
                   />
                 </Route>
 
@@ -224,6 +238,10 @@ const App = () => (
                 <Route
                   path="/manager"
                   element={<ProtectedRoute requireRole="manager" requirePro><ManagerDashboard /></ProtectedRoute>}
+                />
+                <Route
+                  path="/manager/openclaw"
+                  element={<ProtectedRoute requireRole="manager" requirePro><ManagerOpenClawPage /></ProtectedRoute>}
                 />
 
                 {/* ── Partner ──────────────────────────────────────────── */}
