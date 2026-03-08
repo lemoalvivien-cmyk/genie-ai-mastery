@@ -182,6 +182,7 @@ function useCopilotSuggestions() {
 /* ── Floating CopilotPanel ── */
 export function CopilotPanel() {
   const [open, setOpen] = useState(false);
+  if (!FEATURES.genieOS) return null;
   const [dismissed, setDismissed] = useState<string[]>([]);
   const suggestions = useCopilotSuggestions();
   const visible = suggestions.filter((s) => !dismissed.includes(s.id));
