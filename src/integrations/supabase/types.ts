@@ -14,6 +14,305 @@ export type Database = {
   }
   public: {
     Tables: {
+      _deprecated_activity_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          module: string | null
+          resource_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resource_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resource_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      _deprecated_agent_store_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_store_ratings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "agent_store_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      _deprecated_genieos_workflows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          status: string | null
+          steps: Json | null
+          tools: string | null
+          trigger_event: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          status?: string | null
+          steps?: Json | null
+          tools?: string | null
+          trigger_event?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          status?: string | null
+          steps?: Json | null
+          tools?: string | null
+          trigger_event?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      _deprecated_job_results: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          id: string
+          job_id: string
+          result: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          job_id: string
+          result?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          id?: string
+          job_id?: string
+          result?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_results_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      _deprecated_marketplace_items: {
+        Row: {
+          category: string | null
+          content: Json
+          created_at: string | null
+          description: string
+          id: string
+          is_featured: boolean | null
+          is_public: boolean | null
+          name: string
+          rating_avg: number | null
+          rating_count: number | null
+          tags: string[] | null
+          type: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content?: Json
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: Json
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          rating_avg?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      _deprecated_marketplace_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_ratings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "_deprecated_marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      _deprecated_marketplace_usage: {
+        Row: {
+          id: string
+          item_id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_usage_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "_deprecated_marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      _deprecated_revenue_reports: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          estimated_pipeline_eur: number | null
+          id: string
+          leads_generated: number | null
+          opportunities_found: number | null
+          report_type: string
+          summary: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          estimated_pipeline_eur?: number | null
+          id?: string
+          leads_generated?: number | null
+          opportunities_found?: number | null
+          report_type: string
+          summary?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          estimated_pipeline_eur?: number | null
+          id?: string
+          leads_generated?: number | null
+          opportunities_found?: number | null
+          report_type?: string
+          summary?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       abuse_flags: {
         Row: {
           created_at: string
@@ -160,36 +459,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      activity_log: {
-        Row: {
-          action: string
-          created_at: string | null
-          details: Json | null
-          id: string
-          module: string | null
-          resource_id: string | null
-          user_id: string
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          module?: string | null
-          resource_id?: string | null
-          user_id: string
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          module?: string | null
-          resource_id?: string | null
-          user_id?: string
-        }
-        Relationships: []
       }
       agent_economy: {
         Row: {
@@ -529,41 +798,6 @@ export type Database = {
           version?: string | null
         }
         Relationships: []
-      }
-      agent_store_ratings: {
-        Row: {
-          comment: string | null
-          created_at: string | null
-          id: string
-          item_id: string
-          rating: number
-          user_id: string
-        }
-        Insert: {
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          item_id: string
-          rating: number
-          user_id: string
-        }
-        Update: {
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          item_id?: string
-          rating?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agent_store_ratings_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "agent_store_items"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       ai_budgets: {
         Row: {
@@ -1898,48 +2132,6 @@ export type Database = {
         }
         Relationships: []
       }
-      genieos_workflows: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          metadata: Json | null
-          name: string
-          status: string | null
-          steps: Json | null
-          tools: string | null
-          trigger_event: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          name: string
-          status?: string | null
-          steps?: Json | null
-          tools?: string | null
-          trigger_event?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          metadata?: Json | null
-          name?: string
-          status?: string | null
-          steps?: Json | null
-          tools?: string | null
-          trigger_event?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       ip_rate_limits: {
         Row: {
           blocked_until: string | null
@@ -2026,41 +2218,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      job_results: {
-        Row: {
-          created_at: string
-          duration_ms: number | null
-          id: string
-          job_id: string
-          result: Json | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          duration_ms?: number | null
-          id?: string
-          job_id: string
-          result?: Json | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          duration_ms?: number | null
-          id?: string
-          job_id?: string
-          result?: Json | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "job_results_job_id_fkey"
-            columns: ["job_id"]
-            isOneToOne: false
-            referencedRelation: "job_queue"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       knowledge_chunks: {
         Row: {
@@ -2185,124 +2342,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      marketplace_items: {
-        Row: {
-          category: string | null
-          content: Json
-          created_at: string | null
-          description: string
-          id: string
-          is_featured: boolean | null
-          is_public: boolean | null
-          name: string
-          rating_avg: number | null
-          rating_count: number | null
-          tags: string[] | null
-          type: string
-          updated_at: string | null
-          usage_count: number | null
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          content?: Json
-          created_at?: string | null
-          description?: string
-          id?: string
-          is_featured?: boolean | null
-          is_public?: boolean | null
-          name: string
-          rating_avg?: number | null
-          rating_count?: number | null
-          tags?: string[] | null
-          type?: string
-          updated_at?: string | null
-          usage_count?: number | null
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          content?: Json
-          created_at?: string | null
-          description?: string
-          id?: string
-          is_featured?: boolean | null
-          is_public?: boolean | null
-          name?: string
-          rating_avg?: number | null
-          rating_count?: number | null
-          tags?: string[] | null
-          type?: string
-          updated_at?: string | null
-          usage_count?: number | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      marketplace_ratings: {
-        Row: {
-          comment: string | null
-          created_at: string | null
-          id: string
-          item_id: string
-          rating: number
-          user_id: string
-        }
-        Insert: {
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          item_id: string
-          rating: number
-          user_id: string
-        }
-        Update: {
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          item_id?: string
-          rating?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "marketplace_ratings_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "marketplace_items"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      marketplace_usage: {
-        Row: {
-          id: string
-          item_id: string
-          used_at: string | null
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          item_id: string
-          used_at?: string | null
-          user_id: string
-        }
-        Update: {
-          id?: string
-          item_id?: string
-          used_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "marketplace_usage_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "marketplace_items"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       memory_timeline: {
         Row: {
@@ -3464,45 +3503,6 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      revenue_reports: {
-        Row: {
-          created_at: string | null
-          data: Json | null
-          estimated_pipeline_eur: number | null
-          id: string
-          leads_generated: number | null
-          opportunities_found: number | null
-          report_type: string
-          summary: string | null
-          title: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          data?: Json | null
-          estimated_pipeline_eur?: number | null
-          id?: string
-          leads_generated?: number | null
-          opportunities_found?: number | null
-          report_type: string
-          summary?: string | null
-          title: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          data?: Json | null
-          estimated_pipeline_eur?: number | null
-          id?: string
-          leads_generated?: number | null
-          opportunities_found?: number | null
-          report_type?: string
-          summary?: string | null
-          title?: string
           user_id?: string
         }
         Relationships: []
