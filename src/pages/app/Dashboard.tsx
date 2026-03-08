@@ -236,7 +236,7 @@ export default function Dashboard() {
                     <span className="text-xs text-muted-foreground">{m.label}</span>
                   </div>
                   <div className={`text-3xl font-black ${m.color}`}>
-                    {streakLoading ? "—" : <AnimatedNumber value={m.value} />}
+                    {isDashboardLoading ? <Skeleton className="h-8 w-16" /> : <AnimatedNumber value={m.value} />}
                   </div>
                 </div>
               );
