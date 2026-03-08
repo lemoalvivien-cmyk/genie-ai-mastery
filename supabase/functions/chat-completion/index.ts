@@ -763,7 +763,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     } else if (isJarvis) {
       systemPrompt = (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt) + ELI10_OVERRIDE;
     } else {
-      systemPrompt = baseSystemPrompt + ELI10_OVERRIDE;
+      systemPrompt = enrichedSystemPrompt + ELI10_OVERRIDE;
     }
 
     const apiMessages = [
