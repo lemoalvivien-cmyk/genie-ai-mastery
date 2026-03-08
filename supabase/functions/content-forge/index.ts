@@ -1,17 +1,6 @@
-/**
- * content-forge — Pipeline de mise à jour automatique des modules
- *
- * Flux :
- * 1. Récupère les derniers items cyber des sources (source_items récents < 48h)
- * 2. Pour chaque module publié, vérifie si un item impacte son domaine/slug via LLM
- * 3. Si impact détecté → Modèle A (writer) régénère la section concernée
- * 4. Modèle B (validator) vérifie l'absence d'hallucinations et la cohérence
- * 5. Met à jour le module en DB uniquement si validation_passed = true
- * 6. Journalise chaque tentative dans forge_log
- */
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyCronSecret } from "../_shared/cron-auth.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -24,7 +13,7 @@ function getCorsHeaders(req: Request) {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+      "authorization, x-client-info, apikey, content-type, x-cron-secret",
   };
 }
 
@@ -200,6 +189,13 @@ serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ── Auth: CRON_SECRET (called by pg_cron, no JWT) ──────────────────────────
+  try {
+    verifyCronSecret(req);
+  } catch (resp) {
+    return resp as Response;
+  }
+
   const runStart = Date.now();
 
   const supabase = createClient(
@@ -215,7 +211,6 @@ serve(async (req) => {
     );
   }
 
-  // Allow manual trigger with a specific module_id or threat override
   let body: { module_id?: string; dry_run?: boolean } = {};
   try { body = await req.json(); } catch (_e) { /* cron call, no body */ }
   const isDryRun = body.dry_run === true;
@@ -231,7 +226,7 @@ serve(async (req) => {
   };
 
   try {
-    // ── 1. Fetch recent cyber threat items (last 48h, cyber domain) ──────────
+    // ── 1. Fetch recent cyber threat items (last 48h) ─────────────────────────
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
     const { data: recentItems, error: itemsError } = await supabase
@@ -243,7 +238,6 @@ serve(async (req) => {
 
     if (itemsError) throw itemsError;
 
-    // Also fetch from legacy sources table
     const { data: legacyItems } = await supabase
       .from("source_items")
       .select("id, title, summary, source_id, published_at, sources!inner(domain, name)")
@@ -251,7 +245,6 @@ serve(async (req) => {
       .not("summary", "is", null)
       .limit(20);
 
-    // Merge and deduplicate by title
     type ThreatItem = { id: string; title: string; summary: string; source: string; domain: string };
     const threatMap = new Map<string, ThreatItem>();
 
@@ -307,8 +300,7 @@ serve(async (req) => {
     if (modError) throw modError;
     summary.modules_checked = (modules ?? []).length;
 
-    // ── 3. Process each (threat × module) pair that seems relevant ────────
-    // Limit to avoid excessive API costs: max 10 pairs per run
+    // ── 3. Process each (threat × module) pair — max 10 pairs per run ─────
     const PAIR_LIMIT = 10;
     let pairsProcessed = 0;
 
@@ -331,7 +323,6 @@ serve(async (req) => {
         const stepStart = Date.now();
 
         try {
-          // Check relevance first (cheap call)
           const relevance = await checkRelevance({
             threatTitle: threat.title,
             threatSummary: threat.summary,
@@ -341,7 +332,7 @@ serve(async (req) => {
             apiKey: OPENROUTER_API_KEY,
           });
 
-          if (!relevance.relevant) continue; // Skip non-relevant pair
+          if (!relevance.relevant) continue;
           pairsProcessed++;
           summary.updates_attempted++;
 
@@ -350,7 +341,6 @@ serve(async (req) => {
           };
           const sections = contentJson?.sections ?? [];
 
-          // Find the affected section
           const affectedIdx = sections.findIndex(
             (s) => relevance.affected_section &&
               s.title.toLowerCase().includes(relevance.affected_section.toLowerCase().slice(0, 20))
@@ -366,7 +356,6 @@ serve(async (req) => {
             continue;
           }
 
-          // ── Model A: Writer ──────────────────────────────────────────────
           const updatedSection = await rewriteSection({
             threatTitle: threat.title,
             threatSummary: threat.summary,
@@ -385,7 +374,6 @@ serve(async (req) => {
             continue;
           }
 
-          // ── Model B: Validator ───────────────────────────────────────────
           const validation = await validateSection({
             originalSection: targetSection,
             updatedSection,
@@ -405,13 +393,11 @@ serve(async (req) => {
             continue;
           }
 
-          // ── Apply update ─────────────────────────────────────────────────
           if (!isDryRun) {
             const newSections = [...sections];
             newSections[targetIdx] = {
               ...targetSection,
               ...updatedSection,
-              // Preserve examples from original
               examples: targetSection.examples,
             };
 
@@ -436,7 +422,6 @@ serve(async (req) => {
               console.log(`✅ Updated module ${mod.slug} (v${newVersion}) — ${threat.title.slice(0, 60)}`);
             }
           } else {
-            // Dry run: just log
             summary.updates_applied++;
             console.log(`🔍 DRY RUN — Would update ${mod.slug}: ${validation.reason}`);
           }

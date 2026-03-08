@@ -3,34 +3,35 @@
  * 1. Fetches RSS/release-notes from all enabled sources
  * 2. Generates AI briefs from new items
  *
- * Protected by CRON_SECRET bearer token to prevent unauthorized triggering.
+ * Auth: NOT JWT-protected (called by pg_cron).
+ * Protected by X-CRON-SECRET header to prevent unauthorized triggering.
  */
+import { verifyCronSecret } from "../_shared/cron-auth.ts";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
         "Access-Control-Allow-Origin": "https://genie-ai-mastery.lovable.app",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
       },
     });
   }
 
-  // ── Auth: require CRON_SECRET bearer token ──────────────────────────────────
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  const authHeader = req.headers.get("Authorization") ?? "";
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+  // ── Auth: require CRON_SECRET header ────────────────────────────────────────
+  try {
+    verifyCronSecret(req);
+  } catch (resp) {
+    return resp as Response;
   }
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const CRON_SECRET = Deno.env.get("CRON_SECRET")!;
 
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${cronSecret}`,
+    "x-cron-secret": CRON_SECRET,
     "apikey": SUPABASE_ANON_KEY,
   };
 
@@ -49,7 +50,11 @@ Deno.serve(async (req) => {
     // 2. Generate briefs
     const briefsResp = await fetch(`${SUPABASE_URL}/functions/v1/generate-briefs`, {
       method: "POST",
-      headers,
+      headers: {
+        ...headers,
+        // generate-briefs requires JWT — use service-role approach via anon key passthrough
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      },
       body: JSON.stringify({}),
     });
     const briefsData = await briefsResp.json();
