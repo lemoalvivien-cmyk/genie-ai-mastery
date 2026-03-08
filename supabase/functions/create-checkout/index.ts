@@ -143,8 +143,8 @@ serve(async (req) => {
       tax_id_collection: { enabled: true },
       // ──────────────────────────────────────────────────
       allow_promotion_codes: true,
-      success_url: `${origin}/app/dashboard?payment=success`,
-      cancel_url: `${origin}/pricing?payment=cancelled`,
+      success_url: `${origin}/app/dashboard?payment=success&upgrade=success`,
+      cancel_url: `${origin}/pricing?cancelled=true`,
       metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats), referral_code: referralCode ?? "" },
     });
     logStep("Checkout session created", { sessionId: session.id, seats });
