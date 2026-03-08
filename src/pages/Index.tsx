@@ -869,7 +869,7 @@ export default function Index() {
               <div className="p-6 rounded-xl border border-emerald-500/20 bg-background relative overflow-hidden">
                 <div
                   className="absolute top-0 left-0 right-0 h-0.5"
-                  style={{ background: "hsl(158 50% 44%)" }}
+                  style={{ background: "hsl(var(--emerald))" }}
                 />
                 <Target className="w-6 h-6 text-emerald-400 mb-4" />
                 <h3 className="font-black text-foreground text-lg mb-3">Agir</h3>
