@@ -49,7 +49,7 @@ export default function Register() {
     const email = DOMPurify.sanitize(data.email.trim().toLowerCase());
     const full_name = DOMPurify.sanitize(data.full_name.trim());
 
-    // Read referral code from localStorage before signup
+    // Read referral code from sessionStorage before signup
     const referralCode = sessionStorage.getItem("genie_ref");
 
     const { data: authData, error } = await supabase.auth.signUp({
@@ -57,7 +57,7 @@ export default function Register() {
       password: data.password,
       options: {
         data: { full_name },
-        emailRedirectTo: `${window.location.origin}/onboarding`,
+        emailRedirectTo: `${window.location.origin}/app/welcome`,
       },
     });
 
@@ -85,7 +85,11 @@ export default function Register() {
     }
 
     await track("signup", { method: "email", referral_code: referralCode ?? undefined });
-    navigate("/onboarding");
+
+    // Passe F : ne pas naviguer vers /onboarding avant confirmation email.
+    // On reste sur la page d'inscription et on affiche le message de confirmation.
+    setMagicLinkSent(true);
+    setMagicEmail(email);
   };
 
   const sendMagicLink = async () => {
