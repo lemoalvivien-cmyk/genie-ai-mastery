@@ -17,7 +17,7 @@
  * 12. CTA final
  */
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   ArrowRight,
