@@ -1,3 +1,10 @@
+/**
+ * Pricing — BLQ-3
+ * 
+ * Le LAUNCH_CODE est retiré du bundle client.
+ * Le code promo est validé uniquement côté serveur (Edge Function redeem-code).
+ * Les stats dynamiques (spots, deadline) viennent de check-launch-price.
+ */
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
@@ -14,9 +21,9 @@ import { ProFooter } from "@/components/ProFooter";
 import logoGenie from "@/assets/logo-genie.png";
 
 /* ─── Data ───────────────────────────────────────────────────── */
+// BLQ-3: LAUNCH_CODE et LAUNCH_SPOTS_REMAINING retirés du bundle client.
+// La deadline est un affichage statique. Le code est validé côté serveur uniquement.
 const LAUNCH_DEADLINE = new Date("2026-04-15T23:59:59");
-const LAUNCH_CODE = "LAUNCH40";
-const LAUNCH_SPOTS_REMAINING = 23;
 
 const FREE_FEATURES: { label: string; included: boolean }[] = [
   { label: "Chat IA (2 messages/jour)", included: true },
@@ -65,7 +72,7 @@ const FAQ = [
 ];
 
 /* ─── Urgency Banner ─────────────────────────────────────────── */
-function UrgencyBanner() {
+function UrgencyBanner({ spotsRemaining }: { spotsRemaining: number }) {
   const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
   const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -85,9 +92,8 @@ function UrgencyBanner() {
       className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white text-center"
       style={{ background: "linear-gradient(90deg, #FE2C40 0%, #5257D8 100%)" }}
     >
-      <span>🔥 Offre de lancement : -40% avec le code</span>
-      <code className="bg-white/20 px-2 py-0.5 rounded font-mono tracking-widest">{LAUNCH_CODE}</code>
-      <span>— Plus que {LAUNCH_SPOTS_REMAINING} places</span>
+      <span>🔥 Offre de lancement : -40% avec votre code d'accès</span>
+      {spotsRemaining > 0 && <span>— Plus que {spotsRemaining} places</span>}
       <span className="flex items-center gap-1 opacity-90">
         · Expire dans <span className="font-mono">{pad(timeLeft.h)}:{pad(timeLeft.m)}:{pad(timeLeft.s)}</span>
       </span>
@@ -141,11 +147,13 @@ export default function Pricing() {
     staleTime: 60 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("check-launch-price");
-      if (error) return { launch_price_active: true };
-      return data as { launch_price_active: boolean };
+      if (error) return { launch_price_active: true, spots_remaining: 23 };
+      return data as { launch_price_active: boolean; spots_remaining: number };
     },
   });
   const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
+  // BLQ-3: spotsRemaining vient du serveur, jamais hardcodé ici
+  const spotsRemaining = launchData?.spots_remaining ?? 0;
 
   const handlePortal = async () => {
     setPortalLoading(true);
@@ -160,9 +168,8 @@ export default function Pricing() {
     }
   };
 
-  // PASSE E — Mutex checkout : isSubmitting flag empêche le double-clic
   const handleCheckout = async () => {
-    if (checkoutLoading) return; // guard double-clic
+    if (checkoutLoading) return;
     if (!isAuthenticated) { navigate("/register?redirect=/pricing"); return; }
     setCheckoutLoading(true);
     track("checkout_started");
@@ -190,7 +197,9 @@ export default function Pricing() {
     if (!isAuthenticated) { navigate("/register?redirect=/pricing"); return; }
     setCodeLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("redeem-code", { body: { code: accessCode.trim() } });
+      const { data, error } = await supabase.functions.invoke("redeem-code", {
+        body: { code: accessCode.replace(/-/g, "").trim() },
+      });
       if (error || data?.error) throw new Error(data?.error ?? "Code invalide");
       setConfetti(true);
       toast({ title: "✅ Accès Pro activé !", description: data.message });
@@ -229,8 +238,8 @@ export default function Pricing() {
       )}
 
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        {/* Banner */}
-        <UrgencyBanner />
+        {/* Banner — spots viennent du serveur */}
+        <UrgencyBanner spotsRemaining={spotsRemaining} />
 
         {/* Navbar */}
         <header className="border-b border-border/30 px-4 sm:px-8 py-4 flex items-center justify-between bg-background/90 backdrop-blur-md">
@@ -333,15 +342,22 @@ export default function Pricing() {
               <div className="mb-6 mt-2">
                 <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "hsl(var(--primary))" }}>Pro</p>
                 <div className="flex items-end gap-2 mb-1">
-                  <span className="text-5xl font-black" style={{ color: "hsl(var(--accent))" }}>
-                    59€
-                  </span>
+                  {LAUNCH_PRICE_ACTIVE ? (
+                    <div className="flex items-end gap-2">
+                      <span className="text-5xl font-black" style={{ color: "hsl(var(--accent))" }}>35€</span>
+                      <span className="text-2xl font-bold line-through text-muted-foreground/50 mb-1">59€</span>
+                    </div>
+                  ) : (
+                    <span className="text-5xl font-black" style={{ color: "hsl(var(--accent))" }}>59€</span>
+                  )}
                   <span className="text-muted-foreground text-base mb-1.5">TTC/mois</span>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono">par organisation · 25 sièges inclus</p>
-                <div className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(var(--accent)/0.1)", color: "hsl(var(--accent))" }}>
-                  <Zap className="w-3 h-3" /> Couverture légale totale · Evidence Vault illimité
-                </div>
+                {LAUNCH_PRICE_ACTIVE && (
+                  <div className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mt-1" style={{ background: "hsl(var(--accent)/0.1)", color: "hsl(var(--accent))" }}>
+                    <Zap className="w-3 h-3" /> Couverture légale totale · Evidence Vault illimité
+                  </div>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -374,43 +390,50 @@ export default function Pricing() {
             <Shield className="w-8 h-8 shrink-0" style={{ color: "#22C55E" }} />
             <div>
               <p className="font-bold text-foreground">Satisfait ou remboursé 30 jours. Sans condition.</p>
-              <p className="text-sm text-muted-foreground mt-0.5">Paiement sécurisé par Stripe. Résiliation en 2 clics depuis votre compte.</p>
+              <p className="text-sm text-muted-foreground mt-0.5">Paiement Stripe sécurisé · Données hébergées en Europe · RGPD complet</p>
             </div>
           </div>
 
-          {/* Access code */}
-          <div className="max-w-md mx-auto mb-16 text-center">
-            <p className="text-sm font-medium text-muted-foreground mb-3">Vous avez un code d'accès ?</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={accessCode}
-                onChange={(e) => setAccessCode(formatCode(e.target.value))}
-                placeholder="GENIE-XXXX-XXXX"
-                maxLength={14}
-                className="flex-1 px-4 py-3 rounded-xl text-foreground text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                style={{ border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
-              />
-              <button
-                onClick={handleActivateCode}
-                disabled={codeLoading || accessCode.length < 5}
-                className="px-5 py-3 rounded-xl text-white text-sm font-semibold transition-all disabled:opacity-50 flex items-center gap-2"
-                style={{ background: "hsl(var(--primary))", boxShadow: "var(--shadow-glow-sm)" }}
-              >
-                {codeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Activer"}
-              </button>
+          {/* Access code section */}
+          {LAUNCH_PRICE_ACTIVE && (
+            <div
+              className="rounded-2xl p-6 mb-12"
+              style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+            >
+              <h2 className="text-base font-bold mb-1">Vous avez un code d'accès ?</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Entrez votre code pour activer votre accès Pro instantanément.
+              </p>
+              <div className="flex gap-3 flex-col sm:flex-row">
+                <input
+                  type="text"
+                  value={accessCode}
+                  onChange={e => setAccessCode(formatCode(e.target.value))}
+                  placeholder="XXXXX-XXXX-XXXX"
+                  maxLength={15}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm font-mono tracking-widest uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                  aria-label="Code d'accès"
+                />
+                <button
+                  onClick={handleActivateCode}
+                  disabled={codeLoading || !accessCode.trim()}
+                  className="px-6 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 flex items-center gap-2 justify-center"
+                  style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+                >
+                  {codeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Activer"}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* FAQ */}
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-black text-foreground text-center mb-8">Questions fréquentes</h2>
-            <div className="space-y-3">
-              {FAQ.map((item, i) => (
-                <FaqItem key={i} q={item.q} a={item.a} />
-              ))}
+          <div className="mb-16">
+            <h2 className="text-2xl font-black text-center mb-8">Questions fréquentes</h2>
+            <div className="space-y-3 max-w-2xl mx-auto">
+              {FAQ.map((item) => <FaqItem key={item.q} {...item} />)}
             </div>
           </div>
+
         </main>
 
         <ProFooter />
