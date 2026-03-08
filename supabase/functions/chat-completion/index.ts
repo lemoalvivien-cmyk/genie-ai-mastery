@@ -14,6 +14,7 @@ import {
 import { requireProPlan } from "../_shared/subscription.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 // ─── Safety config ───────────────────────────────────────────────────────────
 const OFFENSIVE_KEYWORDS = [
