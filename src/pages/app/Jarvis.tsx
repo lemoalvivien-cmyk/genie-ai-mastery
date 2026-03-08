@@ -212,6 +212,7 @@ export default function Jarvis() {
             level: profile?.level ?? 1,
             mode: expertMode ? "expert" : (persona === "senior" || persona === "parent" ? "enfant" : "normal"),
           },
+          kitt_context: kittContext ?? null,
           session_id: sessionId,
           request_type: "jarvis_chat",
           expert_mode: expertMode,
