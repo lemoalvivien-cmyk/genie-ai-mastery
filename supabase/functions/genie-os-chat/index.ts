@@ -105,6 +105,9 @@ function buildSystemPrompt(module: string, memory: UserMemory | null): string {
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (Deno.env.get("GENIEOS_ENABLED") !== "true") {
+    return new Response("Feature disabled", { status: 503, headers: corsHeaders });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization");

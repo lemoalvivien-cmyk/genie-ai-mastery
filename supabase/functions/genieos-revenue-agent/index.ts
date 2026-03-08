@@ -47,6 +47,9 @@ async function saveToSupabase(table: string, rows: object[], serviceKey: string)
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (Deno.env.get("GENIEOS_ENABLED") !== "true") {
+    return new Response("Feature disabled", { status: 503, headers: corsHeaders });
+  }
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });

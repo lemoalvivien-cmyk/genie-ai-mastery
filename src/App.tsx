@@ -4,9 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
+import { FEATURES } from "@/config/features";
 import { Loader2 } from "lucide-react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -255,48 +256,49 @@ const App = () => (
                   element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>}
                 />
 
-                {/* ── GENIE OS — PASSE A : ProtectedRoute sur tout /os ─── */}
-                {/* Toutes les routes enfants héritent de la protection.     */}
-                {/* Sans ça : crash TypeError sur user!.id dans les widgets  */}
-                <Route
-                  path="/os"
-                  element={
-                    <ProtectedRoute>
-                      <GenieOSLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index                 element={<GenieOSChat />} />
-                  {/* /os/dashboard supprimé (PASSE B) → redirige vers control */}
-                  <Route path="agents"         element={<AgentBuilder />} />
-                  <Route path="multi-agent"    element={<MultiAgentRunner />} />
-                  <Route path="automation"     element={<AutomationModule />} />
-                  <Route path="app-builder"    element={<AppBuilder />} />
-                  <Route path="ai-tools"       element={<AIToolsExplorer />} />
-                  <Route path="marketplace"    element={<Marketplace />} />
-                  <Route path="business"       element={<BusinessAnalysis />} />
-                  <Route path="knowledge"      element={<KnowledgeBase />} />
-                  <Route path="actions"        element={<ActionsPage />} />
-                  <Route path="voice"          element={<VoiceAssistant />} />
-                  <Route path="agents-runtime" element={<AgentsRuntime />} />
-                  <Route path="ai-watch"       element={<AIWatch />} />
-                  <Route path="opportunities"  element={<Opportunities />} />
-                  <Route path="store"          element={<AIStore />} />
-                  <Route path="brain"          element={<PersonalBrain />} />
-                  <Route path="builder"        element={<AutoBuilder />} />
-                  <Route path="skills"         element={<SkillGraph />} />
-                  <Route path="cofounder"      element={<CoFounder />} />
-                  <Route path="economy"        element={<AgentEconomy />} />
-                  <Route path="autopilot"      element={<Autopilot />} />
-                  <Route path="timeline"       element={<MemoryTimeline />} />
-                  <Route path="control"        element={<CommandCenter />} />
-                  <Route path="revenue"        element={<RevenueEngine />} />
-                  <Route path="enterprise"     element={<EnterpriseDashboard />} />
-                  <Route path="revenue-analytics" element={<RevenueAnalytics />} />
-                  <Route path="system"         element={<SystemHealth />} />
-                  <Route path="logs"           element={<LogsViewer />} />
-                  <Route path="start"          element={<SmartOnboarding />} />
-                </Route>
+                {/* ── GENIE OS — feature-flagged via VITE_GENIEOS_ENABLED ── */}
+                {FEATURES.genieOS ? (
+                  <Route
+                    path="/os"
+                    element={
+                      <ProtectedRoute>
+                        <GenieOSLayout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index                 element={<GenieOSChat />} />
+                    <Route path="agents"         element={<AgentBuilder />} />
+                    <Route path="multi-agent"    element={<MultiAgentRunner />} />
+                    <Route path="automation"     element={<AutomationModule />} />
+                    <Route path="app-builder"    element={<AppBuilder />} />
+                    <Route path="ai-tools"       element={<AIToolsExplorer />} />
+                    <Route path="marketplace"    element={<Marketplace />} />
+                    <Route path="business"       element={<BusinessAnalysis />} />
+                    <Route path="knowledge"      element={<KnowledgeBase />} />
+                    <Route path="actions"        element={<ActionsPage />} />
+                    <Route path="voice"          element={<VoiceAssistant />} />
+                    <Route path="agents-runtime" element={<AgentsRuntime />} />
+                    <Route path="ai-watch"       element={<AIWatch />} />
+                    <Route path="opportunities"  element={<Opportunities />} />
+                    <Route path="store"          element={<AIStore />} />
+                    <Route path="brain"          element={<PersonalBrain />} />
+                    <Route path="builder"        element={<AutoBuilder />} />
+                    <Route path="skills"         element={<SkillGraph />} />
+                    <Route path="cofounder"      element={<CoFounder />} />
+                    <Route path="economy"        element={<AgentEconomy />} />
+                    <Route path="autopilot"      element={<Autopilot />} />
+                    <Route path="timeline"       element={<MemoryTimeline />} />
+                    <Route path="control"        element={<CommandCenter />} />
+                    <Route path="revenue"        element={<RevenueEngine />} />
+                    <Route path="enterprise"     element={<EnterpriseDashboard />} />
+                    <Route path="revenue-analytics" element={<RevenueAnalytics />} />
+                    <Route path="system"         element={<SystemHealth />} />
+                    <Route path="logs"           element={<LogsViewer />} />
+                    <Route path="start"          element={<SmartOnboarding />} />
+                  </Route>
+                ) : (
+                  <Route path="/os/*" element={<Navigate to="/app/dashboard" replace />} />
+                )}
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

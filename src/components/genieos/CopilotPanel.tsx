@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { FEATURES } from "@/config/features";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -183,6 +184,9 @@ export function CopilotPanel() {
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState<string[]>([]);
   const suggestions = useCopilotSuggestions();
+
+  if (!FEATURES.genieOS) return null;
+
   const visible = suggestions.filter((s) => !dismissed.includes(s.id));
 
   const urgentCount = visible.filter((s) => s.priority === "urgent" || s.priority === "high").length;

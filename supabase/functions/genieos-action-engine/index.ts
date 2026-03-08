@@ -332,6 +332,9 @@ interface ActionStep {
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (Deno.env.get("GENIEOS_ENABLED") !== "true") {
+    return new Response("Feature disabled", { status: 503, headers: corsHeaders });
+  }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
