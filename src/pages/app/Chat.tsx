@@ -510,6 +510,28 @@ export default function Chat() {
           )}
         </div>
 
+        {/* ── KITT Mode Panel ── */}
+        <div className="shrink-0 px-4 sm:px-6 pb-2">
+          <div className="max-w-2xl mx-auto">
+            <KITTModePanel
+              mode={kittMode}
+              onModeChange={(m) => {
+                setKittMode(m);
+                // Inject the mode change into chat as a system suggestion
+                if (m === "diagnostic") {
+                  sendMessage("Lance mon diagnostic de niveau sur les 4 domaines.");
+                } else if (m === "synthesis") {
+                  sendMessage("Génère mon bilan de progression complet.");
+                } else if (m === "remediation" && kittContext?.top_gap) {
+                  sendMessage(`Aide-moi à corriger ma lacune sur : ${kittContext.top_gap.name}`);
+                }
+              }}
+              context={kittContext ?? null}
+              isPro={isPro}
+            />
+          </div>
+        </div>
+
         {/* ── Messages ── */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4" style={{ background: "#0F1119" }}>
           <div className="max-w-2xl mx-auto">
