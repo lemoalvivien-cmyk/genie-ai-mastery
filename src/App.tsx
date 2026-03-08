@@ -200,8 +200,16 @@ const App = () => (
                     element={<ProtectedRoute requirePro><Jarvis /></ProtectedRoute>}
                   />
                   <Route
-                   path="labs/phishing"
+                    path="labs/phishing"
                     element={<ProtectedRoute requirePro><PhishingLab /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="labs/cyber"
+                    element={<ProtectedRoute requirePro><CyberLab /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="labs/prompt"
+                    element={<ProtectedRoute requirePro><PromptLab /></ProtectedRoute>}
                   />
                   {/* ── OpenClaw Agent Jobs ─────────────────────────────── */}
                   <Route
