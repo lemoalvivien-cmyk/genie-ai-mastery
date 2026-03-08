@@ -335,7 +335,8 @@ const KittBar = React.forwardRef<
       </span>
     </div>
   );
-}
+});
+KittBar.displayName = "KittBar";
 
 /* ─── Main ───────────────────────────────────────────────────── */
 export default function Index() {
