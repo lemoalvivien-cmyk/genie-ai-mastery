@@ -49,7 +49,7 @@ export default function Register() {
     const email = DOMPurify.sanitize(data.email.trim().toLowerCase());
     const full_name = DOMPurify.sanitize(data.full_name.trim());
 
-    // Read referral code from localStorage before signup
+    // Read referral code from sessionStorage before signup
     const referralCode = sessionStorage.getItem("genie_ref");
 
     const { data: authData, error } = await supabase.auth.signUp({
@@ -57,7 +57,7 @@ export default function Register() {
       password: data.password,
       options: {
         data: { full_name },
-        emailRedirectTo: `${window.location.origin}/onboarding`,
+        emailRedirectTo: `${window.location.origin}/app/welcome`,
       },
     });
 
@@ -85,7 +85,11 @@ export default function Register() {
     }
 
     await track("signup", { method: "email", referral_code: referralCode ?? undefined });
-    navigate("/onboarding");
+
+    // Passe F : ne pas naviguer vers /onboarding avant confirmation email.
+    // On reste sur la page d'inscription et on affiche le message de confirmation.
+    setMagicLinkSent(true);
+    setMagicEmail(email);
   };
 
   const sendMagicLink = async () => {
@@ -131,7 +135,18 @@ export default function Register() {
                 </div>
                 <h2 className="text-lg font-semibold mb-2">Vérifiez votre email !</h2>
                 <p className="text-sm text-muted-foreground">
-                  Un lien magique a été envoyé à <strong>{magicEmail}</strong>
+                  Un lien de confirmation a été envoyé à <strong>{magicEmail}</strong>.<br />
+                  Cliquez sur le lien pour activer votre compte et commencer votre parcours.
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-3">
+                  Pas reçu ? Vérifiez vos spams ou{" "}
+                  <button
+                    type="button"
+                    onClick={() => { setMagicLinkSent(false); setMagicEmail(""); }}
+                    className="text-primary hover:underline"
+                  >
+                    réessayez
+                  </button>.
                 </p>
               </div>
             ) : (

@@ -51,6 +51,8 @@ export default function Settings() {
 
   const handleSaveProfile = async () => {
     if (!session?.user?.id) return;
+    // Passe F : protection double-submit
+    if (saving) return;
     setSaving(true);
     try {
       const { error } = await supabase

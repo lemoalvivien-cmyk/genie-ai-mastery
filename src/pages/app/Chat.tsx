@@ -346,11 +346,17 @@ export default function Chat() {
       const text = sanitizeInput(raw);
       if (!text || isLoading) return;
 
+      // Guard: longueur maximale (Passe D)
+      if (text.length > 8000) {
+        toast({ title: "Message trop long", description: "Maximum 8000 caractères.", variant: "destructive" });
+        return;
+      }
+
       // ── Adaptation: bump failure counter if confused ─────────────────────
       const isConfused = isFailureSignal || detectConfusion(text);
       const newFailures = isConfused
         ? Math.min(2, consecutiveFailuresRef.current + 1)
-        : Math.max(0, consecutiveFailuresRef.current - 1); // success slowly resets
+        : Math.max(0, consecutiveFailuresRef.current - 1);
       setConsecutiveFailures(newFailures);
       const currentAdaptation = Math.min(2, newFailures);
 
@@ -361,6 +367,10 @@ export default function Chat() {
       setMessages((prev) => [...prev, userMsg, loadingMsg]);
       setIsLoading(true);
       setKittState("thinking");
+
+      // Passe D : AbortController 30s timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       try {
         const apiMessages = [...messagesRef.current, userMsg]
@@ -395,7 +405,6 @@ export default function Chat() {
         }
 
         if (data?.quota_exceeded) {
-          // Fire quota_hit event (fire-and-forget)
           supabase.from("analytics_events").insert({
             actor_user_id: session?.user?.id ?? null,
             event_name: "quota_hit",
@@ -413,11 +422,8 @@ export default function Chat() {
         setMessages((prev) => prev.filter((m) => m.id !== "loading").concat(assistantMsg));
         if (data.eco_mode) setEcoMode(true);
 
-        // Invisible conversational skill scoring — fire-and-forget, never blocks UI
-        // Works in all chat contexts: with or without explicit skill_ids from a module
         if (session?.access_token && !data.quota_exceeded && data.content) {
           if (contextSkillIds.length) {
-            // Module context: score explicit skills (UUID list)
             fireScoreUtterance({
               utterance: text,
               assistantReply: data.content,
@@ -426,7 +432,6 @@ export default function Chat() {
               accessToken: session.access_token,
             });
           } else {
-            // Free-form chat: auto-detect skills from conversation
             scoreExchange({
               utterance: text,
               assistantReply: data.content,
@@ -435,11 +440,14 @@ export default function Chat() {
           }
         }
 
-
         if (voiceEnabledRef.current && isProRef.current) speak(data.content);
         else setKittState("idle");
       } catch (err) {
-        const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
+        // Passe D : finally garantit que le spinner est toujours retiré
+        const isAbort = err instanceof Error && err.name === "AbortError";
+        const errMsg = isAbort
+          ? "La requête a pris trop de temps. Vérifiez votre connexion et réessayez."
+          : err instanceof Error ? err.message : "Erreur inconnue";
         setMessages((prev) =>
           prev.filter((m) => m.id !== "loading").concat({
             id: crypto.randomUUID(),
@@ -449,6 +457,7 @@ export default function Chat() {
         );
         setKittState("idle");
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
         textareaRef.current?.focus();
       }
@@ -570,13 +579,14 @@ export default function Chat() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Posez votre question à KITT IA..."
-                  className="min-h-[52px] max-h-36 resize-none pr-12 text-sm transition-all"
-                  maxLength={2000}
+                  className="min-h-[52px] max-h-36 resize-none pr-12 text-base transition-all"
+                  maxLength={8000}
                   style={{
                     background: "#1A1D2E",
                     border: "1px solid rgba(82,87,216,0.4)",
                     boxShadow: input ? "0 0 0 2px rgba(82,87,216,0.25)" : undefined,
                     color: "hsl(var(--foreground))",
+                    fontSize: "16px", // Passe G : évite zoom iOS auto (< 16px = zoom)
                   }}
                   rows={1}
                   disabled={isLoading}
@@ -611,7 +621,7 @@ export default function Chat() {
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
                 size="icon"
-                className="shrink-0 h-[52px] w-[52px] transition-all"
+                className="shrink-0 min-h-[52px] min-w-[52px] h-[52px] w-[52px] transition-all"
                 style={{
                   background: "#FE2C40",
                   boxShadow: (!input.trim() || isLoading) ? undefined : "0 0 16px rgba(254,44,64,0.5)",

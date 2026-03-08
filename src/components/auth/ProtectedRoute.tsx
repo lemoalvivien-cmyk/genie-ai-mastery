@@ -28,6 +28,21 @@ export function ProtectedRoute({ children, requireRole, requirePro }: ProtectedR
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Passe F : guard race condition — profile null peut arriver avant le trigger DB
+  // On attend que le profile soit chargé avant de décider si onboarding est nécessaire
+  // Évite le bypass de has_completed_welcome lors d'une race condition au signup
+  if (
+    isAuthenticated &&
+    profile === null &&
+    !WELCOME_EXEMPT_PATHS.some((p) => location.pathname.startsWith(p))
+  ) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" aria-label="Chargement du profil..." />
+      </div>
+    );
+  }
+
   // Redirect to welcome experience if not completed yet
   if (
     profile &&

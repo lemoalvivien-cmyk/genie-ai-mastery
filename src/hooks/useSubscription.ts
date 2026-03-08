@@ -44,13 +44,19 @@ export function useSubscription() {
   return useQuery<SubscriptionInfo>({
     queryKey: ["subscription", session?.user?.id],
     enabled: isAuthenticated && !!session,
-    staleTime: 5 * 60 * 1000, // 5 min cache
+    staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<SubscriptionInfo> => {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error || !data) return FREE_PLAN;
 
       const isPro = data.subscribed === true;
       const source = (data.source ?? "none") as SubscriptionInfo["source"];
+
+      // Passe E : réconciliation post-paiement
+      // Si le flag pending est présent mais que la souscription est active, on nettoie
+      if (isPro && sessionStorage.getItem("genie_payment_pending")) {
+        sessionStorage.removeItem("genie_payment_pending");
+      }
 
       return {
         plan: isPro ? "pro" : "free",

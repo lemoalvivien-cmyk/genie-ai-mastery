@@ -1,3 +1,4 @@
+// ─── KITTContext hook — 3 appels parallèles avec colonnes explicites (Passe H)
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
@@ -23,7 +24,7 @@ export const KITT_MODES: { id: KITTMode; label: string; icon: string; desc: stri
 ];
 
 export interface KITTUserContext {
-  skill_mastery: Record<string, number>;  // slug → p_mastery 0-1
+  skill_mastery: Record<string, number>;
   last_module: { id: string; title: string; domain: string; progress_pct: number } | null;
   completed_modules: number;
   total_modules: number;
@@ -34,9 +35,6 @@ export interface KITTUserContext {
   top_gap: { name: string; domain: string; score: number } | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any;
-
 export function useKITTContext() {
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
@@ -46,19 +44,20 @@ export function useKITTContext() {
     queryFn: async (): Promise<KITTUserContext> => {
       if (!user?.id) throw new Error("Not authenticated");
 
+      // Passe H : 3 appels parallèles au lieu de 5 séquentiels — colonnes explicites
       const [masteryRes, progressRes, streakRes] = await Promise.all([
-        // skill mastery with skill name/slug
+        // JOIN direct skill_mastery → skills (évite 2nd round-trip)
         supabase
           .from("skill_mastery")
-          .select("p_mastery, skill_id")
+          .select("p_mastery, skill_id, skills(id, slug, name, domain)")
           .eq("user_id", user.id)
           .order("p_mastery", { ascending: false })
           .limit(20),
 
-        // last touched module progress
+        // progress avec JOIN module intégré
         supabase
           .from("progress")
-          .select("module_id, status, score, updated_at")
+          .select("module_id, status, score, updated_at, modules(id, title, domain)")
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
           .limit(10),
@@ -71,59 +70,43 @@ export function useKITTContext() {
           .maybeSingle(),
       ]);
 
-      // Resolve skill slugs for mastery map
-      const masteryData = (masteryRes.data ?? []) as { p_mastery: number; skill_id: string }[];
-      const skillIds = masteryData.map((m) => m.skill_id);
-      let skillSlugsMap: Record<string, string> = {};
+      // Build skill mastery map from JOIN result
+      type MasteryRow = { p_mastery: number; skill_id: string; skills: { id: string; slug: string; name: string; domain: string } | null };
+      const masteryData = (masteryRes.data ?? []) as MasteryRow[];
+
+      const skill_mastery: Record<string, number> = {};
       let topGap: KITTUserContext["top_gap"] = null;
-      if (skillIds.length) {
-        const { data: skillRows } = await supabase
-          .from("skills")
-          .select("id, slug, name, domain")
-          .in("id", skillIds);
-        if (skillRows) {
-          skillRows.forEach((s: { id: string; slug: string; name: string; domain: string }) => {
-            skillSlugsMap[s.id] = s.slug;
-          });
-          // Find top gap (lowest mastery skill)
-          const sorted = masteryData.slice().sort((a, b) => a.p_mastery - b.p_mastery);
-          if (sorted.length) {
-            const gapSkillId = sorted[0].skill_id;
-            const gapSkill = skillRows.find((s: { id: string; slug: string; name: string; domain: string }) => s.id === gapSkillId);
-            if (gapSkill) {
-              topGap = { name: gapSkill.name, domain: gapSkill.domain, score: Math.round(sorted[0].p_mastery * 100) };
-            }
-          }
+
+      if (masteryData.length) {
+        masteryData.forEach((m) => {
+          const slug = m.skills?.slug ?? m.skill_id;
+          skill_mastery[slug] = m.p_mastery;
+        });
+
+        // Top gap = lowest mastery
+        const sorted = [...masteryData].sort((a, b) => a.p_mastery - b.p_mastery);
+        const gap = sorted[0];
+        if (gap?.skills) {
+          topGap = { name: gap.skills.name, domain: gap.skills.domain, score: Math.round(gap.p_mastery * 100) };
         }
       }
 
-      const skill_mastery: Record<string, number> = {};
-      masteryData.forEach((m) => {
-        const slug = skillSlugsMap[m.skill_id] ?? m.skill_id;
-        skill_mastery[slug] = m.p_mastery;
-      });
-
-      // Resolve last module info
-      const progressData = (progressRes.data ?? []) as { module_id: string; status: string; score: number | null; updated_at: string }[];
+      // Build last module from JOIN result
+      type ProgressRow = { module_id: string; status: string; score: number | null; updated_at: string; modules: { id: string; title: string; domain: string } | null };
+      const progressData = (progressRes.data ?? []) as ProgressRow[];
       const completedModules = progressData.filter((p) => p.status === "completed").length;
+
       let lastModuleInfo: KITTUserContext["last_module"] = null;
       const inProgressEntry = progressData.find((p) => p.status === "in_progress");
       const lastEntry = inProgressEntry ?? progressData[0];
 
-      if (lastEntry?.module_id) {
-        const { data: modRow } = await supabase
-          .from("modules")
-          .select("id, title, domain")
-          .eq("id", lastEntry.module_id)
-          .maybeSingle();
-        if (modRow) {
-          lastModuleInfo = {
-            id: modRow.id,
-            title: modRow.title,
-            domain: modRow.domain,
-            progress_pct: lastEntry.status === "completed" ? 100 : 50,
-          };
-        }
+      if (lastEntry?.modules) {
+        lastModuleInfo = {
+          id: lastEntry.modules.id,
+          title: lastEntry.modules.title,
+          domain: lastEntry.modules.domain,
+          progress_pct: lastEntry.status === "completed" ? 100 : 50,
+        };
       }
 
       const lastQuizScore = progressData.find((p) => p.score != null)?.score ?? null;
@@ -133,8 +116,8 @@ export function useKITTContext() {
         last_module: lastModuleInfo,
         completed_modules: completedModules,
         total_modules: 24,
-        persona: (profile as { persona?: string })?.persona ?? "salarie",
-        level: (profile as { level?: number })?.level ?? 1,
+        persona: profile?.persona ?? "salarie",
+        level: profile?.level ?? 1,
         streak: (streakRes.data as { current_streak?: number } | null)?.current_streak ?? 0,
         last_quiz_score: lastQuizScore,
         top_gap: topGap,
