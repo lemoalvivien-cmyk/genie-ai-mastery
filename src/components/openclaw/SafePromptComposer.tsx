@@ -179,10 +179,10 @@ export function SafePromptComposer({ runtimes, onSubmit, isSubmitting }: SafePro
 
       {/* Risk estimation */}
       {prompt.length >= 10 && (
-        <div className={`rounded-xl border p-4 space-y-2 ${
-          risk === "high" ? "border-red-400/20 bg-red-400/5" :
-          risk === "medium" ? "border-yellow-400/20 bg-yellow-400/5" :
-          "border-emerald-400/20 bg-emerald-400/5"
+      <div className={`rounded-xl border p-4 space-y-2 ${
+          risk === "high" ? "border-destructive/20 bg-destructive/5" :
+          risk === "medium" ? "border-warning/20 bg-warning/5" :
+          "border-primary/20 bg-primary/5"
         }`}>
           <div className="flex items-center gap-2">
             {risk === "high" && <AlertTriangle className="w-3.5 h-3.5 text-red-400" />}
