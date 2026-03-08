@@ -104,7 +104,7 @@ export default function AgentJobDetailPage() {
               <JobStatusBadge status={job.status} />
               <RiskLevelBadge level={job.risk_level} />
               {isDevHarness && (
-                <Badge variant="outline" className="text-xs border-yellow-400/30 text-yellow-400">DEV_ONLY</Badge>
+                <Badge variant="outline" className="text-xs border-warning/30 text-warning">DEV_ONLY</Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground font-mono mt-0.5">{job.id}</p>
