@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,6 +119,8 @@ export default function ManagerDashboard() {
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { logEvent } = useAuditTrail();
+  const [exportingDossier, setExportingDossier] = useState(false);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
   const { data: weeklyReport, refetch: refetchReport } = useWeeklyReport(orgId);
 
@@ -271,6 +274,45 @@ export default function ManagerDashboard() {
   const handleSort = (field: SortField) => {
     if (field === sortField) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortField(field); setSortDir("asc"); }
+  };
+
+  // ─── Compliance dossier export ───────────────────────────────────────────
+
+  const exportComplianceDossier = async () => {
+    if (!org || exportingDossier) return;
+    setExportingDossier(true);
+    toast({ title: "Génération en cours…", description: "Le dossier peut prendre 15–30 secondes selon la taille de l'équipe." });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Non authentifié");
+
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-compliance-dossier`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ org_id: org.id }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Erreur inconnue" }));
+        throw new Error(err.error ?? `HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().split("T")[0];
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `dossier-conformite-${dateStr}.zip`;
+      a.click();
+      URL.revokeObjectURL(downloadUrl);
+      logEvent("compliance_dossier_exported", { details: { org_id: org.id } });
+      toast({ title: "✅ Dossier exporté !", description: "Le fichier ZIP est dans vos téléchargements." });
+    } catch (e) {
+      toast({ title: "Erreur d'export", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setExportingDossier(false);
+    }
   };
 
   // ─── CSV export ──────────────────────────────────────────────────────────
@@ -904,9 +946,19 @@ export default function ManagerDashboard() {
 
             {/* ── Attestations tab ── */}
             <TabsContent value="attestations" className="space-y-4 mt-4">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap gap-2">
                 <h2 className="text-lg font-semibold">Attestations de l'organisation</h2>
-                <span className="text-sm text-muted-foreground">{attestations.length} au total</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{attestations.length} au total</span>
+                  <Button
+                    size="sm"
+                    onClick={exportComplianceDossier}
+                    disabled={exportingDossier}
+                    className="gap-1.5 bg-primary text-primary-foreground hover:opacity-90"
+                  >
+                    {exportingDossier ? <><span className="animate-spin">⏳</span> Génération…</> : <><FileText className="w-4 h-4" /> Exporter le Dossier Conformité</>}
+                  </Button>
+                </div>
               </div>
               <div className="rounded-xl border border-border/50 overflow-hidden">
                 <table className="w-full text-sm">

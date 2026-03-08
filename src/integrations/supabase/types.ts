@@ -1142,10 +1142,15 @@ export type Database = {
           action: string
           created_at: string | null
           details: Json | null
+          device: string | null
+          duration_ms: number | null
+          event_type: string | null
           id: string
           ip_address: unknown
           resource_id: string | null
           resource_type: string | null
+          score: number | null
+          session_id: string | null
           user_agent: string | null
           user_id: string | null
         }
@@ -1153,10 +1158,15 @@ export type Database = {
           action: string
           created_at?: string | null
           details?: Json | null
+          device?: string | null
+          duration_ms?: number | null
+          event_type?: string | null
           id?: string
           ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
+          score?: number | null
+          session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1164,10 +1174,15 @@ export type Database = {
           action?: string
           created_at?: string | null
           details?: Json | null
+          device?: string | null
+          duration_ms?: number | null
+          event_type?: string | null
           id?: string
           ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
+          score?: number | null
+          session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -4372,6 +4387,20 @@ export type Database = {
           _meta?: Json
           _resource_id?: string
           _resource_type?: string
+        }
+        Returns: undefined
+      }
+      log_event: {
+        Args: {
+          _details?: Json
+          _device?: string
+          _duration_ms?: number
+          _event_type: string
+          _resource_id?: string
+          _resource_type?: string
+          _score?: number
+          _session_id?: string
+          _user_id: string
         }
         Returns: undefined
       }
