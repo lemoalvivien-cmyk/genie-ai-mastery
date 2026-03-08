@@ -126,3 +126,6 @@ verify_jwt = false
 [functions.openclaw-cron-manager]
 verify_jwt = false
 
+[functions.openclaw-dev-harness]
+verify_jwt = false
+

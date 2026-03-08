@@ -159,14 +159,16 @@ serve(async (req) => {
   // ── Ensure default policy exists for org ──────────────────
   const { data: existingPolicy } = await sb
     .from("openclaw_policies")
-    .select("id")
+    .select("id, max_jobs_per_hour, max_concurrent_jobs")
     .eq("org_id", org_id)
     .eq("active", true)
     .maybeSingle();
 
+  let policyId: string | undefined;
+
   if (!existingPolicy) {
     // Create default policy for org
-    await sb.from("openclaw_policies").insert({
+    const { data: newPolicy } = await sb.from("openclaw_policies").insert({
       org_id,
       policy_name: "Default Policy",
       allowed_tools: ["web_search", "knowledge_search", "ai_summarize"],
@@ -174,7 +176,50 @@ serve(async (req) => {
       network_mode: "restricted",
       max_runtime_seconds: 120,
       max_artifacts: 10,
+      max_jobs_per_hour: 20,
+      max_concurrent_jobs: 5,
       active: true,
+    }).select("id, max_jobs_per_hour, max_concurrent_jobs").single();
+    policyId = newPolicy?.id;
+  } else {
+    policyId = existingPolicy.id;
+  }
+
+  // ── Quota check — jobs created in last 60 minutes ──────────
+  const maxPerHour = existingPolicy?.max_jobs_per_hour ?? 20;
+  const maxConcurrent = existingPolicy?.max_concurrent_jobs ?? 5;
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+  const { count: recentCount } = await sb
+    .from("openclaw_jobs")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", org_id)
+    .gte("created_at", oneHourAgo);
+
+  if ((recentCount ?? 0) >= maxPerHour) {
+    return new Response(JSON.stringify({
+      error: `quota_exceeded: limite de ${maxPerHour} jobs par heure atteinte pour cette organisation`,
+      quota: { kind: "jobs_per_hour", limit: maxPerHour, current: recentCount, window: "60min" },
+    }), {
+      status: 429,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // ── Quota check — concurrent running jobs ──────────────────
+  const { count: runningCount } = await sb
+    .from("openclaw_jobs")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", org_id)
+    .eq("status", "running");
+
+  if ((runningCount ?? 0) >= maxConcurrent) {
+    return new Response(JSON.stringify({
+      error: `quota_exceeded: limite de ${maxConcurrent} jobs simultanés atteinte. Attendez qu'un job en cours se termine.`,
+      quota: { kind: "concurrent_jobs", limit: maxConcurrent, current: runningCount },
+    }), {
+      status: 429,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 

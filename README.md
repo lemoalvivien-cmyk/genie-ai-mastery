@@ -1,15 +1,19 @@
-# GENIE IA — OpenClaw Phase 1
+# GENIE IA — OpenClaw Phase 1 → Phase 2
 
-## Package Manager officiel : Bun
+## Package Manager officiel : **Bun**
+
+```json
+"packageManager": "bun@1.2.0"
+```
 
 Ce projet utilise **Bun** comme gestionnaire de paquets et moteur d'exécution.  
 Le lockfile de référence est `bun.lockb`.  
-Un `package-lock.json` est également présent (artefact généré automatiquement, ne pas supprimer — référencé en read-only).
+`package-lock.json` est un artefact read-only généré automatiquement — **ne pas utiliser `npm ci`**.
 
 **Commandes officielles :**
 
 ```bash
-# Installation propre
+# Installation propre (frozen lockfile)
 bun install
 
 # Lancer le serveur de développement
@@ -31,7 +35,7 @@ npx vitest run
 - Vite + React 18 + TypeScript
 - Tailwind CSS + shadcn/ui
 - Supabase (auth, DB, Edge Functions) — via Lovable Cloud
-- Bun (runtime + package manager)
+- Bun (runtime + package manager officiel)
 
 ---
 
@@ -69,6 +73,15 @@ bun run test
 ```
 
 Les 3 tests `skipped` = `INTEGRATION_PENDING` — documentent le flux e2e sans runtime réel branché.
+
+---
+
+## OpenClaw Phase 2
+
+Voir [docs/openclaw-dev-setup.md](docs/openclaw-dev-setup.md) pour :
+- Enregistrer un runtime (DEV_ONLY_OPENCLAW_RUNTIME ou réel)
+- Configurer `OPENCLAW_API_TOKEN` et `OPENCLAW_WEBHOOK_SECRET`
+- Lancer le flux complet create → dispatch → sync → résultat
 
 ---
 

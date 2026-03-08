@@ -184,8 +184,11 @@ serve(async (req) => {
     },
   });
 
-  // ── OPENCLAW_API_TOKEN requis — pas de dispatch silencieux ──
-  if (!OPENCLAW_API_TOKEN) {
+  // ── OPENCLAW_API_TOKEN requis sauf pour le DEV harness ────────
+  // Le DEV_ONLY_OPENCLAW_RUNTIME est une Edge Function interne — pas besoin de token externe
+  const isDevHarness = runtime.base_url.includes("openclaw-dev-harness");
+
+  if (!OPENCLAW_API_TOKEN && !isDevHarness) {
     await sb.from("openclaw_jobs").update({
       status: "failed",
       error_message: "OpenClaw runtime not configured: OPENCLAW_API_TOKEN missing.",
@@ -210,14 +213,19 @@ serve(async (req) => {
     });
   }
 
-  // ── Real dispatch ──────────────────────────────────────────
+  // ── Real dispatch (ou dev harness) ────────────────────────────
+  // Pour le DEV_ONLY_OPENCLAW_RUNTIME (Edge Function interne), on utilise l'anon key.
+  // Pour un runtime externe réel, on utilise OPENCLAW_API_TOKEN.
+  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const authTokenForDispatch = isDevHarness ? SUPABASE_ANON_KEY : OPENCLAW_API_TOKEN;
+
   try {
     const dispatchUrl = `${runtime.base_url}/v1/jobs`;
     const dispatchResp = await fetch(dispatchUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENCLAW_API_TOKEN}`,
+        "Authorization": `Bearer ${authTokenForDispatch}`,
         "X-Genie-Job-Id": job.id,
         "X-Genie-Org-Id": job.org_id,
       },
@@ -240,7 +248,7 @@ serve(async (req) => {
         job_id,
         event_type: "dispatch_failed",
         message: `OpenClaw a rejeté le job (HTTP ${dispatchResp.status})`,
-        metadata: { status_code: dispatchResp.status, response: respData },
+        metadata: { status_code: dispatchResp.status, response: respData, is_dev_harness: isDevHarness },
       });
 
       return new Response(JSON.stringify({
@@ -257,16 +265,21 @@ serve(async (req) => {
     await sb.from("openclaw_job_events").insert({
       job_id,
       event_type: "dispatch_accepted",
-      message: "Job accepté par OpenClaw runtime",
-      metadata: { response: respData, dispatched_at: new Date().toISOString() },
+      message: isDevHarness
+        ? "[DEV_ONLY] Job accepté par DEV_ONLY_OPENCLAW_RUNTIME — callback dans ~4s"
+        : "Job accepté par OpenClaw runtime",
+      metadata: { response: respData, dispatched_at: new Date().toISOString(), is_dev_harness: isDevHarness },
     });
 
     return new Response(JSON.stringify({
       success: true,
       job_id,
       status: "running",
-      message: "Job dispatché vers OpenClaw. Suivi en cours.",
+      message: isDevHarness
+        ? "[DEV_ONLY] Job dispatché vers le harness de développement. Résultat simulé dans ~4s."
+        : "Job dispatché vers OpenClaw. Suivi en cours.",
       openclaw_response: respData,
+      dev_only: isDevHarness,
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
