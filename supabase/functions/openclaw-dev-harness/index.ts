@@ -26,12 +26,7 @@
  * ─────────────────────────────────────────────────────────────────────
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-genie-job-id, x-genie-org-id",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 // ── CORRECTION : on utilise OPENCLAW_WEBHOOK_SECRET pour signer les callbacks HMAC ──
@@ -143,6 +138,7 @@ async function simulateJobExecution(jobId: string, jobType: string, prompt: stri
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // ── Auth minimale : Accept OPENCLAW_API_TOKEN OU JWT utilisateur ──
