@@ -298,7 +298,7 @@ export default function Index() {
 
           {/* Stats */}
           <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full animate-slide-up" style={{ animationDelay: "240ms" }}>
-            {STATS.map((s) => (
+            {STATS_FALLBACK.map((s) => (
               <div key={s.label} className="text-center">
                 <div className="text-2xl font-black text-foreground">{s.value}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
