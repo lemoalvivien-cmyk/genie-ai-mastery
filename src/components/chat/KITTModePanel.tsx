@@ -45,7 +45,7 @@ export function KITTModePanel({ mode, onModeChange, context, isPro }: Props) {
                 isActive
                   ? "border-primary bg-primary/15 text-primary shadow-sm"
                   : isGapMode
-                  ? "border-amber-500/50 bg-amber-500/10 text-amber-400 hover:border-amber-500/80 animate-pulse"
+                  ? "border-warning/50 bg-warning/10 text-warning hover:border-warning/80 animate-pulse"
                   : "border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/40 bg-transparent"
               )}
             >
