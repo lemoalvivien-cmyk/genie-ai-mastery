@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireProPlan } from "../_shared/subscription.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
