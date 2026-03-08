@@ -28,23 +28,49 @@ export default function AppLayout() {
 
   const isChat = location.pathname === "/app/chat" || location.pathname === "/app/jarvis";
 
-  const navItems = [
+  // ── Desktop sidebar nav ─────────────────────────────────────────────────────
+  const desktopNavItems = [
     {
       to: "/app/today",
       icon: Calendar,
       label: "Aujourd'hui",
       badge: currentStreak > 0 ? String(currentStreak) : null,
       dot: !missionDone,
+      showProBadge: false,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Chat IA" },
-    { to: "/app/jarvis", icon: Bot, label: "KITT IA", showProBadge: !isPro },
-    { to: "/app/modules", icon: BookOpen, label: "Modules" },
-    { to: "/app/settings", icon: Settings, label: "Paramètres" },
+    { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
+    { to: "/app/jarvis", icon: Bot, label: "KITT IA", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
+    { to: "/os", icon: Cpu, label: "GENIE OS", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
 
   if (isManager) {
-    navItems.push({ to: "/manager", icon: Users, label: "Manager" } as typeof navItems[0]);
+    desktopNavItems.push({
+      to: "/manager",
+      icon: Users,
+      label: "Manager",
+      dot: false,
+      badge: null,
+      showProBadge: false,
+    });
   }
+
+  // ── Mobile bottom nav: max 5 items, most important ─────────────────────────
+  const mobileNavItems = [
+    {
+      to: "/app/today",
+      icon: Calendar,
+      label: "Aujourd'hui",
+      dot: !missionDone,
+      badge: currentStreak > 0 ? String(currentStreak) : null,
+    },
+    { to: "/app/chat", icon: MessageCircle, label: "Chat", dot: false, badge: null },
+    { to: "/app/jarvis", icon: Bot, label: "KITT", dot: false, badge: null },
+    { to: "/os", icon: Cpu, label: "GENIE OS", dot: false, badge: null },
+    { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
+  ];
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -75,7 +101,7 @@ export default function AppLayout() {
 
         {/* Nav items */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {navItems.map((item) => (
+          {desktopNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -110,7 +136,10 @@ export default function AppLayout() {
                 </span>
               )}
               {item.showProBadge && (
-                <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border" style={{ background: "rgba(254,44,64,0.1)", color: "#FE2C40", borderColor: "rgba(254,44,64,0.3)" }}>
+                <span
+                  className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border"
+                  style={{ background: "rgba(254,44,64,0.1)", color: "#FE2C40", borderColor: "rgba(254,44,64,0.3)" }}
+                >
                   <Lock className="w-2.5 h-2.5" />
                   PRO
                 </span>
@@ -121,7 +150,10 @@ export default function AppLayout() {
 
         {/* ── User footer ── */}
         <div className="px-3 py-4" style={{ borderTop: "1px solid #2A2D3A" }}>
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <div
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+            style={{ background: "rgba(255,255,255,0.03)" }}
+          >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
               style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)" }}
@@ -132,7 +164,10 @@ export default function AppLayout() {
               <p className="text-sm font-medium text-[#E8E9F0] truncate">
                 {profile?.full_name ?? profile?.email ?? ""}
               </p>
-              <p className="text-[10px] font-semibold" style={{ color: isPro ? "#5257D8" : "hsl(var(--muted-foreground))" }}>
+              <p
+                className="text-[10px] font-semibold"
+                style={{ color: isPro ? "#5257D8" : "hsl(var(--muted-foreground))" }}
+              >
                 Plan {planLabel}
               </p>
             </div>
@@ -178,17 +213,17 @@ export default function AppLayout() {
           <Outlet />
         </main>
 
-        {/* Mobile bottom nav */}
+        {/* ── Mobile bottom nav (5 items max, most critical) ── */}
         <nav
-          className="lg:hidden shrink-0 px-2 py-2 flex items-center justify-around"
+          className="lg:hidden shrink-0 px-2 py-1.5 flex items-center justify-around"
           style={{ borderTop: "1px solid #2A2D3A", background: "#13151E" }}
         >
-          {navItems.slice(0, 5).map((item) => (
+          {mobileNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all text-xs relative ${
+                `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all text-xs relative min-w-0 ${
                   isActive ? "" : "text-muted-foreground"
                 }`
               }
@@ -202,7 +237,7 @@ export default function AppLayout() {
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive border border-background" />
                 )}
               </div>
-              <span className="text-[10px]">{item.label}</span>
+              <span className="text-[9px] truncate max-w-[52px] text-center leading-tight">{item.label}</span>
             </NavLink>
           ))}
         </nav>
