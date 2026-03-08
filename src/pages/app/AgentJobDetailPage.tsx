@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useOpenClaw, type OpenClawJob, type OpenClawJobEvent, type OpenClawArtifact } from "@/hooks/useOpenClaw";
 import { JobStatusBadge, RiskLevelBadge, JobEventTimeline, ArtifactList } from "@/components/openclaw/OpenClawBadges";
 import { Button } from "@/components/ui/button";
@@ -33,19 +34,36 @@ export default function AgentJobDetailPage() {
     loadAll();
   }, [id, fetchJobs, fetchRuntimes, fetchJobEvents, fetchJobArtifacts]);
 
-  // Auto-refresh events while job is running
+  /**
+   * BLQ-6 : Polling ciblé — au lieu de recharger la liste complète des jobs
+   * (fetchJobs()), on ne récupère que le job courant par son id.
+   * Réduit la charge réseau et évite les re-renders inutiles.
+   */
   useEffect(() => {
     const currentJob = jobs.find(j => j.id === id);
     if (!currentJob || (currentJob.status !== "running" && currentJob.status !== "queued")) return;
+
     const timer = setInterval(async () => {
       if (!id) return;
-      await fetchJobs();
+
+      // Fetch ciblé sur le job_id uniquement
+      const { data: updatedJob } = await supabase
+        .from("openclaw_jobs")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (updatedJob) {
+        setJob(updatedJob as OpenClawJob);
+      }
+
       const [evts, arts] = await Promise.all([fetchJobEvents(id), fetchJobArtifacts(id)]);
       setEvents(evts);
       setArtifacts(arts);
-    }, 2000);
+    }, 3000); // 3s au lieu de 2s pour réduire la charge
+
     return () => clearInterval(timer);
-  }, [id, jobs, fetchJobs, fetchJobEvents, fetchJobArtifacts]);
+  }, [id, jobs, fetchJobEvents, fetchJobArtifacts]);
 
   useEffect(() => {
     if (id) setJob(jobs.find(j => j.id === id) ?? null);

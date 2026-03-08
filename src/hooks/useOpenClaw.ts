@@ -91,21 +91,43 @@ export function useOpenClaw() {
   const [isCreatingJob, setIsCreatingJob] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
 
+  /**
+   * BLQ-4 : fetchRuntimes filtre sur l'org_id du profil pour empêcher
+   * toute fuite cross-tenant. Si l'utilisateur n'a pas d'org, liste vide.
+   */
   const fetchRuntimes = useCallback(async () => {
+    if (!user) return;
     setIsLoadingRuntimes(true);
     try {
-      const { data, error } = await supabase
+      // Récupérer l'org_id depuis le profil pour le filtre RLS
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("org_id")
+        .eq("id", user.id)
+        .single();
+
+      const orgId = profile?.org_id;
+
+      const query = supabase
         .from("openclaw_runtimes")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      setRuntimes((data ?? []) as OpenClawRuntime[]);
+
+      // Filtre org_id explicite en plus du RLS
+      if (orgId) {
+        const { data, error } = await query.eq("org_id", orgId);
+        if (error) throw error;
+        setRuntimes((data ?? []) as OpenClawRuntime[]);
+      } else {
+        // Pas d'org = pas de runtimes
+        setRuntimes([]);
+      }
     } catch (err) {
       toast({ title: "Erreur", description: String(err), variant: "destructive" });
     } finally {
       setIsLoadingRuntimes(false);
     }
-  }, [toast]);
+  }, [user, toast]);
 
   const fetchJobs = useCallback(async (limit = 50) => {
     if (!user) return;
@@ -264,14 +286,40 @@ export function useOpenClaw() {
     }
   }, [toast, fetchRuntimes]);
 
+  /**
+   * BLQ-1 : cancelJob passe maintenant par une Edge Function sécurisée.
+   * Vérification JWT + ownership stricte côté serveur.
+   * Aucune mise à jour directe depuis le client.
+   */
   const cancelJob = useCallback(async (job_id: string) => {
-    const { error } = await supabase
-      .from("openclaw_jobs")
-      .update({ status: "cancelled", completed_at: new Date().toISOString() })
-      .eq("id", job_id);
-    if (!error) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? "";
+
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/openclaw-cancel-job`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ job_id }),
+      });
+
+      const result = await resp.json();
+
+      if (!resp.ok || !result.success) {
+        toast({
+          title: "Annulation échouée",
+          description: result.error ?? `HTTP ${resp.status}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       await fetchJobs();
       toast({ title: "Job annulé" });
+    } catch (err) {
+      toast({ title: "Erreur annulation", description: String(err), variant: "destructive" });
     }
   }, [fetchJobs, toast]);
 
