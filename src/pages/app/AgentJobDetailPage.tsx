@@ -130,20 +130,20 @@ export default function AgentJobDetailPage() {
 
       {/* Live execution banner */}
       {isRunning && (
-        <div className="flex-shrink-0 px-6 py-2 bg-blue-500/5 border-b border-blue-500/20 flex items-center gap-2">
-          <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin flex-shrink-0" />
-          <p className="text-xs text-blue-400 flex-1">
+        <div className="flex-shrink-0 px-6 py-2 border-b border-border flex items-center gap-2 bg-card">
+          <Loader2 className="w-3.5 h-3.5 text-primary animate-spin flex-shrink-0" />
+          <p className="text-xs text-primary flex-1">
             Exécution en cours
             {duration !== null && ` — ${duration}s`}
             {lastEvent && ` · ${lastEvent.message.slice(0, 80)}`}
           </p>
-          <span className="text-xs text-blue-400/60">{events.length} événement{events.length !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-muted-foreground">{events.length} événement{events.length !== 1 ? "s" : ""}</span>
         </div>
       )}
 
       {/* DEV ONLY warning */}
       {isDevHarness && (
-        <div className="flex-shrink-0 px-6 py-2 bg-yellow-500/5 border-b border-yellow-500/20 flex items-center gap-2">
+        <div className="flex-shrink-0 px-6 py-2 border-b border-border flex items-center gap-2 bg-card">
           <AlertCircle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
           <p className="text-xs text-yellow-400">
             DEV_ONLY_OPENCLAW_RUNTIME — Les résultats sont simulés. Brancher un runtime réel pour des exécutions authentiques.
