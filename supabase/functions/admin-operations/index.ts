@@ -17,6 +17,7 @@ import {
   handleOptions,
   jsonResponse as json,
 } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 // ── Rate limiting (in-memory, par userId) ──────────────────────────────────
 interface RateBucket {

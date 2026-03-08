@@ -1,6 +1,7 @@
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions, jsonResponse } from "../_shared/auth.ts";
 import { requireProPlan } from "../_shared/subscription.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
