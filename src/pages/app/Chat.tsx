@@ -579,13 +579,14 @@ export default function Chat() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Posez votre question à KITT IA..."
-                  className="min-h-[52px] max-h-36 resize-none pr-12 text-sm transition-all"
-                  maxLength={2000}
+                  className="min-h-[52px] max-h-36 resize-none pr-12 text-base transition-all"
+                  maxLength={8000}
                   style={{
                     background: "#1A1D2E",
                     border: "1px solid rgba(82,87,216,0.4)",
                     boxShadow: input ? "0 0 0 2px rgba(82,87,216,0.25)" : undefined,
                     color: "hsl(var(--foreground))",
+                    fontSize: "16px", // Passe G : évite zoom iOS auto (< 16px = zoom)
                   }}
                   rows={1}
                   disabled={isLoading}
