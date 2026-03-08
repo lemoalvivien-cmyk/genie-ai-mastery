@@ -259,25 +259,49 @@ Présent dans `AgentJobDetailPage` :
 
 ---
 
+## CORRECTION AUTH CALLBACK HARNESS (2026-03-08)
+
+### Bug corrigé
+
+**Avant (incorrect) :**
+Le harness envoyait ses callbacks vers `openclaw-sync-job` avec :
+```
+Authorization: Bearer <SUPABASE_ANON_KEY>
+```
+`sync-job` appelle `auth.getUser(anon_key)` → retourne `null` → **401 Unauthorized**.
+Le flux DEV_ONLY était silencieusement brisé.
+
+**Après (correct) :**
+Le harness signe ses callbacks avec **HMAC-SHA256** via le header `X-OpenClaw-Signature`.
+`sync-job` vérifie cette signature via **PATH 1** (`OPENCLAW_WEBHOOK_SECRET` configuré).
+Le `SUPABASE_ANON_KEY` n'est **plus jamais** utilisé comme pseudo-JWT.
+
+### Prérequis
+`OPENCLAW_WEBHOOK_SECRET` doit être configuré dans les secrets Edge Functions.
+Sans ce secret, le harness retourne `503` avec un message explicatif.
+
+---
+
 ## HONNÊTETÉ FINALE
 
 ### Ce qui est réellement livré (Phase 2)
 
 - ✅ `packageManager: "bun@1.2.0"` dans `package.json`
-- ✅ `openclaw-dev-harness` créé (`supabase/functions/openclaw-dev-harness/index.ts`)
+- ✅ `openclaw-dev-harness` créé avec callbacks **HMAC-SHA256 signés** (bug ANON_KEY corrigé)
 - ✅ Migration quotas exécutée (`max_jobs_per_hour`, `max_concurrent_jobs`)
 - ✅ Contrôle 429 dans `openclaw-create-job`
 - ✅ UI observabilité enrichie (durée, dispatch, completion, runtime, artefacts, timeline, badge DEV_ONLY)
-- ✅ Tests Phase 2 : `packageManager`, quotas, dev harness contract
+- ✅ Tests : **54 passent | 3 skipped** (total 57) — couvrant HMAC auth, quotas, DEV_ONLY detection, org-scope
 
 ### Ce qui est DEV_ONLY
 
 - ⚠️ `DEV_ONLY_OPENCLAW_RUNTIME` — harness de simulation, pas un vrai runtime OpenClaw
 - ⚠️ Résultats du flux e2e sont simulés — `[DEV_ONLY]` dans tous les payloads
+- ⚠️ Nécessite `OPENCLAW_WEBHOOK_SECRET` configuré pour que les callbacks HMAC fonctionnent
 
 ### Ce qui reste INTEGRATION_PENDING
 
 - ⏳ Runtime OpenClaw externe réel (URL, token, protocole documentés mais non branchés)
-- ⏳ `OPENCLAW_WEBHOOK_SECRET` (HMAC optionnel, recommandé pour la prod)
+- ⏳ `OPENCLAW_WEBHOOK_SECRET` à configurer dans les secrets Lovable Cloud
 - ⏳ Tests Playwright e2e (Phase 3)
 - ⏳ Dashboard coût/usage recharts avec vraies données agrégées
