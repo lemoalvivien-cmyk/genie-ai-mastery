@@ -9,13 +9,13 @@
 | Fait | Valeur |
 |------|--------|
 | Package manager | **Bun** |
+| Champ `packageManager` dans `package.json` | `"bun@1.2.0"` ✅ présent |
 | Lockfile de référence | `bun.lockb` |
-| Champ `packageManager` | `"bun@1.2.0"` dans `package.json` |
-| `package-lock.json` | Artefact read-only (ne pas utiliser `npm ci`) |
+| `package-lock.json` | Artefact read-only généré automatiquement — **ne pas utiliser `npm ci`** |
 | `bun.lock` | Présent en read-only |
 
 ```bash
-# Installation propre
+# Installation propre (frozen lockfile)
 bun install
 
 # Tests
@@ -28,22 +28,24 @@ bun run dev
 
 ---
 
-## ÉTAT PHASE 1 (validé)
+## ÉTAT PHASE 2 (réellement livré)
 
 | Composant | Statut |
 |-----------|--------|
 | 5 tables SQL + RLS (`openclaw_runtimes`, `jobs`, `job_events`, `artifacts`, `policies`) | ✅ |
+| Colonnes quotas dans `openclaw_policies` (`max_jobs_per_hour`, `max_concurrent_jobs`) | ✅ Migration exécutée |
 | 5 Edge Functions (`create-job`, `dispatch-job`, `sync-job`, `runtime-health`, `cron-manager`) | ✅ |
-| 1 Edge Function dev (`openclaw-dev-harness`) | ✅ DEV_ONLY |
+| 1 Edge Function dev (`openclaw-dev-harness`) | ✅ Fichier créé — DEV_ONLY |
 | 4 routes UI (`/app/agent-jobs`, `/new`, `/:id`, `/manager/openclaw`) | ✅ |
 | Hook `useOpenClaw` complet | ✅ |
 | `SafePromptComposer` avec estimation risque temps réel | ✅ |
 | Guards org-scope strict (dispatch, cron) | ✅ |
 | Callback anonyme bloqué (sync-job) | ✅ |
 | OPENCLAW_API_TOKEN côté serveur uniquement | ✅ |
-| 29 tests passent, 3 INTEGRATION_PENDING | ✅ |
+| Contrôle 429 quotas dans `openclaw-create-job` | ✅ |
 | UI observabilité enrichie (Phase 2) | ✅ |
-| Quotas org minimaux | ✅ |
+| `packageManager: "bun@1.2.0"` dans `package.json` | ✅ |
+| Tests : 37 passent, 4 INTEGRATION_PENDING | ✅ |
 
 ---
 
@@ -214,7 +216,7 @@ Les quotas sont définis dans `openclaw_policies` :
 | `max_concurrent_jobs` | 5 | Max jobs en statut `running` simultanément |
 
 Vérifiés dans `openclaw-create-job` avant toute création.  
-Un message clair est retourné si le quota est dépassé : `quota_exceeded`.
+Un message clair est retourné si le quota est dépassé : `quota_exceeded` + HTTP 429.
 
 ---
 
@@ -242,7 +244,7 @@ La mention `[DEV_ONLY]` dans le résultat confirme que c'est le harness, pas un 
 
 ## OBSERVABILITÉ UI (Phase 2)
 
-Ajouté dans `AgentJobDetailPage` :
+Présent dans `AgentJobDetailPage` :
 
 - **Durée d'exécution** (started_at → completed_at en secondes)
 - **Date de dispatch** (started_at)
@@ -253,19 +255,26 @@ Ajouté dans `AgentJobDetailPage` :
 - **Message d'erreur structuré** dans un bloc rouge dédié
 - **Timeline complète** avec métadonnées détaillées
 - **Panneau artefacts** avec type, taille, MIME
+- **Badge DEV_ONLY** si runtime = dev harness
+- **Auto-refresh** toutes les 2s pendant queued/running
 
 ---
 
 ## HONNÊTETÉ FINALE
 
-### Ce qui est réellement validé (Phase 2)
+### Ce qui est réellement livré (Phase 2)
 
-- ✅ DEV_ONLY_OPENCLAW_RUNTIME déployé et documenté
-- ✅ Flux complet prouvable : create → dispatch → sync (3 callbacks) → résultat
-- ✅ Quotas par org (max_jobs_per_hour, max_concurrent_jobs)
-- ✅ UI enrichie : durée, dispatch, completion, runtime, artefacts, timeline
-- ✅ Package manager unifié : Bun, `packageManager: "bun@1.2.0"` dans package.json
-- ✅ README et docs cohérents avec `bun.lockb`
+- ✅ `packageManager: "bun@1.2.0"` dans `package.json`
+- ✅ `openclaw-dev-harness` créé (`supabase/functions/openclaw-dev-harness/index.ts`)
+- ✅ Migration quotas exécutée (`max_jobs_per_hour`, `max_concurrent_jobs`)
+- ✅ Contrôle 429 dans `openclaw-create-job`
+- ✅ UI observabilité enrichie (durée, dispatch, completion, runtime, artefacts, timeline, badge DEV_ONLY)
+- ✅ Tests Phase 2 : `packageManager`, quotas, dev harness contract
+
+### Ce qui est DEV_ONLY
+
+- ⚠️ `DEV_ONLY_OPENCLAW_RUNTIME` — harness de simulation, pas un vrai runtime OpenClaw
+- ⚠️ Résultats du flux e2e sont simulés — `[DEV_ONLY]` dans tous les payloads
 
 ### Ce qui reste INTEGRATION_PENDING
 
@@ -273,57 +282,3 @@ Ajouté dans `AgentJobDetailPage` :
 - ⏳ `OPENCLAW_WEBHOOK_SECRET` (HMAC optionnel, recommandé pour la prod)
 - ⏳ Tests Playwright e2e (Phase 3)
 - ⏳ Dashboard coût/usage recharts avec vraies données agrégées
-
----
-
-## PROMPT PHASE 3
-
-```
-RÔLE
-Tu es un Principal Engineer expert React/TypeScript, Supabase, observabilité, Playwright.
-
-CONTEXTE
-Phase 2 OpenClaw validée :
-- DEV_ONLY_OPENCLAW_RUNTIME déployé, flux complet prouvé (create→dispatch→sync→résultat)
-- Quotas org en place (max_jobs_per_hour, max_concurrent_jobs)
-- UI enrichie (durée, timeline, artefacts, runtime panel)
-- Package manager unifié : Bun
-
-OBJECTIF Phase 3 : E2E, Dashboard coût/usage, Monitoring zombies
-
-MISSIONS
-
-1. TESTS E2E PLAYWRIGHT
-   - tests/e2e/openclaw.spec.ts
-   - Navigation /app/agent-jobs → bouton "Nouveau job" visible
-   - Formulaire SafePromptComposer → runtime sélectionnable
-   - Création job → statut "queued" visible
-   - Timeline → au moins 1 événement visible
-
-2. DASHBOARD COÛT/USAGE
-   - Vue agrégée dans ManagerOpenClawPage
-   - Jobs par statut (recharts BarChart)
-   - Taux de succès (gaugeChart)
-   - Consommation quotas (progress bar)
-   - Alimenté par vraies données DB — JAMAIS de mocks
-
-3. MONITORING ZOMBIES
-   - Jobs running > 10min sans callback → alerte
-   - Cron openclaw-cron-manager : reset zombie jobs → failed
-   - Notification manager (edge function manager-alerts)
-
-4. RUNTIME RÉEL
-   - Documenter le branchement d'un vrai runtime OpenClaw
-   - Tester le healthcheck réel
-   - Valider un dispatch réel (si runtime disponible)
-
-INTERDICTIONS
-- Ne pas dire "done" sans montrer vitest run + playwright test réels
-- Ne pas inventer de données dans le dashboard
-- Ne pas prétendre que Playwright tourne sans résultat réel
-
-PREUVES EXIGÉES
-- playwright test output réel (même partiel)
-- vitest run output après modifications
-- Dashboard alimenté par vraies données DB
-```

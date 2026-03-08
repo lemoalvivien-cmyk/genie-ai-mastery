@@ -2646,6 +2646,8 @@ export type Database = {
           created_at: string
           id: string
           max_artifacts: number
+          max_concurrent_jobs: number
+          max_jobs_per_hour: number
           max_runtime_seconds: number
           network_mode: string
           org_id: string
@@ -2659,6 +2661,8 @@ export type Database = {
           created_at?: string
           id?: string
           max_artifacts?: number
+          max_concurrent_jobs?: number
+          max_jobs_per_hour?: number
           max_runtime_seconds?: number
           network_mode?: string
           org_id: string
@@ -2672,6 +2676,8 @@ export type Database = {
           created_at?: string
           id?: string
           max_artifacts?: number
+          max_concurrent_jobs?: number
+          max_jobs_per_hour?: number
           max_runtime_seconds?: number
           network_mode?: string
           org_id?: string
