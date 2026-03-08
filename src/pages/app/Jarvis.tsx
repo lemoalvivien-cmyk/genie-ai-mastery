@@ -419,7 +419,6 @@ export default function Jarvis() {
                 </button>
               )}
 
-              <div className="flex-1 relative">
                 <Textarea
                   ref={textareaRef}
                   value={input}
@@ -427,7 +426,9 @@ export default function Jarvis() {
                   onKeyDown={handleKeyDown}
                   placeholder={mode === "senior" ? "Pose-moi ta question ici…" : "Pose une question ou décris ton problème…"}
                   rows={1}
-                  className="min-h-[42px] max-h-[120px] resize-none text-sm rounded-xl bg-background border-border/60 focus-visible:ring-primary pr-10"
+                  className="min-h-[44px] max-h-[120px] resize-none rounded-xl bg-background border-border/60 focus-visible:ring-primary pr-10"
+                  style={{ fontSize: "16px" }}
+                  maxLength={8000}
                   disabled={isLoading}
                 />
               </div>
