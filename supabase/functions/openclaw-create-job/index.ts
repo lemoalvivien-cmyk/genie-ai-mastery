@@ -79,6 +79,7 @@ function classifyRisk(job_type: JobType, prompt: string): { risk_level: RiskLeve
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);

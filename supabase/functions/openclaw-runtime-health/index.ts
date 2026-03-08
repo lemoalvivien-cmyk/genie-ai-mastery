@@ -13,6 +13,7 @@ const OPENCLAW_API_TOKEN = Deno.env.get("OPENCLAW_API_TOKEN") ?? "";
 const OPENCLAW_TIMEOUT_MS = parseInt(Deno.env.get("OPENCLAW_TIMEOUT_MS") ?? "10000");
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);

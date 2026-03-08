@@ -138,6 +138,7 @@ async function simulateJobExecution(jobId: string, jobType: string, prompt: stri
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // ── Auth minimale : Accept OPENCLAW_API_TOKEN OU JWT utilisateur ──

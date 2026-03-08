@@ -201,6 +201,7 @@ async function synthesizeResult(objective: string, steps: AgentStep[]): Promise<
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
