@@ -5,18 +5,22 @@ import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 
 export function ProFooter() {
   return (
-    <footer className="border-t border-border/30 bg-background/80 backdrop-blur-sm pt-16 pb-8 px-4 sm:px-8">
+    <footer className="border-t border-border/30 bg-background/80 backdrop-blur-sm pt-14 pb-8 px-4 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Col 1 — Brand */}
           <div className="space-y-4">
-            <img src={logoGenie} alt="GENIE IA" className="h-9 w-auto" />
+            <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Votre copilote IA pour créer, automatiser et générer des opportunités business.
+              Apprendre, agir, prouver — le système guidé pour maîtriser l'IA en équipe ou en solo.
             </p>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> RGPD natif</span>
-              <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Hébergement UE</span>
+              <span className="flex items-center gap-1">
+                <Lock className="w-3 h-3" /> RGPD natif
+              </span>
+              <span className="flex items-center gap-1">
+                <Globe className="w-3 h-3" /> Hébergement UE
+              </span>
             </div>
           </div>
 
@@ -27,12 +31,15 @@ export function ProFooter() {
               {[
                 { to: "/pricing", label: "Tarifs" },
                 { to: "/app/modules", label: "Modules" },
-                { to: "/app/chat", label: "KITT IA" },
-                { to: "/app/today", label: "Missions" },
+                { to: "/app/chat", label: "Copilote KITT" },
+                { to: "/app/today", label: "Missions quotidiennes" },
                 { to: "/guides", label: "Guides gratuits" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to={l.to}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     {l.label}
                   </Link>
                 </li>
@@ -53,7 +60,10 @@ export function ProFooter() {
                 { to: "/legal/dpa", label: "DPA Entreprises" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to={l.to}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     {l.label}
                   </Link>
                 </li>
@@ -66,17 +76,29 @@ export function ProFooter() {
             <p className="text-sm font-semibold text-foreground mb-4">Contact</p>
             <ul className="space-y-2.5">
               <li>
-                <a href="mailto:contact@genie-ia.app" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" /> contact@genie-ia.app
+                <a
+                  href="mailto:contact@genie-ia.app"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  contact@genie-ia.app
                 </a>
               </li>
               <li>
-                <a href="https://linkedin.com/company/genie-ia" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://linkedin.com/company/genie-ia"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   LinkedIn
                 </a>
               </li>
               <li>
-                <Link to="/partner" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/partner"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Devenir partenaire
                 </Link>
               </li>

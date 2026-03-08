@@ -172,23 +172,23 @@ const STEPS = [
 const OBJECTIONS = [
   {
     q: "C'est quoi la différence avec une formation en ligne classique ?",
-    a: "Une formation classique vous donne de la théorie. GENIE IA vous met en situation : missions du jour, labs live, copilote en temps réel. Vous agissez, pas juste vous écoutez.",
+    a: "Une formation classique vous donne de la théorie. GENIE IA vous met en situation : missions du jour, labs pratiques, copilote en temps réel. Vous agissez, pas juste vous écoutez.",
   },
   {
     q: "Je suis déjà à l'aise avec ChatGPT. C'est pour moi ?",
-    a: "ChatGPT est un outil. GENIE IA vous apprend à le maîtriser professionnellement, à l'intégrer dans vos processus, à sécuriser son usage et à en prouver la valeur à votre employeur ou équipe.",
+    a: "ChatGPT est un outil généraliste. GENIE IA vous apprend à le maîtriser dans un cadre professionnel, à sécuriser votre usage IA et à en produire une preuve documentée, utile auprès de votre équipe ou employeur.",
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Elles sont vérifiables via QR code public. Chaque attestation est horodatée, signée cryptographiquement et conforme au cadre AI Act 2026 (article 4 — formation des utilisateurs). Décision finale : à votre employeur.",
+    a: "Elles sont vérifiables via QR code public, signées cryptographiquement et horodatées. Ce sont des preuves internes de compétences — pas des certifications reconnues par des organismes externes. Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte de conformité interne.",
   },
   {
-    q: "Et si l'équipe n'utilise pas la plateforme ?",
-    a: "Le système autopilot détecte les retardataires et envoie des relances automatiques. Le manager reçoit un rapport mensuel PDF sans rien faire. Le taux de complétion se maintient sans micro-management.",
+    q: "Et si mon équipe n'utilise pas la plateforme ?",
+    a: "Le système détecte les retardataires et envoie des relances automatiques. Le manager reçoit un rapport mensuel sans intervention. Moins de micro-management, plus de complétion.",
   },
   {
     q: "C'est combien exactement ?",
-    a: "0€ pour commencer — compte gratuit, modules de base inclus. L'offre Pro démarre à 35€/mois (tarif de lancement), par organisation avec 25 sièges inclus. Résiliation en 2 clics, remboursement 30 jours.",
+    a: "0€ pour commencer — compte gratuit, modules de base inclus. L'offre Pro est à 59€/mois par organisation (tarif de lancement disponible), 25 sièges inclus. Résiliation en 2 clics, remboursement 30 jours.",
   },
 ];
 
@@ -1242,10 +1242,14 @@ export default function Index() {
                     Découverte
                   </p>
                   <div className="text-4xl font-black text-foreground font-mono">0€</div>
-                  <p className="text-xs text-muted-foreground mt-1">Pour commencer sans engagement</p>
+                  <p className="text-xs text-muted-foreground mt-1">Pour explorer sans engagement</p>
                 </div>
                 <ul className="space-y-2 flex-1 mb-5">
-                  {["Chat KITT (limité)", "Modules de base", "1 agent IA"].map((f) => (
+                  {[
+                    "Chat KITT (2 msg/jour)",
+                    "Modules de base",
+                    "Découverte des labs",
+                  ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <CheckCircle className="w-3 h-3 text-primary shrink-0" />
                       {f}
@@ -1284,20 +1288,19 @@ export default function Index() {
                 </div>
                 <div className="mb-5 mt-1">
                   <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2 font-mono">Pro</p>
-                  <div className="flex items-end gap-2">
-                    <span className="text-4xl font-black text-accent font-mono">35€</span>
-                    <span className="text-base text-muted-foreground/40 line-through mb-0.5">59€</span>
+                  <div className="flex items-end gap-2 flex-wrap">
+                    <span className="text-4xl font-black text-accent font-mono">dès 35€</span>
                     <span className="text-xs text-muted-foreground mb-0.5">TTC/mois</span>
                   </div>
                   <p className="text-xs text-muted-foreground/60 mt-1 font-mono">par organisation · 25 sièges inclus</p>
                 </div>
                 <ul className="space-y-2 flex-1 mb-5">
                   {[
-                    "Modules illimités + labs",
+                    "Modules complets + labs interactifs",
                     "KITT illimité (voix + texte)",
                     "Attestations PDF vérifiables",
                     "Dashboard Manager",
-                    "Rapport mensuel auto",
+                    "Missions quotidiennes",
                     "Support prioritaire",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-foreground">
@@ -1306,13 +1309,16 @@ export default function Index() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={handleCTA}
-                  className="w-full py-3.5 rounded-lg text-white font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
-                  style={{ background: "hsl(var(--accent))" }}
+                <Link
+                  to="/pricing"
+                  className="block w-full text-center py-3.5 rounded-lg font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
+                  style={{
+                    background: "hsl(var(--accent))",
+                    color: "hsl(var(--accent-foreground))",
+                  }}
                 >
-                  Activer Pro →
-                </button>
+                  Voir les détails et tarifs →
+                </Link>
               </div>
             </div>
             <p className="text-center mt-5">
