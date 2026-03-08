@@ -114,7 +114,6 @@ function StatusBadge({ status }: { status: TeamMember["status"] }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function ManagerDashboard() {
-  const { data: sub } = useSubscription();
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
