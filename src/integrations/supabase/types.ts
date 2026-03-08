@@ -1931,6 +1931,33 @@ export type Database = {
           },
         ]
       }
+      function_calls_daily: {
+        Row: {
+          call_count: number
+          date: string
+          fn: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_count?: number
+          date?: string
+          fn: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_count?: number
+          date?: string
+          fn?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       genieos_agents: {
         Row: {
           created_at: string | null
@@ -4273,6 +4300,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_ai_usage: {
+        Args: { p_date?: string; p_function: string; p_user_id: string }
+        Returns: Json
       }
       increment_logging_errors: { Args: never; Returns: undefined }
       increment_marketplace_usage: {
