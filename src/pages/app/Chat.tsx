@@ -264,6 +264,7 @@ export default function Chat() {
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
   const [hasProgress] = useState(false); // TODO: fetch from progress table
+  const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
   // ── Semantic adaptation engine ─────────────────────────────────────────────
   // Tracks consecutive "failure signals" (wrong quiz answers or explicit confusion)
