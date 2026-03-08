@@ -47,6 +47,7 @@ const PartnerDashboard      = lazy(() => import("./pages/partner/PartnerDashboar
 // ── OpenClaw Agent Jobs ───────────────────────────────────────────
 const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
 const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
+const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
 // ── Public pages ─────────────────────────────────────────────────
 const Pricing           = lazy(() => import("./pages/Pricing"));
@@ -195,6 +196,10 @@ const App = () => (
                   <Route
                     path="agent-jobs"
                     element={<ProtectedRoute requirePro><AgentJobsPage /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="agent-jobs/new"
+                    element={<ProtectedRoute requirePro><AgentJobCreatePage /></ProtectedRoute>}
                   />
                   <Route
                     path="agent-jobs/:id"

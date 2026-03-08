@@ -15,8 +15,10 @@ const AVAILABLE_TOOLS = {
   web_search: {
     name: "web_search",
     description: "Search the web for information on a topic",
+    // ⚠ DEMO_ONLY: This tool returns a stub. Real web search requires OpenClaw runtime (tutor_readonly profile).
+    // To enable real search: create an openclaw_job of type tutor_search via /app/agent-jobs/new.
     execute: async (params: { query: string }) => {
-      return `[web_search result for "${params.query}"]: Simulated search results — in production, connect a real search API.`;
+      return `[DEMO_ONLY — web_search pour "${params.query}"]: Résultat simulé. Pour une vraie recherche, utilisez un job OpenClaw (type: tutor_search).`;
     },
   },
   ai_summarize: {
