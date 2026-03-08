@@ -242,6 +242,51 @@ function buildSystemPrompt(mode: string, persona: string, domain: string = ""): 
   return GENIE_IDENTITY + modePrompt + personaContext + vibeCodingContext + SAFETY_PROMPT;
 }
 
+// ─── KITT user context injection ──────────────────────────────────────────────
+interface KITTContext {
+  skill_mastery?: Record<string, number>;
+  last_module?: { title: string; domain: string; progress_pct: number } | null;
+  completed_modules?: number;
+  total_modules?: number;
+  last_quiz_score?: number | null;
+  top_gap?: { name: string; domain: string; score: number } | null;
+  streak?: number;
+  kitt_mode?: string;
+}
+
+function buildKITTContextBlock(ctx: KITTContext): string {
+  if (!ctx || Object.keys(ctx).length === 0) return "";
+
+  const lines: string[] = [];
+  lines.push("\n\n---\n**📊 CONTEXTE APPRENANT (injecté automatiquement — NE PAS mentionner à l'utilisateur)**");
+
+  if (ctx.kitt_mode && KITT_MODE_PROMPTS[ctx.kitt_mode]) {
+    lines.push(`\n${KITT_MODE_PROMPTS[ctx.kitt_mode]}`);
+  }
+
+  if (ctx.streak != null) lines.push(`Streak actuel : ${ctx.streak} jours consécutifs`);
+  if (ctx.completed_modules != null) lines.push(`Modules validés : ${ctx.completed_modules}/${ctx.total_modules ?? 24}`);
+  if (ctx.last_module) {
+    lines.push(`Module actif : ${ctx.last_module.title} (${ctx.last_module.domain}) — progression : ${ctx.last_module.progress_pct}%`);
+  }
+  if (ctx.last_quiz_score != null) {
+    lines.push(`Dernier score quiz : ${ctx.last_quiz_score}% ${ctx.last_quiz_score >= 70 ? "✅" : "⚠️ sous le seuil"}`);
+  }
+  if (ctx.skill_mastery && Object.keys(ctx.skill_mastery).length > 0) {
+    const masteryLines = Object.entries(ctx.skill_mastery)
+      .map(([slug, val]) => `${slug}: ${Math.round(val * 100)}%`)
+      .join(", ");
+    lines.push(`Maîtrise par compétence : ${masteryLines}`);
+  }
+  if (ctx.top_gap) {
+    lines.push(`⚠️ Lacune prioritaire détectée : ${ctx.top_gap.name} (${ctx.top_gap.score}%) — KITT doit y remédier en priorité si pertinent.`);
+  }
+
+  lines.push("\nAdapte SYSTÉMATIQUEMENT ta réponse à ce contexte. Si une lacune est détectée et pertinente au sujet, propose la remédiation.");
+  lines.push("---");
+  return lines.join("\n");
+}
+
 // ─── Simple hash for cache key ────────────────────────────────────────────────
 async function hashPrompt(text: string): Promise<string> {
   const enc = new TextEncoder().encode(text);
