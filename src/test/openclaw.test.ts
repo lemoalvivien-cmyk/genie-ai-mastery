@@ -40,7 +40,8 @@ describe("OpenClaw — Risk Classifier", () => {
   });
 
   it("détecte les mots-clés à haut risque dans le prompt", () => {
-    const result = classifyRisk("tutor_search", "Supprime les anciens messages et envoie email au manager");
+    // "supprimer" (infinitif) est dans la liste — pas "supprime" (conjugué)
+    const result = classifyRisk("tutor_search", "supprimer les anciens messages et envoyer email au manager");
     expect(result.risk_level).toBe("high");
     expect(result.approval_required).toBe(true);
   });
