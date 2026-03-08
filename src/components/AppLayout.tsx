@@ -6,6 +6,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { PanicButton } from "@/components/PanicButton";
 import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 import { useSubscription } from "@/hooks/useSubscription";
+import { JarvisNudgeProvider } from "@/components/jarvis/JarvisNudge";
 
 function LegalLinks() {
   return <LegalFooterLinks className="flex-col items-start gap-y-1" />;
