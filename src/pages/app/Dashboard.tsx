@@ -82,7 +82,8 @@ export default function Dashboard() {
   const totalXP = streak?.total_xp ?? 0;
   const currentStreak = streak?.current_streak ?? 0;
   const missionDone = !!todayLog;
-  const isLoading = streakLoading || !stats;
+  // isLoading : vrai tant que streak OU stats ne sont pas encore chargés
+  const isDashboardLoading = streakLoading || !stats;
 
   const metrics = [
     { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
