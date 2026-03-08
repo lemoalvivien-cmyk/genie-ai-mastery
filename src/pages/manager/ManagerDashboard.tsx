@@ -3,8 +3,7 @@ import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Link, useNavigate, Navigate } from "react-router-dom";
-import { useSubscription } from "@/hooks/useSubscription";
+import { Link, useNavigate } from "react-router-dom";
 import { useWeeklyReport } from "@/hooks/useWeeklyReport";
 import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -115,7 +114,6 @@ function StatusBadge({ status }: { status: TeamMember["status"] }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function ManagerDashboard() {
-  const { data: sub } = useSubscription();
   const { profile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -249,7 +247,8 @@ export default function ManagerDashboard() {
     return () => clearInterval(interval);
   }, [profile?.org_id, loadData]);
 
-  if (!(sub?.isActive)) return <Navigate to="/pricing" replace />;
+  // Guard retiré : les managers B2B accèdent via le plan organisationnel,
+  // pas via un abonnement personnel. Le plan org est vérifié côté RLS + requireRole="manager".
 
   // ─── Team table logic ────────────────────────────────────────────────────
 
@@ -338,26 +337,28 @@ export default function ManagerDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // ─── Invite employee ─────────────────────────────────────────────────────
+  // ─── Invite employee — via Edge Function (service_role côté serveur) ─────────
 
   const handleInvite = async () => {
     if (!inviteEmail || !org) return;
-    if ((org.seats_used ?? 0) >= (org.seats_max ?? 1)) {
-      toast({ title: "Limite de sièges atteinte", description: "Passez à un plan supérieur.", variant: "destructive" });
-      return;
-    }
     setInviteLoading(true);
     try {
-      const { error } = await supabase.auth.admin.inviteUserByEmail(inviteEmail);
-      if (error) throw error;
-      toast({ title: "Invitation envoyée", description: inviteEmail });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Non authentifié");
+
+      const res = await supabase.functions.invoke("manager-invite", {
+        body: { email: inviteEmail, org_id: org.id },
+      });
+
+      if (res.error) throw new Error(res.error.message ?? "Erreur d'invitation");
+      if (res.data?.error) throw new Error(res.data.error);
+
+      toast({ title: "Invitation envoyée ✅", description: `Un email a été envoyé à ${inviteEmail}.` });
       setInviteEmail("");
       setInviteOpen(false);
-    } catch {
-      // admin API not available client-side — use edge function fallback
-      toast({ title: "Invitation envoyée", description: `${inviteEmail} recevra un email d'invitation.` });
-      setInviteEmail("");
-      setInviteOpen(false);
+      loadData();
+    } catch (e) {
+      toast({ title: "Erreur d'invitation", description: (e as Error).message, variant: "destructive" });
     } finally {
       setInviteLoading(false);
     }
@@ -420,14 +421,13 @@ export default function ManagerDashboard() {
     }
   };
 
-  // ─── CSV import ──────────────────────────────────────────────────────────
+  // ─── CSV import — via Edge Function (service_role côté serveur) ──────────────
 
   const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !org) return;
 
     const text = await file.text();
-    // RFC 4180-compliant row splitting; skip header
     const rows = text.split(/\r?\n/).slice(1).filter(Boolean);
 
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -438,7 +438,6 @@ export default function ManagerDashboard() {
     const errors: string[] = [];
 
     for (let i = 0; i < rows.length; i++) {
-      // Parse quoted CSV fields properly
       const cols = rows[i].match(/(".*?"|[^,]+)(?=,|$)/g)?.map(
         (c) => c.replace(/^"|"$/g, "").trim()
       ) ?? [];
@@ -452,8 +451,12 @@ export default function ManagerDashboard() {
       }
 
       try {
-        const { error } = await supabase.auth.admin.inviteUserByEmail(raw);
-        if (error) throw error;
+        const res = await supabase.functions.invoke("manager-invite", {
+          body: { email: raw, org_id: org.id },
+        });
+        if (res.error || res.data?.error) {
+          throw new Error(res.data?.error ?? res.error?.message ?? "Échec");
+        }
         successCount++;
       } catch (err) {
         errors.push(`Ligne ${i + 2} : ${err instanceof Error ? err.message : "Échec"}`);
@@ -468,7 +471,7 @@ export default function ManagerDashboard() {
         variant: "destructive",
       });
     } else {
-      toast({ title: `${successCount} invitation(s) envoyée(s)` });
+      toast({ title: `${successCount} invitation(s) envoyée(s) ✅` });
     }
     e.target.value = "";
     loadData();
