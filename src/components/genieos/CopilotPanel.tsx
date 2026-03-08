@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { FEATURES } from "@/config/features";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
