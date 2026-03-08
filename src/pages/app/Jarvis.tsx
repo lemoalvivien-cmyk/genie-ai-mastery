@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useKITTContext } from "@/hooks/useKITTContext";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Mic, MicOff, Zap, GraduationCap, Leaf,

@@ -111,11 +111,17 @@ export function useKITTContext() {
 
       const lastQuizScore = progressData.find((p) => p.score != null)?.score ?? null;
 
+      // Count published modules dynamically
+      const { count: totalModulesCount } = await supabase
+        .from("modules")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true);
+
       return {
         skill_mastery,
         last_module: lastModuleInfo,
         completed_modules: completedModules,
-        total_modules: 24,
+        total_modules: totalModulesCount ?? 0,
         persona: profile?.persona ?? "salarie",
         level: profile?.level ?? 1,
         streak: (streakRes.data as { current_streak?: number } | null)?.current_streak ?? 0,
