@@ -113,6 +113,7 @@ export default function Jarvis() {
   const { profile } = useAuth();
   const { data: sub } = useSubscription();
   const isPro = sub?.isActive ?? false;
+  const { data: kittContext } = useKITTContext();
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
