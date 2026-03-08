@@ -338,26 +338,28 @@ export default function ManagerDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // ─── Invite employee ─────────────────────────────────────────────────────
+  // ─── Invite employee — via Edge Function (service_role côté serveur) ─────────
 
   const handleInvite = async () => {
     if (!inviteEmail || !org) return;
-    if ((org.seats_used ?? 0) >= (org.seats_max ?? 1)) {
-      toast({ title: "Limite de sièges atteinte", description: "Passez à un plan supérieur.", variant: "destructive" });
-      return;
-    }
     setInviteLoading(true);
     try {
-      const { error } = await supabase.auth.admin.inviteUserByEmail(inviteEmail);
-      if (error) throw error;
-      toast({ title: "Invitation envoyée", description: inviteEmail });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Non authentifié");
+
+      const res = await supabase.functions.invoke("manager-invite", {
+        body: { email: inviteEmail, org_id: org.id },
+      });
+
+      if (res.error) throw new Error(res.error.message ?? "Erreur d'invitation");
+      if (res.data?.error) throw new Error(res.data.error);
+
+      toast({ title: "Invitation envoyée ✅", description: `Un email a été envoyé à ${inviteEmail}.` });
       setInviteEmail("");
       setInviteOpen(false);
-    } catch {
-      // admin API not available client-side — use edge function fallback
-      toast({ title: "Invitation envoyée", description: `${inviteEmail} recevra un email d'invitation.` });
-      setInviteEmail("");
-      setInviteOpen(false);
+      loadData();
+    } catch (e) {
+      toast({ title: "Erreur d'invitation", description: (e as Error).message, variant: "destructive" });
     } finally {
       setInviteLoading(false);
     }
