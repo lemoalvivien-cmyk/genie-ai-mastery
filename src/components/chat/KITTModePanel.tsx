@@ -75,11 +75,11 @@ export function KITTModePanel({ mode, onModeChange, context, isPro }: Props) {
           )}
           {mode === "quiz" && context.last_quiz_score != null && (
             <p className="text-[11px] text-muted-foreground">
-              Dernier score : <span className={cn("font-semibold", context.last_quiz_score >= 70 ? "text-emerald-400" : "text-amber-400")}>{context.last_quiz_score}%</span>
+              Dernier score : <span className={cn("font-semibold", context.last_quiz_score >= 70 ? "text-[hsl(var(--emerald))]" : "text-[hsl(var(--warning))]")}>{context.last_quiz_score}%</span>
             </p>
           )}
           {mode === "remediation" && context.top_gap && (
-            <p className="text-[11px] text-amber-400 font-medium">
+            <p className="text-[11px] text-[hsl(var(--warning))] font-medium">
               ⚠️ Lacune détectée : {context.top_gap.name} ({context.top_gap.score}%)
             </p>
           )}
