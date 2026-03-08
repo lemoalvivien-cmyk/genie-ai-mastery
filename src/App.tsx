@@ -235,8 +235,8 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/admin-god-mode"
-                  element={<ProtectedRoute requireRole="admin"><GodMode /></ProtectedRoute>}
+                  path="/admin-operations"
+                  element={<ProtectedRoute requireRole="admin"><AdminOperations /></ProtectedRoute>}
                 />
 
                 {/* ── Manager ──────────────────────────────────────────── */}
