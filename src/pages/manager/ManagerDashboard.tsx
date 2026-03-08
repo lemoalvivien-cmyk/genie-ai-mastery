@@ -421,14 +421,13 @@ export default function ManagerDashboard() {
     }
   };
 
-  // ─── CSV import ──────────────────────────────────────────────────────────
+  // ─── CSV import — via Edge Function (service_role côté serveur) ──────────────
 
   const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !org) return;
 
     const text = await file.text();
-    // RFC 4180-compliant row splitting; skip header
     const rows = text.split(/\r?\n/).slice(1).filter(Boolean);
 
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -439,7 +438,6 @@ export default function ManagerDashboard() {
     const errors: string[] = [];
 
     for (let i = 0; i < rows.length; i++) {
-      // Parse quoted CSV fields properly
       const cols = rows[i].match(/(".*?"|[^,]+)(?=,|$)/g)?.map(
         (c) => c.replace(/^"|"$/g, "").trim()
       ) ?? [];
@@ -453,8 +451,12 @@ export default function ManagerDashboard() {
       }
 
       try {
-        const { error } = await supabase.auth.admin.inviteUserByEmail(raw);
-        if (error) throw error;
+        const res = await supabase.functions.invoke("manager-invite", {
+          body: { email: raw, org_id: org.id },
+        });
+        if (res.error || res.data?.error) {
+          throw new Error(res.data?.error ?? res.error?.message ?? "Échec");
+        }
         successCount++;
       } catch (err) {
         errors.push(`Ligne ${i + 2} : ${err instanceof Error ? err.message : "Échec"}`);
@@ -469,7 +471,7 @@ export default function ManagerDashboard() {
         variant: "destructive",
       });
     } else {
-      toast({ title: `${successCount} invitation(s) envoyée(s)` });
+      toast({ title: `${successCount} invitation(s) envoyée(s) ✅` });
     }
     e.target.value = "";
     loadData();
