@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useOpenClaw, type OpenClawJob, type OpenClawJobEvent, type OpenClawArtifact } from "@/hooks/useOpenClaw";
 import { JobStatusBadge, RiskLevelBadge, JobEventTimeline, ArtifactList } from "@/components/openclaw/OpenClawBadges";
 import { Button } from "@/components/ui/button";
