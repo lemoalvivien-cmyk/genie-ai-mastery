@@ -103,9 +103,9 @@ export function KITTModePanel({ mode, onModeChange, context, isPro }: Props) {
 
       {/* Upsell for locked modes */}
       {!isPro && (mode === "synthesis" || mode === "remediation") && (
-        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-amber-400/80 border border-amber-500/20 rounded-lg px-2 py-1 bg-amber-500/5">
+        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-[hsl(var(--warning))] border border-[hsl(var(--warning)/0.2)] rounded-lg px-2 py-1 bg-[hsl(var(--warning)/0.05)]">
           <AlertCircle className="w-3 h-3 shrink-0" />
-          <span>Mode Pro requis — <a href="/pricing" className="underline hover:text-amber-300 transition-colors">voir les offres</a></span>
+          <span>Mode Pro requis — <a href="/pricing" className="underline hover:opacity-80 transition-opacity">voir les offres</a></span>
         </div>
       )}
     </div>
