@@ -414,8 +414,6 @@ serve(async (req) => {
       throw e;
     }
 
-    const supabaseAdminLegacy = supabaseAdmin; // alias kept for downstream code
-
     // ── Shield: IP rate limit ─────────────────────────────────────────────────
     const clientIp = getClientIp(req);
     const ipHash = await hashIp(clientIp);
