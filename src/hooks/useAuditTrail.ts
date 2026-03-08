@@ -53,17 +53,23 @@ export function useAuditTrail() {
       } = params;
 
       // Fire-and-forget — never block the user
-      supabase.rpc("log_event", {
-        _user_id: user.id,
-        _event_type: eventType,
-        _details: { ...details, user_agent: navigator.userAgent.slice(0, 100) },
-        _resource_type: resourceType ?? null,
-        _resource_id: resourceId ?? null,
-        _score: score ?? null,
-        _duration_ms: durationMs ?? null,
-        _device: device,
-        _session_id: sessionId ?? null,
-      }).then(() => {}).catch(() => {});
+      (async () => {
+        try {
+          await supabase.rpc("log_event", {
+            _user_id: user.id,
+            _event_type: eventType,
+            _details: { ...details, user_agent: navigator.userAgent.slice(0, 100) },
+            _resource_type: resourceType ?? null,
+            _resource_id: resourceId ?? null,
+            _score: score ?? null,
+            _duration_ms: durationMs ?? null,
+            _device: device,
+            _session_id: sessionId ?? null,
+          });
+        } catch (_e) {
+          // Silently ignore
+        }
+      })();
     },
     [user?.id],
   );
