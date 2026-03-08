@@ -30,6 +30,7 @@ async function callLLM(prompt: string, systemPrompt: string): Promise<string> {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth check
