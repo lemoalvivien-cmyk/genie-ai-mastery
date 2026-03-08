@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
 import { useQueryClient } from "@tanstack/react-query";
