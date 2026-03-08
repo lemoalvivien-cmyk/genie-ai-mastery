@@ -117,4 +117,5 @@ export const ProFooter = React.forwardRef<HTMLElement>(
       </div>
     </footer>
   );
-}
+});
+ProFooter.displayName = "ProFooter";
