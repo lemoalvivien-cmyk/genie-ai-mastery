@@ -24,6 +24,7 @@ const ResetPassword  = lazy(() => import("./pages/auth/ResetPassword"));
 // ── App ──────────────────────────────────────────────────────────
 const Onboarding     = lazy(() => import("./pages/onboarding/Onboarding"));
 const Welcome        = lazy(() => import("./pages/app/Welcome"));
+const FirstVictory   = lazy(() => import("./pages/app/FirstVictory"));
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
 const Modules        = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail   = lazy(() => import("./pages/app/ModuleDetail"));
