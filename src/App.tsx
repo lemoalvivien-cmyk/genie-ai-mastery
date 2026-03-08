@@ -35,9 +35,9 @@ const PhishingLab    = lazy(() => import("./pages/app/labs/PhishingLab"));
 // ── Admin ────────────────────────────────────────────────────────
 const ControlRoom     = lazy(() => import("./pages/admin/ControlRoom"));
 const OpsCenter       = lazy(() => import("./pages/admin/OpsCenter"));
-const Runbook         = lazy(() => import("./pages/admin/Runbook"));
-const GrowthDashboard = lazy(() => import("./pages/admin/GrowthDashboard"));
-const GodMode         = lazy(() => import("./pages/admin/GodMode"));
+const Runbook           = lazy(() => import("./pages/admin/Runbook"));
+const GrowthDashboard   = lazy(() => import("./pages/admin/GrowthDashboard"));
+const AdminOperations   = lazy(() => import("./pages/admin/GodMode"));
 
 // ── Other protected ──────────────────────────────────────────────
 const ManagerDashboard      = lazy(() => import("./pages/manager/ManagerDashboard"));
