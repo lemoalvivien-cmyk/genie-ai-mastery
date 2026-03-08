@@ -1,6 +1,7 @@
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions } from "../_shared/auth.ts";
 import { requireProPlan } from "../_shared/subscription.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -21,6 +22,9 @@ Deno.serve(async (req) => {
       if (e instanceof Response) return e;
       throw e;
     }
+
+    // ── Rate limit (Pro = 500/day) ────────────────────────────────────────────
+    await checkRateLimit(supabaseService, userId, "score-utterance", "pro", corsHeaders);
 
     const { utterance, assistant_reply, skill_ids, module_id } = await req.json();
 

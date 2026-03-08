@@ -4,7 +4,7 @@
  * Sécurité :
  *  - getAuthenticatedUser() via _shared/auth.ts → getUser() réseau (source de vérité)
  *  - requireAdmin() via _shared/auth.ts → vérifie user_roles (anti-escalade de privilèges)
- *  - Rate limit : 30 appels / heure / userId (in-memory)
+ *  - Rate limit : _shared/rate-limit.ts (admin = 30 appels/jour, DB-backed)
  *  - Audit log systématique sur chaque action réussie
  *  - CORS dynamique via _shared/cors.ts
  */
@@ -17,29 +17,7 @@ import {
   handleOptions,
   jsonResponse as json,
 } from "../_shared/auth.ts";
-
-// ── Rate limiting (in-memory, par userId) ──────────────────────────────────
-interface RateBucket {
-  count: number;
-  windowStart: number;
-}
-const rateBuckets = new Map<string, RateBucket>();
-const RATE_LIMIT = { max: 30, windowMs: 3_600_000 }; // 30 appels/heure/userId
-
-function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
-  const now = Date.now();
-  const bucket = rateBuckets.get(userId);
-  if (!bucket || now - bucket.windowStart > RATE_LIMIT.windowMs) {
-    rateBuckets.set(userId, { count: 1, windowStart: now });
-    return { allowed: true };
-  }
-  if (bucket.count >= RATE_LIMIT.max) {
-    const retryAfter = Math.ceil((RATE_LIMIT.windowMs - (now - bucket.windowStart)) / 1000);
-    return { allowed: false, retryAfter };
-  }
-  bucket.count++;
-  return { allowed: true };
-}
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -61,16 +39,12 @@ Deno.serve(async (req) => {
     return json({ error: "Unauthorized" }, 401, corsHeaders);
   }
 
-  // ── Rate limit ──────────────────────────────────────────────────────────
-  const rateCheck = checkRateLimit(userId);
-  if (!rateCheck.allowed) {
-    return new Response(
-      JSON.stringify({ error: "Too many requests", retry_after_seconds: rateCheck.retryAfter }),
-      {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rateCheck.retryAfter ?? 3600) },
-      },
-    );
+  // ── Rate limit (DB-backed, admin plan = 30/day) ───────────────────────
+  try {
+    await checkRateLimit(admin, userId, "admin-operations", "admin", corsHeaders);
+  } catch (e) {
+    if (e instanceof Response) return e;
+    throw e;
   }
 
   // ── Vérification rôle admin via user_roles (source de vérité RBAC) ─────
@@ -257,10 +231,3 @@ Deno.serve(async (req) => {
     return json({ error: msg }, 500, corsHeaders);
   }
 });
-
-function json(data: unknown, status: number, corsHeaders: Record<string, string>) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}

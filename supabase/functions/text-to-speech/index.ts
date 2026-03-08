@@ -1,6 +1,7 @@
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions, jsonResponse } from "../_shared/auth.ts";
 import { requireProPlan } from "../_shared/subscription.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -24,6 +25,10 @@ Deno.serve(async (req) => {
       if (e instanceof Response) return e;
       throw e;
     }
+
+    // ── Rate limit (Pro = 200/day, Free = 5/day) ──────────────────────────────
+    const planLabel = "pro"; // requireProPlan passed → user is pro
+    await checkRateLimit(supabaseAdmin, userId, "text-to-speech", planLabel, corsHeaders);
 
     const { text, voice = "loongstella_v2", speed = 1.0 } = await req.json();
 

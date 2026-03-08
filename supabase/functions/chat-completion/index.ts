@@ -14,6 +14,7 @@ import {
 import { requireProPlan } from "../_shared/subscription.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 // ─── Safety config ───────────────────────────────────────────────────────────
 const OFFENSIVE_KEYWORDS = [
@@ -310,6 +311,9 @@ Deno.serve(async (req) => {
       console.error("[chat-completion] plan check error (fail-open):", e);
       isPro = false;
     }
+
+    // ── Rate limit (Free = 2/day, Pro = 500/day) ──────────────────────────────
+    await checkRateLimit(supabaseAdmin, userId, "chat-completion", isPro ? "pro" : "free", corsHeaders);
 
     const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
       supabaseAdmin

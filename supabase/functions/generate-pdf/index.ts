@@ -3,6 +3,7 @@ import { requireProPlan } from "../_shared/subscription.ts";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedUser, createServiceClient, handleOptions } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 // ─── Color palette ────────────────────────────────────────────────────────────
 const NAVY    = rgb(0.08, 0.12, 0.27);
@@ -383,6 +384,9 @@ Deno.serve(async (req) => {
       if (e instanceof Response) return e;
       throw e;
     }
+
+    // ── Rate limit (Pro = 50/day) ─────────────────────────────────────────────
+    await checkRateLimit(supabaseAdmin, userId, "generate-pdf", "pro", corsHeaders);
 
     // ── Shield: IP rate limit ─────────────────────────────────────────────────
     const clientIp = getClientIp(req);
