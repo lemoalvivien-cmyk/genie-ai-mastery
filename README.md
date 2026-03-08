@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# GENIE IA — OpenClaw Phase 1
 
-## Project info
+## Package Manager officiel : Bun
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Ce projet utilise **Bun** comme gestionnaire de paquets et moteur d'exécution.  
+Le lockfile de référence est `bun.lockb`.  
+Un `package-lock.json` est également présent (artefact généré automatiquement, ne pas supprimer — référencé en read-only).
 
-## How can I edit this code?
+**Commandes officielles :**
 
-There are several ways of editing your application.
+```bash
+# Installation propre
+bun install
 
-**Use Lovable**
+# Lancer le serveur de développement
+bun run dev
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Exécuter les tests
+bun run test
+# ou directement :
+npx vitest run
 ```
 
-**Edit a file directly in GitHub**
+> ⚠️ `npm ci` n'est **pas** la commande officielle sur ce projet.  
+> Utilise `bun install` pour une installation reproductible à partir de `bun.lockb`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Technologies
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Vite + React 18 + TypeScript
+- Tailwind CSS + shadcn/ui
+- Supabase (auth, DB, Edge Functions) — via Lovable Cloud
+- Bun (runtime + package manager)
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Clone propre
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+# 1. Cloner le repo
+git clone <YOUR_GIT_URL>
+cd <YOUR_PROJECT_NAME>
 
-## How can I deploy this project?
+# 2. Installer les dépendances (frozen lockfile = bun.lockb)
+bun install
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+# 3. Démarrer le serveur de dev
+bun run dev
 
-## Can I connect a custom domain to my Lovable project?
+# 4. Lancer les tests unitaires
+bun run test
+```
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Résultat tests (vérifié le 08/03/2026)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+ RUN  v3.2.4
+
+ ✓ src/test/example.test.ts (1 test) 4ms
+ ✓ src/test/openclaw.test.ts (31 tests | 3 skipped) 14ms
+
+ Test Files  2 passed (2)
+      Tests  29 passed | 3 skipped (32)
+   Start at  14:22:05
+   Duration  2.65s
+```
+
+Les 3 tests `skipped` = `INTEGRATION_PENDING` — documentent le flux e2e sans runtime réel branché.
+
+---
+
+## Déploiement
+
+Ouvre [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) → Share → Publish.
+
+## Domaine personnalisé
+
+Project → Settings → Domains → Connect Domain.  
+[Documentation](https://docs.lovable.dev/features/custom-domain#custom-domain)

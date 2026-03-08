@@ -20,10 +20,10 @@
 | EF `openclaw-sync-job` | ✅ | `supabase/functions/openclaw-sync-job/index.ts` |
 | EF `openclaw-runtime-health` | ✅ | `supabase/functions/openclaw-runtime-health/index.ts` |
 | EF `openclaw-cron-manager` | ✅ | `supabase/functions/openclaw-cron-manager/index.ts` |
-| Route `/app/agent-jobs` | ✅ | `src/App.tsx` l.196-199 |
-| Route `/app/agent-jobs/new` | ✅ | `src/App.tsx` l.200-203 |
-| Route `/app/agent-jobs/:id` | ✅ | `src/App.tsx` l.204-207 |
-| Route `/manager/openclaw` | ✅ | `src/App.tsx` l.247-250 |
+| Route `/app/agent-jobs` | ✅ | `src/App.tsx` |
+| Route `/app/agent-jobs/new` | ✅ | `src/App.tsx` |
+| Route `/app/agent-jobs/:id` | ✅ | `src/App.tsx` |
+| Route `/manager/openclaw` | ✅ | `src/App.tsx` |
 | `AgentJobsPage` | ✅ | `src/pages/app/AgentJobsPage.tsx` |
 | `AgentJobCreatePage` | ✅ | `src/pages/app/AgentJobCreatePage.tsx` |
 | `AgentJobDetailPage` | ✅ | `src/pages/app/AgentJobDetailPage.tsx` |
@@ -43,46 +43,61 @@
 
 | Affirmation précédente | Réalité |
 |---|---|
-| "npm ci corrigé" | ❌ Ce projet utilise **Bun** (lockfile = `bun.lockb`). `npm ci` n'est pas applicable. La bonne commande est `bun install`. |
+| "package-lock.json n'existe pas" | ❌ **Il existe** — c'est un artefact read-only généré automatiquement. Il ne remplace pas `bun.lockb`. |
+| "npm ci est la commande officielle" | ❌ Ce projet utilise **Bun** (lockfile = `bun.lockb`). La bonne commande est `bun install`. |
 | "28/28 tests passent" | ⚠️ Réalité : **29 passent + 3 skipped** (INTEGRATION_PENDING). |
-| "package-lock.json synchronisé" | ❌ Il n'existe pas. Le lockfile Bun est en read-only. |
 
 ---
 
-## BLOC 2 — REPRODUCTIBILITÉ
+## BLOC 2 — PACKAGE MANAGER OFFICIEL
 
-Ce projet utilise **Bun**, pas npm.
+### Source de vérité : **Bun**
+
+- Lockfile de référence : `bun.lockb` (présent, read-only)
+- `package-lock.json` : présent comme artefact secondaire (read-only), **ne pas utiliser `npm ci`**
+- `bun.lock` : présent (read-only)
+
+### Commandes officielles
 
 ```bash
-# Clone propre
+# Installation propre (frozen lockfile)
 bun install
 
-# Tests
+# Lancer le dev server
+bun run dev
+
+# Exécuter les tests
 bun run test
 # ou directement
 npx vitest run
 ```
+
+---
+
+## BLOC 3 — REPRODUCTIBILITÉ
 
 ### Sortie réelle de vitest run (vérifiée le 08/03/2026)
 
 ```
  RUN  v3.2.4
 
- ✓ src/test/example.test.ts (1 test) 3ms
- ✓ src/test/openclaw.test.ts (31 tests | 3 skipped) 11ms
+ ✓ src/test/example.test.ts (1 test) 4ms
+ ✓ src/test/openclaw.test.ts (31 tests | 3 skipped) 14ms
 
  Test Files  2 passed (2)
       Tests  29 passed | 3 skipped (32)
-   Start at  13:47:43
-   Duration  2.30s
+   Start at  14:22:05
+   Duration  2.65s (transform 121ms, setup 326ms, collect 132ms, tests 18ms, environment 1.98s, prepare 283ms)
 ```
 
-Les 3 tests `skipped` = INTEGRATION_PENDING.
+Exit code : **0**
+
+Les 3 tests `skipped` = INTEGRATION_PENDING.  
 Ils documentent le flux e2e sans le faire passer pour réel.
 
 ---
 
-## BLOC 3 — TESTS
+## BLOC 4 — TESTS
 
 ### Couverture (29 tests passent)
 
@@ -90,10 +105,11 @@ Ils documentent le flux e2e sans le faire passer pour réel.
 |---|---|---|
 | Risk Classifier | 5 | low/medium/high, keywords FR+EN, browser_lab always high |
 | Schema Validation | 6 | Types TS alignés sur les types DB |
-| Payload Validation | 5 | Rejet, runtime_id, job_type, titre, prompt |
+| Payload Validation | 6 | Rejet, runtime_id, job_type, titre, prompt, accept valide |
 | Org-Scope Authorization | 9 | Owner, manager scoped, cross-org interdit, admin override |
 | Sécurité Zéro Client | 2 | Aucun secret VITE_, OPENCLAW_API_TOKEN absent du bundle |
 | INTEGRATION_PENDING | 3 (skipped) | create-job, dispatch-job, sync-job (e2e documenté) |
+| example.test.ts | 1 | Test de santé vitest |
 
 ### Ce qui n'est PAS couvert
 
@@ -103,15 +119,25 @@ Ils documentent le flux e2e sans le faire passer pour réel.
 
 ---
 
-## BLOC 4 — RUNTIME OPENCLAW RÉEL
+## BLOC 5 — RUNTIME OPENCLAW RÉEL
 
-### OPENCLAW_API_TOKEN est configuré ✅
+### Variables serveur requises
+
+| Variable | Statut | Utilisation |
+|---|---|---|
+| `OPENCLAW_API_TOKEN` | ✅ Configuré | Appels vers le runtime depuis dispatch-job et runtime-health |
+| `CRON_SECRET` | ✅ Configuré | Protection cron-manager |
+| `OPENCLAW_WEBHOOK_SECRET` | ⚠️ Non configuré | Optionnel — signature HMAC sur callbacks sync-job |
+| `OPENCLAW_TIMEOUT_MS` | ⚠️ Non configuré | Optionnel — défaut 30000ms |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-géré | Edge Functions uniquement |
+
+### OPENCLAW_API_TOKEN — usage serveur uniquement
 
 Consommé exclusivement dans :
 - `supabase/functions/openclaw-dispatch-job/index.ts` → `Deno.env.get("OPENCLAW_API_TOKEN")`
 - `supabase/functions/openclaw-runtime-health/index.ts` → `Deno.env.get("OPENCLAW_API_TOKEN")`
 
-Jamais exposé au client (vérifié par le test `OpenClaw — Sécurité Zéro Client`).
+**Jamais exposé au client** (vérifié par le test `OpenClaw — Sécurité Zéro Client`).
 
 ### Enregistrer un runtime (SQL — Backend → Run SQL)
 
@@ -158,6 +184,7 @@ Callback webhook (runtime → sync-job) :
 ```json
 POST /functions/v1/openclaw-sync-job
 Authorization: Bearer <user_jwt>
+X-OpenClaw-Signature: <hmac-sha256-si-OPENCLAW_WEBHOOK_SECRET-configuré>
 {
   "job_id": "<uuid>",
   "event_type": "progress|completed|failed|artifact",
@@ -179,7 +206,7 @@ Le job passe en `failed` dans la DB avec message explicite.
 
 ---
 
-## BLOC 5 — FLUX DE BOUT EN BOUT
+## BLOC 6 — FLUX DE BOUT EN BOUT
 
 ```
 1. Enregistrer un runtime (SQL ci-dessus)
@@ -204,28 +231,30 @@ Statut actuel :
 
 ---
 
-## BLOC 6 — HONNÊTETÉ
+## BLOC 7 — HONNÊTETÉ FINALE
 
-### Ce qui est réellement prêt
+### Ce qui est réellement validé
 
 - Socle DB : 5 tables, RLS, indexes, triggers `updated_at`, audit trail
 - 5 Edge Functions déployées, auth solide, org-scope strict
 - 4 routes UI câblées, protégées (ProtectedRoute + requirePro)
 - Hook `useOpenClaw` : CRUD complet, poll auto des jobs actifs
 - SafePromptComposer : risque temps réel, validation côté client
-- 29/29 tests unitaires passent, reproductibles sur clone propre
+- **29/29 tests unitaires passent, reproductibles** : `exit code 0` sur `bun run test`
 - OPENCLAW_API_TOKEN configuré côté serveur, inaccessible au client
+- Package manager : **Bun** — `bun install` + `bun run test` sont les commandes officielles
+- `package-lock.json` : présent en read-only (artefact), n'est pas la source de vérité
 
 ### Ce qui reste limité
 
-- Aucun runtime enregistré dans `openclaw_runtimes` (nécessite une URL externe)
+- Aucun runtime enregistré dans `openclaw_runtimes` (nécessite une URL externe réelle)
 - Flux e2e complet dépend d'un runtime opérationnel
 - OPENCLAW_WEBHOOK_SECRET non configuré (optionnel, recommandé pour HMAC)
 - Tests Playwright OpenClaw non écrits (Phase 2)
 
 ---
 
-## BLOC 7 — PROMPT PHASE 2
+## BLOC 8 — PROMPT PHASE 2
 
 ```
 RÔLE
@@ -236,15 +265,16 @@ La Phase 1 OpenClaw est validée :
 - 5 tables DB avec RLS
 - 5 Edge Functions (create, dispatch, sync, health, cron)
 - 4 routes UI fonctionnelles
-- 29 tests unitaires passent (vitest run)
+- 29 tests unitaires passent (vitest run, exit code 0)
 - OPENCLAW_API_TOKEN configuré côté serveur
+- Package manager officiel : Bun (bun.lockb)
 
 OBJECTIF Phase 2 : Observabilité, Quotas, Playwright, Monitoring
 
 MISSIONS
 
 1. DASHBOARD COÛT/USAGE par org
-   - Vue agregée openclaw_job_stats (jobs, taux succès, coût)
+   - Vue agrégée openclaw_job_stats (jobs, taux succès, coût)
    - Graphes recharts dans ManagerOpenClawPage
    - Quotas : max_jobs_per_day, max_concurrent_jobs dans openclaw_policies
 
@@ -274,15 +304,3 @@ PREUVES EXIGÉES
 - Résultat playwright test (même partiel)
 - Dashboard alimenté par vraies données DB
 ```
-
----
-
-## Variables serveur
-
-| Variable | Statut | Utilisation |
-|---|---|---|
-| `OPENCLAW_API_TOKEN` | ✅ Configuré | Appels vers le runtime |
-| `CRON_SECRET` | ✅ Configuré | Protection cron-manager |
-| `OPENCLAW_WEBHOOK_SECRET` | ⚠️ Non configuré | Optionnel — signature HMAC callbacks |
-| `OPENCLAW_TIMEOUT_MS` | ⚠️ Non configuré | Optionnel — défaut 30000ms |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-géré | Edge Functions uniquement |
