@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   getClientIp,
@@ -13,21 +12,8 @@ import {
   logEdgeError,
 } from "../_shared/shield.ts";
 import { requireProPlan } from "../_shared/subscription.ts";
-
-const ALLOWED_ORIGINS = [
-  "https://genie-ia.app",
-  "https://genie-ai-mastery.lovable.app",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-  };
-}
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { getAuthenticatedUser, createServiceClient, handleOptions } from "../_shared/auth.ts";
 
 // ─── Safety config ───────────────────────────────────────────────────────────
 const OFFENSIVE_KEYWORDS = [
@@ -230,39 +216,20 @@ async function callOpenRouter(
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
-serve(async (req) => {
+Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const preflight = handleOptions(req, corsHeaders);
+  if (preflight) return preflight;
 
   const startMs = Date.now();
   const requestId = makeRequestId();
   let logCtx = { requestId, fn: "chat-completion", startMs, userId: null as string | null, orgId: null as string | null };
 
   try {
-    // Auth
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // PASSE B · #4 — getUser() (vérification réseau) au lieu de getClaims() (JWT local)
-    // Le supabaseAdmin est créé plus bas — on crée un client minimal juste pour l'auth check
-    const supabaseAuthCheck = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      { auth: { persistSession: false } },
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: authError } = await supabaseAuthCheck.auth.getUser(token);
-    if (authError || !userData.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const userId = userData.user.id;
+    // ── Auth : getUser() réseau via _shared/auth.ts ───────────────────────────
+    const supabaseAuthCheck = createServiceClient();
+    const authUser = await getAuthenticatedUser(req, supabaseAuthCheck);
+    const userId = authUser.id;
     logCtx = { ...logCtx, userId };
 
     // ── Shield: IP rate limit (layer 1) ──────────────────────────────────────

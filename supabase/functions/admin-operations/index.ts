@@ -2,79 +2,64 @@
  * admin-operations — Panneau d'administration sécurisé
  *
  * Sécurité :
- *  - verify_jwt = true dans config.toml  → Supabase vérifie le JWT avant d'atteindre ce code
- *  - Vérification du rôle 'admin' via user_roles (source de vérité RBAC)
- *  - Rate limit : 30 appels / heure / userId (stocké en mémoire + audit_logs)
+ *  - getAuthenticatedUser() via _shared/auth.ts → getUser() réseau (source de vérité)
+ *  - requireAdmin() via _shared/auth.ts → vérifie user_roles (anti-escalade de privilèges)
+ *  - Rate limit : 30 appels / heure / userId (in-memory)
  *  - Audit log systématique sur chaque action réussie
  *  - CORS dynamique via _shared/cors.ts
  */
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import {
+  getAuthenticatedUser,
+  requireAdmin,
+  createServiceClient,
+  handleOptions,
+  jsonResponse as json,
+} from "../_shared/auth.ts";
 
 // ── Rate limiting (in-memory, par userId) ──────────────────────────────────
-// Suffisant pour un panneau admin à faible trafic.
-// Pour une solution distribuée : utiliser la table ip_rate_limits.
 interface RateBucket {
   count: number;
   windowStart: number;
 }
 const rateBuckets = new Map<string, RateBucket>();
-
 const RATE_LIMIT = { max: 30, windowMs: 3_600_000 }; // 30 appels/heure/userId
 
 function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
   const now = Date.now();
   const bucket = rateBuckets.get(userId);
-
   if (!bucket || now - bucket.windowStart > RATE_LIMIT.windowMs) {
-    // Nouvelle fenêtre
     rateBuckets.set(userId, { count: 1, windowStart: now });
     return { allowed: true };
   }
-
   if (bucket.count >= RATE_LIMIT.max) {
     const retryAfter = Math.ceil((RATE_LIMIT.windowMs - (now - bucket.windowStart)) / 1000);
     return { allowed: false, retryAfter };
   }
-
   bucket.count++;
   return { allowed: true };
 }
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
+  const preflight = handleOptions(req, corsHeaders);
+  if (preflight) return preflight;
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // ── Auth : JWT validé + extraction userId ──────────────────────────────
+  const admin = createServiceClient();
 
-  // ── Auth (JWT déjà validé par verify_jwt = true dans config.toml) ──────
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  let userId: string;
+  try {
+    const user = await getAuthenticatedUser(req, admin);
+    userId = user.id;
+  } catch (e) {
+    if (e instanceof Response) {
+      const body = await e.text();
+      return new Response(body, { status: e.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     return json({ error: "Unauthorized" }, 401, corsHeaders);
   }
-
-  // Service-role client pour les opérations admin
-  const admin = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false } }
-  );
-
-  // Récupération du user via getUser() côté serveur (source de vérité)
-  const userClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
-
-  const { data: { user }, error: authErr } = await userClient.auth.getUser();
-  if (authErr || !user) {
-    return json({ error: "Unauthorized" }, 401, corsHeaders);
-  }
-
-  const userId = user.id;
 
   // ── Rate limit ──────────────────────────────────────────────────────────
   const rateCheck = checkRateLimit(userId);
@@ -83,24 +68,19 @@ Deno.serve(async (req) => {
       JSON.stringify({ error: "Too many requests", retry_after_seconds: rateCheck.retryAfter }),
       {
         status: 429,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-          "Retry-After": String(rateCheck.retryAfter ?? 3600),
-        },
-      }
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rateCheck.retryAfter ?? 3600) },
+      },
     );
   }
 
-  // ── Vérification rôle admin via user_roles ──────────────────────────────
-  const { data: roleData } = await admin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-
-  if (!roleData) {
+  // ── Vérification rôle admin via user_roles (source de vérité RBAC) ─────
+  try {
+    await requireAdmin(admin, userId);
+  } catch (e) {
+    if (e instanceof Response) {
+      const body = await e.text();
+      return new Response(body, { status: e.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     return json({ error: "Forbidden" }, 403, corsHeaders);
   }
 
