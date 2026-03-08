@@ -1309,16 +1309,16 @@ export default function Index() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={handleCTA}
-                  className="w-full py-3.5 rounded-lg font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
+                <Link
+                  to="/pricing"
+                  className="block w-full text-center py-3.5 rounded-lg font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
                   style={{
                     background: "hsl(var(--accent))",
                     color: "hsl(var(--accent-foreground))",
                   }}
                 >
-                  Voir l'offre Pro →
-                </button>
+                  Voir les détails et tarifs →
+                </Link>
               </div>
             </div>
             <p className="text-center mt-5">
