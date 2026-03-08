@@ -154,3 +154,7 @@ verify_jwt = true
 
 [functions.delete-account]
 verify_jwt = true
+
+# ── Public stats — no JWT needed (public endpoint) ───────────────────────────
+[functions.get-public-stats]
+verify_jwt = false

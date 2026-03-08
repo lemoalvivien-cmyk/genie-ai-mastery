@@ -13,16 +13,7 @@ import logoGenie from "@/assets/logo-genie.png";
 import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
-
-// Stats dynamiques : les 3 premières sont calculées en DB via analytics_events,
-// la dernière est une constante produit (durée d'activation objective).
-// Elles sont chargées une seule fois à l'init du composant.
-const STATS_FALLBACK = [
-  { value: "2 400+", label: "Agents créés" },
-  { value: "850+", label: "Opportunités générées" },
-  { value: "98%", label: "Satisfaction" },
-  { value: "3 min", label: "Pour démarrer" },
-];
+import { LandingStats } from "@/components/LandingStats";
 
 const HOW_IT_WORKS = [
   {
