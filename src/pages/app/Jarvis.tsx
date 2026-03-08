@@ -2,14 +2,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Mic, MicOff, Zap, GraduationCap, Leaf,
-  ShieldAlert, LayoutGrid, MessageSquare, RefreshCw, Baby,
+  ShieldAlert, LayoutGrid, MessageSquare, RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaywallOverlay } from "@/components/PaywallOverlay";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
@@ -17,6 +16,8 @@ import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import CockpitPanel from "@/components/jarvis/CockpitPanel";
 import { ELI10Button } from "@/components/jarvis/ELI10Button";
+import { CopilotDock } from "@/components/jarvis/CopilotDock";
+import { useCopilot, parseJarvisResponse } from "@/hooks/useCopilot";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ChatMessage {
@@ -120,6 +121,9 @@ export default function Jarvis() {
   const [expertMode, setExpertMode] = useState(false);
   const [ecoMode] = useState(false);
   const [showCockpit, setShowCockpit] = useState(false);
+  const [showDock, setShowDock] = useState(false);
+
+  const copilot = useCopilot();
 
   const voiceEnabled = profile?.voice_enabled ?? true;
   const persona = profile?.persona ?? null;
@@ -207,13 +211,23 @@ export default function Jarvis() {
       if (data?.error) throw new Error(data.error);
 
       const raw: string = data?.content ?? "Je n'ai pas pu générer une réponse. Réessaie !";
-      // Remove JSON blocks if any (plain chat mode)
-      const content = raw.replace(/```json[\s\S]*?```/gi, "").replace(/```[\s\S]*?```/gi, "").trim() || raw.trim();
 
-      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: content };
+      // Parse structured JSON response (Jarvis mode)
+      const parsed = parseJarvisResponse(raw);
+
+      // Display the message field (or fallback to raw text)
+      const displayContent = parsed.message || raw;
+      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent };
       setMessages(prev => [...prev, assistantMsg]);
+
+      // Apply plan to CopilotDock if there's a plan
+      if (parsed.plan.length > 0 || parsed.immediate_action) {
+        copilot.applyResponse(parsed);
+        setShowDock(true);
+      }
+
       setKittState("speaking");
-      if (voiceEnabled) speak(content.slice(0, 200));
+      if (voiceEnabled) speak(displayContent.slice(0, 200));
     } catch (err) {
       toast({
         title: "Erreur",
@@ -224,7 +238,7 @@ export default function Jarvis() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak]);
+  }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak, copilot]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -435,17 +449,34 @@ export default function Jarvis() {
           </div>
         </div>
 
-        {/* ── RIGHT: Cockpit ──────────────────────────────────────────────── */}
+        {/* ── RIGHT: Copilot Dock / Cockpit ───────────────────────────── */}
         <div className={`${showCockpit ? "flex flex-col flex-1" : "hidden"} lg:flex lg:flex-col lg:w-[340px] xl:w-[380px] shrink-0 bg-card/20`}>
-          {/* Cockpit header */}
-          <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border/40">
-            <div className="flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold">Cockpit</span>
-            </div>
+          {/* Tab bar */}
+          <div className="shrink-0 flex items-center border-b border-border/40">
+            <button
+              onClick={() => setShowDock(false)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors border-b-2 ${
+                !showDock ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Cockpit
+            </button>
+            <button
+              onClick={() => setShowDock(true)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors border-b-2 relative ${
+                showDock ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Plan d'action
+              {copilot.dockVisible && copilot.plan.length > 0 && !showDock && (
+                <span className="absolute top-2 right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
+            </button>
             <button
               onClick={() => setShowCockpit(false)}
-              className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              className="lg:hidden p-2 mr-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
               title="Retour au chat"
             >
               <MessageSquare className="w-4 h-4" />
@@ -453,7 +484,18 @@ export default function Jarvis() {
           </div>
 
           <div className="flex-1 overflow-hidden">
-            <CockpitPanel />
+            {showDock
+              ? <CopilotDock
+                  plan={copilot.plan}
+                  immediateAction={copilot.immediateAction}
+                  proofType={copilot.proofType}
+                  completedSteps={copilot.completedSteps}
+                  onMarkDone={copilot.markStepDone}
+                  onDismiss={() => setShowDock(false)}
+                  actionPath={copilot.actionPath}
+                />
+              : <CockpitPanel />
+            }
           </div>
         </div>
 
