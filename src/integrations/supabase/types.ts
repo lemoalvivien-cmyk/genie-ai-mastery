@@ -44,51 +44,6 @@ export type Database = {
         }
         Relationships: []
       }
-      _deprecated_agent_store_installs: {
-        Row: {
-          agent_id: string | null
-          config: Json | null
-          id: string
-          installed_at: string | null
-          is_active: boolean | null
-          item_id: string
-          user_id: string
-        }
-        Insert: {
-          agent_id?: string | null
-          config?: Json | null
-          id?: string
-          installed_at?: string | null
-          is_active?: boolean | null
-          item_id: string
-          user_id: string
-        }
-        Update: {
-          agent_id?: string | null
-          config?: Json | null
-          id?: string
-          installed_at?: string | null
-          is_active?: boolean | null
-          item_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agent_store_installs_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "genieos_agents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agent_store_installs_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "agent_store_items"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       _deprecated_agent_store_ratings: {
         Row: {
           comment: string | null
@@ -319,155 +274,6 @@ export type Database = {
           },
         ]
       }
-      _deprecated_org_weekly_reports: {
-        Row: {
-          at_risk_count: number
-          at_risk_users: Json
-          avg_score: number | null
-          completion_rate: number
-          created_at: string
-          id: string
-          inactive_count: number
-          org_id: string
-          top_gaps: Json
-          total_learners: number
-          week_start: string
-        }
-        Insert: {
-          at_risk_count?: number
-          at_risk_users?: Json
-          avg_score?: number | null
-          completion_rate?: number
-          created_at?: string
-          id?: string
-          inactive_count?: number
-          org_id: string
-          top_gaps?: Json
-          total_learners?: number
-          week_start: string
-        }
-        Update: {
-          at_risk_count?: number
-          at_risk_users?: Json
-          avg_score?: number | null
-          completion_rate?: number
-          created_at?: string
-          id?: string
-          inactive_count?: number
-          org_id?: string
-          top_gaps?: Json
-          total_learners?: number
-          week_start?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_weekly_reports_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      _deprecated_phishing_results: {
-        Row: {
-          completed_at: string
-          email_id: string
-          found_clues: Json
-          id: string
-          score: number
-          total_clues: number
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string
-          email_id: string
-          found_clues?: Json
-          id?: string
-          score?: number
-          total_clues?: number
-          user_id: string
-        }
-        Update: {
-          completed_at?: string
-          email_id?: string
-          found_clues?: Json
-          id?: string
-          score?: number
-          total_clues?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "phishing_results_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "org_member_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "phishing_results_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      _deprecated_revenue_leads: {
-        Row: {
-          company_name: string | null
-          contact_name: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          industry: string | null
-          metadata: Json | null
-          notes: string | null
-          opportunity_score: number | null
-          pain_point: string | null
-          source: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string
-          website: string | null
-        }
-        Insert: {
-          company_name?: string | null
-          contact_name?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          industry?: string | null
-          metadata?: Json | null
-          notes?: string | null
-          opportunity_score?: number | null
-          pain_point?: string | null
-          source?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id: string
-          website?: string | null
-        }
-        Update: {
-          company_name?: string | null
-          contact_name?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          industry?: string | null
-          metadata?: Json | null
-          notes?: string | null
-          opportunity_score?: number | null
-          pain_point?: string | null
-          source?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
       _deprecated_revenue_reports: {
         Row: {
           created_at: string | null
@@ -504,39 +310,6 @@ export type Database = {
           summary?: string | null
           title?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      _deprecated_system_logs: {
-        Row: {
-          created_at: string
-          event: string
-          id: string
-          level: string
-          message: string
-          metadata: Json | null
-          module: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          event: string
-          id?: string
-          level?: string
-          message: string
-          metadata?: Json | null
-          module: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          event?: string
-          id?: string
-          level?: string
-          message?: string
-          metadata?: Json | null
-          module?: string
-          user_id?: string | null
         }
         Relationships: []
       }
@@ -908,6 +681,51 @@ export type Database = {
             columns: ["agent_economy_id"]
             isOneToOne: false
             referencedRelation: "agent_economy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_store_installs: {
+        Row: {
+          agent_id: string | null
+          config: Json | null
+          id: string
+          installed_at: string | null
+          is_active: boolean | null
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          config?: Json | null
+          id?: string
+          installed_at?: string | null
+          is_active?: boolean | null
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          config?: Json | null
+          id?: string
+          installed_at?: string | null
+          is_active?: boolean | null
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_store_installs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "genieos_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_store_installs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "agent_store_items"
             referencedColumns: ["id"]
           },
         ]
@@ -3018,6 +2836,56 @@ export type Database = {
           },
         ]
       }
+      org_weekly_reports: {
+        Row: {
+          at_risk_count: number
+          at_risk_users: Json
+          avg_score: number | null
+          completion_rate: number
+          created_at: string
+          id: string
+          inactive_count: number
+          org_id: string
+          top_gaps: Json
+          total_learners: number
+          week_start: string
+        }
+        Insert: {
+          at_risk_count?: number
+          at_risk_users?: Json
+          avg_score?: number | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          inactive_count?: number
+          org_id: string
+          top_gaps?: Json
+          total_learners?: number
+          week_start: string
+        }
+        Update: {
+          at_risk_count?: number
+          at_risk_users?: Json
+          avg_score?: number | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          inactive_count?: number
+          org_id?: string
+          top_gaps?: Json
+          total_learners?: number
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_weekly_reports_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           completion_deadline_days: number | null
@@ -3228,6 +3096,51 @@ export type Database = {
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partner_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phishing_results: {
+        Row: {
+          completed_at: string
+          email_id: string
+          found_clues: Json
+          id: string
+          score: number
+          total_clues: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          email_id: string
+          found_clues?: Json
+          id?: string
+          score?: number
+          total_clues?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          email_id?: string
+          found_clues?: Json
+          id?: string
+          score?: number
+          total_clues?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phishing_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phishing_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3488,6 +3401,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      revenue_leads: {
+        Row: {
+          company_name: string | null
+          contact_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          industry: string | null
+          metadata: Json | null
+          notes: string | null
+          opportunity_score: number | null
+          pain_point: string | null
+          source: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          opportunity_score?: number | null
+          pain_point?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          opportunity_score?: number | null
+          pain_point?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
       }
       revenue_opportunities: {
         Row: {
@@ -3770,6 +3737,39 @@ export type Database = {
           tags?: string[] | null
           type?: string
           url?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          module: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          level?: string
+          message: string
+          metadata?: Json | null
+          module: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          module?: string
+          user_id?: string | null
         }
         Relationships: []
       }
