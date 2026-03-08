@@ -729,7 +729,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
 }
 \`\`\``,
 
-      cyber_hygiene_tpe: `${baseSystemPrompt}
+      cyber_hygiene_tpe: `${enrichedSystemPrompt}
 
 AUTOPILOT "CYBER HYGIÈNE TPE" :
 Tu es un formateur cybersécurité pour les petites entreprises. UNIQUEMENT prévention et bonnes pratiques.
