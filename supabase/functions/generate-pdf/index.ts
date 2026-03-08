@@ -385,6 +385,9 @@ Deno.serve(async (req) => {
       throw e;
     }
 
+    // ── Rate limit (Pro = 50/day) ─────────────────────────────────────────────
+    await checkRateLimit(supabaseAdmin, userId, "generate-pdf", "pro", corsHeaders);
+
     // ── Shield: IP rate limit ─────────────────────────────────────────────────
     const clientIp = getClientIp(req);
     const ipHash = await hashIp(clientIp);
