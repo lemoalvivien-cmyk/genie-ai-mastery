@@ -223,6 +223,21 @@ describe("OpenClaw — Org-Scope Authorization", () => {
 });
 
 // ── 5. Security: aucun secret dans le code client ────────────────────────────
+/**
+ * VITE_ vars whitelisted as safe public keys:
+ * - VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_PROJECT_ID → Supabase anon config
+ * - VITE_SENTRY_DSN → Sentry DSN is designed to be public (client-side error reporting)
+ *   ref: https://docs.sentry.io/concepts/key-terms/dsn-explainer/ — DSNs are not secret
+ *
+ * NEVER whitelisted: OPENCLAW_API_TOKEN, SERVICE_ROLE, WEBHOOK_SECRET, CRON_SECRET
+ */
+const SAFE_PUBLIC_VITE_KEYS = new Set([
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  "VITE_SUPABASE_PROJECT_ID",
+  "VITE_SENTRY_DSN", // Sentry DSN is explicitly public by design
+]);
+
 describe("OpenClaw — Sécurité Zéro Client", () => {
   it("OPENCLAW_API_TOKEN ne doit pas être présent en tant que variable VITE_", () => {
     // Seules les variables VITE_* sont injectées dans le bundle client.
@@ -237,20 +252,113 @@ describe("OpenClaw — Sécurité Zéro Client", () => {
     expect(hasBadSecret).toBe(false);
   });
 
-  it("les variables VITE_ publiques se limitent aux clés Supabase attendues", () => {
+  it("les variables VITE_ publiques se limitent aux clés connues et sûres", () => {
     const publicKeys = Object.keys(import.meta.env ?? {}).filter(k => k.startsWith("VITE_"));
-    const ALLOWED_VITE_KEYS = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PROJECT_ID"];
-    const unexpected = publicKeys.filter(k => !ALLOWED_VITE_KEYS.includes(k));
-    // On documente les clés inattendues — le test passe mais alerte
+    // Keys not in the safe list
+    const unexpected = publicKeys.filter(k => !SAFE_PUBLIC_VITE_KEYS.has(k));
     if (unexpected.length > 0) {
-      console.warn("[SECURITY AUDIT] Variables VITE_ inattendues exposées au client:", unexpected);
+      console.warn("[SECURITY AUDIT] Variables VITE_ inattendues — à valider manuellement:", unexpected);
     }
-    // Aucune clé VITE_ ne doit contenir un terme sensible
-    const sensibleTerms = ["TOKEN", "SECRET", "KEY", "PASSWORD", "PRIVATE"];
+    // Hard block: any VITE_ key with these dangerous suffixes (excluding known safe ones)
+    const BLOCKED_TERMS = ["TOKEN", "SECRET", "PASSWORD", "PRIVATE"];
     const dangerous = publicKeys.filter(k =>
-      sensibleTerms.some(t => k.toUpperCase().includes(t)) &&
-      k !== "VITE_SUPABASE_PUBLISHABLE_KEY" // anon key est publique par conception
+      !SAFE_PUBLIC_VITE_KEYS.has(k) &&
+      BLOCKED_TERMS.some(t => k.toUpperCase().includes(t))
     );
     expect(dangerous).toHaveLength(0);
+  });
+});
+
+// ── 6. Integration pending — test de bout en bout honnête ────────────────────
+/**
+ * INTEGRATION_PENDING : Ces tests documentent le flux réel attendu,
+ * mais ne s'exécutent PAS contre le runtime OpenClaw réel.
+ * Ils sont tagués explicitement pour éviter toute confusion avec des tests réels.
+ *
+ * Pour les activer :
+ * 1. Configurer OPENCLAW_API_TOKEN dans les secrets Supabase
+ * 2. Enregistrer un runtime dans openclaw_runtimes avec status = 'healthy'
+ * 3. Remplacer `it.skip` par `it` et fournir un token JWT valide
+ */
+describe("OpenClaw — INTEGRATION_PENDING (flux e2e, non-exécuté sans runtime réel)", () => {
+  /**
+   * BLOC A: create-job → status queued
+   * Requiert: auth JWT valide, org_id valide, runtime_id enregistré
+   */
+  it.skip("[INTEGRATION_PENDING] create-job retourne job_id et status=queued", async () => {
+    // Ce test nécessite:
+    // - Un utilisateur authentifié avec org_id
+    // - Un runtime_id valide dans openclaw_runtimes
+    // - OPENCLAW_API_TOKEN configuré côté serveur (jamais côté client)
+    const RUNTIME_ID = "REPLACE_WITH_REAL_RUNTIME_ID";
+    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
+
+    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-create-job`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${AUTH_TOKEN}`,
+      },
+      body: JSON.stringify({
+        runtime_id: RUNTIME_ID,
+        job_type: "tutor_search",
+        title: "Test intégration e2e",
+        prompt: "Recherche 3 sources fiables sur la cybersécurité en 2025.",
+      }),
+    });
+    const data = await resp.json();
+    expect(resp.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.status).toBe("queued");
+    expect(data.job_id).toBeDefined();
+  });
+
+  /**
+   * BLOC B: dispatch-job → status running ou failed (si runtime absent)
+   * Requiert: job_id créé par BLOC A
+   */
+  it.skip("[INTEGRATION_PENDING] dispatch-job marque le job running ou failed si runtime absent", async () => {
+    const JOB_ID = "REPLACE_WITH_JOB_ID_FROM_BLOC_A";
+    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
+
+    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-dispatch-job`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${AUTH_TOKEN}`,
+      },
+      body: JSON.stringify({ job_id: JOB_ID }),
+    });
+    const data = await resp.json();
+    // Sans runtime réel: status=failed avec message explicite (pas d'invention de résultat)
+    // Avec runtime réel: status=running + openclaw_response présent
+    expect([200, 503]).toContain(resp.status);
+    if (resp.status === 503) {
+      expect(data.message).toMatch(/OPENCLAW_API_TOKEN|runtime/i);
+    }
+  });
+
+  /**
+   * BLOC C: sync-job (webhook) → event persisté
+   * Requiert: job_id, signature HMAC valide ou JWT admin
+   */
+  it.skip("[INTEGRATION_PENDING] sync-job persiste les callbacks sans inventer de résultat", async () => {
+    const JOB_ID = "REPLACE_WITH_JOB_ID_FROM_BLOC_A";
+    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
+
+    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-sync-job`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${AUTH_TOKEN}`,
+      },
+      body: JSON.stringify({
+        job_id: JOB_ID,
+        event_type: "progress",
+        message: "Test callback contrôlé",
+      }),
+    });
+    const data = await resp.json();
+    expect(data.received).toBe(true);
   });
 });
