@@ -125,7 +125,7 @@ export function SafePromptComposer({ runtimes, onSubmit, isSubmitting }: SafePro
           <p className="text-xs text-muted-foreground">
             Profil : <span className="font-medium">{selectedRuntime.tool_profile}</span>
             {selectedRuntime.status === "offline" && (
-              <span className="ml-2 text-red-400">⚠ Runtime hors ligne — le job sera refusé</span>
+              <span className="ml-2 text-destructive">⚠ Runtime hors ligne — le job sera refusé</span>
             )}
           </p>
         )}
