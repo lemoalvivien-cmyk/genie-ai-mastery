@@ -493,12 +493,12 @@ export default function Chat() {
             </div>
           )}
           {adaptationLevel >= 2 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] text-amber-400 font-medium animate-pulse">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[hsl(var(--warning)/0.15)] border border-[hsl(var(--warning)/0.3)] text-[10px] text-[hsl(var(--warning))] font-medium animate-pulse">
               🧒 Mode analogies activé
             </span>
           )}
           {adaptationLevel === 1 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400 font-medium">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium">
               💡 Mode simplifié
             </span>
           )}
