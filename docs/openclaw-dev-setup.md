@@ -45,7 +45,7 @@ bun run dev
 | Contrôle 429 quotas dans `openclaw-create-job` | ✅ |
 | UI observabilité enrichie (Phase 2) | ✅ |
 | `packageManager: "bun@1.2.0"` dans `package.json` | ✅ |
-| Tests : 37 passent, 4 INTEGRATION_PENDING | ✅ |
+| Tests : **54 passent, 3 INTEGRATION_PENDING** (total 57) | ✅ |
 
 ---
 
