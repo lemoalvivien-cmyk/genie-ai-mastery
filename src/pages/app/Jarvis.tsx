@@ -2,14 +2,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Mic, MicOff, Zap, GraduationCap, Leaf,
-  ShieldAlert, LayoutGrid, MessageSquare, RefreshCw, Baby,
+  ShieldAlert, LayoutGrid, MessageSquare, RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaywallOverlay } from "@/components/PaywallOverlay";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import DOMPurify from "dompurify";
@@ -17,6 +16,8 @@ import KittVisualizer, { KittState } from "@/components/chat/KittVisualizer";
 import { useVoiceEngine } from "@/hooks/useVoiceEngine";
 import CockpitPanel from "@/components/jarvis/CockpitPanel";
 import { ELI10Button } from "@/components/jarvis/ELI10Button";
+import { CopilotDock } from "@/components/jarvis/CopilotDock";
+import { useCopilot, parseJarvisResponse } from "@/hooks/useCopilot";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ChatMessage {
