@@ -91,6 +91,14 @@ export default function Welcome() {
   const persona = profile?.persona ?? "salarie";
   const mission = MISSIONS[persona] ?? MISSIONS["salarie"];
 
+  // ── Redirection automatique vers le quiz si onboarding non complété ──
+  useEffect(() => {
+    if (!profile) return;
+    if (profile.onboarding_completed === false) {
+      navigate("/app/onboarding/quiz", { replace: true });
+    }
+  }, [profile?.id, profile?.onboarding_completed, navigate]);
+
   const { speak, getAnalyser } = useVoiceEngine({
     onTranscript: () => {},
     onStateChange: setKittState,

@@ -22,9 +22,12 @@ const Register       = lazy(() => import("./pages/auth/Register"));
 const ResetPassword  = lazy(() => import("./pages/auth/ResetPassword"));
 
 // ── App ──────────────────────────────────────────────────────────
-const Onboarding     = lazy(() => import("./pages/onboarding/Onboarding"));
-const Welcome        = lazy(() => import("./pages/app/Welcome"));
-const FirstVictory   = lazy(() => import("./pages/app/FirstVictory"));
+const Onboarding        = lazy(() => import("./pages/onboarding/Onboarding"));
+const Welcome           = lazy(() => import("./pages/app/Welcome"));
+const FirstVictory      = lazy(() => import("./pages/app/FirstVictory"));
+const OnboardingQuiz    = lazy(() => import("./pages/app/onboarding/OnboardingQuiz"));
+const OnboardingResult  = lazy(() => import("./pages/app/onboarding/OnboardingResult"));
+const OnboardingUnlock  = lazy(() => import("./pages/app/onboarding/OnboardingUnlock"));
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
 const Modules        = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail   = lazy(() => import("./pages/app/ModuleDetail"));
@@ -175,8 +178,11 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="welcome"       element={<Welcome />} />
-                  <Route path="first-victory" element={<FirstVictory />} />
+                  <Route path="welcome"         element={<Welcome />} />
+                  <Route path="first-victory"   element={<FirstVictory />} />
+                  <Route path="onboarding/quiz"   element={<OnboardingQuiz />} />
+                  <Route path="onboarding/result" element={<OnboardingResult />} />
+                  <Route path="onboarding/unlock" element={<OnboardingUnlock />} />
                   <Route path="dashboard"     element={<Dashboard />} />
                   <Route path="modules"       element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
