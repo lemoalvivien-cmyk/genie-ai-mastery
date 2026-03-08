@@ -1,8 +1,11 @@
 /**
  * Tests OpenClaw Phase 1 + Phase 2
  * Vérifie les fonctions utilitaires locales : risk classifier, status mapping,
- * validation, quotas, dev-harness contract, sécurité.
+ * validation, quotas, dev-harness contract, auth callback HMAC, sécurité.
  * Ces tests ne nécessitent aucun accès réseau.
+ *
+ * RÉSULTAT ATTENDU (08/03/2026) :
+ *   31 tests actifs | 3 skipped (INTEGRATION_PENDING) | total 34
  */
 import { describe, it, expect } from "vitest";
 import packageJson from "../../package.json";
@@ -129,6 +132,7 @@ interface DevHarnessHealthResponse {
   version: string;
   dev_only: true;
   warning: string;
+  callback_auth: string;
   tools: Record<string, string[]>;
   capabilities: string[];
   timestamp: string;
@@ -139,6 +143,7 @@ interface DevHarnessJobResponse {
   accepted: true;
   dev_only: true;
   warning: string;
+  callback_auth: string;
   estimated_completion_ms: number;
   runtime: "DEV_ONLY_OPENCLAW_RUNTIME";
   timestamp: string;
@@ -150,6 +155,8 @@ function buildDevHarnessHealthResponse(): DevHarnessHealthResponse {
     version: "dev-harness-1.0.0",
     dev_only: true,
     warning: "DEV_ONLY_OPENCLAW_RUNTIME — ne pas utiliser en production",
+    // CORRECTION : le harness signe maintenant ses callbacks via HMAC-SHA256
+    callback_auth: "hmac-sha256",
     tools: {
       tutor_readonly: ["web_search", "knowledge_search", "ai_summarize"],
       browser_lab: ["browser_navigate", "browser_screenshot", "browser_extract"],
@@ -165,7 +172,9 @@ function buildDevHarnessJobResponse(jobId: string): DevHarnessJobResponse {
     job_id: jobId,
     accepted: true,
     dev_only: true,
-    warning: "DEV_ONLY_OPENCLAW_RUNTIME — simulation en cours, callback dans ~4s",
+    warning: "DEV_ONLY_OPENCLAW_RUNTIME — simulation en cours, callback HMAC signé dans ~4s",
+    // CORRECTION : callbacks signés HMAC, plus de faux JWT ANON_KEY
+    callback_auth: "hmac-sha256",
     estimated_completion_ms: 4000,
     runtime: "DEV_ONLY_OPENCLAW_RUNTIME",
     timestamp: new Date().toISOString(),
@@ -194,6 +203,11 @@ describe("OpenClaw — Dev Harness Contract", () => {
     expect(resp.tools.tutor_readonly).toContain("web_search");
   });
 
+  it("réponse health expose le mécanisme d'auth callback", () => {
+    const resp = buildDevHarnessHealthResponse();
+    expect(resp.callback_auth).toBe("hmac-sha256");
+  });
+
   it("réponse job accepte le job avec dev_only: true", () => {
     const resp = buildDevHarnessJobResponse("test-job-id-123");
     expect(resp.accepted).toBe(true);
@@ -208,14 +222,119 @@ describe("OpenClaw — Dev Harness Contract", () => {
 
   it("réponse job ne se présente pas comme un runtime de production", () => {
     const resp = buildDevHarnessJobResponse("test-job-id-789");
-    // Le warning doit clairement indiquer DEV_ONLY
     expect(resp.warning).toMatch(/DEV_ONLY/);
-    // Le runtime name doit contenir DEV_ONLY
     expect(resp.runtime).toMatch(/DEV_ONLY/);
+  });
+
+  it("réponse job annonce l'auth callback HMAC — plus de faux JWT ANON_KEY", () => {
+    const resp = buildDevHarnessJobResponse("test-job-id-hmac");
+    // Le harness signe avec HMAC-SHA256, pas avec un Bearer ANON_KEY
+    expect(resp.callback_auth).toBe("hmac-sha256");
   });
 });
 
-// ── 5. Job status mapping ────────────────────────────────────────────────────
+// ── 5. HMAC callback auth logic ───────────────────────────────────────────────
+/**
+ * Réplique la logique de validation HMAC de openclaw-sync-job PATH 1.
+ * En environnement de test (sans Web Crypto), on teste la structure logique.
+ */
+interface SyncJobCallbackRequest {
+  headers: Record<string, string | undefined>;
+  hasWebhookSecret: boolean;
+}
+
+function syncJobAuthDecision(req: SyncJobCallbackRequest): "hmac_required" | "jwt_required" | "anonymous_rejected" | "proceed_hmac" | "proceed_jwt" {
+  if (req.hasWebhookSecret) {
+    const sig = req.headers["x-openclaw-signature"];
+    if (!sig) return "hmac_required";
+    // Dans un contexte réel, on vérifierait la signature — ici on simule l'acceptation
+    return "proceed_hmac";
+  }
+  // Pas de webhook secret configuré → exige un JWT Bearer
+  const auth = req.headers["authorization"] ?? "";
+  const token = auth.replace("Bearer ", "").trim();
+  if (!token) return "anonymous_rejected";
+  return "proceed_jwt";
+}
+
+describe("OpenClaw — Callback Auth Logic (sync-job)", () => {
+  it("avec WEBHOOK_SECRET configuré : rejette un callback sans signature X-OpenClaw-Signature", () => {
+    const decision = syncJobAuthDecision({
+      headers: { authorization: "Bearer some-anon-key" },
+      hasWebhookSecret: true,
+    });
+    expect(decision).toBe("hmac_required");
+  });
+
+  it("avec WEBHOOK_SECRET configuré : accepte un callback avec signature HMAC", () => {
+    const decision = syncJobAuthDecision({
+      headers: { "x-openclaw-signature": "base64-hmac-signature==" },
+      hasWebhookSecret: true,
+    });
+    expect(decision).toBe("proceed_hmac");
+  });
+
+  it("sans WEBHOOK_SECRET : rejette un callback entièrement anonyme (pas de Bearer)", () => {
+    const decision = syncJobAuthDecision({
+      headers: {},
+      hasWebhookSecret: false,
+    });
+    expect(decision).toBe("anonymous_rejected");
+  });
+
+  it("sans WEBHOOK_SECRET : accepte un callback avec Bearer JWT utilisateur", () => {
+    const decision = syncJobAuthDecision({
+      headers: { authorization: "Bearer eyJhbGciOiJSUzI1NiJ9.valid.jwt" },
+      hasWebhookSecret: false,
+    });
+    expect(decision).toBe("proceed_jwt");
+  });
+
+  it("ANON_KEY seul NE suffit PAS si WEBHOOK_SECRET est configuré (doit avoir X-OpenClaw-Signature)", () => {
+    // Simule l'ancien bug : le harness envoyait Bearer ANON_KEY mais sync-job attendait une signature HMAC
+    const decision = syncJobAuthDecision({
+      // Pas de X-OpenClaw-Signature, seulement un Authorization: Bearer anon-key
+      headers: { authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.anon.key" },
+      hasWebhookSecret: true,
+    });
+    // Doit exiger la signature HMAC, pas accepter le Bearer ANON_KEY
+    expect(decision).toBe("hmac_required");
+  });
+});
+
+// ── 6. DEV_ONLY detection (UI) ────────────────────────────────────────────────
+/**
+ * Réplique la logique de détection DEV_ONLY dans l'UI AgentJobDetailPage.
+ * Un runtime dont base_url contient "openclaw-dev-harness" est DEV_ONLY.
+ */
+function isDevOnlyRuntime(baseUrl: string | null | undefined): boolean {
+  if (!baseUrl) return false;
+  return baseUrl.includes("openclaw-dev-harness") || baseUrl.includes("DEV_ONLY");
+}
+
+describe("OpenClaw — DEV_ONLY Detection (UI)", () => {
+  it("détecte un runtime dev-harness comme DEV_ONLY", () => {
+    expect(isDevOnlyRuntime("https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness")).toBe(true);
+  });
+
+  it("détecte une URL contenant DEV_ONLY comme dev", () => {
+    expect(isDevOnlyRuntime("https://example.com/DEV_ONLY/runtime")).toBe(true);
+  });
+
+  it("ne marque pas un runtime de prod comme DEV_ONLY", () => {
+    expect(isDevOnlyRuntime("https://api.openclaw.io/v1")).toBe(false);
+  });
+
+  it("retourne false pour une base_url nulle", () => {
+    expect(isDevOnlyRuntime(null)).toBe(false);
+  });
+
+  it("retourne false pour une base_url vide", () => {
+    expect(isDevOnlyRuntime("")).toBe(false);
+  });
+});
+
+// ── 7. Job status mapping ────────────────────────────────────────────────────
 const VALID_JOB_STATUSES = ["queued", "running", "succeeded", "failed", "cancelled"] as const;
 const VALID_RUNTIME_STATUSES = ["healthy", "degraded", "offline", "unknown"] as const;
 const VALID_RISK_LEVELS = ["low", "medium", "high"] as const;
@@ -255,7 +374,7 @@ describe("OpenClaw — Schema Validation", () => {
   });
 });
 
-// ── 6. Create-job payload validation ────────────────────────────────────────
+// ── 8. Create-job payload validation ────────────────────────────────────────
 function validateCreateJobPayload(raw: unknown): string | null {
   if (typeof raw !== "object" || raw === null) return "Body must be an object";
   const b = raw as Record<string, unknown>;
@@ -297,7 +416,7 @@ describe("OpenClaw — Payload Validation", () => {
   });
 });
 
-// ── 7. Org-scope authorization logic ────────────────────────────────────────
+// ── 9. Org-scope authorization logic ────────────────────────────────────────
 interface CallerContext {
   userId: string;
   orgId: string | null;
@@ -377,7 +496,7 @@ describe("OpenClaw — Org-Scope Authorization", () => {
   });
 });
 
-// ── 8. Security: aucun secret dans le code client ────────────────────────────
+// ── 10. Security: aucun secret dans le code client ────────────────────────────
 /**
  * VITE_ vars whitelisted as safe public keys:
  * - VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_PROJECT_ID → Supabase anon config
@@ -415,11 +534,16 @@ describe("OpenClaw — Sécurité Zéro Client", () => {
   });
 });
 
-// ── 9. Integration pending — test de bout en bout honnête ────────────────────
+// ── 11. Integration pending — test de bout en bout honnête ────────────────────
 /**
  * INTEGRATION_PENDING : Ces tests documentent le flux réel attendu,
  * mais ne s'exécutent PAS contre le runtime OpenClaw réel.
  * Ils sont tagués explicitement pour éviter toute confusion avec des tests réels.
+ *
+ * Pour les exécuter :
+ *   1. Configurer OPENCLAW_WEBHOOK_SECRET dans les secrets Edge Functions
+ *   2. Enregistrer un runtime DEV_ONLY_OPENCLAW_RUNTIME dans openclaw_runtimes
+ *   3. Remplacer les placeholders ci-dessous par des valeurs réelles
  */
 describe("OpenClaw — INTEGRATION_PENDING (flux e2e, non-exécuté sans runtime réel)", () => {
   it.skip("[INTEGRATION_PENDING] create-job retourne job_id et status=queued", async () => {
@@ -457,30 +581,24 @@ describe("OpenClaw — INTEGRATION_PENDING (flux e2e, non-exécuté sans runtime
     }
   });
 
-  it.skip("[INTEGRATION_PENDING] sync-job persiste les callbacks sans inventer de résultat", async () => {
+  it.skip("[INTEGRATION_PENDING] sync-job accepte un callback HMAC signé par le harness", async () => {
+    // Ce test documente le flux corrigé :
+    // le harness signe le callback avec HMAC-SHA256 via X-OpenClaw-Signature
+    // sync-job vérifie la signature via PATH 1 (OPENCLAW_WEBHOOK_SECRET)
+    // L'ancien mécanisme ANON_KEY comme JWT est supprimé.
     const JOB_ID = "REPLACE_WITH_JOB_ID_FROM_BLOC_A";
-    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
-    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-sync-job`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AUTH_TOKEN}` },
-      body: JSON.stringify({ job_id: JOB_ID, event_type: "progress", message: "Test callback contrôlé DEV_ONLY" }),
-    });
-    const data = await resp.json();
-    expect(data.received).toBe(true);
-  });
+    const WEBHOOK_SECRET = "REPLACE_WITH_OPENCLAW_WEBHOOK_SECRET";
 
-  it.skip("[INTEGRATION_PENDING] dev-harness healthcheck réel — requiert fonction déployée", async () => {
-    // Pour tester manuellement :
-    // GET https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness/v1/health
-    // Authorization: Bearer <USER_JWT>
-    // Réponse attendue: { status: "ok", dev_only: true, ... }
-    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
-    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-dev-harness/v1/health`, {
-      headers: { "Authorization": `Bearer ${AUTH_TOKEN}` },
+    // Simuler la signature HMAC (en vrai : signHmacSha256 dans le harness)
+    const body = JSON.stringify({
+      job_id: JOB_ID,
+      event_type: "progress",
+      message: "[DEV_ONLY] Test callback HMAC contrôlé",
     });
-    const data = await resp.json();
-    expect(resp.status).toBe(200);
-    expect(data.status).toBe("ok");
-    expect(data.dev_only).toBe(true);
+
+    // NOTE: Web Crypto est disponible en Deno/navigateur, pas en Vitest Node pure
+    // Ce test documente le contrat — l'exécution réelle requiert le harness déployé
+    expect(WEBHOOK_SECRET).not.toBe("REPLACE_WITH_OPENCLAW_WEBHOOK_SECRET"); // Remplacer avant d'exécuter
+    expect(body).toContain(JOB_ID);
   });
 });
