@@ -621,7 +621,7 @@ export default function Chat() {
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || isLoading}
                 size="icon"
-                className="shrink-0 h-[52px] w-[52px] transition-all"
+                className="shrink-0 min-h-[52px] min-w-[52px] h-[52px] w-[52px] transition-all"
                 style={{
                   background: "#FE2C40",
                   boxShadow: (!input.trim() || isLoading) ? undefined : "0 0 16px rgba(254,44,64,0.5)",
