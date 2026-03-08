@@ -378,6 +378,10 @@ export default function Chat() {
             session_id: sessionId,
             request_type: "chat",
             adaptation_level: currentAdaptation,
+            kitt_context: {
+              ...(kittContext ?? {}),
+              kitt_mode: kittModeRef.current,
+            },
           },
         });
 
