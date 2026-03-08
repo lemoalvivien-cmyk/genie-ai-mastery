@@ -239,6 +239,10 @@ const App = () => (
                   path="/manager"
                   element={<ProtectedRoute requireRole="manager" requirePro><ManagerDashboard /></ProtectedRoute>}
                 />
+                <Route
+                  path="/manager/openclaw"
+                  element={<ProtectedRoute requireRole="manager" requirePro><ManagerOpenClawPage /></ProtectedRoute>}
+                />
 
                 {/* ── Partner ──────────────────────────────────────────── */}
                 <Route
