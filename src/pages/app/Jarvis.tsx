@@ -418,7 +418,7 @@ export default function Jarvis() {
                   {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>
               )}
-
+              <div className="flex-1 relative">
                 <Textarea
                   ref={textareaRef}
                   value={input}
