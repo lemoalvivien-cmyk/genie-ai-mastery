@@ -81,9 +81,7 @@ export default function Dashboard() {
   const totalXP = streak?.total_xp ?? 0;
   const currentStreak = streak?.current_streak ?? 0;
   const missionDone = !!todayLog;
-
-  // Weekly progress: 7 missions possible, count days with log in last 7
-  const weeklyDone = 0; // will use last7Days if needed — simplified here
+  const isLoading = streakLoading || !stats;
 
   const metrics = [
     { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
