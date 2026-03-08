@@ -211,13 +211,23 @@ export default function Jarvis() {
       if (data?.error) throw new Error(data.error);
 
       const raw: string = data?.content ?? "Je n'ai pas pu générer une réponse. Réessaie !";
-      // Remove JSON blocks if any (plain chat mode)
-      const content = raw.replace(/```json[\s\S]*?```/gi, "").replace(/```[\s\S]*?```/gi, "").trim() || raw.trim();
 
-      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: content };
+      // Parse structured JSON response (Jarvis mode)
+      const parsed = parseJarvisResponse(raw);
+
+      // Display the message field (or fallback to raw text)
+      const displayContent = parsed.message || raw;
+      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent };
       setMessages(prev => [...prev, assistantMsg]);
+
+      // Apply plan to CopilotDock if there's a plan
+      if (parsed.plan.length > 0 || parsed.immediate_action) {
+        copilot.applyResponse(parsed);
+        setShowDock(true);
+      }
+
       setKittState("speaking");
-      if (voiceEnabled) speak(content.slice(0, 200));
+      if (voiceEnabled) speak(displayContent.slice(0, 200));
     } catch (err) {
       toast({
         title: "Erreur",
@@ -228,7 +238,7 @@ export default function Jarvis() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak]);
+  }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak, copilot]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
