@@ -1,11 +1,20 @@
 /**
- * Tests minimums OpenClaw Phase 1
- * Vérifie les fonctions utilitaires locales : risk classifier, status mapping, validation.
+ * Tests OpenClaw Phase 1 + Phase 2
+ * Vérifie les fonctions utilitaires locales : risk classifier, status mapping,
+ * validation, quotas, dev-harness contract, sécurité.
  * Ces tests ne nécessitent aucun accès réseau.
  */
 import { describe, it, expect } from "vitest";
+import packageJson from "../../package.json";
 
-// ── 1. Risk classifier logic (replicated from openclaw-create-job) ─────────
+// ── 1. Package manager officiel ──────────────────────────────────────────────
+describe("Repo — Package Manager", () => {
+  it('package.json déclare "packageManager": "bun@1.2.0"', () => {
+    expect((packageJson as Record<string, unknown>).packageManager).toBe("bun@1.2.0");
+  });
+});
+
+// ── 2. Risk classifier logic (replicated from openclaw-create-job) ─────────
 const HIGH_RISK_KEYWORDS = ["delete", "supprimer", "écrire dans", "modifier", "envoyer email", "submit", "post to", "publier"];
 const MEDIUM_RISK_KEYWORDS = ["scrape", "crawler", "télécharger", "download", "external api", "api externe"];
 
@@ -40,7 +49,6 @@ describe("OpenClaw — Risk Classifier", () => {
   });
 
   it("détecte les mots-clés à haut risque dans le prompt", () => {
-    // "supprimer" (infinitif) est dans la liste — pas "supprime" (conjugué)
     const result = classifyRisk("tutor_search", "supprimer les anciens messages et envoyer email au manager");
     expect(result.risk_level).toBe("high");
     expect(result.approval_required).toBe(true);
@@ -59,7 +67,155 @@ describe("OpenClaw — Risk Classifier", () => {
   });
 });
 
-// ── 2. Job status mapping ────────────────────────────────────────────────────
+// ── 3. Quota logic (replicated from openclaw-create-job) ─────────────────────
+function checkQuota(recentCount: number, runningCount: number, maxPerHour: number, maxConcurrent: number): { allowed: boolean; error?: string; status?: number } {
+  if (recentCount >= maxPerHour) {
+    return {
+      allowed: false,
+      error: `quota_exceeded: limite de ${maxPerHour} jobs par heure atteinte`,
+      status: 429,
+    };
+  }
+  if (runningCount >= maxConcurrent) {
+    return {
+      allowed: false,
+      error: `quota_exceeded: limite de ${maxConcurrent} jobs simultanés atteinte`,
+      status: 429,
+    };
+  }
+  return { allowed: true };
+}
+
+describe("OpenClaw — Quotas", () => {
+  it("accepte un job quand les quotas sont dans les limites", () => {
+    const result = checkQuota(5, 2, 20, 5);
+    expect(result.allowed).toBe(true);
+    expect(result.status).toBeUndefined();
+  });
+
+  it("retourne 429 quand la limite horaire est atteinte", () => {
+    const result = checkQuota(20, 2, 20, 5);
+    expect(result.allowed).toBe(false);
+    expect(result.status).toBe(429);
+    expect(result.error).toMatch(/quota_exceeded/);
+    expect(result.error).toMatch(/heure/);
+  });
+
+  it("retourne 429 quand les jobs simultanés sont au max", () => {
+    const result = checkQuota(5, 5, 20, 5);
+    expect(result.allowed).toBe(false);
+    expect(result.status).toBe(429);
+    expect(result.error).toMatch(/quota_exceeded/);
+    expect(result.error).toMatch(/simultanés/);
+  });
+
+  it("limite horaire = 0 bloque immédiatement", () => {
+    const result = checkQuota(0, 0, 0, 5);
+    expect(result.allowed).toBe(false);
+    expect(result.status).toBe(429);
+  });
+
+  it("recentCount = maxPerHour - 1 est encore accepté", () => {
+    const result = checkQuota(19, 0, 20, 5);
+    expect(result.allowed).toBe(true);
+  });
+});
+
+// ── 4. Dev harness contract ───────────────────────────────────────────────────
+// Réplique le contrat de réponse de openclaw-dev-harness pour vérification locale.
+
+interface DevHarnessHealthResponse {
+  status: "ok";
+  version: string;
+  dev_only: true;
+  warning: string;
+  tools: Record<string, string[]>;
+  capabilities: string[];
+  timestamp: string;
+}
+
+interface DevHarnessJobResponse {
+  job_id: string;
+  accepted: true;
+  dev_only: true;
+  warning: string;
+  estimated_completion_ms: number;
+  runtime: "DEV_ONLY_OPENCLAW_RUNTIME";
+  timestamp: string;
+}
+
+function buildDevHarnessHealthResponse(): DevHarnessHealthResponse {
+  return {
+    status: "ok",
+    version: "dev-harness-1.0.0",
+    dev_only: true,
+    warning: "DEV_ONLY_OPENCLAW_RUNTIME — ne pas utiliser en production",
+    tools: {
+      tutor_readonly: ["web_search", "knowledge_search", "ai_summarize"],
+      browser_lab: ["browser_navigate", "browser_screenshot", "browser_extract"],
+      scheduled_coach: ["ai_generate", "notification_send", "knowledge_search"],
+    },
+    capabilities: ["web_search_mock", "knowledge_search_mock", "ai_summarize_mock"],
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function buildDevHarnessJobResponse(jobId: string): DevHarnessJobResponse {
+  return {
+    job_id: jobId,
+    accepted: true,
+    dev_only: true,
+    warning: "DEV_ONLY_OPENCLAW_RUNTIME — simulation en cours, callback dans ~4s",
+    estimated_completion_ms: 4000,
+    runtime: "DEV_ONLY_OPENCLAW_RUNTIME",
+    timestamp: new Date().toISOString(),
+  };
+}
+
+describe("OpenClaw — Dev Harness Contract", () => {
+  it("réponse health contient dev_only: true", () => {
+    const resp = buildDevHarnessHealthResponse();
+    expect(resp.dev_only).toBe(true);
+  });
+
+  it("réponse health contient status: ok", () => {
+    const resp = buildDevHarnessHealthResponse();
+    expect(resp.status).toBe("ok");
+  });
+
+  it("réponse health contient un warning DEV_ONLY", () => {
+    const resp = buildDevHarnessHealthResponse();
+    expect(resp.warning).toMatch(/DEV_ONLY/);
+  });
+
+  it("réponse health contient les tool profiles émulés", () => {
+    const resp = buildDevHarnessHealthResponse();
+    expect(resp.tools).toHaveProperty("tutor_readonly");
+    expect(resp.tools.tutor_readonly).toContain("web_search");
+  });
+
+  it("réponse job accepte le job avec dev_only: true", () => {
+    const resp = buildDevHarnessJobResponse("test-job-id-123");
+    expect(resp.accepted).toBe(true);
+    expect(resp.dev_only).toBe(true);
+    expect(resp.job_id).toBe("test-job-id-123");
+  });
+
+  it("réponse job identifie le runtime comme DEV_ONLY_OPENCLAW_RUNTIME", () => {
+    const resp = buildDevHarnessJobResponse("test-job-id-456");
+    expect(resp.runtime).toBe("DEV_ONLY_OPENCLAW_RUNTIME");
+  });
+
+  it("réponse job ne se présente pas comme un runtime de production", () => {
+    const resp = buildDevHarnessJobResponse("test-job-id-789");
+    // Le warning doit clairement indiquer DEV_ONLY
+    expect(resp.warning).toMatch(/DEV_ONLY/);
+    // Le runtime name doit contenir DEV_ONLY
+    expect(resp.runtime).toMatch(/DEV_ONLY/);
+  });
+});
+
+// ── 5. Job status mapping ────────────────────────────────────────────────────
 const VALID_JOB_STATUSES = ["queued", "running", "succeeded", "failed", "cancelled"] as const;
 const VALID_RUNTIME_STATUSES = ["healthy", "degraded", "offline", "unknown"] as const;
 const VALID_RISK_LEVELS = ["low", "medium", "high"] as const;
@@ -68,7 +224,7 @@ const VALID_ARTIFACT_TYPES = ["text", "json", "screenshot", "pdf", "html", "log"
 const VALID_ENVIRONMENTS = ["dev", "staging", "prod"] as const;
 
 describe("OpenClaw — Schema Validation", () => {
-  it("job_statuses correspond au schéma DB attendu", () => {
+  it("job_statuses correspondent au schéma DB attendu", () => {
     const DB_STATUSES = ["queued", "running", "succeeded", "failed", "cancelled"];
     VALID_JOB_STATUSES.forEach(s => expect(DB_STATUSES).toContain(s));
   });
@@ -99,7 +255,7 @@ describe("OpenClaw — Schema Validation", () => {
   });
 });
 
-// ── 3. Create-job payload validation ────────────────────────────────────────
+// ── 6. Create-job payload validation ────────────────────────────────────────
 function validateCreateJobPayload(raw: unknown): string | null {
   if (typeof raw !== "object" || raw === null) return "Body must be an object";
   const b = raw as Record<string, unknown>;
@@ -141,8 +297,7 @@ describe("OpenClaw — Payload Validation", () => {
   });
 });
 
-// ── 4. Org-scope authorization logic ────────────────────────────────────────
-// Réplique la logique de guard dans dispatch-job et cron-manager côté serveur.
+// ── 7. Org-scope authorization logic ────────────────────────────────────────
 interface CallerContext {
   userId: string;
   orgId: string | null;
@@ -222,12 +377,11 @@ describe("OpenClaw — Org-Scope Authorization", () => {
   });
 });
 
-// ── 5. Security: aucun secret dans le code client ────────────────────────────
+// ── 8. Security: aucun secret dans le code client ────────────────────────────
 /**
  * VITE_ vars whitelisted as safe public keys:
  * - VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_PROJECT_ID → Supabase anon config
  * - VITE_SENTRY_DSN → Sentry DSN is designed to be public (client-side error reporting)
- *   ref: https://docs.sentry.io/concepts/key-terms/dsn-explainer/ — DSNs are not secret
  *
  * NEVER whitelisted: OPENCLAW_API_TOKEN, SERVICE_ROLE, WEBHOOK_SECRET, CRON_SECRET
  */
@@ -235,13 +389,11 @@ const SAFE_PUBLIC_VITE_KEYS = new Set([
   "VITE_SUPABASE_URL",
   "VITE_SUPABASE_PUBLISHABLE_KEY",
   "VITE_SUPABASE_PROJECT_ID",
-  "VITE_SENTRY_DSN", // Sentry DSN is explicitly public by design
+  "VITE_SENTRY_DSN",
 ]);
 
 describe("OpenClaw — Sécurité Zéro Client", () => {
   it("OPENCLAW_API_TOKEN ne doit pas être présent en tant que variable VITE_", () => {
-    // Seules les variables VITE_* sont injectées dans le bundle client.
-    // OPENCLAW_API_TOKEN ne doit JAMAIS avoir le préfixe VITE_.
     const publicKeys = Object.keys(import.meta.env ?? {}).filter(k => k.startsWith("VITE_"));
     const hasBadSecret = publicKeys.some(k =>
       k.includes("OPENCLAW_API_TOKEN") ||
@@ -254,12 +406,6 @@ describe("OpenClaw — Sécurité Zéro Client", () => {
 
   it("les variables VITE_ publiques se limitent aux clés connues et sûres", () => {
     const publicKeys = Object.keys(import.meta.env ?? {}).filter(k => k.startsWith("VITE_"));
-    // Keys not in the safe list
-    const unexpected = publicKeys.filter(k => !SAFE_PUBLIC_VITE_KEYS.has(k));
-    if (unexpected.length > 0) {
-      console.warn("[SECURITY AUDIT] Variables VITE_ inattendues — à valider manuellement:", unexpected);
-    }
-    // Hard block: any VITE_ key with these dangerous suffixes (excluding known safe ones)
     const BLOCKED_TERMS = ["TOKEN", "SECRET", "PASSWORD", "PRIVATE"];
     const dangerous = publicKeys.filter(k =>
       !SAFE_PUBLIC_VITE_KEYS.has(k) &&
@@ -269,36 +415,19 @@ describe("OpenClaw — Sécurité Zéro Client", () => {
   });
 });
 
-// ── 6. Integration pending — test de bout en bout honnête ────────────────────
+// ── 9. Integration pending — test de bout en bout honnête ────────────────────
 /**
  * INTEGRATION_PENDING : Ces tests documentent le flux réel attendu,
  * mais ne s'exécutent PAS contre le runtime OpenClaw réel.
  * Ils sont tagués explicitement pour éviter toute confusion avec des tests réels.
- *
- * Pour les activer :
- * 1. Configurer OPENCLAW_API_TOKEN dans les secrets Supabase
- * 2. Enregistrer un runtime dans openclaw_runtimes avec status = 'healthy'
- * 3. Remplacer `it.skip` par `it` et fournir un token JWT valide
  */
 describe("OpenClaw — INTEGRATION_PENDING (flux e2e, non-exécuté sans runtime réel)", () => {
-  /**
-   * BLOC A: create-job → status queued
-   * Requiert: auth JWT valide, org_id valide, runtime_id enregistré
-   */
   it.skip("[INTEGRATION_PENDING] create-job retourne job_id et status=queued", async () => {
-    // Ce test nécessite:
-    // - Un utilisateur authentifié avec org_id
-    // - Un runtime_id valide dans openclaw_runtimes
-    // - OPENCLAW_API_TOKEN configuré côté serveur (jamais côté client)
     const RUNTIME_ID = "REPLACE_WITH_REAL_RUNTIME_ID";
     const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
-
     const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-create-job`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${AUTH_TOKEN}`,
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AUTH_TOKEN}` },
       body: JSON.stringify({
         runtime_id: RUNTIME_ID,
         job_type: "tutor_search",
@@ -313,52 +442,45 @@ describe("OpenClaw — INTEGRATION_PENDING (flux e2e, non-exécuté sans runtime
     expect(data.job_id).toBeDefined();
   });
 
-  /**
-   * BLOC B: dispatch-job → status running ou failed (si runtime absent)
-   * Requiert: job_id créé par BLOC A
-   */
   it.skip("[INTEGRATION_PENDING] dispatch-job marque le job running ou failed si runtime absent", async () => {
     const JOB_ID = "REPLACE_WITH_JOB_ID_FROM_BLOC_A";
     const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
-
     const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-dispatch-job`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${AUTH_TOKEN}`,
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AUTH_TOKEN}` },
       body: JSON.stringify({ job_id: JOB_ID }),
     });
     const data = await resp.json();
-    // Sans runtime réel: status=failed avec message explicite (pas d'invention de résultat)
-    // Avec runtime réel: status=running + openclaw_response présent
     expect([200, 503]).toContain(resp.status);
     if (resp.status === 503) {
       expect(data.message).toMatch(/OPENCLAW_API_TOKEN|runtime/i);
     }
   });
 
-  /**
-   * BLOC C: sync-job (webhook) → event persisté
-   * Requiert: job_id, signature HMAC valide ou JWT admin
-   */
   it.skip("[INTEGRATION_PENDING] sync-job persiste les callbacks sans inventer de résultat", async () => {
     const JOB_ID = "REPLACE_WITH_JOB_ID_FROM_BLOC_A";
     const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
-
     const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-sync-job`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${AUTH_TOKEN}`,
-      },
-      body: JSON.stringify({
-        job_id: JOB_ID,
-        event_type: "progress",
-        message: "Test callback contrôlé",
-      }),
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AUTH_TOKEN}` },
+      body: JSON.stringify({ job_id: JOB_ID, event_type: "progress", message: "Test callback contrôlé DEV_ONLY" }),
     });
     const data = await resp.json();
     expect(data.received).toBe(true);
+  });
+
+  it.skip("[INTEGRATION_PENDING] dev-harness healthcheck réel — requiert fonction déployée", async () => {
+    // Pour tester manuellement :
+    // GET https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness/v1/health
+    // Authorization: Bearer <USER_JWT>
+    // Réponse attendue: { status: "ok", dev_only: true, ... }
+    const AUTH_TOKEN = "REPLACE_WITH_VALID_JWT";
+    const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/openclaw-dev-harness/v1/health`, {
+      headers: { "Authorization": `Bearer ${AUTH_TOKEN}` },
+    });
+    const data = await resp.json();
+    expect(resp.status).toBe(200);
+    expect(data.status).toBe("ok");
+    expect(data.dev_only).toBe(true);
   });
 });
