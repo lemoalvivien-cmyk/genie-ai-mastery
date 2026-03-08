@@ -312,6 +312,9 @@ Deno.serve(async (req) => {
       isPro = false;
     }
 
+    // ── Rate limit (Free = 2/day, Pro = 500/day) ──────────────────────────────
+    await checkRateLimit(supabaseAdmin, userId, "chat-completion", isPro ? "pro" : "free", corsHeaders);
+
     const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
       supabaseAdmin
         .from("chat_messages")
