@@ -9,6 +9,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
 function AnimatedNumber({ value }: { value: number }) {
