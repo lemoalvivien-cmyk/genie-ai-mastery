@@ -268,7 +268,7 @@ export default function Chat() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
-  const [hasProgress] = useState(false); // TODO: fetch from progress table
+  // hasProgress is now derived from real kittContext data (replaced the hardcoded false)
   const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
   // ── Semantic adaptation engine ─────────────────────────────────────────────
