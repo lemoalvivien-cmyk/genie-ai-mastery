@@ -74,10 +74,9 @@ https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness
 |----------|--------|-------------|
 | `OPENCLAW_API_TOKEN` | ✅ Configuré (Lovable Cloud) | Appels dispatch-job → runtime réel |
 | `CRON_SECRET` | ✅ Configuré (Lovable Cloud) | Protection cron-manager |
-| `OPENCLAW_WEBHOOK_SECRET` | ⚠️ Optionnel | HMAC sur callbacks sync-job |
+| `OPENCLAW_WEBHOOK_SECRET` | ✅ **Requis pour le harness** | HMAC-SHA256 sur callbacks sync-job (X-OpenClaw-Signature) |
 | `OPENCLAW_TIMEOUT_MS` | ⚠️ Optionnel | Défaut : 30000ms |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-géré | Edge Functions |
-| `SUPABASE_ANON_KEY` | ✅ Auto-géré | Utilisé par le dev harness pour les callbacks |
 
 > `OPENCLAW_API_TOKEN` est consommé **exclusivement** dans les Edge Functions.  
 > Il n'est jamais exposé au bundle client (vérifié par les tests unitaires).
