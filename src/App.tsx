@@ -61,7 +61,7 @@ const Pricing           = lazy(() => import("./pages/Pricing"));
 const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const GuideList         = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail       = lazy(() => import("./pages/guides/GuideDetail"));
-const Legal             = lazy(() => import("./pages/Legal"));
+// Legal.tsx supprimé (Passe B) — LegalCenter.tsx est la source unique
 const LegalCenter       = lazy(() => import("./pages/legal/LegalCenter"));
 const NotFound          = lazy(() => import("./pages/NotFound"));
 
