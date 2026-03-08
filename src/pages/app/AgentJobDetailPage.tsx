@@ -278,7 +278,7 @@ export default function AgentJobDetailPage() {
           <TabsContent value="timeline" className="p-6">
             {isRunning && (
               <div className="mb-3 text-xs text-primary flex items-center gap-1.5">
-                <Loader2 className="w-3 h-3 animate-spin" /> Mise à jour automatique toutes les 2s…
+                <Loader2 className="w-3 h-3 animate-spin" /> Mise à jour automatique toutes les 3s…
               </div>
             )}
             <JobEventTimeline events={events} />
