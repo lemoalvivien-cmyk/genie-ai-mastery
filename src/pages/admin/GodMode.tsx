@@ -36,11 +36,11 @@ interface Stats {
   total_orgs: number; total_users: number; ai_cost_today: string;
 }
 
-// ── God API caller ───────────────────────────────────────────────
+// ── Admin API caller ─────────────────────────────────────────────
 async function godCall<T>(action: string, payload?: object): Promise<T> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error("Not authenticated");
-  const res = await supabase.functions.invoke("god-mode", {
+  const res = await supabase.functions.invoke("admin-operations", {
     body: { action, payload: payload ?? {} },
   });
   if (res.error) throw new Error(res.error.message);
