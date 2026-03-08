@@ -39,16 +39,12 @@ Deno.serve(async (req) => {
     return json({ error: "Unauthorized" }, 401, corsHeaders);
   }
 
-  // ── Rate limit ──────────────────────────────────────────────────────────
-  const rateCheck = checkRateLimit(userId);
-  if (!rateCheck.allowed) {
-    return new Response(
-      JSON.stringify({ error: "Too many requests", retry_after_seconds: rateCheck.retryAfter }),
-      {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rateCheck.retryAfter ?? 3600) },
-      },
-    );
+  // ── Rate limit (DB-backed, admin plan = 30/day) ───────────────────────
+  try {
+    await checkRateLimit(admin, userId, "admin-operations", "admin", corsHeaders);
+  } catch (e) {
+    if (e instanceof Response) return e;
+    throw e;
   }
 
   // ── Vérification rôle admin via user_roles (source de vérité RBAC) ─────
