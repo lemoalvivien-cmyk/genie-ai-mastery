@@ -91,21 +91,43 @@ export function useOpenClaw() {
   const [isCreatingJob, setIsCreatingJob] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
 
+  /**
+   * BLQ-4 : fetchRuntimes filtre sur l'org_id du profil pour empêcher
+   * toute fuite cross-tenant. Si l'utilisateur n'a pas d'org, liste vide.
+   */
   const fetchRuntimes = useCallback(async () => {
+    if (!user) return;
     setIsLoadingRuntimes(true);
     try {
-      const { data, error } = await supabase
+      // Récupérer l'org_id depuis le profil pour le filtre RLS
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("org_id")
+        .eq("id", user.id)
+        .single();
+
+      const orgId = profile?.org_id;
+
+      const query = supabase
         .from("openclaw_runtimes")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      setRuntimes((data ?? []) as OpenClawRuntime[]);
+
+      // Filtre org_id explicite en plus du RLS
+      if (orgId) {
+        const { data, error } = await query.eq("org_id", orgId);
+        if (error) throw error;
+        setRuntimes((data ?? []) as OpenClawRuntime[]);
+      } else {
+        // Pas d'org = pas de runtimes
+        setRuntimes([]);
+      }
     } catch (err) {
       toast({ title: "Erreur", description: String(err), variant: "destructive" });
     } finally {
       setIsLoadingRuntimes(false);
     }
-  }, [toast]);
+  }, [user, toast]);
 
   const fetchJobs = useCallback(async (limit = 50) => {
     if (!user) return;
