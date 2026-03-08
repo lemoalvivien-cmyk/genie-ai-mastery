@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireProPlan } from "../_shared/subscription.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -38,6 +39,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
     const userId = userData.user.id;
+
+    // ── Plan check: skill scoring is Pro-only ─────────────────────────────────
+    try {
+      await requireProPlan(supabaseService, userId, corsHeaders);
+    } catch (e) {
+      if (e instanceof Response) return e;
+      throw e;
+    }
 
     const { utterance, assistant_reply, skill_ids, module_id } = await req.json();
 

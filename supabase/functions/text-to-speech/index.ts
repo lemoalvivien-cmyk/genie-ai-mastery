@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireProPlan } from "../_shared/subscription.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -51,6 +52,14 @@ serve(async (req) => {
       });
     }
     const userId = userData.user.id;
+
+    // ── Plan check: TTS is Pro-only ───────────────────────────────────────────
+    try {
+      await requireProPlan(supabaseAdmin, userId, corsHeaders);
+    } catch (e) {
+      if (e instanceof Response) return e;
+      throw e;
+    }
 
     const { text, voice = "loongstella_v2", speed = 1.0 } = await req.json();
 

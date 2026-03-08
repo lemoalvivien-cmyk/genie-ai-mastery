@@ -12,6 +12,7 @@ import {
   logRequest,
   logEdgeError,
 } from "../_shared/shield.ts";
+import { requireProPlan } from "../_shared/subscription.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -324,29 +325,24 @@ serve(async (req) => {
       });
     }
 
-    // ── Subscription + profile check ─────────────────────────────────────────
-    const { data: profileData } = await supabaseAdmin
-      .from("profiles")
-      .select("org_id")
-      .eq("id", userId)
-      .single();
-
-    const orgId = profileData?.org_id ?? null;
-
-    let isPro = false;
-    if (orgId) {
-      const { data: orgData } = await supabaseAdmin
-        .from("organizations")
-        .select("plan, plan_source")
-        .eq("id", orgId)
-        .single();
-      isPro = orgData?.plan === "business" &&
-        (orgData?.plan_source === "stripe" || orgData?.plan_source === "access_code");
-    }
-
-    // ── can_execute quota check + budget check (parallel) ────────────────────
+    // ── Subscription plan check + daily free-tier limit (backend enforcement) ──
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
+
+    // Resolve plan server-side (fail-open on DB error)
+    let isPro = false;
+    let orgId: string | null = null;
+    try {
+      const planResult = await requireProPlan(supabaseAdmin, userId, corsHeaders);
+      isPro = planResult.isPro;
+      orgId = planResult.orgId;
+    } catch (e) {
+      // requireProPlan throws a Response on plan failure — pass it through
+      if (e instanceof Response) return e;
+      // Unexpected error → fail-open
+      console.error("[chat-completion] plan check error (fail-open):", e);
+      isPro = false;
+    }
 
     const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
       supabaseAdmin
@@ -355,10 +351,7 @@ serve(async (req) => {
         .eq("user_id", userId)
         .eq("role", "user")
         .gte("created_at", todayStart.toISOString()),
-      supabaseAdmin.rpc("check_budget", {
-        _user_id: userId,
-        _org_id: orgId,
-      }),
+      supabaseAdmin.rpc("check_budget", { _user_id: userId, _org_id: orgId }),
       supabaseAdmin.rpc("can_execute", {
         _user_id: userId,
         _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
@@ -368,7 +361,8 @@ serve(async (req) => {
 
     const todayCount = rateLimitResult.count ?? 0;
     const quota = quotaResult.data as { allowed: boolean; current_usage: number; limit: number; remaining: number } | null;
-    // If quota check says not allowed and limit != -1, block
+
+    // Monthly token quota check
     if (quota && !quota.allowed && quota.limit !== -1) {
       return new Response(JSON.stringify({
         error: `Quota IA mensuel atteint (${quota.current_usage.toLocaleString()} / ${quota.limit.toLocaleString()} tokens). Votre quota se renouvelle le 1er du mois.`,
@@ -389,7 +383,7 @@ serve(async (req) => {
     const userOverBudget = budget?.user_over_budget ?? false;
     const orgOverBudget = budget?.org_over_budget ?? false;
 
-    // Hard block: user over their personal budget (non-org free user: 2 msg/day)
+    // Hard block: daily limit enforced server-side (FREE = 2, PRO = 500)
     const dailyLimit = isPro ? 500 : 2;
     if (todayCount >= dailyLimit || (userOverBudget && !orgId)) {
       if (isPro) {
@@ -397,12 +391,12 @@ serve(async (req) => {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // Free user — return a KITT-style upsell message as a valid assistant response
       return new Response(JSON.stringify({
         content: "J'étais en train de préparer une réponse détaillée pour vous... mais votre plan gratuit est limité à 2 échanges par jour. Avec le plan Pro, je peux aller beaucoup plus loin. 🚀",
         quota_exceeded: true,
         budget_exceeded: true,
         model_used: "genie-upsell",
+        upgrade_url: "https://genie-ia.app/pricing",
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
