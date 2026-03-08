@@ -198,6 +198,10 @@ const App = () => (
                     element={<ProtectedRoute requirePro><AgentJobsPage /></ProtectedRoute>}
                   />
                   <Route
+                    path="agent-jobs/new"
+                    element={<ProtectedRoute requirePro><AgentJobCreatePage /></ProtectedRoute>}
+                  />
+                  <Route
                     path="agent-jobs/:id"
                     element={<ProtectedRoute requirePro><AgentJobDetailPage /></ProtectedRoute>}
                   />
