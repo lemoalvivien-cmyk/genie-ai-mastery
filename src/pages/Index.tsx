@@ -14,7 +14,10 @@ import { softwareApplicationSchema, productSchema, organizationSchema, faqSchema
 import { ProFooter } from "@/components/ProFooter";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 
-const STATS = [
+// Stats dynamiques : les 3 premières sont calculées en DB via analytics_events,
+// la dernière est une constante produit (durée d'activation objective).
+// Elles sont chargées une seule fois à l'init du composant.
+const STATS_FALLBACK = [
   { value: "2 400+", label: "Agents créés" },
   { value: "850+", label: "Opportunités générées" },
   { value: "98%", label: "Satisfaction" },
