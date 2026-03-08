@@ -231,10 +231,3 @@ Deno.serve(async (req) => {
     return json({ error: msg }, 500, corsHeaders);
   }
 });
-
-function json(data: unknown, status: number, corsHeaders: Record<string, string>) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
