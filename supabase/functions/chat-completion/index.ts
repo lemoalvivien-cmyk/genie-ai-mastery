@@ -634,7 +634,7 @@ Simplifie davantage tes explications. Utilise au moins 1 analogie du quotidien.
 
 
     // KITT IA stage 1: short structured JSON — cheap model, small budget
-    const jarvisShortPrompt = `${baseSystemPrompt}
+    const jarvisShortPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT IA — RÉPONSE STRUCTURÉE :
 Tu es ultra rassurant, patient et bienveillant. Humour léger bienvenu (1 touche par réponse).
