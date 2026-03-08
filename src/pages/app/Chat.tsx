@@ -248,6 +248,9 @@ export default function Chat() {
   const contextSkillIds = (searchParams.get("skill_ids") ?? "").split(",").filter(Boolean);
   const contextModuleId = searchParams.get("module_id") ?? undefined;
   const [ecoMode, setEcoMode] = useState(false);
+  const [kittMode, setKittMode] = useState<KITTMode>("coaching");
+  const { data: kittContext } = useKITTContext();
+  const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
 
   // Dynamic welcome message
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
