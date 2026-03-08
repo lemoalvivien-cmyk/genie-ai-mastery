@@ -144,8 +144,8 @@ export default function AgentJobDetailPage() {
       {/* DEV ONLY warning */}
       {isDevHarness && (
         <div className="flex-shrink-0 px-6 py-2 border-b border-border flex items-center gap-2 bg-card">
-          <AlertCircle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
-          <p className="text-xs text-yellow-400">
+          <AlertCircle className="w-3.5 h-3.5 text-warning flex-shrink-0" />
+          <p className="text-xs text-warning">
             DEV_ONLY_OPENCLAW_RUNTIME — Les résultats sont simulés. Brancher un runtime réel pour des exécutions authentiques.
           </p>
         </div>
