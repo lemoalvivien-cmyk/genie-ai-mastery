@@ -4,7 +4,7 @@
  * Sécurité :
  *  - getAuthenticatedUser() via _shared/auth.ts → getUser() réseau (source de vérité)
  *  - requireAdmin() via _shared/auth.ts → vérifie user_roles (anti-escalade de privilèges)
- *  - Rate limit : 30 appels / heure / userId (in-memory)
+ *  - Rate limit : _shared/rate-limit.ts (admin = 30 appels/jour, DB-backed)
  *  - Audit log systématique sur chaque action réussie
  *  - CORS dynamique via _shared/cors.ts
  */
@@ -18,29 +18,6 @@ import {
   jsonResponse as json,
 } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-
-// ── Rate limiting (in-memory, par userId) ──────────────────────────────────
-interface RateBucket {
-  count: number;
-  windowStart: number;
-}
-const rateBuckets = new Map<string, RateBucket>();
-const RATE_LIMIT = { max: 30, windowMs: 3_600_000 }; // 30 appels/heure/userId
-
-function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
-  const now = Date.now();
-  const bucket = rateBuckets.get(userId);
-  if (!bucket || now - bucket.windowStart > RATE_LIMIT.windowMs) {
-    rateBuckets.set(userId, { count: 1, windowStart: now });
-    return { allowed: true };
-  }
-  if (bucket.count >= RATE_LIMIT.max) {
-    const retryAfter = Math.ceil((RATE_LIMIT.windowMs - (now - bucket.windowStart)) / 1000);
-    return { allowed: false, retryAfter };
-  }
-  bucket.count++;
-  return { allowed: true };
-}
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
