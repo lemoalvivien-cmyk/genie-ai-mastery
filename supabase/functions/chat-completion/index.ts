@@ -659,7 +659,7 @@ CRITIQUE : Jamais de secrets, mots de passe, clés API dans les réponses.
 CRITIQUE : Le JSON doit être valide. Pas de commentaires dans le JSON.`;
 
     // KITT IA stage 2: deep dive — only triggered by "Explique plus"
-    const jarvisLongPrompt = `${baseSystemPrompt}
+    const jarvisLongPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT IA — APPROFONDISSEMENT (ÉTAPE 2) :
 L'utilisateur veut en savoir plus. Donne une explication plus riche MAIS garde le ton rassurant.
