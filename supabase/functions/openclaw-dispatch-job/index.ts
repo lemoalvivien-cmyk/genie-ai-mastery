@@ -1,8 +1,13 @@
 /**
  * openclaw-dispatch-job
- * Prend un job queued, valide les permissions, construit la requête vers
- * OpenClaw, envoie la mission, marque le job running.
- * AUCUN secret OpenClaw n'est exposé côté client.
+ * Prend un job queued, valide les permissions SCOPED PAR ORG, construit la requête
+ * vers OpenClaw, envoie la mission, marque le job running.
+ *
+ * SÉCURITÉ :
+ * - owner peut dispatcher son propre job
+ * - manager ne peut dispatcher QUE les jobs de SON organisation (pas cross-org)
+ * - admin peut dispatcher n'importe quel job
+ * - OPENCLAW_API_TOKEN jamais exposé côté client
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -18,7 +23,6 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const OPENCLAW_API_TOKEN = Deno.env.get("OPENCLAW_API_TOKEN") ?? "";
 const OPENCLAW_TIMEOUT_MS = parseInt(Deno.env.get("OPENCLAW_TIMEOUT_MS") ?? "30000");
 
-// Tool profile → allowed tools mapping
 const TOOL_PROFILE_TOOLS: Record<string, string[]> = {
   tutor_readonly: ["web_search", "web_fetch", "knowledge_search", "ai_summarize"],
   browser_lab: ["browser_navigate", "browser_screenshot", "browser_extract", "browser_pdf"],
@@ -30,8 +34,15 @@ serve(async (req) => {
 
   const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-  // ── Auth ────────────────────────────────────────────────────
+  // ── Auth — JWT strict ────────────────────────────────────────
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
+  if (!token) {
+    return new Response(JSON.stringify({ error: "Unauthorized: no token provided" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const { data: { user }, error: authErr } = await sb.auth.getUser(token);
   if (authErr || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -67,15 +78,32 @@ serve(async (req) => {
     });
   }
 
-  // ── Permission check: owner, manager, or admin ────────────
-  const isOwner = job.user_id === user.id;
+  // ── Load caller profile to get their org_id ───────────────
+  const { data: callerProfile } = await sb
+    .from("profiles")
+    .select("org_id")
+    .eq("id", user.id)
+    .single();
+
+  const callerOrgId = callerProfile?.org_id ?? null;
+
+  // ── Roles ──────────────────────────────────────────────────
   const { data: rolesData } = await sb.rpc("get_my_roles");
   const roles: string[] = (rolesData ?? []).map((r: { role: string }) => r.role);
   const isAdmin = roles.includes("admin");
-  const isManager = roles.includes("manager") || roles.includes("admin");
+  const isManager = roles.includes("manager");
+  const isOwner = job.user_id === user.id;
 
-  if (!isOwner && !isAdmin && !isManager) {
-    return new Response(JSON.stringify({ error: "Forbidden: insufficient permissions" }), {
+  // ── PERMISSION CHECK — org-scoped ──────────────────────────
+  // - Owner: can dispatch their own job
+  // - Admin: can dispatch any job
+  // - Manager: can ONLY dispatch jobs in THEIR organization (no cross-org)
+  const isManagerOfJobOrg = isManager && callerOrgId !== null && callerOrgId === job.org_id;
+
+  if (!isOwner && !isAdmin && !isManagerOfJobOrg) {
+    return new Response(JSON.stringify({
+      error: "Forbidden: you can only dispatch jobs from your own organization",
+    }), {
       status: 403,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -107,7 +135,7 @@ serve(async (req) => {
     });
   }
 
-  // ── Runtime health check ───────────────────────────────────
+  // ── Runtime offline check ──────────────────────────────────
   if (runtime.status === "offline") {
     await sb.from("openclaw_job_events").insert({
       job_id,
@@ -121,7 +149,6 @@ serve(async (req) => {
     });
   }
 
-  // ── Build OpenClaw payload ─────────────────────────────────
   const allowedTools = TOOL_PROFILE_TOOLS[runtime.tool_profile] ?? [];
   const openclawPayload = {
     job_id: job.id,
@@ -153,17 +180,15 @@ serve(async (req) => {
       runtime_id: runtime.id,
       tool_profile: runtime.tool_profile,
       allowed_tools: allowedTools,
-      base_url: runtime.base_url,
+      dispatched_by: user.id,
     },
   });
 
-  // ── Attempt dispatch to OpenClaw ───────────────────────────
-  // If OPENCLAW_API_TOKEN is not configured → job is marked as "waiting for runtime"
-  // This is HONEST behaviour: we don't fake a result.
+  // ── OPENCLAW_API_TOKEN requis — pas de dispatch silencieux ──
   if (!OPENCLAW_API_TOKEN) {
     await sb.from("openclaw_jobs").update({
       status: "failed",
-      error_message: "OpenClaw runtime not configured: OPENCLAW_API_TOKEN missing. Configure the secret to enable real dispatching.",
+      error_message: "OpenClaw runtime not configured: OPENCLAW_API_TOKEN missing.",
       completed_at: new Date().toISOString(),
     }).eq("id", job_id);
 
@@ -229,7 +254,6 @@ serve(async (req) => {
       });
     }
 
-    // Success: OpenClaw accepted the job
     await sb.from("openclaw_job_events").insert({
       job_id,
       event_type: "dispatch_accepted",
