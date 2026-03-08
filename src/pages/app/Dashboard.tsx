@@ -358,7 +358,7 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
         </main>
       </div>
