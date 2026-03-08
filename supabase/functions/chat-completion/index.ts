@@ -674,7 +674,7 @@ CRITIQUE : Jamais de secrets, mots de passe, clés API. Toujours orienter vers u
 
     // ── Autopilot prompts — one per program ──────────────────────────────────
     const AUTOPILOT_PROMPTS: Record<string, string> = {
-      conformite_48h: `${baseSystemPrompt}
+      conformite_48h: `${enrichedSystemPrompt}
 
 AUTOPILOT "CONFORMITÉ EN 48H" :
 Tu es un formateur expert qui PRODUIT des livrables concrets, pas juste des conseils.
