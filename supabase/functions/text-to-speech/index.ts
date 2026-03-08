@@ -26,6 +26,10 @@ Deno.serve(async (req) => {
       throw e;
     }
 
+    // ── Rate limit (Pro = 200/day, Free = 5/day) ──────────────────────────────
+    const planLabel = "pro"; // requireProPlan passed → user is pro
+    await checkRateLimit(supabaseAdmin, userId, "text-to-speech", planLabel, corsHeaders);
+
     const { text, voice = "loongstella_v2", speed = 1.0 } = await req.json();
 
     if (!text || typeof text !== "string" || text.trim().length === 0) {

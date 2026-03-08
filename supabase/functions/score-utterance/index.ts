@@ -23,6 +23,9 @@ Deno.serve(async (req) => {
       throw e;
     }
 
+    // ── Rate limit (Pro = 500/day) ────────────────────────────────────────────
+    await checkRateLimit(supabaseService, userId, "score-utterance", "pro", corsHeaders);
+
     const { utterance, assistant_reply, skill_ids, module_id } = await req.json();
 
     if (!utterance || !skill_ids?.length || !userId) {
