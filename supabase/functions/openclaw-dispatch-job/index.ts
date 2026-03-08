@@ -184,8 +184,11 @@ serve(async (req) => {
     },
   });
 
-  // ── OPENCLAW_API_TOKEN requis — pas de dispatch silencieux ──
-  if (!OPENCLAW_API_TOKEN) {
+  // ── OPENCLAW_API_TOKEN requis sauf pour le DEV harness ────────
+  // Le DEV_ONLY_OPENCLAW_RUNTIME est une Edge Function interne — pas besoin de token externe
+  const isDevHarness = runtime.base_url.includes("openclaw-dev-harness");
+
+  if (!OPENCLAW_API_TOKEN && !isDevHarness) {
     await sb.from("openclaw_jobs").update({
       status: "failed",
       error_message: "OpenClaw runtime not configured: OPENCLAW_API_TOKEN missing.",
@@ -210,7 +213,7 @@ serve(async (req) => {
     });
   }
 
-  // ── Real dispatch ──────────────────────────────────────────
+  // ── Real dispatch (ou dev harness) ────────────────────────────
   try {
     const dispatchUrl = `${runtime.base_url}/v1/jobs`;
     const dispatchResp = await fetch(dispatchUrl, {
