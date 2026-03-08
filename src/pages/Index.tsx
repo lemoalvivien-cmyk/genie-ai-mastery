@@ -3,7 +3,7 @@
  * Tunnel de vente : apprendre → agir → prouver → piloter
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   ArrowRight,
