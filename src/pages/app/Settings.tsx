@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
 import { useQueryClient } from "@tanstack/react-query";
 import ReferralSection from "@/components/referral/ReferralSection";
@@ -379,8 +380,90 @@ export default function Settings() {
               </Link>
             </div>
           </div>
+
+          {/* ── Zone danger : suppression de compte ── */}
+          <DangerZone userId={session?.user?.id} />
+
         </main>
       </div>
     </>
+  );
+}
+
+/** RGPD-compliant : double confirmation avant suppression définitive du compte */
+function DangerZone({ userId }: { userId: string | undefined }) {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!userId || confirm !== "SUPPRIMER") return;
+    setLoading(true);
+    try {
+      // Appel à l'Edge Function sécurisée pour la suppression côté serveur
+      const { error } = await supabase.functions.invoke("delete-account", {
+        body: { confirmation: confirm },
+      });
+      if (error) throw error;
+      toast({ title: "Compte supprimé", description: "Toutes vos données ont été effacées." });
+      await signOut();
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le compte. Contactez le support.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 mt-6">
+      <h2 className="text-base font-semibold text-destructive mb-1">Zone dangereuse</h2>
+      <p className="text-xs text-muted-foreground mb-4">
+        La suppression de votre compte est irréversible. Toutes vos données seront effacées conformément à notre politique RGPD.
+      </p>
+      {!open ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="text-sm text-destructive border border-destructive/30 px-4 py-2 rounded-xl hover:bg-destructive/10 transition-colors"
+        >
+          Supprimer mon compte
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-destructive">
+            Tapez <strong>SUPPRIMER</strong> pour confirmer :
+          </p>
+          <input
+            type="text"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="SUPPRIMER"
+            className="w-full px-3 py-2 rounded-xl border border-destructive/40 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
+            autoCapitalize="characters"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setOpen(false); setConfirm(""); }}
+              className="flex-1 py-2 rounded-xl border border-border text-muted-foreground text-sm hover:text-foreground transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={confirm !== "SUPPRIMER" || loading}
+              className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold hover:bg-destructive/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirmer la suppression"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

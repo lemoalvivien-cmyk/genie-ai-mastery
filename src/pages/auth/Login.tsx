@@ -141,12 +141,18 @@ export default function Login() {
   const sendMagicLink = async () => {
     if (!emailValue) return;
     setMagicLoading(true);
+    // Redirige vers /onboarding — le flux Auth vérifie onboarding_completed
+    // et redirige ensuite vers /app/dashboard si déjà complété.
     const { error } = await supabase.auth.signInWithOtp({
       email: DOMPurify.sanitize(emailValue.trim().toLowerCase()),
-      options: { emailRedirectTo: `${window.location.origin}/app/dashboard` },
+      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
     });
     setMagicLoading(false);
-    if (!error) setMagicSent(true);
+    if (error) {
+      setSubmitError("Impossible d'envoyer le lien. Réessayez.");
+    } else {
+      setMagicSent(true);
+    }
   };
 
   const sendReset = async () => {

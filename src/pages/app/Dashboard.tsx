@@ -9,6 +9,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
 function AnimatedNumber({ value }: { value: number }) {
@@ -81,9 +82,8 @@ export default function Dashboard() {
   const totalXP = streak?.total_xp ?? 0;
   const currentStreak = streak?.current_streak ?? 0;
   const missionDone = !!todayLog;
-
-  // Weekly progress: 7 missions possible, count days with log in last 7
-  const weeklyDone = 0; // will use last7Days if needed — simplified here
+  // isLoading : vrai tant que streak OU stats ne sont pas encore chargés
+  const isDashboardLoading = streakLoading || !stats;
 
   const metrics = [
     { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
@@ -236,7 +236,7 @@ export default function Dashboard() {
                     <span className="text-xs text-muted-foreground">{m.label}</span>
                   </div>
                   <div className={`text-3xl font-black ${m.color}`}>
-                    {streakLoading ? "—" : <AnimatedNumber value={m.value} />}
+                    {isDashboardLoading ? <Skeleton className="h-8 w-16" /> : <AnimatedNumber value={m.value} />}
                   </div>
                 </div>
               );
@@ -313,7 +313,14 @@ export default function Dashboard() {
           )}
 
           {/* ── 6. Derniers modules ── */}
-          {(stats?.recentProgress?.length ?? 0) > 0 && (
+          {isDashboardLoading ? (
+            <div className="animate-slide-up space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <div className="grid grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+              </div>
+            </div>
+          ) : (stats?.recentProgress?.length ?? 0) > 0 ? (
             <div className="animate-slide-up">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-4 h-4 text-muted-foreground" />
@@ -351,7 +358,7 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
         </main>
       </div>
