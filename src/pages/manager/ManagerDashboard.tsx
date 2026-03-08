@@ -946,9 +946,19 @@ export default function ManagerDashboard() {
 
             {/* ── Attestations tab ── */}
             <TabsContent value="attestations" className="space-y-4 mt-4">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap gap-2">
                 <h2 className="text-lg font-semibold">Attestations de l'organisation</h2>
-                <span className="text-sm text-muted-foreground">{attestations.length} au total</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{attestations.length} au total</span>
+                  <Button
+                    size="sm"
+                    onClick={exportComplianceDossier}
+                    disabled={exportingDossier}
+                    className="gap-1.5 bg-primary text-primary-foreground hover:opacity-90"
+                  >
+                    {exportingDossier ? <><span className="animate-spin">⏳</span> Génération…</> : <><FileText className="w-4 h-4" /> Exporter le Dossier Conformité</>}
+                  </Button>
+                </div>
               </div>
               <div className="rounded-xl border border-border/50 overflow-hidden">
                 <table className="w-full text-sm">
