@@ -172,23 +172,23 @@ const STEPS = [
 const OBJECTIONS = [
   {
     q: "C'est quoi la différence avec une formation en ligne classique ?",
-    a: "Une formation classique vous donne de la théorie. GENIE IA vous met en situation : missions du jour, labs live, copilote en temps réel. Vous agissez, pas juste vous écoutez.",
+    a: "Une formation classique vous donne de la théorie. GENIE IA vous met en situation : missions du jour, labs pratiques, copilote en temps réel. Vous agissez, pas juste vous écoutez.",
   },
   {
     q: "Je suis déjà à l'aise avec ChatGPT. C'est pour moi ?",
-    a: "ChatGPT est un outil. GENIE IA vous apprend à le maîtriser professionnellement, à l'intégrer dans vos processus, à sécuriser son usage et à en prouver la valeur à votre employeur ou équipe.",
+    a: "ChatGPT est un outil généraliste. GENIE IA vous apprend à le maîtriser dans un cadre professionnel, à sécuriser votre usage IA et à en produire une preuve documentée, utile auprès de votre équipe ou employeur.",
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Elles sont vérifiables via QR code public. Chaque attestation est horodatée, signée cryptographiquement et conforme au cadre AI Act 2026 (article 4 — formation des utilisateurs). Décision finale : à votre employeur.",
+    a: "Elles sont vérifiables via QR code public, signées cryptographiquement et horodatées. Ce sont des preuves internes de compétences — pas des certifications reconnues par des organismes externes. Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte de conformité interne.",
   },
   {
-    q: "Et si l'équipe n'utilise pas la plateforme ?",
-    a: "Le système autopilot détecte les retardataires et envoie des relances automatiques. Le manager reçoit un rapport mensuel PDF sans rien faire. Le taux de complétion se maintient sans micro-management.",
+    q: "Et si mon équipe n'utilise pas la plateforme ?",
+    a: "Le système détecte les retardataires et envoie des relances automatiques. Le manager reçoit un rapport mensuel sans intervention. Moins de micro-management, plus de complétion.",
   },
   {
     q: "C'est combien exactement ?",
-    a: "0€ pour commencer — compte gratuit, modules de base inclus. L'offre Pro démarre à 35€/mois (tarif de lancement), par organisation avec 25 sièges inclus. Résiliation en 2 clics, remboursement 30 jours.",
+    a: "0€ pour commencer — compte gratuit, modules de base inclus. L'offre Pro est à 59€/mois par organisation (tarif de lancement disponible), 25 sièges inclus. Résiliation en 2 clics, remboursement 30 jours.",
   },
 ];
 
