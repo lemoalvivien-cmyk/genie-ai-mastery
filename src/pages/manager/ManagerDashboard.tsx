@@ -276,6 +276,45 @@ export default function ManagerDashboard() {
     else { setSortField(field); setSortDir("asc"); }
   };
 
+  // ─── Compliance dossier export ───────────────────────────────────────────
+
+  const exportComplianceDossier = async () => {
+    if (!org || exportingDossier) return;
+    setExportingDossier(true);
+    toast({ title: "Génération en cours…", description: "Le dossier peut prendre 15–30 secondes selon la taille de l'équipe." });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Non authentifié");
+
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-compliance-dossier`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ org_id: org.id }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Erreur inconnue" }));
+        throw new Error(err.error ?? `HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const dateStr = new Date().toISOString().split("T")[0];
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `dossier-conformite-${dateStr}.zip`;
+      a.click();
+      URL.revokeObjectURL(downloadUrl);
+      logEvent("compliance_dossier_exported", { details: { org_id: org.id } });
+      toast({ title: "✅ Dossier exporté !", description: "Le fichier ZIP est dans vos téléchargements." });
+    } catch (e) {
+      toast({ title: "Erreur d'export", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setExportingDossier(false);
+    }
+  };
+
   // ─── CSV export ──────────────────────────────────────────────────────────
 
   const exportCSV = () => {
