@@ -40,6 +40,14 @@ serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // ── Plan check: skill scoring is Pro-only ─────────────────────────────────
+    try {
+      await requireProPlan(supabaseService, userId, corsHeaders);
+    } catch (e) {
+      if (e instanceof Response) return e;
+      throw e;
+    }
+
     const { utterance, assistant_reply, skill_ids, module_id } = await req.json();
 
     if (!utterance || !skill_ids?.length || !userId) {

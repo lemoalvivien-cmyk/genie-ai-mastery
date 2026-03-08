@@ -325,51 +325,53 @@ serve(async (req) => {
       });
     }
 
-    // ── Subscription + profile check ─────────────────────────────────────────
-    const { data: profileData } = await supabaseAdmin
-      .from("profiles")
-      .select("org_id")
-      .eq("id", userId)
-      .single();
-
-    const orgId = profileData?.org_id ?? null;
-
-    let isPro = false;
-    if (orgId) {
-      const { data: orgData } = await supabaseAdmin
-        .from("organizations")
-        .select("plan, plan_source")
-        .eq("id", orgId)
-        .single();
-      isPro = orgData?.plan === "business" &&
-        (orgData?.plan_source === "stripe" || orgData?.plan_source === "access_code");
-    }
-
-    // ── can_execute quota check + budget check (parallel) ────────────────────
+    // ── Subscription plan check + daily free-tier limit (backend enforcement) ──
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const [rateLimitResult, budgetResult, quotaResult] = await Promise.all([
+    const [rateLimitResult, budgetResult, quotaResult, planData] = await Promise.all([
       supabaseAdmin
         .from("chat_messages")
         .select("*", { count: "exact", head: true })
         .eq("user_id", userId)
         .eq("role", "user")
         .gte("created_at", todayStart.toISOString()),
-      supabaseAdmin.rpc("check_budget", {
-        _user_id: userId,
-        _org_id: orgId,
-      }),
+      supabaseAdmin.rpc("check_budget", { _user_id: userId, _org_id: null }),
       supabaseAdmin.rpc("can_execute", {
         _user_id: userId,
-        _org_id: orgId ?? "00000000-0000-0000-0000-000000000000",
+        _org_id: "00000000-0000-0000-0000-000000000000",
         _kind: "ai_tokens_out",
+      }),
+      // Resolve plan using shared subscription helper (fail-open)
+      (async () => {
+        const { checkFreeUserDailyLimit: _check, ...mod } = await import("../_shared/subscription.ts");
+        return mod;
+      })().then(async (mod) => {
+        const { data: pRes } = await supabaseAdmin
+          .from("profiles").select("org_id, role").eq("id", userId).single();
+        const orgId = pRes?.org_id ?? null;
+        const { data: roleRes } = await supabaseAdmin
+          .from("user_roles").select("role").eq("user_id", userId).in("role", ["manager", "admin"]);
+        const isManager = (roleRes ?? []).some((r: { role: string }) => ["manager", "admin"].includes(r.role));
+        let isPro = isManager;
+        if (!isPro && orgId) {
+          const { data: org } = await supabaseAdmin
+            .from("organizations").select("plan, plan_source, is_read_only").eq("id", orgId).single();
+          if (org && !org.is_read_only) {
+            const proPlansList = ["pro", "business", "enterprise", "partner", "launch"];
+            isPro = proPlansList.includes(org.plan ?? "") &&
+              ["stripe", "access_code", "manual"].includes(org.plan_source ?? "");
+          }
+        }
+        return { isPro, orgId, isManager };
       }),
     ]);
 
+    const { isPro, orgId } = planData;
     const todayCount = rateLimitResult.count ?? 0;
     const quota = quotaResult.data as { allowed: boolean; current_usage: number; limit: number; remaining: number } | null;
-    // If quota check says not allowed and limit != -1, block
+
+    // Monthly token quota check
     if (quota && !quota.allowed && quota.limit !== -1) {
       return new Response(JSON.stringify({
         error: `Quota IA mensuel atteint (${quota.current_usage.toLocaleString()} / ${quota.limit.toLocaleString()} tokens). Votre quota se renouvelle le 1er du mois.`,
@@ -390,7 +392,7 @@ serve(async (req) => {
     const userOverBudget = budget?.user_over_budget ?? false;
     const orgOverBudget = budget?.org_over_budget ?? false;
 
-    // Hard block: user over their personal budget (non-org free user: 2 msg/day)
+    // Hard block: daily limit enforced server-side (FREE = 2, PRO = 500)
     const dailyLimit = isPro ? 500 : 2;
     if (todayCount >= dailyLimit || (userOverBudget && !orgId)) {
       if (isPro) {
@@ -398,12 +400,12 @@ serve(async (req) => {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // Free user — return a KITT-style upsell message as a valid assistant response
       return new Response(JSON.stringify({
         content: "J'étais en train de préparer une réponse détaillée pour vous... mais votre plan gratuit est limité à 2 échanges par jour. Avec le plan Pro, je peux aller beaucoup plus loin. 🚀",
         quota_exceeded: true,
         budget_exceeded: true,
         model_used: "genie-upsell",
+        upgrade_url: "https://genie-ia.app/pricing",
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

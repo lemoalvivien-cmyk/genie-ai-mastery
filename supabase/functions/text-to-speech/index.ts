@@ -53,6 +53,14 @@ serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // ── Plan check: TTS is Pro-only ───────────────────────────────────────────
+    try {
+      await requireProPlan(supabaseAdmin, userId, corsHeaders);
+    } catch (e) {
+      if (e instanceof Response) return e;
+      throw e;
+    }
+
     const { text, voice = "loongstella_v2", speed = 1.0 } = await req.json();
 
     if (!text || typeof text !== "string" || text.trim().length === 0) {
