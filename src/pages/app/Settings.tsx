@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import AccessCodeActivator from "@/components/chat/AccessCodeActivator";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +29,7 @@ const MODE_OPTIONS = [
 export default function Settings() {
   const { profile, session, refetchProfile } = useAuth();
   const { data: sub, isLoading } = useSubscription();
+  const { toast } = useToast();
   const [portalLoading, setPortalLoading] = useState(false);
   const [seatsLoading, setSeatsLoading] = useState(false);
   const [pendingSeats, setPendingSeats] = useState<number | null>(null);
@@ -251,7 +251,7 @@ export default function Settings() {
                       <CheckCircle2 className="w-3 h-3" /> Essai gratuit en cours
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(142_71%_45%/0.1)] border border-[hsl(142_71%_45%/0.3)] text-[hsl(142_71%_45%)] text-xs font-semibold">
                       <CheckCircle2 className="w-3 h-3" /> GENIE Pro ✓
                     </span>
                   )}
