@@ -3349,6 +3349,36 @@ export type Database = {
           },
         ]
       }
+      proofs: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          pdf_url: string | null
+          score: number | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          pdf_url?: string | null
+          score?: number | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          pdf_url?: string | null
+          score?: number | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quizzes: {
         Row: {
           created_at: string | null

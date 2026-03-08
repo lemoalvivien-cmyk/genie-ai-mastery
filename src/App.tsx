@@ -36,6 +36,8 @@ const Settings       = lazy(() => import("./pages/app/Settings"));
 const Today          = lazy(() => import("./pages/app/Today"));
 const Jarvis         = lazy(() => import("./pages/app/Jarvis"));
 const PhishingLab    = lazy(() => import("./pages/app/labs/PhishingLab"));
+const CyberLab       = lazy(() => import("./pages/app/labs/CyberLab"));
+const PromptLab      = lazy(() => import("./pages/app/labs/PromptLab"));
 
 // ── Admin ────────────────────────────────────────────────────────
 const ControlRoom     = lazy(() => import("./pages/admin/ControlRoom"));
@@ -198,8 +200,16 @@ const App = () => (
                     element={<ProtectedRoute requirePro><Jarvis /></ProtectedRoute>}
                   />
                   <Route
-                   path="labs/phishing"
+                    path="labs/phishing"
                     element={<ProtectedRoute requirePro><PhishingLab /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="labs/cyber"
+                    element={<ProtectedRoute requirePro><CyberLab /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="labs/prompt"
+                    element={<ProtectedRoute requirePro><PromptLab /></ProtectedRoute>}
                   />
                   {/* ── OpenClaw Agent Jobs ─────────────────────────────── */}
                   <Route
