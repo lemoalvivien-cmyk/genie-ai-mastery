@@ -12,7 +12,7 @@ import {
   logRequest,
   logEdgeError,
 } from "../_shared/shield.ts";
-import { checkFreeUserDailyLimit } from "../_shared/subscription.ts";
+import { requireProPlan } from "../_shared/subscription.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
