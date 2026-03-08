@@ -395,20 +395,26 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Auth check
-    const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    // Auth check — upgrade to getUser() (server-side verification)
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false } });
     const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authErr } = await anonClient.auth.getClaims(token);
-    if (authErr || !authData?.claims) {
+    const { data: authData, error: authErr } = await supabaseAdmin.auth.getUser(token);
+    if (authErr || !authData?.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const userId = authData.claims.sub as string;
+    const userId = authData.user.id;
 
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    // ── Plan check: PDF generation is Pro-only ────────────────────────────────
+    try {
+      await requireProPlan(supabaseAdmin, userId, corsHeaders);
+    } catch (e) {
+      if (e instanceof Response) return e;
+      throw e;
+    }
+
+    const supabaseAdminLegacy = supabaseAdmin; // alias kept for downstream code
 
     // ── Shield: IP rate limit ─────────────────────────────────────────────────
     const clientIp = getClientIp(req);
