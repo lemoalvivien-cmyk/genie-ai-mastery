@@ -241,8 +241,8 @@ export default function AgentJobDetailPage() {
             )}
 
             {job.approval_required && !job.approved_by && (
-              <div className="rounded-lg border border-yellow-400/20 bg-yellow-400/5 p-4">
-                <p className="text-xs font-medium text-yellow-400 mb-1">⚠ Approbation requise</p>
+              <div className="rounded-lg border border-warning/20 bg-warning/5 p-4">
+                <p className="text-xs font-medium text-warning mb-1">⚠ Approbation requise</p>
                 <p className="text-xs text-muted-foreground">Ce job a un niveau de risque élevé et nécessite une validation manager avant exécution.</p>
               </div>
             )}
@@ -259,7 +259,7 @@ export default function AgentJobDetailPage() {
           {/* TIMELINE */}
           <TabsContent value="timeline" className="p-6">
             {isRunning && (
-              <div className="mb-3 text-xs text-blue-400 flex items-center gap-1.5">
+              <div className="mb-3 text-xs text-primary flex items-center gap-1.5">
                 <Loader2 className="w-3 h-3 animate-spin" /> Mise à jour automatique toutes les 2s…
               </div>
             )}
@@ -275,17 +275,17 @@ export default function AgentJobDetailPage() {
           {job.result_summary && (
             <TabsContent value="result" className="p-6 space-y-4">
               {isDevHarness && (
-                <div className="rounded-lg border border-yellow-400/20 bg-yellow-400/5 p-3 flex items-start gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-yellow-400">Ce résultat est généré par le DEV_ONLY_OPENCLAW_RUNTIME. Il ne reflète pas une exécution réelle.</p>
+                <div className="rounded-lg border border-warning/20 bg-warning/5 p-3 flex items-start gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-warning">Ce résultat est généré par le DEV_ONLY_OPENCLAW_RUNTIME. Il ne reflète pas une exécution réelle.</p>
                 </div>
               )}
-              <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-5">
+              <div className="rounded-xl border border-emerald/20 bg-emerald/5 p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <p className="text-xs font-medium text-emerald-400">Résultat OpenClaw</p>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald" />
+                  <p className="text-xs font-medium text-emerald">Résultat OpenClaw</p>
                   {duration !== null && (
-                    <span className="text-xs text-emerald-400/60 ml-auto flex items-center gap-1">
+                    <span className="text-xs text-emerald/60 ml-auto flex items-center gap-1">
                       <Zap className="w-3 h-3" />{duration}s
                     </span>
                   )}
@@ -318,8 +318,8 @@ function MetricCard({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-lg border border-border bg-card/50 p-3 space-y-1", active && "border-blue-500/30 bg-blue-500/5")}>
-      <div className={cn("flex items-center gap-1.5", active ? "text-blue-400" : "text-muted-foreground")}>
+    <div className={cn("rounded-lg border border-border bg-card/50 p-3 space-y-1", active && "border-primary/30 bg-primary/5")}>
+      <div className={cn("flex items-center gap-1.5", active ? "text-primary" : "text-muted-foreground")}>
         {icon}
         <span className="text-xs">{label}</span>
       </div>
