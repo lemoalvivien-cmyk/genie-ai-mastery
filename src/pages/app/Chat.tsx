@@ -278,6 +278,8 @@ export default function Chat() {
   const adaptationLevel = Math.min(2, consecutiveFailures);
   const consecutiveFailuresRef = useRef(consecutiveFailures);
   consecutiveFailuresRef.current = consecutiveFailures;
+  const kittModeRef = useRef(kittMode);
+  kittModeRef.current = kittMode;
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
