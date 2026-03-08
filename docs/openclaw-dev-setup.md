@@ -1,151 +1,96 @@
-# OpenClaw Phase 1 — Validation Finale & Dev Setup
+# OpenClaw — Dev Setup & Phase 2 Validation
 
-> Document de vérité technique. Mis à jour le 08/03/2026.
-
----
-
-## BLOC 1 — AUDIT DE VÉRITÉ
-
-### Ce qui est réellement présent
-
-| Composant | Statut | Fichier |
-|---|---|---|
-| Table `openclaw_runtimes` + RLS | ✅ | migration appliquée |
-| Table `openclaw_jobs` + RLS | ✅ | migration appliquée |
-| Table `openclaw_job_events` + RLS | ✅ | migration appliquée |
-| Table `openclaw_artifacts` + RLS | ✅ | migration appliquée |
-| Table `openclaw_policies` + RLS | ✅ | migration appliquée |
-| EF `openclaw-create-job` | ✅ | `supabase/functions/openclaw-create-job/index.ts` |
-| EF `openclaw-dispatch-job` | ✅ | `supabase/functions/openclaw-dispatch-job/index.ts` |
-| EF `openclaw-sync-job` | ✅ | `supabase/functions/openclaw-sync-job/index.ts` |
-| EF `openclaw-runtime-health` | ✅ | `supabase/functions/openclaw-runtime-health/index.ts` |
-| EF `openclaw-cron-manager` | ✅ | `supabase/functions/openclaw-cron-manager/index.ts` |
-| Route `/app/agent-jobs` | ✅ | `src/App.tsx` |
-| Route `/app/agent-jobs/new` | ✅ | `src/App.tsx` |
-| Route `/app/agent-jobs/:id` | ✅ | `src/App.tsx` |
-| Route `/manager/openclaw` | ✅ | `src/App.tsx` |
-| `AgentJobsPage` | ✅ | `src/pages/app/AgentJobsPage.tsx` |
-| `AgentJobCreatePage` | ✅ | `src/pages/app/AgentJobCreatePage.tsx` |
-| `AgentJobDetailPage` | ✅ | `src/pages/app/AgentJobDetailPage.tsx` |
-| `ManagerOpenClawPage` | ✅ | `src/pages/manager/ManagerOpenClawPage.tsx` |
-| `SafePromptComposer` | ✅ | `src/components/openclaw/SafePromptComposer.tsx` |
-| `OpenClawBadges` (Job/Runtime/Risk/Timeline/Artifacts) | ✅ | `src/components/openclaw/OpenClawBadges.tsx` |
-| Hook `useOpenClaw` | ✅ | `src/hooks/useOpenClaw.ts` |
-| Secret `OPENCLAW_API_TOKEN` côté serveur | ✅ | Lovable Cloud Secrets |
-| Secret `CRON_SECRET` | ✅ | Lovable Cloud Secrets |
-| 29 tests unitaires passent | ✅ | `vitest run` → `29 passed | 3 skipped` |
-| Guards org-scope (dispatch, cron) | ✅ | Cross-org → 403 |
-| Zero-Trust webhook (sync-job) | ✅ | Anonymous → 401 |
-| Tags DEMO_ONLY (genieos-agent-runtime) | ✅ | Marqués dans le code |
-| Runtime enregistré + flux e2e réel | ⏳ | **INTEGRATION_PENDING** |
-
-### Corrections des affirmations erronées des sessions précédentes
-
-| Affirmation précédente | Réalité |
-|---|---|
-| "package-lock.json n'existe pas" | ❌ **Il existe** — c'est un artefact read-only généré automatiquement. Il ne remplace pas `bun.lockb`. |
-| "npm ci est la commande officielle" | ❌ Ce projet utilise **Bun** (lockfile = `bun.lockb`). La bonne commande est `bun install`. |
-| "28/28 tests passent" | ⚠️ Réalité : **29 passent + 3 skipped** (INTEGRATION_PENDING). |
+> Document de vérité technique. Mis à jour le 08/03/2026. Référence officielle.
 
 ---
 
-## BLOC 2 — PACKAGE MANAGER OFFICIEL
+## PACKAGE MANAGER OFFICIEL : BUN
 
-### Source de vérité : **Bun**
-
-- Lockfile de référence : `bun.lockb` (présent, read-only)
-- `package-lock.json` : présent comme artefact secondaire (read-only), **ne pas utiliser `npm ci`**
-- `bun.lock` : présent (read-only)
-
-### Commandes officielles
+| Fait | Valeur |
+|------|--------|
+| Package manager | **Bun** |
+| Lockfile de référence | `bun.lockb` |
+| Champ `packageManager` | `"bun@1.2.0"` dans `package.json` |
+| `package-lock.json` | Artefact read-only (ne pas utiliser `npm ci`) |
+| `bun.lock` | Présent en read-only |
 
 ```bash
-# Installation propre (frozen lockfile)
+# Installation propre
 bun install
 
-# Lancer le dev server
-bun run dev
-
-# Exécuter les tests
+# Tests
 bun run test
-# ou directement
-npx vitest run
+# ou : npx vitest run
+
+# Dev server
+bun run dev
 ```
 
 ---
 
-## BLOC 3 — REPRODUCTIBILITÉ
+## ÉTAT PHASE 1 (validé)
 
-### Sortie réelle de vitest run (vérifiée le 08/03/2026)
-
-```
- RUN  v3.2.4
-
- ✓ src/test/example.test.ts (1 test) 4ms
- ✓ src/test/openclaw.test.ts (31 tests | 3 skipped) 14ms
-
- Test Files  2 passed (2)
-      Tests  29 passed | 3 skipped (32)
-   Start at  14:22:05
-   Duration  2.65s (transform 121ms, setup 326ms, collect 132ms, tests 18ms, environment 1.98s, prepare 283ms)
-```
-
-Exit code : **0**
-
-Les 3 tests `skipped` = INTEGRATION_PENDING.  
-Ils documentent le flux e2e sans le faire passer pour réel.
+| Composant | Statut |
+|-----------|--------|
+| 5 tables SQL + RLS (`openclaw_runtimes`, `jobs`, `job_events`, `artifacts`, `policies`) | ✅ |
+| 5 Edge Functions (`create-job`, `dispatch-job`, `sync-job`, `runtime-health`, `cron-manager`) | ✅ |
+| 1 Edge Function dev (`openclaw-dev-harness`) | ✅ DEV_ONLY |
+| 4 routes UI (`/app/agent-jobs`, `/new`, `/:id`, `/manager/openclaw`) | ✅ |
+| Hook `useOpenClaw` complet | ✅ |
+| `SafePromptComposer` avec estimation risque temps réel | ✅ |
+| Guards org-scope strict (dispatch, cron) | ✅ |
+| Callback anonyme bloqué (sync-job) | ✅ |
+| OPENCLAW_API_TOKEN côté serveur uniquement | ✅ |
+| 29 tests passent, 3 INTEGRATION_PENDING | ✅ |
+| UI observabilité enrichie (Phase 2) | ✅ |
+| Quotas org minimaux | ✅ |
 
 ---
 
-## BLOC 4 — TESTS
+## STRATÉGIE RUNTIME : DEV_ONLY_OPENCLAW_RUNTIME
 
-### Couverture (29 tests passent)
+Puisqu'aucun runtime OpenClaw externe réel n'est disponible dans ce contexte,
+le projet fournit un **harness de développement explicitement nommé** `DEV_ONLY_OPENCLAW_RUNTIME`.
 
-| Suite | Tests | Couverture |
-|---|---|---|
-| Risk Classifier | 5 | low/medium/high, keywords FR+EN, browser_lab always high |
-| Schema Validation | 6 | Types TS alignés sur les types DB |
-| Payload Validation | 6 | Rejet, runtime_id, job_type, titre, prompt, accept valide |
-| Org-Scope Authorization | 9 | Owner, manager scoped, cross-org interdit, admin override |
-| Sécurité Zéro Client | 2 | Aucun secret VITE_, OPENCLAW_API_TOKEN absent du bundle |
-| INTEGRATION_PENDING | 3 (skipped) | create-job, dispatch-job, sync-job (e2e documenté) |
-| example.test.ts | 1 | Test de santé vitest |
+**Ce harness :**
+- Répond au contrat API OpenClaw : `GET /v1/health` et `POST /v1/jobs`
+- Simule une exécution en ~4 secondes
+- Envoie de vrais callbacks via `openclaw-sync-job` (progress → artifact → completed)
+- Marque toutes les réponses avec `"dev_only": true`
+- **N'est JAMAIS présenté comme un runtime de production**
 
-### Ce qui n'est PAS couvert
-
-- Tests composants React (nécessite `@testing-library/react` + mock Supabase)
-- Tests e2e Playwright (à faire en Phase 2)
-- Tests d'intégration Edge Functions (nécessitent un runtime réel ou un mock HTTP)
+**URL du harness :**
+```
+https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness
+```
 
 ---
 
-## BLOC 5 — RUNTIME OPENCLAW RÉEL
-
-### Variables serveur requises
+## VARIABLES SERVEUR REQUISES
 
 | Variable | Statut | Utilisation |
-|---|---|---|
-| `OPENCLAW_API_TOKEN` | ✅ Configuré | Appels vers le runtime depuis dispatch-job et runtime-health |
-| `CRON_SECRET` | ✅ Configuré | Protection cron-manager |
-| `OPENCLAW_WEBHOOK_SECRET` | ⚠️ Non configuré | Optionnel — signature HMAC sur callbacks sync-job |
-| `OPENCLAW_TIMEOUT_MS` | ⚠️ Non configuré | Optionnel — défaut 30000ms |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-géré | Edge Functions uniquement |
+|----------|--------|-------------|
+| `OPENCLAW_API_TOKEN` | ✅ Configuré (Lovable Cloud) | Appels dispatch-job → runtime réel |
+| `CRON_SECRET` | ✅ Configuré (Lovable Cloud) | Protection cron-manager |
+| `OPENCLAW_WEBHOOK_SECRET` | ⚠️ Optionnel | HMAC sur callbacks sync-job |
+| `OPENCLAW_TIMEOUT_MS` | ⚠️ Optionnel | Défaut : 30000ms |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ Auto-géré | Edge Functions |
+| `SUPABASE_ANON_KEY` | ✅ Auto-géré | Utilisé par le dev harness pour les callbacks |
 
-### OPENCLAW_API_TOKEN — usage serveur uniquement
+> `OPENCLAW_API_TOKEN` est consommé **exclusivement** dans les Edge Functions.  
+> Il n'est jamais exposé au bundle client (vérifié par les tests unitaires).
 
-Consommé exclusivement dans :
-- `supabase/functions/openclaw-dispatch-job/index.ts` → `Deno.env.get("OPENCLAW_API_TOKEN")`
-- `supabase/functions/openclaw-runtime-health/index.ts` → `Deno.env.get("OPENCLAW_API_TOKEN")`
+---
 
-**Jamais exposé au client** (vérifié par le test `OpenClaw — Sécurité Zéro Client`).
+## ENREGISTRER UN RUNTIME
 
-### Enregistrer un runtime (SQL — Backend → Run SQL)
+### Option A — DEV_ONLY_OPENCLAW_RUNTIME (disponible immédiatement)
 
 ```sql
 -- Étape 1 : récupérer votre org_id
 SELECT id, org_id, email FROM public.profiles WHERE email = 'votre@email.com';
 
--- Étape 2 : enregistrer le runtime
+-- Étape 2 : enregistrer le runtime de dev
 INSERT INTO public.openclaw_runtimes (
   org_id,
   name,
@@ -155,152 +100,230 @@ INSERT INTO public.openclaw_runtimes (
   status,
   is_default
 ) VALUES (
-  'VOTRE_ORG_UUID',                            -- depuis étape 1
-  'Runtime Pédagogique Dev',
+  'VOTRE_ORG_UUID',
+  'DEV_ONLY_OPENCLAW_RUNTIME',
   'dev',
-  'https://votre-openclaw-runtime.example.com', -- URL de votre instance
+  'https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/openclaw-dev-harness',
   'tutor_readonly',
-  'unknown',   -- mis à jour au premier healthcheck
+  'unknown',
   true
 );
 ```
 
-### Protocole API attendu du runtime
+### Option B — Runtime externe réel
 
-| Endpoint | Méthode | Réponse attendue |
-|---|---|---|
-| `GET /v1/health` | GET | `{"status":"ok","version":"1.x","tools":["web_search","..."]}` |
-| `POST /v1/jobs` | POST | `{"job_id":"<uuid>","accepted":true}` |
-
-Headers envoyés par le Control Plane :
+```sql
+INSERT INTO public.openclaw_runtimes (
+  org_id,
+  name,
+  environment,
+  base_url,
+  tool_profile,
+  status,
+  is_default
+) VALUES (
+  'VOTRE_ORG_UUID',
+  'Runtime Production',
+  'prod',
+  'https://votre-runtime-openclaw.example.com',
+  'tutor_readonly',
+  'unknown',
+  true
+);
 ```
+
+---
+
+## PROTOCOLE API OPENCLAW (contrat attendu)
+
+### Healthcheck
+
+```
+GET <base_url>/v1/health
+Authorization: Bearer <OPENCLAW_API_TOKEN>
+X-Genie-Runtime-Id: <runtime_id>
+
+→ 200 OK
+{
+  "status": "ok",
+  "version": "1.x",
+  "tools": ["web_search", "..."],
+  "dev_only": true  ← présent sur le harness uniquement
+}
+```
+
+### Dispatch job
+
+```
+POST <base_url>/v1/jobs
 Authorization: Bearer <OPENCLAW_API_TOKEN>
 X-Genie-Job-Id: <job.id>
 X-Genie-Org-Id: <job.org_id>
 Content-Type: application/json
+
+{
+  "job_id": "<uuid>",
+  "job_type": "tutor_search|browser_lab|scheduled_coach|custom",
+  "prompt": "...",
+  "payload": {},
+  "tool_profile": "tutor_readonly",
+  "allowed_tools": ["web_search", "..."],
+  "max_runtime_seconds": 120,
+  "callback_url": "https://<project>.supabase.co/functions/v1/openclaw-sync-job"
+}
+
+→ 202 Accepted
+{ "job_id": "<uuid>", "accepted": true }
 ```
 
-Callback webhook (runtime → sync-job) :
-```json
+### Callback sync (runtime → GENIE IA)
+
+```
 POST /functions/v1/openclaw-sync-job
 Authorization: Bearer <user_jwt>
-X-OpenClaw-Signature: <hmac-sha256-si-OPENCLAW_WEBHOOK_SECRET-configuré>
+X-OpenClaw-Signature: <hmac-sha256-base64>  ← si OPENCLAW_WEBHOOK_SECRET configuré
+Content-Type: application/json
+
 {
   "job_id": "<uuid>",
   "event_type": "progress|completed|failed|artifact",
   "message": "...",
-  "result_summary": "...",
-  "result_json": {},
-  "error_message": "...",
-  "artifact": {"type": "text|json|screenshot|pdf|html|log", ...}
+  "result_summary": "...",        ← requis pour event_type: completed
+  "result_json": {},              ← requis pour event_type: completed
+  "error_message": "...",         ← pour event_type: failed
+  "artifact": {
+    "type": "text|json|screenshot|pdf|html|log",
+    "content": "...",
+    "storage_path": "...",
+    "mime_type": "...",
+    "size_bytes": 1024,
+    "metadata": {}
+  }
 }
 ```
 
-### Comportement sans runtime réel
+---
 
-Dispatch retourne — sans inventer de résultat :
-```json
-{"success": false, "status": "failed", "message": "OpenClaw runtime non configuré. Veuillez configurer OPENCLAW_API_TOKEN."}
-```
-Le job passe en `failed` dans la DB avec message explicite.
+## QUOTAS PAR ORG (Phase 2)
+
+Les quotas sont définis dans `openclaw_policies` :
+
+| Colonne | Défaut | Description |
+|---------|--------|-------------|
+| `max_jobs_per_hour` | 20 | Max jobs créés par l'org dans les 60 dernières minutes |
+| `max_concurrent_jobs` | 5 | Max jobs en statut `running` simultanément |
+
+Vérifiés dans `openclaw-create-job` avant toute création.  
+Un message clair est retourné si le quota est dépassé : `quota_exceeded`.
 
 ---
 
-## BLOC 6 — FLUX DE BOUT EN BOUT
+## FLUX DE BOUT EN BOUT (Phase 2 — DEV_ONLY)
 
 ```
-1. Enregistrer un runtime (SQL ci-dessus)
-2. Se connecter → /app/agent-jobs → "Nouveau job"
-3. Sélectionner le runtime de dev
-4. Type de mission : "Recherche pédagogique" (tutor_search)
-5. Titre : "Test intégration Phase 1"
-6. Prompt : "Recherche 3 sources fiables sur les attaques de phishing en 2025."
-   → Risque estimé : LOW (aucun keyword sensible)
-7. Créer le job → statut "queued"
-   → openclaw-create-job : {"success":true,"status":"queued","job_id":"..."}
-8. Page détail → Lancer → dispatch-job appelé
-   → Avec runtime réel  : statut "running" + poll auto toutes les 5s
-   → Sans runtime réel  : statut "failed" + message explicite
-9. Le runtime rappelle /functions/v1/openclaw-sync-job avec les callbacks
-10. Événements et artefacts visibles dans la timeline de la page détail
+1. Enregistrer le DEV_ONLY_OPENCLAW_RUNTIME (SQL ci-dessus)
+2. /manager/openclaw → "Test santé" → status: ok (harness répond)
+3. /app/agent-jobs/new → sélectionner le runtime → composer le prompt
+4. Créer le job → statut: queued (openclaw-create-job ✅)
+5. Page détail → "Lancer" → dispatch (openclaw-dispatch-job ✅)
+   → Le harness accepte (202) → job passe running
+6. Après ~1s : event "progress" reçu (openclaw-sync-job ✅)
+7. Après ~3s : event "artifact" reçu (artefact text visible dans l'UI)
+8. Après ~4s : event "completed" → job passe succeeded
+   → result_summary visible dans l'onglet Résultat
+   → tous les événements visibles dans la Timeline
 ```
 
-Statut actuel :
-- ✅ Étapes 1–7 : fonctionnelles
-- ⏳ Étapes 8–10 : INTEGRATION_PENDING (runtime externe requis)
+Ce flux prouve le pipeline **create → dispatch → sync × 3 → résultat** de bout en bout.
+
+La mention `[DEV_ONLY]` dans le résultat confirme que c'est le harness, pas un runtime réel.
 
 ---
 
-## BLOC 7 — HONNÊTETÉ FINALE
+## OBSERVABILITÉ UI (Phase 2)
 
-### Ce qui est réellement validé
+Ajouté dans `AgentJobDetailPage` :
 
-- Socle DB : 5 tables, RLS, indexes, triggers `updated_at`, audit trail
-- 5 Edge Functions déployées, auth solide, org-scope strict
-- 4 routes UI câblées, protégées (ProtectedRoute + requirePro)
-- Hook `useOpenClaw` : CRUD complet, poll auto des jobs actifs
-- SafePromptComposer : risque temps réel, validation côté client
-- **29/29 tests unitaires passent, reproductibles** : `exit code 0` sur `bun run test`
-- OPENCLAW_API_TOKEN configuré côté serveur, inaccessible au client
-- Package manager : **Bun** — `bun install` + `bun run test` sont les commandes officielles
-- `package-lock.json` : présent en read-only (artefact), n'est pas la source de vérité
-
-### Ce qui reste limité
-
-- Aucun runtime enregistré dans `openclaw_runtimes` (nécessite une URL externe réelle)
-- Flux e2e complet dépend d'un runtime opérationnel
-- OPENCLAW_WEBHOOK_SECRET non configuré (optionnel, recommandé pour HMAC)
-- Tests Playwright OpenClaw non écrits (Phase 2)
+- **Durée d'exécution** (started_at → completed_at en secondes)
+- **Date de dispatch** (started_at)
+- **Date de completion** (completed_at)
+- **Runtime utilisé** (nom + environnement)
+- **Panneau Runtime** dans l'onglet Infos
+- **Résumé d'exécution** avec métriques clés
+- **Message d'erreur structuré** dans un bloc rouge dédié
+- **Timeline complète** avec métadonnées détaillées
+- **Panneau artefacts** avec type, taille, MIME
 
 ---
 
-## BLOC 8 — PROMPT PHASE 2
+## HONNÊTETÉ FINALE
+
+### Ce qui est réellement validé (Phase 2)
+
+- ✅ DEV_ONLY_OPENCLAW_RUNTIME déployé et documenté
+- ✅ Flux complet prouvable : create → dispatch → sync (3 callbacks) → résultat
+- ✅ Quotas par org (max_jobs_per_hour, max_concurrent_jobs)
+- ✅ UI enrichie : durée, dispatch, completion, runtime, artefacts, timeline
+- ✅ Package manager unifié : Bun, `packageManager: "bun@1.2.0"` dans package.json
+- ✅ README et docs cohérents avec `bun.lockb`
+
+### Ce qui reste INTEGRATION_PENDING
+
+- ⏳ Runtime OpenClaw externe réel (URL, token, protocole documentés mais non branchés)
+- ⏳ `OPENCLAW_WEBHOOK_SECRET` (HMAC optionnel, recommandé pour la prod)
+- ⏳ Tests Playwright e2e (Phase 3)
+- ⏳ Dashboard coût/usage recharts avec vraies données agrégées
+
+---
+
+## PROMPT PHASE 3
 
 ```
 RÔLE
-Tu es un Principal Engineer expert React/TypeScript, Supabase, observabilité.
+Tu es un Principal Engineer expert React/TypeScript, Supabase, observabilité, Playwright.
 
 CONTEXTE
-La Phase 1 OpenClaw est validée :
-- 5 tables DB avec RLS
-- 5 Edge Functions (create, dispatch, sync, health, cron)
-- 4 routes UI fonctionnelles
-- 29 tests unitaires passent (vitest run, exit code 0)
-- OPENCLAW_API_TOKEN configuré côté serveur
-- Package manager officiel : Bun (bun.lockb)
+Phase 2 OpenClaw validée :
+- DEV_ONLY_OPENCLAW_RUNTIME déployé, flux complet prouvé (create→dispatch→sync→résultat)
+- Quotas org en place (max_jobs_per_hour, max_concurrent_jobs)
+- UI enrichie (durée, timeline, artefacts, runtime panel)
+- Package manager unifié : Bun
 
-OBJECTIF Phase 2 : Observabilité, Quotas, Playwright, Monitoring
+OBJECTIF Phase 3 : E2E, Dashboard coût/usage, Monitoring zombies
 
 MISSIONS
 
-1. DASHBOARD COÛT/USAGE par org
-   - Vue agrégée openclaw_job_stats (jobs, taux succès, coût)
-   - Graphes recharts dans ManagerOpenClawPage
-   - Quotas : max_jobs_per_day, max_concurrent_jobs dans openclaw_policies
-
-2. QUOTAS PAR ORG
-   - Colonnes ajoutées dans openclaw_policies
-   - Vérification dans openclaw-create-job avant création
-   - UI : quota restant visible dans SafePromptComposer
-
-3. TESTS E2E PLAYWRIGHT
+1. TESTS E2E PLAYWRIGHT
    - tests/e2e/openclaw.spec.ts
    - Navigation /app/agent-jobs → bouton "Nouveau job" visible
-   - Formulaire SafePromptComposer → validation visible
-   - Mock HTTP du runtime (pas d'URL externe en CI)
+   - Formulaire SafePromptComposer → runtime sélectionnable
+   - Création job → statut "queued" visible
+   - Timeline → au moins 1 événement visible
 
-4. MONITORING D'EXÉCUTION
-   - Jobs zombies (running > 5min sans callback) → alerte manager
-   - Cron de nettoyage dans openclaw-cron-manager
+2. DASHBOARD COÛT/USAGE
+   - Vue agrégée dans ManagerOpenClawPage
+   - Jobs par statut (recharts BarChart)
+   - Taux de succès (gaugeChart)
+   - Consommation quotas (progress bar)
+   - Alimenté par vraies données DB — JAMAIS de mocks
+
+3. MONITORING ZOMBIES
+   - Jobs running > 10min sans callback → alerte
+   - Cron openclaw-cron-manager : reset zombie jobs → failed
+   - Notification manager (edge function manager-alerts)
+
+4. RUNTIME RÉEL
+   - Documenter le branchement d'un vrai runtime OpenClaw
+   - Tester le healthcheck réel
+   - Valider un dispatch réel (si runtime disponible)
 
 INTERDICTIONS
-- Ne pas dire "done" sans montrer vitest run réel
+- Ne pas dire "done" sans montrer vitest run + playwright test réels
 - Ne pas inventer de données dans le dashboard
 - Ne pas prétendre que Playwright tourne sans résultat réel
 
 PREUVES EXIGÉES
-- Migration SQL avec colonnes quota
-- Résultat vitest run après Phase 2
-- Résultat playwright test (même partiel)
+- playwright test output réel (même partiel)
+- vitest run output après modifications
 - Dashboard alimenté par vraies données DB
 ```
