@@ -185,7 +185,7 @@ export function SafePromptComposer({ runtimes, onSubmit, isSubmitting }: SafePro
           "border-primary/20 bg-primary/5"
         }`}>
           <div className="flex items-center gap-2">
-            {risk === "high" && <AlertTriangle className="w-3.5 h-3.5 text-red-400" />}
+            {risk === "high" && <AlertTriangle className="w-3.5 h-3.5 text-destructive" />}
             <span className="text-xs font-medium text-foreground">Niveau de risque estimé :</span>
             <RiskLevelBadge level={risk} />
           </div>
@@ -197,7 +197,7 @@ export function SafePromptComposer({ runtimes, onSubmit, isSubmitting }: SafePro
             </ul>
           )}
           {risk === "high" && (
-            <p className="text-xs text-red-400">Ce job nécessitera une approbation manager avant exécution.</p>
+            <p className="text-xs text-destructive">Ce job nécessitera une approbation manager avant exécution.</p>
           )}
         </div>
       )}
