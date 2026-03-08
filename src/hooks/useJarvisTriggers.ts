@@ -106,15 +106,17 @@ export function useJarvisTriggers(onNudge: NudgeHandler) {
       const sessionCount = (profile as any)?.session_count ?? 1;
       ctxRef.current.sessionCount = sessionCount;
 
-      // Last quiz score
-      const { data: lastAttempt } = await supabase
-        .from("quiz_attempts")
-        .select("score")
-        .eq("user_id", user!.id)
-        .order("completed_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (lastAttempt) ctxRef.current.lastQuizScore = lastAttempt.score ?? null;
+      // Last quiz score — quiz_attempts may not be in generated types, use any cast
+      try {
+        const { data: lastAttempt } = await (supabase as any)
+          .from("quiz_attempts")
+          .select("score")
+          .eq("user_id", user!.id)
+          .order("completed_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (lastAttempt?.score != null) ctxRef.current.lastQuizScore = lastAttempt.score;
+      } catch { /* non-fatal */ }
 
       // Last activity days ago (via user_streaks)
       const { data: streakRow } = await supabase
