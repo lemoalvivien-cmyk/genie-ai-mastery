@@ -45,6 +45,7 @@ export function useKITTContext() {
       if (!user?.id) throw new Error("Not authenticated");
 
       // Passe H : 4 appels parallèles — colonnes explicites, total_modules dynamique
+      // 4 appels parallèles — colonnes explicites, total_modules dynamique
       const [masteryRes, progressRes, streakRes, modulesCountRes] = await Promise.all([
         // JOIN direct skill_mastery → skills (évite 2nd round-trip)
         supabase
@@ -68,6 +69,12 @@ export function useKITTContext() {
           .select("current_streak")
           .eq("user_id", user.id)
           .maybeSingle(),
+
+        // count total published modules — évite la valeur hardcodée 24
+        supabase
+          .from("modules")
+          .select("id", { count: "exact", head: true })
+          .eq("is_published", true),
       ]);
 
       // Build skill mastery map from JOIN result
