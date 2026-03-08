@@ -358,9 +358,10 @@ const DEFAULT_SOP_SECTIONS = [
 ];
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
-serve(async (req) => {
+Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const preflight = handleOptions(req, corsHeaders);
+  if (preflight) return preflight;
 
   // ── Kill-Switch ───────────────────────────────────────────────────────────────
   if (Deno.env.get("AI_DISABLED") === "true") {
@@ -370,26 +371,10 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    // Auth check — upgrade to getUser() (server-side verification)
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false } });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authErr } = await supabaseAdmin.auth.getUser(token);
-    if (authErr || !authData?.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const userId = authData.user.id;
+    // ── Auth : getUser() réseau via _shared/auth.ts ───────────────────────────
+    const supabaseAdmin = createServiceClient();
+    const authUser = await getAuthenticatedUser(req, supabaseAdmin);
+    const userId = authUser.id;
 
     // ── Plan check: PDF generation is Pro-only ────────────────────────────────
     try {

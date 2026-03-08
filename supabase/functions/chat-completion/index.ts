@@ -216,39 +216,20 @@ async function callOpenRouter(
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
-serve(async (req) => {
+Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const preflight = handleOptions(req, corsHeaders);
+  if (preflight) return preflight;
 
   const startMs = Date.now();
   const requestId = makeRequestId();
   let logCtx = { requestId, fn: "chat-completion", startMs, userId: null as string | null, orgId: null as string | null };
 
   try {
-    // Auth
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // PASSE B · #4 — getUser() (vérification réseau) au lieu de getClaims() (JWT local)
-    // Le supabaseAdmin est créé plus bas — on crée un client minimal juste pour l'auth check
-    const supabaseAuthCheck = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      { auth: { persistSession: false } },
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: authError } = await supabaseAuthCheck.auth.getUser(token);
-    if (authError || !userData.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const userId = userData.user.id;
+    // ── Auth : getUser() réseau via _shared/auth.ts ───────────────────────────
+    const supabaseAuthCheck = createServiceClient();
+    const authUser = await getAuthenticatedUser(req, supabaseAuthCheck);
+    const userId = authUser.id;
     logCtx = { ...logCtx, userId };
 
     // ── Shield: IP rate limit (layer 1) ──────────────────────────────────────
