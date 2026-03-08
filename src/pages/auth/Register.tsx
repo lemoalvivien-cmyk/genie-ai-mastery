@@ -135,7 +135,18 @@ export default function Register() {
                 </div>
                 <h2 className="text-lg font-semibold mb-2">Vérifiez votre email !</h2>
                 <p className="text-sm text-muted-foreground">
-                  Un lien magique a été envoyé à <strong>{magicEmail}</strong>
+                  Un lien de confirmation a été envoyé à <strong>{magicEmail}</strong>.<br />
+                  Cliquez sur le lien pour activer votre compte et commencer votre parcours.
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-3">
+                  Pas reçu ? Vérifiez vos spams ou{" "}
+                  <button
+                    type="button"
+                    onClick={() => { setMagicLinkSent(false); setMagicEmail(""); }}
+                    className="text-primary hover:underline"
+                  >
+                    réessayez
+                  </button>.
                 </p>
               </div>
             ) : (
