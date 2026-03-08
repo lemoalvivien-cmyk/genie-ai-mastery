@@ -44,8 +44,9 @@ export function useKITTContext() {
     queryFn: async (): Promise<KITTUserContext> => {
       if (!user?.id) throw new Error("Not authenticated");
 
-      // Passe H : 3 appels parallèles au lieu de 5 séquentiels — colonnes explicites
-      const [masteryRes, progressRes, streakRes] = await Promise.all([
+      // Passe H : 4 appels parallèles — colonnes explicites, total_modules dynamique
+      // 4 appels parallèles — colonnes explicites, total_modules dynamique
+      const [masteryRes, progressRes, streakRes, modulesCountRes] = await Promise.all([
         // JOIN direct skill_mastery → skills (évite 2nd round-trip)
         supabase
           .from("skill_mastery")
@@ -68,6 +69,12 @@ export function useKITTContext() {
           .select("current_streak")
           .eq("user_id", user.id)
           .maybeSingle(),
+
+        // count total published modules — évite la valeur hardcodée 24
+        supabase
+          .from("modules")
+          .select("id", { count: "exact", head: true })
+          .eq("is_published", true),
       ]);
 
       // Build skill mastery map from JOIN result
@@ -111,11 +118,14 @@ export function useKITTContext() {
 
       const lastQuizScore = progressData.find((p) => p.score != null)?.score ?? null;
 
+      // Count dynamique via la 4e requête parallèle
+      const totalModulesCount = modulesCountRes.count ?? 0;
+
       return {
         skill_mastery,
         last_module: lastModuleInfo,
         completed_modules: completedModules,
-        total_modules: 24,
+        total_modules: totalModulesCount,
         persona: profile?.persona ?? "salarie",
         level: profile?.level ?? 1,
         streak: (streakRes.data as { current_streak?: number } | null)?.current_streak ?? 0,

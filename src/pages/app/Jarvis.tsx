@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useKITTContext } from "@/hooks/useKITTContext";
 import { Helmet } from "react-helmet-async";
 import {
   Send, Loader2, Mic, MicOff, Zap, GraduationCap, Leaf,
@@ -112,6 +113,7 @@ export default function Jarvis() {
   const { profile } = useAuth();
   const { data: sub } = useSubscription();
   const isPro = sub?.isActive ?? false;
+  const { data: kittContext } = useKITTContext();
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -210,6 +212,7 @@ export default function Jarvis() {
             level: profile?.level ?? 1,
             mode: expertMode ? "expert" : (persona === "senior" || persona === "parent" ? "enfant" : "normal"),
           },
+          kitt_context: kittContext ?? null,
           session_id: sessionId,
           request_type: "jarvis_chat",
           expert_mode: expertMode,
