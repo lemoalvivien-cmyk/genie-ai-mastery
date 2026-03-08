@@ -249,7 +249,8 @@ export default function ManagerDashboard() {
     return () => clearInterval(interval);
   }, [profile?.org_id, loadData]);
 
-  if (!(sub?.isActive)) return <Navigate to="/pricing" replace />;
+  // Guard retiré : les managers B2B accèdent via le plan organisationnel,
+  // pas via un abonnement personnel. Le plan org est vérifié côté RLS + requireRole="manager".
 
   // ─── Team table logic ────────────────────────────────────────────────────
 
