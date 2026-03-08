@@ -42,22 +42,28 @@ const AVAILABLE_TOOLS = {
   database_query: {
     name: "database_query",
     description: "Query internal knowledge base",
+    // ⚠ DEMO_ONLY: Returns a stub. Real database queries use RPC functions with user scoping.
+    // Do NOT use for production data retrieval without proper RLS enforcement.
     execute: async (params: { query: string }) => {
-      return `[database_query]: Knowledge base query for "${params.query}" — returns structured data from user's context.`;
+      return `[DEMO_ONLY — database_query pour "${params.query}"]: Résultat simulé. Pour un vrai accès structuré, utilisez les RPC Supabase sécurisées.`;
     },
   },
   workflow_trigger: {
     name: "workflow_trigger",
     description: "Trigger an existing workflow",
+    // ⚠ DEMO_ONLY: This tool returns a stub. Real workflow triggers are not yet implemented.
+    // To trigger real automation: create an openclaw_job of type scheduled_coach.
     execute: async (params: { workflow_name: string; input?: string }) => {
-      return `[workflow_trigger]: Workflow "${params.workflow_name}" triggered with input: ${params.input ?? "none"}`;
+      return `[DEMO_ONLY — workflow_trigger "${params.workflow_name}"]: Exécution simulée. Pour une vraie automation, utilisez un job OpenClaw (type: scheduled_coach).`;
     },
   },
   url_scraper: {
     name: "url_scraper",
     description: "Extract content from a URL",
+    // ⚠ DEMO_ONLY: This tool returns a stub. Real URL scraping requires OpenClaw runtime (browser_lab profile).
+    // To enable real scraping: create an openclaw_job of type browser_lab via /app/agent-jobs/new.
     execute: async (params: { url: string }) => {
-      return `[url_scraper]: Content from ${params.url} — in production, connect a real scraper service.`;
+      return `[DEMO_ONLY — url_scraper pour "${params.url}"]: Contenu simulé. Pour un vrai scraping, utilisez un job OpenClaw (type: browser_lab).`;
     },
   },
   knowledge_search: {
