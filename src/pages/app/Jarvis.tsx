@@ -121,6 +121,9 @@ export default function Jarvis() {
   const [expertMode, setExpertMode] = useState(false);
   const [ecoMode] = useState(false);
   const [showCockpit, setShowCockpit] = useState(false);
+  const [showDock, setShowDock] = useState(false);
+
+  const copilot = useCopilot();
 
   const voiceEnabled = profile?.voice_enabled ?? true;
   const persona = profile?.persona ?? null;
