@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyCronSecret } from "../_shared/cron-auth.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -10,11 +11,9 @@ function getCorsHeaders(req: Request) {
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
   };
 }
-
 
 // Simple SHA-256 hash via Web Crypto
 async function sha256(message: string): Promise<string> {
@@ -28,7 +27,6 @@ async function sha256(message: string): Promise<string> {
 function parseRSS(xml: string): Array<{ title: string; summary: string; url: string; published_at: string | null }> {
   const items: Array<{ title: string; summary: string; url: string; published_at: string | null }> = [];
 
-  // Match <item> or <entry> blocks
   const itemRegex = /<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi;
   let match;
 
@@ -51,7 +49,6 @@ function parseRSS(xml: string): Array<{ title: string; summary: string; url: str
     const title = titleMatch ? titleMatch[1].trim().replace(/<[^>]+>/g, "") : "";
     const url = linkMatch ? linkMatch[1].trim() : "";
     const rawDesc = descMatch ? descMatch[1].trim() : "";
-    // Strip HTML tags from description
     const summary = rawDesc.replace(/<[^>]+>/g, "").trim().slice(0, 500);
     const published_at = dateMatch ? dateMatch[1].trim() : null;
 
@@ -60,7 +57,7 @@ function parseRSS(xml: string): Array<{ title: string; summary: string; url: str
     }
   }
 
-  return items.slice(0, 20); // max 20 items per source
+  return items.slice(0, 20);
 }
 
 Deno.serve(async (req) => {
@@ -69,19 +66,24 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // ── Auth: CRON_SECRET (called by pg_cron, no JWT) ──────────────────────────
+  try {
+    verifyCronSecret(req);
+  } catch (resp) {
+    return resp as Response;
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
   try {
-    // Fetch enabled sources from both legacy `sources` AND curated `sources_watchlist`
     const [legacySources, watchlistSources] = await Promise.all([
       supabase.from("sources").select("*").eq("enabled", true),
       supabase.from("sources_watchlist").select("*").eq("enabled", true),
     ]);
     const sourcesError = legacySources.error || watchlistSources.error;
-    // Merge: watchlist items use same shape, map them to a unified format
     const allSources = [
       ...(legacySources.data ?? []),
       ...(watchlistSources.data ?? []).map((w) => ({ ...w, last_fetch_at: w.last_fetch_at })),
@@ -137,12 +139,11 @@ Deno.serve(async (req) => {
           if (!insertError) inserted++;
         }
 
-        // Update last_fetch_at on both tables (best-effort)
         await supabase
           .from("sources")
           .update({ last_fetch_at: new Date().toISOString() })
           .eq("id", source.id);
-        // Also update watchlist if this source came from there
+
         supabase
           .from("sources_watchlist")
           .update({ last_fetch_at: new Date().toISOString() })

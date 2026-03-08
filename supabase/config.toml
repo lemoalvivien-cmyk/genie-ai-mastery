@@ -1,131 +1,156 @@
 project_id = "xpzvbsfrwnabnwwfsnnc"
 
-[functions.chat-completion]
-verify_jwt = false
+# ── JWT SECURITY POLICY ────────────────────────────────────────────────────────
+# Default: verify_jwt = true on ALL functions.
+# Exceptions:
+#   stripe-webhook  → Stripe signature replaces JWT (external caller)
+#   csp-report      → Public endpoint by spec (no user session)
+#   cron functions  → Called by pg_cron (no JWT), protected by X-CRON-SECRET instead
+# ──────────────────────────────────────────────────────────────────────────────
 
-[functions.generate-pdf]
-verify_jwt = false
-
-[functions.manager-alerts]
-verify_jwt = false
-
-[functions.text-to-speech]
-verify_jwt = false
-
-[functions.redeem-code]
-verify_jwt = false
-
-[functions.create-checkout]
-verify_jwt = false
-
+# ── Public / External ─────────────────────────────────────────────────────────
 [functions.stripe-webhook]
-verify_jwt = false
-
-[functions.create-portal-session]
-verify_jwt = false
-
-[functions.check-subscription]
-verify_jwt = false
-
-[functions.fetch-sources]
-verify_jwt = false
-
-[functions.generate-briefs]
-verify_jwt = false
-
-[functions.flush-ai-usage-buffer]
 verify_jwt = false
 
 [functions.csp-report]
 verify_jwt = false
 
-[functions.check-launch-price]
-verify_jwt = false
-
+# ── CRON functions — no JWT, protected by X-CRON-SECRET ──────────────────────
 [functions.daily-cron]
 verify_jwt = false
 
-[functions.guardrails-alert]
+[functions.fetch-sources]
 verify_jwt = false
 
-[functions.update-seats]
-verify_jwt = false
-
-[functions.partner-get-account]
-verify_jwt = false
-
-[functions.partner-apply]
-verify_jwt = false
-
-[functions.partner-create-referral]
-verify_jwt = false
-
-[functions.partner-get-referrals]
-verify_jwt = false
-
-[functions.partner-get-commissions]
-verify_jwt = false
-
-[functions.partner-get-stats]
-verify_jwt = false
-
-[functions.partner-get-clients]
-verify_jwt = false
-
-[functions.partner-connect-onboard]
-verify_jwt = false
-
-[functions.score-utterance]
+[functions.manager-alerts]
 verify_jwt = false
 
 [functions.content-forge]
 verify_jwt = false
 
-[functions.manager-brief]
+[functions.flush-ai-usage-buffer]
 verify_jwt = false
+
+[functions.guardrails-alert]
+verify_jwt = false
+
+# ── Authenticated functions (verify_jwt = true) ───────────────────────────────
+[functions.chat-completion]
+verify_jwt = true
+
+[functions.generate-pdf]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = true
+
+[functions.redeem-code]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.create-portal-session]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.fetch-sources-manual]
+verify_jwt = true
+
+[functions.generate-briefs]
+verify_jwt = true
+
+[functions.check-launch-price]
+verify_jwt = true
+
+[functions.update-seats]
+verify_jwt = true
+
+[functions.partner-get-account]
+verify_jwt = true
+
+[functions.partner-apply]
+verify_jwt = true
+
+[functions.partner-create-referral]
+verify_jwt = true
+
+[functions.partner-get-referrals]
+verify_jwt = true
+
+[functions.partner-get-commissions]
+verify_jwt = true
+
+[functions.partner-get-stats]
+verify_jwt = true
+
+[functions.partner-get-clients]
+verify_jwt = true
+
+[functions.partner-connect-onboard]
+verify_jwt = true
+
+[functions.score-utterance]
+verify_jwt = true
+
+[functions.manager-brief]
+verify_jwt = true
 
 [functions.cost-guard]
-verify_jwt = false
+verify_jwt = true
 
 [functions.god-mode]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genie-os-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-agent-runtime]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-multi-agent-runtime]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-knowledge]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-action-engine]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-data-engine]
-verify_jwt = false
+verify_jwt = true
 
 [functions.genieos-auto-builder]
-verify_jwt = false
+verify_jwt = true
+
+[functions.genieos-cofounder]
+verify_jwt = true
+
+[functions.genieos-revenue-agent]
+verify_jwt = true
 
 [functions.openclaw-create-job]
-verify_jwt = false
+verify_jwt = true
 
 [functions.openclaw-dispatch-job]
-verify_jwt = false
+verify_jwt = true
 
 [functions.openclaw-sync-job]
-verify_jwt = false
+verify_jwt = true
 
 [functions.openclaw-runtime-health]
-verify_jwt = false
+verify_jwt = true
 
 [functions.openclaw-cron-manager]
-verify_jwt = false
+verify_jwt = true
 
 [functions.openclaw-dev-harness]
-verify_jwt = false
+verify_jwt = true
 
+[functions.openclaw-cancel-job]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
