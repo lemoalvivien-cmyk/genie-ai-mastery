@@ -1,6 +1,8 @@
-# OpenClaw Phase 1 — Dev Setup & Runtime Seeding
+# OpenClaw Phase 1 — Dev Setup, Runtime Seeding & Validation Finale
 
-## État réel
+## ─── BLOC 1 : AUDIT DE VÉRITÉ ────────────────────────────────────────────────
+
+### Ce qui est réellement présent (vérifié le 08/03/2026)
 
 | Composant | Statut |
 |---|---|
