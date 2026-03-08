@@ -247,13 +247,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 /* ─── KITT Bar — grammaire visuelle K2000 ───────────────────── */
-function KittBar({
-  active = false,
-  size = "md",
-}: {
-  active?: boolean;
-  size?: "sm" | "md" | "lg";
-}) {
+const KittBar = React.forwardRef<
+  HTMLDivElement,
+  { active?: boolean; size?: "sm" | "md" | "lg" }
+>(function KittBar({ active = false, size = "md" }, ref) {
   const widths = { sm: "w-40", md: "w-56", lg: "w-72" };
   const heights = { sm: "h-8", md: "h-10", lg: "h-12" };
 

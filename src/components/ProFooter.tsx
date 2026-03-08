@@ -1,9 +1,11 @@
+import React from "react";
 import { Mail, Lock, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoGenie from "@/assets/logo-genie.png";
 import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 
-export function ProFooter() {
+export const ProFooter = React.forwardRef<HTMLElement>(
+  function ProFooter(_props, ref) {
   return (
     <footer className="border-t border-border/30 bg-background/80 backdrop-blur-sm pt-14 pb-8 px-4 sm:px-8">
       <div className="max-w-6xl mx-auto">

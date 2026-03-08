@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     await supabase.auth.signOut();
 
-    // PASSE A · #2 — Purge totale : state + React Query cache + localStorage tokens
+    // Purge totale : state + React Query cache + localStorage + sessionStorage tokens
     set({ user: null, session: null, profile: null, serverRoles: [] });
     queryClient.clear();
 
@@ -90,6 +90,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith("sb-") || key === "genie_last_activity") {
         localStorage.removeItem(key);
+      }
+    });
+
+    // Purger sessionStorage (brute-force tracking, ref codes, etc.)
+    Object.keys(sessionStorage).forEach((key) => {
+      if (key.startsWith("genie_") || key.startsWith("sb-")) {
+        sessionStorage.removeItem(key);
       }
     });
   },

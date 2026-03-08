@@ -1,5 +1,5 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 
 const LEGAL_LINKS = [
