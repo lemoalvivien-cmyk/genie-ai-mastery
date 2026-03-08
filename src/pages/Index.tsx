@@ -1242,10 +1242,14 @@ export default function Index() {
                     Découverte
                   </p>
                   <div className="text-4xl font-black text-foreground font-mono">0€</div>
-                  <p className="text-xs text-muted-foreground mt-1">Pour commencer sans engagement</p>
+                  <p className="text-xs text-muted-foreground mt-1">Pour explorer sans engagement</p>
                 </div>
                 <ul className="space-y-2 flex-1 mb-5">
-                  {["Chat KITT (limité)", "Modules de base", "1 agent IA"].map((f) => (
+                  {[
+                    "Chat KITT (2 msg/jour)",
+                    "Modules de base",
+                    "Découverte des labs",
+                  ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <CheckCircle className="w-3 h-3 text-primary shrink-0" />
                       {f}
@@ -1284,20 +1288,19 @@ export default function Index() {
                 </div>
                 <div className="mb-5 mt-1">
                   <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2 font-mono">Pro</p>
-                  <div className="flex items-end gap-2">
-                    <span className="text-4xl font-black text-accent font-mono">35€</span>
-                    <span className="text-base text-muted-foreground/40 line-through mb-0.5">59€</span>
+                  <div className="flex items-end gap-2 flex-wrap">
+                    <span className="text-4xl font-black text-accent font-mono">dès 35€</span>
                     <span className="text-xs text-muted-foreground mb-0.5">TTC/mois</span>
                   </div>
                   <p className="text-xs text-muted-foreground/60 mt-1 font-mono">par organisation · 25 sièges inclus</p>
                 </div>
                 <ul className="space-y-2 flex-1 mb-5">
                   {[
-                    "Modules illimités + labs",
+                    "Modules complets + labs interactifs",
                     "KITT illimité (voix + texte)",
                     "Attestations PDF vérifiables",
                     "Dashboard Manager",
-                    "Rapport mensuel auto",
+                    "Missions quotidiennes",
                     "Support prioritaire",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-foreground">
@@ -1308,10 +1311,13 @@ export default function Index() {
                 </ul>
                 <button
                   onClick={handleCTA}
-                  className="w-full py-3.5 rounded-lg text-white font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
-                  style={{ background: "hsl(var(--accent))" }}
+                  className="w-full py-3.5 rounded-lg font-black text-sm transition-all hover:brightness-110 active:scale-[0.98] focus-ring"
+                  style={{
+                    background: "hsl(var(--accent))",
+                    color: "hsl(var(--accent-foreground))",
+                  }}
                 >
-                  Activer Pro →
+                  Voir l'offre Pro →
                 </button>
               </div>
             </div>
