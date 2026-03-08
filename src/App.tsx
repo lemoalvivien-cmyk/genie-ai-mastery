@@ -154,12 +154,12 @@ const App = () => (
                 <Route path="/guides/:slug"  element={<GuideDetail />} />
                 <Route path="/legal"         element={<LegalCenter />} />
                 <Route path="/legal/:slug"   element={<LegalCenter />} />
-                {/* Legacy legal redirects */}
-                <Route path="/cgu"              element={<Legal />} />
-                <Route path="/confidentialite"  element={<Legal />} />
-                <Route path="/mentions-legales" element={<Legal />} />
-                <Route path="/rgpd"             element={<Legal />} />
-                <Route path="/security"         element={<Legal />} />
+                {/* Legacy legal redirects → LegalCenter (Legal.tsx supprimé Passe B) */}
+                <Route path="/cgu"              element={<Navigate to="/legal/cgu" replace />} />
+                <Route path="/confidentialite"  element={<Navigate to="/legal/confidentialite" replace />} />
+                <Route path="/mentions-legales" element={<Navigate to="/legal/mentions-legales" replace />} />
+                <Route path="/rgpd"             element={<Navigate to="/legal/rgpd" replace />} />
+                <Route path="/security"         element={<Navigate to="/legal/security" replace />} />
 
                 {/* ── Onboarding ──────────────────────────────────────── */}
                 <Route
