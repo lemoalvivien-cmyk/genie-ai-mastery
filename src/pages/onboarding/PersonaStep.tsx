@@ -60,10 +60,17 @@ const personas = [
 
 interface Props {
   onSelect: (persona: string) => void;
+  /** Masquer l'option "Dirigeant / RH" pour les collaborateurs B2B invités */
+  isInvited?: boolean;
 }
 
-export function PersonaStep({ onSelect }: Props) {
+export function PersonaStep({ onSelect, isInvited = false }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
+
+  // Les collaborateurs invités ne peuvent pas créer d'organisation
+  const visiblePersonas = isInvited
+    ? personas.filter((p) => p.id !== "dirigeant")
+    : personas;
 
   return (
     <div>
@@ -72,7 +79,7 @@ export function PersonaStep({ onSelect }: Props) {
         Votre Génie IA s'adapte à votre profil.
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="group" aria-label="Sélection du persona">
-        {personas.map((p) => {
+        {visiblePersonas.map((p) => {
           const Icon = p.icon;
           const isSelected = selected === p.id;
           return (
