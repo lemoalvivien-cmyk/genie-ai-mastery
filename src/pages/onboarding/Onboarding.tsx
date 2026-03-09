@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Building2, Users, Sparkles, CreditCard } from "lucide-react";
+import { Loader2, Building2, Users, Sparkles, CreditCard, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
@@ -19,10 +19,23 @@ export type OnboardingData = {
 
 const TOTAL_STEPS = 4;
 
+// ── Detect B2B invite context ──────────────────────────────────────────────
+// raw_user_meta_data is accessible on the client via user.user_metadata
+// after the user confirms their invitation email.
+function useInviteContext() {
+  const user = useAuthStore((s) => s.user);
+  const meta = user?.user_metadata ?? {};
+  const orgId: string | null = typeof meta.org_id === "string" ? meta.org_id : null;
+  const invitedBy: string | null = typeof meta.invited_by === "string" ? meta.invited_by : null;
+  return { isInvited: !!orgId, orgId, invitedBy };
+}
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { user, fetchProfile } = useAuthStore();
   const { track } = useAnalytics();
+  const { isInvited, orgId } = useInviteContext();
+
   const [step, setStep] = useState(1);
   const [data, setData] = useState<Partial<OnboardingData>>({});
   const [showOrgForm, setShowOrgForm] = useState(false);
@@ -35,8 +48,12 @@ export default function Onboarding() {
   const progressPct = ((step - 1) / TOTAL_STEPS) * 100;
 
   const handlePersona = (persona: string) => {
-    setData((d) => ({ ...d, persona }));
-    track("onboarding_step_done", { step: "persona", value: persona });
+    // ── Guard : un collaborateur invité ne peut PAS créer une org ──────
+    // Si invité B2B et persona dirigeant, on déplace silencieusement vers "salarie"
+    // pour éviter la création d'une 2e organisation par erreur.
+    const resolvedPersona = (isInvited && persona === "dirigeant") ? "salarie" : persona;
+    setData((d) => ({ ...d, persona: resolvedPersona }));
+    track("onboarding_step_done", { step: "persona", value: resolvedPersona, is_invited: isInvited });
     setStep(2);
   };
 
@@ -50,7 +67,8 @@ export default function Onboarding() {
     const finalData = { ...data, interests };
     track("onboarding_step_done", { step: "interests", count: interests.length });
 
-    if (finalData.persona === "dirigeant") {
+    // ── Dirigeant non-invité → formulaire org ─────────────────────────
+    if (finalData.persona === "dirigeant" && !isInvited) {
       setData((d) => ({ ...d, interests }));
       setShowOrgForm(true);
       return;
@@ -61,7 +79,6 @@ export default function Onboarding() {
   };
 
   const handleEmailStep = async (email: string | null) => {
-    // Save email lead if provided
     if (email) {
       try {
         await supabase.from("email_leads").insert({ email, source: "onboarding" });
@@ -77,7 +94,6 @@ export default function Onboarding() {
     setSaving(true);
     setError(null);
     try {
-      // 1. Save profile & create org in free mode (seats from Stripe later)
       if (!user) throw new Error("Non connecté");
       const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
       const orgSizeNum = parseInt(orgSize) || 5;
@@ -101,13 +117,11 @@ export default function Onboarding() {
       await fetchProfile(user.id);
       track("onboarding_done", { persona: data.persona, has_org: true });
 
-      // 2. Redirect to Stripe checkout to activate seats
       const seatsNeeded = Math.max(1, Math.ceil(orgSizeNum / 25));
       const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke("create-checkout", {
         body: { seats: seatsNeeded },
       });
       if (checkoutErr || !checkoutData?.url) {
-        // Fall back to dashboard if Stripe unavailable
         setShowConfetti(true);
         setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
         return;
@@ -126,9 +140,10 @@ export default function Onboarding() {
     setError(null);
 
     try {
-      let org_id: string | null = null;
+      let new_org_id: string | null = null;
 
-      if (org?.name) {
+      // ── Créer une org uniquement pour les non-invités qui en font la demande ──
+      if (org?.name && !isInvited) {
         const slug = org.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
         const { data: orgData, error: orgErr } = await supabase
           .from("organizations")
@@ -137,25 +152,37 @@ export default function Onboarding() {
           .single();
 
         if (!orgErr && orgData) {
-          org_id = orgData.id;
+          new_org_id = orgData.id;
           await supabase.from("user_roles").upsert({ user_id: user.id, role: "manager", org_id: orgData.id });
         }
       }
 
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
-      await supabase.from("profiles").update({
+      // ── Pour un invité B2B, org_id est déjà propagé par handle_new_user ─
+      // On ne l'écrase pas — on met juste à jour le profil utilisateur.
+      const profileUpdate: Record<string, unknown> = {
         persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
         onboarding_completed: true,
         has_completed_welcome: true,
-        ...(org_id ? { org_id, role: "manager" } : {}),
-      }).eq("id", user.id);
+      };
 
+      // Appliquer new_org_id uniquement si l'utilisateur vient de créer une org
+      if (new_org_id) {
+        profileUpdate.org_id = new_org_id;
+        profileUpdate.role = "manager";
+      }
+
+      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
       await fetchProfile(user.id);
-      track("onboarding_done", { persona: finalData.persona, level: finalData.level, has_org: !!org_id });
+      track("onboarding_done", {
+        persona: finalData.persona,
+        level: finalData.level,
+        has_org: !!(new_org_id ?? orgId),
+        is_invited: isInvited,
+      });
 
-      // Confetti then redirect
       setShowConfetti(true);
       setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
     } catch {
@@ -201,11 +228,20 @@ export default function Onboarding() {
         <div className="px-4 pt-6 pb-2 max-w-2xl mx-auto w-full">
           <div className="flex items-center justify-between mb-3">
             <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
-            {!showOrgForm && (
-              <span className="text-xs text-muted-foreground">
-                Étape {Math.min(step, TOTAL_STEPS)} / {TOTAL_STEPS}
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Badge collaborateur invité */}
+              {isInvited && (
+                <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary font-medium">
+                  <ShieldCheck className="w-3 h-3" />
+                  Collaborateur invité
+                </span>
+              )}
+              {!showOrgForm && (
+                <span className="text-xs text-muted-foreground">
+                  Étape {Math.min(step, TOTAL_STEPS)} / {TOTAL_STEPS}
+                </span>
+              )}
+            </div>
           </div>
           {!showOrgForm && (
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--border))" }}>
@@ -226,7 +262,7 @@ export default function Onboarding() {
           <div className="w-full max-w-2xl">
             {showConfetti ? null : !showOrgForm ? (
               <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
-                {step === 1 && <PersonaStep onSelect={handlePersona} />}
+                {step === 1 && <PersonaStep onSelect={handlePersona} isInvited={isInvited} />}
                 {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
                 {step === 3 && (
                   <InterestStep
@@ -245,7 +281,7 @@ export default function Onboarding() {
                 {error && <p role="alert" className="mt-4 text-sm text-destructive text-center">{error}</p>}
               </div>
             ) : (
-              /* Org form for Dirigeant */
+              /* Org form — uniquement pour dirigeant non-invité */
               <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
                 <div className="text-center mb-6">
                   <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
@@ -296,7 +332,6 @@ export default function Onboarding() {
 
                   {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
-                  {/* Stripe CTA notice */}
                   <div className="flex items-start gap-2.5 p-3 rounded-xl border border-primary/20 bg-primary/5">
                     <CreditCard className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     <div className="text-xs text-muted-foreground">
