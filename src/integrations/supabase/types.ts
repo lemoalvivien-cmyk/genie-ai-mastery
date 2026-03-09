@@ -2884,6 +2884,53 @@ export type Database = {
           },
         ]
       }
+      org_invitations: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          invited_user_id: string | null
+          org_id: string
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          invited_user_id?: string | null
+          org_id: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          invited_user_id?: string | null
+          org_id?: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_weekly_reports: {
         Row: {
           at_risk_count: number
@@ -4301,6 +4348,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_org_invitation: {
+        Args: { _invitation_id: string; _invited_user_id: string }
+        Returns: undefined
+      }
       calculate_org_stats: { Args: { _org_id: string }; Returns: Json }
       can_execute: {
         Args: {
@@ -4336,6 +4387,15 @@ export type Database = {
         Returns: boolean
       }
       cleanup_ip_rate_limits: { Args: never; Returns: undefined }
+      create_org_and_assign_manager: {
+        Args: {
+          _name: string
+          _seats_max?: number
+          _slug: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       flush_usage_buffer: { Args: never; Returns: Json }
       get_my_roles: {
         Args: never
@@ -4422,6 +4482,14 @@ export type Database = {
         Returns: undefined
       }
       reset_eco_mode: { Args: { _org_id: string }; Returns: undefined }
+      resolve_org_invitation: {
+        Args: { _email: string }
+        Returns: {
+          invitation_id: string
+          invited_by: string
+          org_id: string
+        }[]
+      }
       resolve_referral: { Args: { _code: string }; Returns: Json }
       search_knowledge_fts: {
         Args: { _limit?: number; _query: string; _user_id: string }
