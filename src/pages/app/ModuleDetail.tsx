@@ -316,7 +316,7 @@ export default function ModuleDetail() {
                     )}
                     <div className="h-2 rounded-full bg-secondary overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-500 ${progress.status === "completed" ? "bg-emerald" : "gradient-primary"}`}
-                        style={{ width: progress.status === "completed" ? "100%" : "50%" }} />
+                        style={{ width: progress.status === "completed" ? "100%" : progress.score != null ? `${Math.min(100, Math.max(10, progress.score))}%` : "10%" }} />
                     </div>
                   </div>
                 ) : (

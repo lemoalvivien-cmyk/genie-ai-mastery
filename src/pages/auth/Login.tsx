@@ -93,10 +93,11 @@ export default function Login() {
 
     if (authData?.user) {
       // Log connexion audit
-      supabase.rpc("log_audit", {
-        _action: "login",
+      supabase.rpc("log_event", {
+        _user_id: authData.user.id,
+        _event_type: "login",
         _resource_type: "auth",
-        _meta: { method: "password" },
+        _details: { method: "password" },
       }).then(() => {});
 
       // Check previous device

@@ -166,7 +166,7 @@ export default function ManagerDashboard() {
     if (!profile?.org_id) return;
     setLoading(true);
     try {
-      const [orgRes, statsRes, teamRes, campaignsRes, attestationsRes, modulesRes, budgetRes] = await Promise.all([
+      const [orgRes, statsRes, teamRes, campaignsRes, attestationsRes, modulesRes, aiBudgetRes] = await Promise.all([
         supabase.from("organizations").select("*").eq("id", profile.org_id).single(),
         supabase.rpc("calculate_org_stats", { _org_id: profile.org_id }),
         // profiles est la source correcte pour le manager de son org (intra-org, pas cross-org)
@@ -175,7 +175,8 @@ export default function ManagerDashboard() {
         supabase.from("campaigns").select("id, title, description, status, deadline, module_ids, target_group, created_at").eq("org_id", profile.org_id).order("created_at", { ascending: false }).limit(50),
         supabase.from("attestations").select("id, user_id, generated_at, score_average, pdf_url, valid_until, modules_completed").eq("org_id", profile.org_id).order("generated_at", { ascending: false }).limit(100),
         supabase.from("modules").select("id, title").eq("is_published", true).limit(200),
-        supabase.rpc("check_budget", { _user_id: profile.id, _org_id: profile.org_id }),
+        // ai_budgets table (correct name, not org_budgets)
+        supabase.from("ai_budgets").select("daily_limit, used_today, is_blocked, reset_date").eq("org_id", profile.org_id).maybeSingle(),
       ]);
 
       if (orgRes.data) {
@@ -190,13 +191,16 @@ export default function ManagerDashboard() {
       if (attestationsRes.data) setAttestations(attestationsRes.data as Attestation[]);
       if (modulesRes.data) setModules(modulesRes.data);
 
-      // Budget data
-      if (budgetRes.data) {
-        const bd = budgetRes.data as Record<string, unknown>;
-        setBudgetUsage({ org_cost_today: Number(bd.org_cost_today ?? 0), org_tokens_today: Number(bd.org_tokens_today ?? 0) });
-        // Fetch org_budgets config
-        const { data: ob } = await supabase.from("org_budgets").select("*").eq("org_id", profile.org_id).maybeSingle();
-        if (ob) setOrgBudget(ob as typeof orgBudget);
+      // Budget data from ai_budgets (correct table)
+      if (aiBudgetRes.data) {
+        const bd = aiBudgetRes.data as { daily_limit: number; used_today: number; is_blocked: boolean; reset_date: string };
+        setBudgetUsage({ org_cost_today: bd.used_today ?? 0, org_tokens_today: 0 });
+        setOrgBudget({
+          daily_cost_cap: bd.daily_limit ?? 5,
+          daily_token_cap: 0,
+          eco_mode_forced: bd.is_blocked ?? false,
+          eco_triggered_at: null,
+        });
       }
 
       // Build team with progress stats
