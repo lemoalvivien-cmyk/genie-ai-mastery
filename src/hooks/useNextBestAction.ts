@@ -34,9 +34,11 @@ export function useNextBestAction() {
         return null;
       }
 
-      if (!data || (data as { error?: string }).error) return null;
+      if (!data) return null;
+      const result = data as unknown as NextBestAction;
+      if ((result as { error?: string }).error) return null;
 
-      return data as NextBestAction;
+      return result;
     },
     enabled: !!user?.id,
     staleTime: 2 * 60 * 1000,
