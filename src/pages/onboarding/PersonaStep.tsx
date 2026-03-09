@@ -79,7 +79,7 @@ export function PersonaStep({ onSelect, isInvited = false }: Props) {
         Votre Génie IA s'adapte à votre profil.
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="group" aria-label="Sélection du persona">
-        {personas.map((p) => {
+        {visiblePersonas.map((p) => {
           const Icon = p.icon;
           const isSelected = selected === p.id;
           return (
