@@ -319,8 +319,8 @@ export default function Today() {
       _top_domain: topDomain,
     });
 
-    if (guided && !("error" in guided)) {
-      setMission(guided as Mission);
+    if (guided && typeof guided === "object" && !Array.isArray(guided) && !("error" in (guided as object))) {
+      setMission(guided as unknown as Mission);
       setPhase("card");
       return;
     }
