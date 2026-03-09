@@ -108,11 +108,21 @@ export function useKITTContext() {
       const lastEntry = inProgressEntry ?? progressData[0];
 
       if (lastEntry?.modules) {
+        // progress_pct réel :
+        // - completed → 100
+        // - score disponible → utiliser score directement (0–100)
+        // - aucune donnée → 0 (honnête, pas 50 faux)
+        const progressPct = lastEntry.status === "completed"
+          ? 100
+          : lastEntry.score != null
+            ? Math.round(Math.min(100, Math.max(0, lastEntry.score)))
+            : 0;
+
         lastModuleInfo = {
           id: lastEntry.modules.id,
           title: lastEntry.modules.title,
           domain: lastEntry.modules.domain,
-          progress_pct: lastEntry.status === "completed" ? 100 : 50,
+          progress_pct: progressPct,
         };
       }
 
