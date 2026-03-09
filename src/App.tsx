@@ -187,6 +187,7 @@ const App = () => (
                   <Route path="onboarding/result" element={<OnboardingResult />} />
                   <Route path="onboarding/unlock" element={<OnboardingUnlock />} />
                   <Route path="dashboard"     element={<Dashboard />} />
+                  <Route path="placement"     element={<PlacementQuiz />} />
                   <Route path="modules"       element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
                   <Route path="chat"          element={<Chat />} />
