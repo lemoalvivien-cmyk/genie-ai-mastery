@@ -10,6 +10,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NextBestActionCard } from "@/components/dashboard/NextBestActionCard";
+import { RecentArtifactsCard } from "@/components/dashboard/RecentArtifactsCard";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
 function AnimatedNumber({ value }: { value: number }) {
