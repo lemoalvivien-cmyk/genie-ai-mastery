@@ -146,15 +146,14 @@ Deno.serve(async (req) => {
     }
 
     // ── 7. Envoyer l'invitation auth via service_role ─────────────────────────
-    // On ne transporte PLUS org_id dans les metadata.
-    // handle_new_user résout l'invitation depuis org_invitations via l'email.
+    // AUCUN org_id dans les metadata : handle_new_user résout l'invitation
+    // depuis public.org_invitations via l'email — pas depuis raw_user_meta_data.
     const siteUrl = Deno.env.get("SITE_URL") ?? "https://genie-ai-mastery.lovable.app";
     const { data: inviteData, error: inviteErr } = await adminClient.auth.admin.inviteUserByEmail(
       email,
       {
         data: {
-          // Contexte minimal pour l'onboarding UI (lecture seule, non utilisé pour la sécurité)
-          invited_by_name: user.id,
+          // Contexte UI uniquement — jamais utilisé pour décisions de sécurité
           org_name: org?.name ?? "votre équipe",
         },
         redirectTo: `${siteUrl}/onboarding`,
