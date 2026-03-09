@@ -20,14 +20,15 @@ export type OnboardingData = {
 const TOTAL_STEPS = 4;
 
 // ── Detect B2B invite context ──────────────────────────────────────────────
-// raw_user_meta_data is accessible on the client via user.user_metadata
-// after the user confirms their invitation email.
+// isInvited est déterminé par le profil serveur (org_id déjà propagé par
+// handle_new_user via la table org_invitations — pas via metadata brut).
+// On ne lit plus user.user_metadata.org_id comme source de vérité.
 function useInviteContext() {
-  const user = useAuthStore((s) => s.user);
-  const meta = user?.user_metadata ?? {};
-  const orgId: string | null = typeof meta.org_id === "string" ? meta.org_id : null;
-  const invitedBy: string | null = typeof meta.invited_by === "string" ? meta.invited_by : null;
-  return { isInvited: !!orgId, orgId, invitedBy };
+  const profile = useAuthStore((s) => s.profile);
+  // Si le profil a déjà un org_id côté serveur, l'utilisateur est un invité B2B
+  const isInvited = !!profile?.org_id;
+  const orgId: string | null = profile?.org_id ?? null;
+  return { isInvited, orgId };
 }
 
 export default function Onboarding() {
@@ -48,9 +49,7 @@ export default function Onboarding() {
   const progressPct = ((step - 1) / TOTAL_STEPS) * 100;
 
   const handlePersona = (persona: string) => {
-    // ── Guard : un collaborateur invité ne peut PAS créer une org ──────
-    // Si invité B2B et persona dirigeant, on déplace silencieusement vers "salarie"
-    // pour éviter la création d'une 2e organisation par erreur.
+    // Un collaborateur invité ne peut PAS créer une org — persona forcé à salarie
     const resolvedPersona = (isInvited && persona === "dirigeant") ? "salarie" : persona;
     setData((d) => ({ ...d, persona: resolvedPersona }));
     track("onboarding_step_done", { step: "persona", value: resolvedPersona, is_invited: isInvited });
@@ -64,11 +63,10 @@ export default function Onboarding() {
   };
 
   const handleInterests = (interests: string[]) => {
-    const finalData = { ...data, interests };
     track("onboarding_step_done", { step: "interests", count: interests.length });
 
-    // ── Dirigeant non-invité → formulaire org ─────────────────────────
-    if (finalData.persona === "dirigeant" && !isInvited) {
+    // Dirigeant non-invité → formulaire org
+    if (data.persona === "dirigeant" && !isInvited) {
       setData((d) => ({ ...d, interests }));
       setShowOrgForm(true);
       return;
@@ -86,81 +84,80 @@ export default function Onboarding() {
         // non-blocking
       }
     }
-    await saveOnboarding(data as OnboardingData, null);
+    await saveOnboarding(data as OnboardingData);
   };
 
+  // ── Org submit — passe par l'edge function create-org-bootstrap ────────────
+  // Plus d'écriture directe dans user_roles depuis le client.
   const handleOrgSubmit = async () => {
     if (!orgName.trim()) return;
     setSaving(true);
     setError(null);
     try {
       if (!user) throw new Error("Non connecté");
-      const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
-      const orgSizeNum = parseInt(orgSize) || 5;
-      const { data: orgData, error: orgErr } = await supabase
-        .from("organizations")
-        .insert({ name: orgName.trim(), slug, plan: "free", seats_max: orgSizeNum })
-        .select("id")
-        .single();
-      if (orgErr) throw orgErr;
 
-      // Assign manager role
-      await supabase.from("user_roles").upsert({ user_id: user.id, role: "manager", org_id: orgData.id });
+      const orgSizeNum = parseInt(orgSize) || 5;
+      const slug =
+        orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") +
+        "-" +
+        Date.now();
+
+      // ── Appel serveur sécurisé — create-org-bootstrap ──────────────────
+      // La RPC create_org_and_assign_manager attribue le rôle manager
+      // côté serveur via SECURITY DEFINER. Aucun write client dans user_roles.
+      const { data: bootstrapResult, error: bootstrapErr } = await supabase.functions.invoke(
+        "create-org-bootstrap",
+        { body: { name: orgName.trim(), slug, seats_max: orgSizeNum } },
+      );
+
+      if (bootstrapErr) throw bootstrapErr;
+      if (!bootstrapResult?.ok) throw new Error(bootstrapResult?.error ?? "Erreur serveur");
+
+      const newOrgId: string = bootstrapResult.org_id;
+
+      // Mettre à jour le profil utilisateur (persona, level, onboarding flags)
+      // org_id et role sont déjà écrits par la RPC côté serveur
       await supabase.from("profiles").update({
         persona: data.persona as never,
         level: ({ debutant: 1, intermediaire: 3, avance: 5 } as Record<string, number>)[data.level ?? "debutant"] ?? 1,
         onboarding_completed: true,
         has_completed_welcome: true,
-        org_id: orgData.id,
-        role: "manager",
       }).eq("id", user.id);
-      await fetchProfile(user.id);
-      track("onboarding_done", { persona: data.persona, has_org: true });
 
+      await fetchProfile(user.id);
+      track("onboarding_done", { persona: data.persona, has_org: true, org_id: newOrgId });
+
+      // Redirection vers paiement ou dashboard
       const seatsNeeded = Math.max(1, Math.ceil(orgSizeNum / 25));
-      const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke("create-checkout", {
-        body: { seats: seatsNeeded },
-      });
+      const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke(
+        "create-checkout",
+        { body: { seats: seatsNeeded } },
+      );
       if (checkoutErr || !checkoutData?.url) {
         setShowConfetti(true);
         setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
         return;
       }
       window.location.href = checkoutData.url;
-    } catch {
-      setError("Une erreur est survenue. Réessayez.");
+    } catch (e) {
+      setError((e as Error).message ?? "Une erreur est survenue. Réessayez.");
     } finally {
       setSaving(false);
     }
   };
 
-  const saveOnboarding = async (finalData: OnboardingData, org: { name: string; size: string } | null) => {
+  // ── saveOnboarding — flux collaborateur invité ou utilisateur individuel ──
+  // Ne crée JAMAIS d'org, n'écrit JAMAIS dans user_roles.
+  const saveOnboarding = async (finalData: OnboardingData) => {
     if (!user) return;
     setSaving(true);
     setError(null);
 
     try {
-      let new_org_id: string | null = null;
-
-      // ── Créer une org uniquement pour les non-invités qui en font la demande ──
-      if (org?.name && !isInvited) {
-        const slug = org.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
-        const { data: orgData, error: orgErr } = await supabase
-          .from("organizations")
-          .insert({ name: org.name, slug, plan: "free", seats_max: parseInt(org.size) || 5 })
-          .select("id")
-          .single();
-
-        if (!orgErr && orgData) {
-          new_org_id = orgData.id;
-          await supabase.from("user_roles").upsert({ user_id: user.id, role: "manager", org_id: orgData.id });
-        }
-      }
-
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
-      // ── Pour un invité B2B, org_id est déjà propagé par handle_new_user ─
-      // On ne l'écrase pas — on met juste à jour le profil utilisateur.
+      // Pour un invité B2B, org_id est déjà propagé par handle_new_user
+      // via la table org_invitations. On ne l'écrase pas.
       const profileUpdate: Record<string, unknown> = {
         persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
@@ -168,18 +165,12 @@ export default function Onboarding() {
         has_completed_welcome: true,
       };
 
-      // Appliquer new_org_id uniquement si l'utilisateur vient de créer une org
-      if (new_org_id) {
-        profileUpdate.org_id = new_org_id;
-        profileUpdate.role = "manager";
-      }
-
       await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
       await fetchProfile(user.id);
       track("onboarding_done", {
         persona: finalData.persona,
         level: finalData.level,
-        has_org: !!(new_org_id ?? orgId),
+        has_org: !!orgId,
         is_invited: isInvited,
       });
 
@@ -229,7 +220,6 @@ export default function Onboarding() {
           <div className="flex items-center justify-between mb-3">
             <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
             <div className="flex items-center gap-3">
-              {/* Badge collaborateur invité */}
               {isInvited && (
                 <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary font-medium">
                   <ShieldCheck className="w-3 h-3" />
@@ -342,7 +332,7 @@ export default function Onboarding() {
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       type="button"
-                      onClick={() => saveOnboarding(data as OnboardingData, null)}
+                      onClick={() => saveOnboarding(data as OnboardingData)}
                       disabled={saving}
                       className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
                     >
@@ -354,7 +344,10 @@ export default function Onboarding() {
                       disabled={saving || !orgName.trim()}
                       className="flex-1 py-2.5 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CreditCard className="w-4 h-4" />Créer &amp; Activer</>}
+                      {saving
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <><CreditCard className="w-4 h-4" />Créer &amp; Activer</>
+                      }
                     </button>
                   </div>
                 </div>
