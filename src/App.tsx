@@ -29,6 +29,7 @@ const OnboardingQuiz    = lazy(() => import("./pages/app/onboarding/OnboardingQu
 const OnboardingResult  = lazy(() => import("./pages/app/onboarding/OnboardingResult"));
 const OnboardingUnlock  = lazy(() => import("./pages/app/onboarding/OnboardingUnlock"));
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
+const PlacementQuiz  = lazy(() => import("./pages/app/PlacementQuiz"));
 const Modules        = lazy(() => import("./pages/app/Modules"));
 const ModuleDetail   = lazy(() => import("./pages/app/ModuleDetail"));
 const Chat           = lazy(() => import("./pages/app/Chat"));
