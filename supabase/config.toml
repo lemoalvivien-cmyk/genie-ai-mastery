@@ -164,6 +164,9 @@ verify_jwt = true
 [functions.manager-invite]
 verify_jwt = true
 
+[functions.create-org-bootstrap]
+verify_jwt = true
+
 # ── Public stats — no JWT needed (public endpoint) ───────────────────────────
 [functions.get-public-stats]
 verify_jwt = false
