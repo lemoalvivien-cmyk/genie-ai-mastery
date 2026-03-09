@@ -51,9 +51,12 @@ export function ModuleCard({ module, progress, onPrefetch }: Props) {
   const { track } = useAnalytics();
   const domain = DOMAIN_CONFIG[module.domain] ?? DOMAIN_CONFIG.ia_pro;
   const level = LEVEL_CONFIG[module.level];
-  const pct = progress?.status === "completed" ? 100
-    : progress?.status === "in_progress" ? 50
-    : 0;
+  // BLOC 0 — Suppression du 50 hardcodé. Utilise le score réel ou 10% honnête (démarré)
+  const pct = progress?.status === "completed"
+    ? 100
+    : progress?.status === "in_progress"
+      ? (progress.score != null ? Math.round(Math.min(100, Math.max(0, progress.score))) : 10)
+      : 0;
   const isCompleted = progress?.status === "completed";
   const isInProgress = progress?.status === "in_progress";
 

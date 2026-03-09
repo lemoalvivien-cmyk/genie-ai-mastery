@@ -3240,6 +3240,48 @@ export type Database = {
           },
         ]
       }
+      placement_quiz_results: {
+        Row: {
+          answers: Json
+          id: string
+          scores: Json
+          taken_at: string
+          total_score: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          id?: string
+          scores?: Json
+          taken_at?: string
+          total_score?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          id?: string
+          scores?: Json
+          taken_at?: string
+          total_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "placement_quiz_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "placement_quiz_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_limits: {
         Row: {
           ai_tokens_out_max: number
@@ -3286,6 +3328,7 @@ export type Database = {
           org_id: string | null
           panic_uses: number | null
           persona: Database["public"]["Enums"]["persona_type"] | null
+          placement_done: boolean
           preferred_mode:
             | Database["public"]["Enums"]["preferred_mode_type"]
             | null
@@ -3309,6 +3352,7 @@ export type Database = {
           org_id?: string | null
           panic_uses?: number | null
           persona?: Database["public"]["Enums"]["persona_type"] | null
+          placement_done?: boolean
           preferred_mode?:
             | Database["public"]["Enums"]["preferred_mode_type"]
             | null
@@ -3332,6 +3376,7 @@ export type Database = {
           org_id?: string | null
           panic_uses?: number | null
           persona?: Database["public"]["Enums"]["persona_type"] | null
+          placement_done?: boolean
           preferred_mode?:
             | Database["public"]["Enums"]["preferred_mode_type"]
             | null
@@ -4397,12 +4442,22 @@ export type Database = {
         Returns: Json
       }
       flush_usage_buffer: { Args: never; Returns: Json }
+      get_guided_daily_mission: {
+        Args: {
+          _level?: number
+          _persona?: string
+          _top_domain?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       get_my_roles: {
         Args: never
         Returns: {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
+      get_next_best_action: { Args: { _user_id: string }; Returns: Json }
       get_openclaw_policy: { Args: { _org_id: string }; Returns: Json }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {

@@ -299,53 +299,40 @@ export default function Today() {
 
   const fetchMission = async () => {
     if (!session?.user?.id) return;
-    const sevenDaysAgo = getLocalDateMinusDays(7);
 
-    // Get missions not done in 7 days
-    const { data: recentLogs } = await supabase
-      .from("user_daily_log")
-      .select("mission_id")
+    // BLOC 3 — Sélection guidée via RPC déterministe (domaine faible → niveau → déduplication 7j)
+    // Récupère d'abord le top_gap depuis skill_mastery pour prioriser le domaine faible
+    const { data: gapData } = await supabase
+      .from("skill_mastery")
+      .select("p_mastery, skills(domain)")
       .eq("user_id", session.user.id)
-      .gte("completed_date", sevenDaysAgo);
+      .order("p_mastery", { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    const recentIds = (recentLogs ?? []).map((l) => l.mission_id);
+    const topDomain = (gapData?.skills as { domain?: string } | null)?.domain ?? null;
 
-    let query = supabase
-      .from("daily_missions")
-      .select("*")
-      .eq("is_active", true);
+    const { data: guided } = await supabase.rpc("get_guided_daily_mission", {
+      _user_id:    session.user.id,
+      _persona:    profile?.persona ?? "salarie",
+      _level:      profile?.level ?? 1,
+      _top_domain: topDomain,
+    });
 
-    // Filter by user's domain preferences based on persona
-    const domainMap: Record<string, string[]> = {
-      dirigeant: ["cyber", "ia_pro"],
-      salarie: ["cyber", "ia_pro", "ia_perso"],
-      jeune: ["vibe_coding", "ia_perso"],
-      independant: ["ia_pro", "vibe_coding"],
-      parent: ["ia_perso", "cyber"],
-      senior: ["cyber", "ia_perso"],
-    };
-    const persona = profile?.persona ?? null;
-    const preferredDomains = persona && domainMap[persona] ? domainMap[persona] : ["cyber", "ia_pro", "ia_perso", "vibe_coding"];
-
-    query = query.in("domain", preferredDomains);
-
-    if (recentIds.length > 0) {
-      query = query.not("id", "in", `(${recentIds.join(",")})`);
+    if (guided && typeof guided === "object" && !Array.isArray(guided) && !("error" in (guided as object))) {
+      setMission(guided as unknown as Mission);
+      setPhase("card");
+      return;
     }
 
-    const { data: missions } = await query;
-
-    if (!missions || missions.length === 0) {
-      // Recycle — pick any random mission
-      const { data: anyMissions } = await supabase.from("daily_missions").select("*").eq("is_active", true).limit(30);
-      if (anyMissions && anyMissions.length > 0) {
-        const picked = anyMissions[Math.floor(Math.random() * anyMissions.length)];
-        setMission(picked as Mission);
-        setPhase("card");
-      }
-    } else {
-      const picked = missions[Math.floor(Math.random() * missions.length)];
-      setMission(picked as Mission);
+    // Fallback: client-side if RPC unavailable
+    const { data: fallback } = await supabase
+      .from("daily_missions")
+      .select("*")
+      .eq("is_active", true)
+      .limit(20);
+    if (fallback?.length) {
+      setMission(fallback[Math.floor(Math.random() * fallback.length)] as Mission);
       setPhase("card");
     }
   };
