@@ -362,6 +362,16 @@ export default function Dashboard() {
             </div>
           ) : null}
 
+          {/* ── 7. NBA Card ── */}
+          <div className="animate-slide-up">
+            <NextBestActionCard />
+          </div>
+
+          {/* ── 8. Recent Artifacts ── */}
+          <div className="animate-slide-up">
+            <RecentArtifactsCard />
+          </div>
+
         </main>
       </div>
     </>
