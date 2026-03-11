@@ -1,22 +1,24 @@
 // ─── manager-invite — Edge Function ──────────────────────────────────────────
 // Envoie une invitation B2B par email.
-// VAGUE 1.6 : écrit maintenant dans org_invitations (preuve serveur)
-//             AVANT d'appeler inviteUserByEmail.
-// handle_new_user résoudra l'invitation via la table, plus via metadata brut.
+// VAGUE 1.6 : écrit dans org_invitations (preuve serveur) AVANT inviteUserByEmail.
+// handle_new_user résout l'invitation via la table, pas via metadata brut.
 //
 // Auth requise : JWT valide + rôle manager ou admin dans user_roles.
 // Body : { email: string; org_id: string }
+// CORS : dynamique via _shared/cors.ts — plus de wildcard *
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  const JSON_HEADERS = { ...CORS_HEADERS, "Content-Type": "application/json" };
+  const JSON_HEADERS = { ...corsHeaders, "Content-Type": "application/json" };
 
   try {
     // ── 1. Valider le JWT ─────────────────────────────────────────────────────
@@ -176,9 +178,10 @@ Deno.serve(async (req) => {
       { status: 200, headers: JSON_HEADERS },
     );
   } catch (err) {
+    const corsHeaders = getCorsHeaders(req);
     return new Response(
       JSON.stringify({ error: String(err) }),
-      { status: 500, headers: CORS_HEADERS },
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
