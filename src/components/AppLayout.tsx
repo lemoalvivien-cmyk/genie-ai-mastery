@@ -224,7 +224,7 @@ export default function AppLayout() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all text-xs relative min-w-0 ${
+                `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all text-xs relative min-w-[52px] min-h-[52px] justify-center ${
                   isActive ? "" : "text-muted-foreground"
                 }`
               }
