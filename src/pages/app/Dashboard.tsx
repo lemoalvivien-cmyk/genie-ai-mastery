@@ -360,7 +360,27 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-          ) : null}
+          ) : (
+            /* Empty state — premier lancement, aucune progression */
+            <div
+              className="animate-slide-up p-5 rounded-2xl text-center"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.1)" }}
+            >
+              <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium" style={{ color: "#E8E9F0" }}>
+                Aucune progression pour l'instant
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                Commencez votre premier module pour suivre votre avancement ici.
+              </p>
+              <Link
+                to="/app/modules"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              >
+                Explorer les modules <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
 
           {/* ── 7. NBA Card ── */}
           <div className="animate-slide-up">
