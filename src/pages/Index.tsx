@@ -215,40 +215,43 @@ ScanDivider.displayName = "ScanDivider";
 /* ─── FAQ Item ───────────────────────────────────────────────── */
 const FaqItem = React.forwardRef<HTMLDivElement, { q: string; a: string }>(
   function FaqItem({ q, a }, ref) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div
-      className="rounded-lg overflow-hidden transition-colors duration-200"
-      style={{
-        background: "hsl(var(--card))",
-        border: `1px solid ${open ? "hsl(var(--primary)/0.25)" : "hsl(var(--border))"}`,
-      }}
-    >
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg"
-        aria-expanded={open}
-      >
-        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-150">
-          {q}
-        </span>
-        <ChevronDown
-          className="w-4 h-4 shrink-0 transition-transform duration-200 ease-out"
-          style={{
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            color: open ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
-          }}
-        />
-      </button>
+    const [open, setOpen] = useState(false);
+    return (
       <div
-        className="overflow-hidden transition-all duration-200 ease-out"
-        style={{ maxHeight: open ? "200px" : "0px" }}
+        ref={ref}
+        className="rounded-lg overflow-hidden transition-colors duration-200"
+        style={{
+          background: "hsl(var(--card))",
+          border: `1px solid ${open ? "hsl(var(--primary)/0.25)" : "hsl(var(--border))"}`,
+        }}
       >
-        <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">{a}</p>
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg"
+          aria-expanded={open}
+        >
+          <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-150">
+            {q}
+          </span>
+          <ChevronDown
+            className="w-4 h-4 shrink-0 transition-transform duration-200 ease-out"
+            style={{
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              color: open ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+            }}
+          />
+        </button>
+        <div
+          className="overflow-hidden transition-all duration-200 ease-out"
+          style={{ maxHeight: open ? "200px" : "0px" }}
+        >
+          <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">{a}</p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+FaqItem.displayName = "FaqItem";
 
 /* ─── KITT Bar — grammaire visuelle K2000 ───────────────────── */
 const KittBar = React.forwardRef<
