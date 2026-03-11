@@ -100,7 +100,7 @@ export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
   if (loading) {
     // Skeleton while fetching
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+      <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="text-center animate-pulse">
             <div className="h-7 w-16 bg-muted/50 rounded mx-auto mb-1.5" />
@@ -114,7 +114,7 @@ export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
   if (!hasRealData) {
     // Option B — qualitative arguments
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+      <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
         {QUALITATIVE_STATS.map((s) => {
           const Icon = s.icon;
           return (
