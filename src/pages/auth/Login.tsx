@@ -234,15 +234,15 @@ export default function Login() {
                       type="email"
                       {...register("email")}
                       placeholder="votre@email.com"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
-                    />
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                      />
+                    </div>
                   </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={sendReset}
-                  disabled={magicLoading || !emailValue}
-                  className="w-full py-3 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  <button
+                    type="button"
+                    onClick={sendReset}
+                    disabled={magicLoading || !emailValue}
+                    className="w-full py-3 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
                 >
                   {magicLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Envoyer le lien"}
                 </button>
