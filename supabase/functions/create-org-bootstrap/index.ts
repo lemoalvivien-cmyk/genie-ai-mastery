@@ -2,7 +2,7 @@
 // Crée une organisation ET attribue le rôle manager côté serveur.
 // Remplace l'upsert client-side dans user_roles (qui était structurellement bancal).
 //
-// Auth requise : JWT valide.
+// Auth requise : JWT valide (vérifié via getClaims).
 // Body : { name: string; slug: string; seats_max: number }
 // Retourne : { ok: true; org_id: string } | { ok: false; error: string }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   const JSON_HEADERS = { ...CORS_HEADERS, "Content-Type": "application/json" };
 
   try {
-    // ── 1. Valider le JWT ────────────────────────────────────────────────────
+    // ── 1. Valider le JWT via getClaims (compatible signing-keys) ────────────
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
@@ -31,20 +31,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Client avec le JWT de l'appelant pour valider l'identité
+    const token = authHeader.replace("Bearer ", "");
+
+    // Utiliser getClaims() — méthode recommandée avec le système signing-keys
+    const anonClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { auth: { persistSession: false } },
+    );
+
+    const { data: claimsData, error: claimsErr } = await anonClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401, headers: JSON_HEADERS,
+      });
+    }
+
+    const userId = claimsData.claims.sub as string;
+
+    // Client avec le JWT de l'appelant pour les appels RPC (RLS = auth.uid())
     const userClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false } },
     );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authErr } = await userClient.auth.getUser(token);
-    if (authErr || !user) {
-      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
-        status: 401, headers: JSON_HEADERS,
-      });
-    }
 
     // ── 2. Parse et valider le body ──────────────────────────────────────────
     const body = await req.json().catch(() => ({})) as Record<string, unknown>;
@@ -72,9 +82,8 @@ Deno.serve(async (req) => {
     }
 
     // ── 3. Déléguer à la RPC SECURITY DEFINER (côté serveur) ────────────────
-    // La RPC valide auth.uid() == _user_id côté DB — pas de possibilité de proxy
     const { data, error: rpcErr } = await userClient.rpc("create_org_and_assign_manager", {
-      _user_id:   user.id,
+      _user_id:   userId,
       _name:      name,
       _slug:      slug,
       _seats_max: seatsMax,
