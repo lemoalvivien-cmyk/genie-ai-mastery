@@ -167,7 +167,7 @@ export default function Register() {
                         aria-invalid={!!errors.full_name}
                         aria-describedby={errors.full_name ? "fn-err" : undefined}
                         {...register("full_name")}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                     </div>
                     {errors.full_name && (
@@ -187,7 +187,7 @@ export default function Register() {
                         placeholder="marie@example.com"
                         aria-invalid={!!errors.email}
                         {...register("email")}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                     </div>
                     {errors.email && <p role="alert" className="text-xs text-destructive mt-1">{errors.email.message}</p>}
@@ -205,13 +205,13 @@ export default function Register() {
                         placeholder="Min. 8 caractères"
                         aria-invalid={!!errors.password}
                         {...register("password")}
-                        className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -301,7 +301,7 @@ export default function Register() {
                       value={magicEmail}
                       onChange={(e) => setMagicEmail(e.target.value)}
                       placeholder="votre@email.com"
-                      className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                      className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                     />
                     <button
                       type="button"
