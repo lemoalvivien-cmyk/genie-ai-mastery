@@ -75,45 +75,56 @@ export function useStreak() {
   }, [fetchStreak]);
 
   const completeMission = useCallback(
-    async (missionId: string, xpEarned: number, score?: number, timeSpent?: number) => {
-      if (!userId) return;
+    async (missionId: string, xpEarned: number, score?: number, timeSpent?: number): Promise<{ ok: boolean; error?: string }> => {
+      if (!userId) return { ok: false, error: "no_session" };
       const today = getLocalDate();
 
-      await supabase.from("user_daily_log").upsert({
-        user_id: userId,
-        mission_id: missionId,
-        completed_date: today,
-        score: score ?? null,
-        xp_earned: xpEarned,
-        time_spent_seconds: timeSpent ?? null,
-      });
+      try {
+        const { error: upsertError } = await supabase.from("user_daily_log").upsert({
+          user_id: userId,
+          mission_id: missionId,
+          completed_date: today,
+          score: score ?? null,
+          xp_earned: xpEarned,
+          time_spent_seconds: timeSpent ?? null,
+        });
 
-      const currentStreak = streak?.current_streak ?? 0;
-      const lastDate = streak?.last_completed_date ?? null;
-      const yesterday = getLocalYesterday();
+        if (upsertError) throw upsertError;
 
-      let newStreak = 1;
-      if (lastDate === today) {
-        newStreak = currentStreak;
-      } else if (lastDate === yesterday) {
-        newStreak = currentStreak + 1;
+        const currentStreak = streak?.current_streak ?? 0;
+        const lastDate = streak?.last_completed_date ?? null;
+        const yesterday = getLocalYesterday();
+
+        let newStreak = 1;
+        if (lastDate === today) {
+          newStreak = currentStreak;
+        } else if (lastDate === yesterday) {
+          newStreak = currentStreak + 1;
+        }
+
+        const newLongest = Math.max(streak?.longest_streak ?? 0, newStreak);
+        const newTotalXp = (streak?.total_xp ?? 0) + xpEarned;
+
+        const { error: updateError } = await supabase
+          .from("user_streaks")
+          .update({
+            current_streak: newStreak,
+            longest_streak: newLongest,
+            total_xp: newTotalXp,
+            last_completed_date: today,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
+
+        if (updateError) throw updateError;
+
+        await fetchStreak();
+        return { ok: true };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[useStreak] completeMission failed:", msg);
+        return { ok: false, error: msg };
       }
-
-      const newLongest = Math.max(streak?.longest_streak ?? 0, newStreak);
-      const newTotalXp = (streak?.total_xp ?? 0) + xpEarned;
-
-      await supabase
-        .from("user_streaks")
-        .update({
-          current_streak: newStreak,
-          longest_streak: newLongest,
-          total_xp: newTotalXp,
-          last_completed_date: today,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_id", userId);
-
-      await fetchStreak();
     },
     [userId, streak, fetchStreak]
   );
