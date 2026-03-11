@@ -64,7 +64,8 @@ const QUALITATIVE_STATS = [
   },
 ];
 
-export function LandingStats() {
+// forwardRef: prevents React 18 dev-mode warning when rendered inside lazy/Suspense tree
+export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
   const [stats, setStats] = useState<PublicStats | null>(() => loadFromCache());
   const [loading, setLoading] = useState(!loadFromCache());
 
