@@ -166,7 +166,7 @@ export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
         ].slice(0, 4);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+    <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
       {displayStats.map((s) => (
         <div key={s.label} className="text-center">
           <div className="text-2xl font-black text-foreground">{s.value}</div>
@@ -175,4 +175,5 @@ export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
       ))}
     </div>
   );
-}
+});
+LandingStats.displayName = "LandingStats";
