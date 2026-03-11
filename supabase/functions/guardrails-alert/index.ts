@@ -6,6 +6,7 @@
  */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { verifyCronSecret } from "../_shared/cron-auth.ts";
 
 const ALLOWED_ORIGINS = [
   "https://genie-ia.app",
@@ -17,7 +18,7 @@ function getCorsHeaders(req: Request) {
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
   };
 }
 
@@ -28,6 +29,13 @@ const GLOBAL_DAILY_COST_CAP_EUR = 150;  // Global kill if total day cost exceeds
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // ── Auth: CRON_SECRET (called by pg_cron, no JWT) ──────────────────────────
+  try {
+    verifyCronSecret(req);
+  } catch (resp) {
+    return resp as Response;
+  }
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
