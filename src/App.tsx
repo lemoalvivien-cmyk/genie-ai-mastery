@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { FEATURES } from "@/config/features";
 import { Loader2 } from "lucide-react";
@@ -97,11 +97,13 @@ const RevenueAnalytics   = lazy(() => import("./pages/genieos/RevenueAnalytics")
 const SystemHealth       = lazy(() => import("./pages/genieos/SystemHealth"));
 const LogsViewer         = lazy(() => import("./pages/genieos/LogsViewer"));
 
-const PageLoader = () => (
-  <div className="flex min-h-screen items-center justify-center bg-background">
-    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+// forwardRef required: React 18 Suspense can pass internal refs to fallback elements
+const PageLoader = React.forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="flex min-h-screen items-center justify-center bg-background">
+    <Loader2 className="w-8 h-8 animate-spin text-primary" aria-label="Chargement..." />
   </div>
-);
+));
+PageLoader.displayName = "PageLoader";
 
 /** Initialise l'état auth global — appelé UNE seule fois via le ref guard dans useAuth */
 function AuthInitializer({ children }: { children: React.ReactNode }) {

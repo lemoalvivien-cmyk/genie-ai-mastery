@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle, FileText, Users, Zap } from "lucide-react";
 
 interface PublicStats {
@@ -64,7 +64,8 @@ const QUALITATIVE_STATS = [
   },
 ];
 
-export function LandingStats() {
+// forwardRef: prevents React 18 dev-mode warning when rendered inside lazy/Suspense tree
+export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
   const [stats, setStats] = useState<PublicStats | null>(() => loadFromCache());
   const [loading, setLoading] = useState(!loadFromCache());
 
@@ -99,7 +100,7 @@ export function LandingStats() {
   if (loading) {
     // Skeleton while fetching
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+      <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="text-center animate-pulse">
             <div className="h-7 w-16 bg-muted/50 rounded mx-auto mb-1.5" />
@@ -113,7 +114,7 @@ export function LandingStats() {
   if (!hasRealData) {
     // Option B — qualitative arguments
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+      <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
         {QUALITATIVE_STATS.map((s) => {
           const Icon = s.icon;
           return (
@@ -165,7 +166,7 @@ export function LandingStats() {
         ].slice(0, 4);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
+    <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl w-full">
       {displayStats.map((s) => (
         <div key={s.label} className="text-center">
           <div className="text-2xl font-black text-foreground">{s.value}</div>
@@ -174,4 +175,5 @@ export function LandingStats() {
       ))}
     </div>
   );
-}
+});
+LandingStats.displayName = "LandingStats";
