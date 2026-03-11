@@ -1,5 +1,5 @@
 import { HelmetProvider } from "react-helmet-async";
-import { Toaster } from "@/components/ui/toaster";
+// Passe B — Sonner est le système de notification unique. Toaster (radix toast) supprimé.
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -25,9 +25,7 @@ const ResetPassword  = lazy(() => import("./pages/auth/ResetPassword"));
 const Onboarding        = lazy(() => import("./pages/onboarding/Onboarding"));
 const Welcome           = lazy(() => import("./pages/app/Welcome"));
 const FirstVictory      = lazy(() => import("./pages/app/FirstVictory"));
-const OnboardingQuiz    = lazy(() => import("./pages/app/onboarding/OnboardingQuiz"));
-const OnboardingResult  = lazy(() => import("./pages/app/onboarding/OnboardingResult"));
-const OnboardingUnlock  = lazy(() => import("./pages/app/onboarding/OnboardingUnlock"));
+// OnboardingQuiz/Result/Unlock supprimés (Passe B) — routes fantômes jamais liées
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
 const PlacementQuiz  = lazy(() => import("./pages/app/PlacementQuiz"));
 const Modules        = lazy(() => import("./pages/app/Modules"));
@@ -135,7 +133,6 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AuthInitializer>
@@ -183,9 +180,6 @@ const App = () => (
                 >
                   <Route path="welcome"         element={<Welcome />} />
                   <Route path="first-victory"   element={<FirstVictory />} />
-                  <Route path="onboarding/quiz"   element={<OnboardingQuiz />} />
-                  <Route path="onboarding/result" element={<OnboardingResult />} />
-                  <Route path="onboarding/unlock" element={<OnboardingUnlock />} />
                   <Route path="dashboard"     element={<Dashboard />} />
                   <Route path="placement"     element={<PlacementQuiz />} />
                   <Route path="modules"       element={<Modules />} />
