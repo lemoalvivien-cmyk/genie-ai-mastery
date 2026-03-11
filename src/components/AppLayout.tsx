@@ -201,7 +201,7 @@ export default function AppLayout() {
             </span>
           </button>
           <button
-          onClick={signOut}
+            onClick={signOut}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Se déconnecter"
           >

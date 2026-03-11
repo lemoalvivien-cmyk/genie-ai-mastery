@@ -263,7 +263,7 @@ function ReflexeMission({ content, onComplete }: { content: Record<string, unkno
 type Phase = "loading" | "card" | "playing" | "done" | "already_done";
 
 export default function Today() {
-  const { profile, signOut, session } = useAuth();
+  const { profile, session } = useAuth();
   const { streak, todayLog, loading: streakLoading, completeMission } = useStreak();
   const { data: subscriptionData } = useSubscription();
   const isSubscribed = subscriptionData?.isActive ?? false;

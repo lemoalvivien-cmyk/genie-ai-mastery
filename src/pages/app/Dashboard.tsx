@@ -331,7 +331,7 @@ export default function Dashboard() {
                 </h2>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {(stats?.recentProgress ?? []).map((p: any) => (
+                {(stats?.recentProgress ?? []).map((p: { module_id: string; status: string; modules?: { title?: string; domain?: string; slug?: string } | null }) => (
                   <Link
                     key={p.module_id}
                     to={`/app/modules/${p.modules?.slug ?? p.module_id}`}
