@@ -300,24 +300,38 @@ export default function Today() {
   const fetchMission = async () => {
     if (!session?.user?.id) return;
 
-    // BLOC 3 — Sélection guidée via RPC déterministe (domaine faible → niveau → déduplication 7j)
-    // Récupère d'abord le top_gap depuis skill_mastery pour prioriser le domaine faible
-    const { data: gapData } = await supabase
-      .from("skill_mastery")
-      .select("p_mastery, skills(domain)")
-      .eq("user_id", session.user.id)
-      .order("p_mastery", { ascending: true })
-      .limit(1)
-      .maybeSingle();
+    // BLOC 3 — Parallélisation : skill_mastery gap + RPC guidée en simultané
+    const [gapResult, guidedResult] = await Promise.all([
+      supabase
+        .from("skill_mastery")
+        .select("p_mastery, skills(domain)")
+        .eq("user_id", session.user.id)
+        .order("p_mastery", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+      supabase.rpc("get_guided_daily_mission", {
+        _user_id:    session.user.id,
+        _persona:    profile?.persona ?? "salarie",
+        _level:      profile?.level ?? 1,
+        _top_domain: null, // will be refined below if gap found
+      }),
+    ]);
 
-    const topDomain = (gapData?.skills as { domain?: string } | null)?.domain ?? null;
+    const topDomain = (gapResult.data?.skills as { domain?: string } | null)?.domain ?? null;
 
-    const { data: guided } = await supabase.rpc("get_guided_daily_mission", {
-      _user_id:    session.user.id,
-      _persona:    profile?.persona ?? "salarie",
-      _level:      profile?.level ?? 1,
-      _top_domain: topDomain,
-    });
+    // If gap found, re-fetch guided mission with the correct domain (only if different)
+    let guided = guidedResult.data;
+    if (topDomain) {
+      const { data: refinedGuided } = await supabase.rpc("get_guided_daily_mission", {
+        _user_id:    session.user.id,
+        _persona:    profile?.persona ?? "salarie",
+        _level:      profile?.level ?? 1,
+        _top_domain: topDomain,
+      });
+      if (refinedGuided && !("error" in (refinedGuided as object))) {
+        guided = refinedGuided;
+      }
+    }
 
     if (guided && typeof guided === "object" && !Array.isArray(guided) && !("error" in (guided as object))) {
       setMission(guided as unknown as Mission);
