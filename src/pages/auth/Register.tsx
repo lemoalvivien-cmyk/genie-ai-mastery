@@ -167,7 +167,7 @@ export default function Register() {
                         aria-invalid={!!errors.full_name}
                         aria-describedby={errors.full_name ? "fn-err" : undefined}
                         {...register("full_name")}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                     </div>
                     {errors.full_name && (
@@ -187,7 +187,7 @@ export default function Register() {
                         placeholder="marie@example.com"
                         aria-invalid={!!errors.email}
                         {...register("email")}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                     </div>
                     {errors.email && <p role="alert" className="text-xs text-destructive mt-1">{errors.email.message}</p>}
