@@ -25,9 +25,7 @@ const ResetPassword  = lazy(() => import("./pages/auth/ResetPassword"));
 const Onboarding        = lazy(() => import("./pages/onboarding/Onboarding"));
 const Welcome           = lazy(() => import("./pages/app/Welcome"));
 const FirstVictory      = lazy(() => import("./pages/app/FirstVictory"));
-const OnboardingQuiz    = lazy(() => import("./pages/app/onboarding/OnboardingQuiz"));
-const OnboardingResult  = lazy(() => import("./pages/app/onboarding/OnboardingResult"));
-const OnboardingUnlock  = lazy(() => import("./pages/app/onboarding/OnboardingUnlock"));
+// OnboardingQuiz/Result/Unlock supprimés (Passe B) — routes fantômes jamais liées
 const Dashboard      = lazy(() => import("./pages/app/Dashboard"));
 const PlacementQuiz  = lazy(() => import("./pages/app/PlacementQuiz"));
 const Modules        = lazy(() => import("./pages/app/Modules"));

@@ -193,24 +193,28 @@ const OBJECTIONS = [
 ];
 
 /* ─── Section divider avec scan K2000 ───────────────────────── */
-function ScanDivider({ color = "accent" }: { color?: "accent" | "primary" }) {
-  return (
-    <div className="flex items-center justify-center mb-7">
-      <div
-        className="h-px w-8 rounded-full"
-        style={{
-          background:
-            color === "accent"
-              ? "hsl(var(--accent))"
-              : "hsl(var(--primary))",
-        }}
-      />
-    </div>
-  );
-}
+const ScanDivider = React.forwardRef<HTMLDivElement, { color?: "accent" | "primary" }>(
+  function ScanDivider({ color = "accent" }, ref) {
+    return (
+      <div ref={ref} className="flex items-center justify-center mb-7">
+        <div
+          className="h-px w-8 rounded-full"
+          style={{
+            background:
+              color === "accent"
+                ? "hsl(var(--accent))"
+                : "hsl(var(--primary))",
+          }}
+        />
+      </div>
+    );
+  }
+);
+ScanDivider.displayName = "ScanDivider";
 
 /* ─── FAQ Item ───────────────────────────────────────────────── */
-function FaqItem({ q, a }: { q: string; a: string }) {
+const FaqItem = React.forwardRef<HTMLDivElement, { q: string; a: string }>(
+  function FaqItem({ q, a }, ref) {
   const [open, setOpen] = useState(false);
   return (
     <div
