@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle, FileText, Users, Zap } from "lucide-react";
 
 interface PublicStats {
