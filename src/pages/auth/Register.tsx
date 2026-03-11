@@ -205,13 +205,13 @@ export default function Register() {
                         placeholder="Min. 8 caractères"
                         aria-invalid={!!errors.password}
                         {...register("password")}
-                        className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                        className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
