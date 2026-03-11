@@ -13,6 +13,9 @@ export const ALLOWED_ORIGINS = [
   "http://localhost:5173", // Vite default dev port
 ] as const;
 
+// Preview URLs (Lovable sandbox) — allowed for development/testing
+const PREVIEW_ORIGIN_PATTERN = /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/;
+
 /**
  * Returns CORS headers scoped to the request origin.
  *
@@ -22,9 +25,11 @@ export const ALLOWED_ORIGINS = [
  */
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") ?? "";
-  const allowed = (ALLOWED_ORIGINS as readonly string[]).includes(origin)
-    ? origin
-    : ALLOWED_ORIGINS[0];
+  const isAllowed =
+    (ALLOWED_ORIGINS as readonly string[]).includes(origin) ||
+    PREVIEW_ORIGIN_PATTERN.test(origin);
+
+  const allowed = isAllowed ? origin : ALLOWED_ORIGINS[0];
 
   return {
     "Access-Control-Allow-Origin": allowed,

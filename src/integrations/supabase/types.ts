@@ -829,6 +829,13 @@ export type Database = {
             foreignKeyName: "ai_budgets_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: true
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_budgets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -908,6 +915,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ai_usage_daily_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ai_usage_daily_org_id_fkey"
             columns: ["org_id"]
@@ -1057,6 +1071,13 @@ export type Database = {
             foreignKeyName: "artifacts_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artifacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1114,6 +1135,13 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "attestations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "attestations_org_id_fkey"
             columns: ["org_id"]
@@ -1298,6 +1326,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
             referencedColumns: ["id"]
           },
           {
@@ -2700,6 +2735,13 @@ export type Database = {
             foreignKeyName: "openclaw_jobs_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -2777,6 +2819,13 @@ export type Database = {
             foreignKeyName: "openclaw_policies_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_policies_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -2844,6 +2893,13 @@ export type Database = {
             foreignKeyName: "openclaw_runtimes_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "openclaw_runtimes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -2875,6 +2931,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "org_budgets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "org_budgets_org_id_fkey"
             columns: ["org_id"]
@@ -2926,6 +2989,13 @@ export type Database = {
             foreignKeyName: "org_invitations_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_invitations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -2972,6 +3042,13 @@ export type Database = {
           week_start?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "org_weekly_reports_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "org_weekly_reports_org_id_fkey"
             columns: ["org_id"]
@@ -3111,6 +3188,13 @@ export type Database = {
           stripe_invoice_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "partner_commissions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "partner_commissions_org_id_fkey"
             columns: ["org_id"]
@@ -3386,6 +3470,13 @@ export type Database = {
           voice_enabled?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_org_id_fkey"
             columns: ["org_id"]
@@ -3994,6 +4085,13 @@ export type Database = {
             foreignKeyName: "usage_counters_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "usage_counters_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -4174,6 +4272,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_roles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_roles_org_id_fkey"
             columns: ["org_id"]
@@ -4386,10 +4491,50 @@ export type Database = {
             foreignKeyName: "profiles_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
+      }
+      org_public_info: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          plan: Database["public"]["Enums"]["org_plan"] | null
+          seats_max: number | null
+          seats_used: number | null
+          slug: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          plan?: Database["public"]["Enums"]["org_plan"] | null
+          seats_max?: number | null
+          seats_used?: number | null
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          plan?: Database["public"]["Enums"]["org_plan"] | null
+          seats_max?: number | null
+          seats_used?: number | null
+          slug?: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
