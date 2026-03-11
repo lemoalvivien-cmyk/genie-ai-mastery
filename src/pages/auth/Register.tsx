@@ -301,7 +301,7 @@ export default function Register() {
                       value={magicEmail}
                       onChange={(e) => setMagicEmail(e.target.value)}
                       placeholder="votre@email.com"
-                      className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
+                      className="flex-1 px-3 py-2.5 rounded-xl bg-secondary/60 border border-border text-base placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
                     />
                     <button
                       type="button"
