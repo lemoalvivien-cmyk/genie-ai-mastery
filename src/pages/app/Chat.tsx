@@ -322,6 +322,7 @@ export default function Chat() {
   const { data: kittContext } = useKITTContext();
   const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
   const { track } = useAnalytics();
+  const { trackBrain } = useBrainTracker();
 
   const {
     state: brainState,
