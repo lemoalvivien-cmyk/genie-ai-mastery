@@ -105,7 +105,7 @@ export function AgentSwarmVisualizer({ phase, activeAgents, agentResponses, risk
   const riskColor = riskScore >= 70 ? "text-red-400" : riskScore >= 40 ? "text-orange-400" : "text-emerald-400";
   const riskBg = riskScore >= 70 ? "bg-red-500/10 border-red-500/30" : riskScore >= 40 ? "bg-orange-500/10 border-orange-500/30" : "bg-emerald-500/10 border-emerald-500/30";
 
-  if (!palantirMode || activeAgents.length <= 1) return null;
+  if (!palantirMode) return null;
 
   return (
     <div className="mb-3 p-3 rounded-xl border border-primary/20 bg-primary/5 space-y-3">
