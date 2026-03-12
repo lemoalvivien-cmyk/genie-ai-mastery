@@ -111,8 +111,8 @@ export default function RevenueOpsDashboard() {
         supabase.rpc("get_org_brain_analytics", { _org_id: orgId }),
         supabase.rpc("get_brain_events_timeseries", { _org_id: orgId, _days: 30 }),
       ]);
-      if (opsResult.data) setMetrics(opsResult.data as OpsMetrics);
-      if (brainResult.data) setBrainStats(brainResult.data as BrainStat);
+      if (opsResult.data) setMetrics(opsResult.data as unknown as OpsMetrics);
+      if (brainResult.data) setBrainStats(brainResult.data as unknown as BrainStat);
       if (tsResult.data) setTimeseries(tsResult.data as TimeseriesRow[]);
       setLastRefresh(new Date());
     } catch (e) {
