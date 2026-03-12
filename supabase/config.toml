@@ -170,3 +170,6 @@ verify_jwt = false
 # ── Public stats — no JWT needed (public endpoint) ───────────────────────────
 [functions.get-public-stats]
 verify_jwt = false
+
+[functions.genie-brain-orchestrator]
+verify_jwt = false

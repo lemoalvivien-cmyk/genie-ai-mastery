@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { OrgGapsWidget } from "@/components/skills/OrgGapsWidget";
 import { PhishingRiskWidget } from "@/components/phishing/PhishingRiskWidget";
 import { OfficeHoursCard } from "@/components/OfficeHoursCard";
+import { BrainDashboard } from "@/components/brain/BrainDashboard";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

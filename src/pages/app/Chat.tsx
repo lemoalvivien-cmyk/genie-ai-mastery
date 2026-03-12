@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
-import { Send, Zap, Mic, RotateCcw, Loader2, Volume2, VolumeX, Lock } from "lucide-react";
+import { Send, Zap, Mic, RotateCcw, Loader2, Lock, Brain } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,9 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
 import { KITTModePanel } from "@/components/chat/KITTModePanel";
+import { useGenieBrain } from "@/hooks/useGenieBrain";
+import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
+import { Badge } from "@/components/ui/badge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -244,7 +247,6 @@ export default function Chat() {
   const isPro = sub?.isActive ?? false;
   const [searchParams] = useSearchParams();
   const isPanic = searchParams.get("panic") === "autre";
-  // skill_ids & module_id can be passed via query params when Chat is opened from a module
   const contextSkillIds = (searchParams.get("skill_ids") ?? "").split(",").filter(Boolean);
   const contextModuleId = searchParams.get("module_id") ?? undefined;
   const [ecoMode, setEcoMode] = useState(false);
@@ -252,10 +254,20 @@ export default function Chat() {
   const { data: kittContext } = useKITTContext();
   const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
 
+  // ── Génie Brain integration ────────────────────────────────────────────────
+  const {
+    state: brainState,
+    runBrain,
+    reset: resetBrain,
+    togglePalantirMode,
+  } = useGenieBrain(session?.user?.id ?? null);
+
   // Dynamic welcome message
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
   const welcomeContent = isPanic
     ? "Dis-moi ce qui se passe, je vais t'aider à trouver une solution. Prends ton temps pour m'expliquer."
+    : brainState.palantirMode
+    ? `⚡ MODE PALANTIR ACTIVÉ ${firstName ? `— Bonjour ${firstName}` : ""}. Swarm de 5 agents IA opérationnel. Vos lacunes sont analysées en temps réel.`
     : firstName
     ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
     : `Salut ! Je suis ton Genie. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous. Je m'adapte à toi.`;
@@ -268,12 +280,8 @@ export default function Chat() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
-  // hasProgress is now derived from real kittContext data (replaced the hardcoded false)
   const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
-  // ── Semantic adaptation engine ─────────────────────────────────────────────
-  // Tracks consecutive "failure signals" (wrong quiz answers or explicit confusion)
-  // 0 = normal | 1 = simplify | 2 = ELI10 forced analogies
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const adaptationLevel = Math.min(2, consecutiveFailures);
   const consecutiveFailuresRef = useRef(consecutiveFailures);
@@ -282,6 +290,12 @@ export default function Chat() {
   kittModeRef.current = kittMode;
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync KITT state with brain phase
+  useEffect(() => {
+    if (brainState.phase === "swarming" || brainState.phase === "thinking") setKittState("thinking");
+    else if (brainState.phase === "complete") setKittState("idle");
+  }, [brainState.phase]);
 
   const suggestions = getSuggestions(profile?.persona ?? null, hasProgress);
 
@@ -498,9 +512,24 @@ export default function Chat() {
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
       <div className="flex flex-col h-full page-enter" style={{ background: "#0F1119" }}>
-        {/* ── KITT Visualizer + Eco badge ── */}
+        {/* ── KITT Visualizer + badges ── */}
         <div className="shrink-0 flex flex-col items-center pt-4 pb-2 gap-2">
           <KittVisualizer state={kittState} analyserNode={getAnalyser()} />
+
+          {/* Palantir Mode toggle */}
+          <button
+            onClick={() => { togglePalantirMode(); resetBrain(); }}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold transition-all ${
+              brainState.palantirMode
+                ? "bg-primary/20 border-primary/60 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+                : "bg-secondary/30 border-border/50 text-muted-foreground hover:border-primary/40 hover:text-primary"
+            }`}
+          >
+            <Brain className={`w-3 h-3 ${brainState.palantirMode ? "animate-pulse" : ""}`}/>
+            {brainState.palantirMode ? "⚡ MODE PALANTIR ACTIF" : "Activer Mode Palantir"}
+            {brainState.palantirMode && <Badge className="text-[8px] px-1 py-0 bg-primary/30 text-primary border-0 ml-0.5">5 AGENTS</Badge>}
+          </button>
+
           {ecoMode && (
             <div className="flex items-center gap-2">
               <EcoModeBadge active={true} />
@@ -512,11 +541,6 @@ export default function Chat() {
               🧒 Mode analogies activé
             </span>
           )}
-          {adaptationLevel === 1 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium">
-              💡 Mode simplifié
-            </span>
-          )}
         </div>
 
         {/* ── KITT Mode Panel ── */}
@@ -526,14 +550,9 @@ export default function Chat() {
               mode={kittMode}
               onModeChange={(m) => {
                 setKittMode(m);
-                // Inject the mode change into chat as a system suggestion
-                if (m === "diagnostic") {
-                  sendMessage("Lance mon diagnostic de niveau sur les 4 domaines.");
-                } else if (m === "synthesis") {
-                  sendMessage("Génère mon bilan de progression complet.");
-                } else if (m === "remediation" && kittContext?.top_gap) {
-                  sendMessage(`Aide-moi à corriger ma lacune sur : ${kittContext.top_gap.name}`);
-                }
+                if (m === "diagnostic") sendMessage("Lance mon diagnostic de niveau sur les 4 domaines.");
+                else if (m === "synthesis") sendMessage("Génère mon bilan de progression complet.");
+                else if (m === "remediation" && kittContext?.top_gap) sendMessage(`Aide-moi à corriger ma lacune sur : ${kittContext.top_gap.name}`);
               }}
               context={kittContext ?? null}
               isPro={isPro}
