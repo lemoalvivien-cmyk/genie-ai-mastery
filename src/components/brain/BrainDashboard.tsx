@@ -114,10 +114,10 @@ export function BrainDashboard() {
       setLoading(true);
       try {
         const { data } = await supabase.rpc("get_org_brain_analytics", { _org_id: profile.org_id });
-        if (data && !data.error) {
-          setStats(data as OrgBrainStats);
-          const distrib = (data as Record<string, unknown>).risk_distribution as BrainMember[] | null;
-          if (distrib) setMembers(distrib);
+        if (data && typeof data === "object" && !("error" in (data as Record<string, unknown>))) {
+          const rawData = data as unknown as OrgBrainStats & { risk_distribution?: BrainMember[] };
+          setStats(rawData);
+          if (rawData.risk_distribution) setMembers(rawData.risk_distribution);
         }
       } catch (_e) {
         // Silence
