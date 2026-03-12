@@ -18,6 +18,7 @@ import { KITTModePanel } from "@/components/chat/KITTModePanel";
 import { useGenieBrain } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
+import { useBrainTracker } from "@/hooks/useBrainTracker";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
