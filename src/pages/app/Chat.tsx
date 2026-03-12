@@ -376,7 +376,7 @@ export default function Chat() {
               riskScore: brainState.riskScore,
               riskDelta: brainState.riskDelta,
               agentResponses: brainState.agentResponses,
-              prediction: brainState.prediction as Record<string, unknown> | null,
+              prediction: brainState.prediction as unknown as Record<string, unknown> | null,
               humanComparison: brainState.humanComparison,
               generatedModule: brainState.generatedModule,
             },
