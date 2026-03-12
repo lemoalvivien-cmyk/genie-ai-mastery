@@ -1231,6 +1231,54 @@ export type Database = {
           },
         ]
       }
+      brain_generated_modules: {
+        Row: {
+          content: Json
+          created_at: string
+          description: string | null
+          domain: string
+          expires_at: string | null
+          generated_by: string
+          id: string
+          org_id: string | null
+          predicted_gap: number | null
+          status: string
+          target_skill: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          description?: string | null
+          domain?: string
+          expires_at?: string | null
+          generated_by?: string
+          id?: string
+          org_id?: string | null
+          predicted_gap?: number | null
+          status?: string
+          target_skill?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          description?: string | null
+          domain?: string
+          expires_at?: string | null
+          generated_by?: string
+          id?: string
+          org_id?: string | null
+          predicted_gap?: number | null
+          status?: string
+          target_skill?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       briefs: {
         Row: {
           action_plan: Json
@@ -2013,6 +2061,133 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      genie_brain: {
+        Row: {
+          active_agents: string[]
+          agent_states: Json
+          analysis_version: number
+          cache_expires_at: string | null
+          cache_key: string | null
+          created_at: string
+          id: string
+          knowledge_graph: Json
+          last_analysis_at: string | null
+          next_failure_prediction: string | null
+          ontology_nodes: string[]
+          org_id: string | null
+          predicted_risk_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_agents?: string[]
+          agent_states?: Json
+          analysis_version?: number
+          cache_expires_at?: string | null
+          cache_key?: string | null
+          created_at?: string
+          id?: string
+          knowledge_graph?: Json
+          last_analysis_at?: string | null
+          next_failure_prediction?: string | null
+          ontology_nodes?: string[]
+          org_id?: string | null
+          predicted_risk_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_agents?: string[]
+          agent_states?: Json
+          analysis_version?: number
+          cache_expires_at?: string | null
+          cache_key?: string | null
+          created_at?: string
+          id?: string
+          knowledge_graph?: Json
+          last_analysis_at?: string | null
+          next_failure_prediction?: string | null
+          ontology_nodes?: string[]
+          org_id?: string | null
+          predicted_risk_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "genie_brain_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "genie_brain_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "genie_brain_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "genie_brain_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      genie_brain_events: {
+        Row: {
+          agent_name: string | null
+          brain_id: string
+          created_at: string
+          event_type: string
+          id: string
+          org_id: string | null
+          payload: Json
+          risk_delta: number | null
+          user_id: string
+        }
+        Insert: {
+          agent_name?: string | null
+          brain_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          risk_delta?: number | null
+          user_id: string
+        }
+        Update: {
+          agent_name?: string | null
+          brain_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          risk_delta?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "genie_brain_events_brain_id_fkey"
+            columns: ["brain_id"]
+            isOneToOne: false
+            referencedRelation: "genie_brain"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       genieos_agents: {
         Row: {
@@ -4604,6 +4779,7 @@ export type Database = {
       }
       get_next_best_action: { Args: { _user_id: string }; Returns: Json }
       get_openclaw_policy: { Args: { _org_id: string }; Returns: Json }
+      get_org_brain_analytics: { Args: { _org_id: string }; Returns: Json }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -4710,6 +4886,17 @@ export type Database = {
           similarity: number
           title: string
         }[]
+      }
+      upsert_genie_brain: {
+        Args: {
+          _agent_states?: Json
+          _knowledge?: Json
+          _next_failure?: string
+          _nodes?: string[]
+          _risk_score?: number
+          _user_id: string
+        }
+        Returns: Json
       }
       upsert_skill_mastery: {
         Args: { _p_mastery: number; _skill_id: string; _user_id: string }
