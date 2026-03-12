@@ -247,7 +247,6 @@ export default function Chat() {
   const isPro = sub?.isActive ?? false;
   const [searchParams] = useSearchParams();
   const isPanic = searchParams.get("panic") === "autre";
-  // skill_ids & module_id can be passed via query params when Chat is opened from a module
   const contextSkillIds = (searchParams.get("skill_ids") ?? "").split(",").filter(Boolean);
   const contextModuleId = searchParams.get("module_id") ?? undefined;
   const [ecoMode, setEcoMode] = useState(false);
@@ -255,10 +254,20 @@ export default function Chat() {
   const { data: kittContext } = useKITTContext();
   const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
 
+  // ── Génie Brain integration ────────────────────────────────────────────────
+  const {
+    state: brainState,
+    runBrain,
+    reset: resetBrain,
+    togglePalantirMode,
+  } = useGenieBrain(session?.user?.id ?? null);
+
   // Dynamic welcome message
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
   const welcomeContent = isPanic
     ? "Dis-moi ce qui se passe, je vais t'aider à trouver une solution. Prends ton temps pour m'expliquer."
+    : brainState.palantirMode
+    ? `⚡ MODE PALANTIR ACTIVÉ ${firstName ? `— Bonjour ${firstName}` : ""}. Swarm de 5 agents IA opérationnel. Vos lacunes sont analysées en temps réel.`
     : firstName
     ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
     : `Salut ! Je suis ton Genie. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous. Je m'adapte à toi.`;
@@ -271,12 +280,8 @@ export default function Chat() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [kittState, setKittState] = useState<KittState>("idle");
   const [voiceEnabled, setVoiceEnabled] = useState(() => profile?.voice_enabled ?? true);
-  // hasProgress is now derived from real kittContext data (replaced the hardcoded false)
   const { scoreExchange } = useConversationalScoring();
   const [placeholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]);
-  // ── Semantic adaptation engine ─────────────────────────────────────────────
-  // Tracks consecutive "failure signals" (wrong quiz answers or explicit confusion)
-  // 0 = normal | 1 = simplify | 2 = ELI10 forced analogies
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const adaptationLevel = Math.min(2, consecutiveFailures);
   const consecutiveFailuresRef = useRef(consecutiveFailures);
@@ -285,6 +290,12 @@ export default function Chat() {
   kittModeRef.current = kittMode;
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync KITT state with brain phase
+  useEffect(() => {
+    if (brainState.phase === "swarming" || brainState.phase === "thinking") setKittState("thinking");
+    else if (brainState.phase === "complete") setKittState("idle");
+  }, [brainState.phase]);
 
   const suggestions = getSuggestions(profile?.persona ?? null, hasProgress);
 
