@@ -213,42 +213,14 @@ export function BrainDashboard() {
       <Card className="bg-card/80 border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Clock className="w-4 h-4 text-orange-400"/>
+            <Clock className="w-4 h-4 text-[hsl(var(--orange-alert))]"/>
             Prédictions d'échec — 48h
-            <Badge variant="outline" className="text-[9px] ml-auto border-orange-500/40 text-orange-400">IA PRÉDICTIVE</Badge>
+            <Badge variant="outline" className="text-[9px] ml-auto border-[hsl(var(--orange-alert)/0.4)] text-[hsl(var(--orange-alert))]">IA PRÉDICTIVE</Badge>
           </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PredictionTimeline members={members}/>
-        </CardContent>
-      </Card>
-
-      {/* vs Formateur Humain Moyen */}
-      <Card className="bg-card/80 border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary"/>
-            GÉNIE IA vs Formateur Humain Moyen
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Temps de réponse", genie: "<2s", human: "47s", better: true },
-              { label: "Taux d'erreur", genie: "0%", human: "62%", better: true },
-              { label: "Disponibilité", genie: "24/7", human: "8h-18h", better: true },
-              { label: "Coût / session", genie: "0.002€", human: "120€", better: true },
-            ].map((row) => (
-              <div key={row.label} className="p-3 rounded-lg bg-secondary/30 space-y-1">
-                <div className="text-[10px] text-muted-foreground">{row.label}</div>
-                <div className="flex items-center gap-2">
-                  <div className="text-sm font-black text-primary">{row.genie}</div>
-                  <div className="text-[10px] text-muted-foreground/60">vs</div>
-                  <div className="text-sm font-medium text-muted-foreground line-through">{row.human}</div>
-                </div>
+...
                 <div className="flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3 text-emerald-400"/>
-                  <span className="text-[9px] text-emerald-400 font-medium">GENIE IA GAGNE</span>
+                  <TrendingUp className="w-3 h-3 text-[hsl(var(--emerald))]"/>
+                  <span className="text-[9px] text-[hsl(var(--emerald))] font-medium">GENIE IA GAGNE</span>
                 </div>
               </div>
             ))}
