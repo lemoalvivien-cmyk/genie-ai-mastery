@@ -351,6 +351,13 @@ export default function ModuleDetail() {
                 </div>
               )}
 
+              {/* Adversarial Exercise */}
+              <AdversarialExerciseWidget
+                moduleTitle={mod.title}
+                moduleDomain={mod.domain}
+                moduleSlug={mod.slug}
+              />
+
               {/* Deliverables */}
               {mod.deliverables.length > 0 && (
                 <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-5 shadow-card">
