@@ -1,6 +1,6 @@
 /**
  * useBrainTracker — fire-and-forget brain event tracking
- * Inserts rows into brain_events with org_id + user_id.
+ * Inserts rows into brain_events with org_id, user_id, latency, agents.
  * Never throws, never blocks UI.
  */
 import { useCallback } from "react";
@@ -21,6 +21,8 @@ interface TrackBrainParams {
   session_id?: string;
   risk_score?: number;
   agents_used?: string[];
+  latency_ms?: number;
+  error_type?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -40,6 +42,9 @@ export function useBrainTracker() {
             session_id: params.session_id ?? null,
             risk_score: params.risk_score ?? null,
             agents_used: params.agents_used ?? null,
+            agents_count: params.agents_used?.length ?? null,
+            latency_ms: params.latency_ms ?? null,
+            error_type: params.error_type ?? null,
             metadata: params.metadata ?? {},
           } as never);
         } catch (_e) {
