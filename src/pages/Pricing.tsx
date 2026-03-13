@@ -34,17 +34,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
+// useQuery removed — prix fixe 59€ TTC/mois, pas besoin de check-launch-price
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 import logoGenie from "@/assets/logo-genie.png";
 
-/* ─── Types ──────────────────────────────────────────────────── */
-interface LaunchData {
-  launch_price_active: boolean;
-  spots_remaining: number;
-}
+/* ─── Prix unique fixe : 59€ TTC/mois ──────────────────────── */
 
 /* ─── KITT scanner minimal ───────────────────────────────────── */
 function KittDot() {
@@ -255,20 +251,9 @@ export default function Pricing() {
     track("pricing_viewed");
   }, []);
 
-  const { data: launchData } = useQuery<LaunchData>({
-    queryKey: ["launch-price"],
-    staleTime: 60 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke(
-        "check-launch-price"
-      );
-      if (error) return { launch_price_active: true, spots_remaining: 0 };
-      return data as LaunchData;
-    },
-  });
-
-  const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
-  const currentPrice = LAUNCH_PRICE_ACTIVE ? 35 : 59;
+  // Prix unique fixe : 59€ TTC/mois — aucun tier, aucune promo
+  const LAUNCH_PRICE_ACTIVE = false;
+  const currentPrice = 59;
 
   const handlePortal = async () => {
     setPortalLoading(true);
@@ -376,7 +361,7 @@ export default function Pricing() {
         <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro à partir de 35€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
+          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
@@ -528,13 +513,8 @@ export default function Pricing() {
                     className="text-4xl font-black"
                     style={{ color: "hsl(var(--accent))" }}
                   >
-                    {currentPrice}€
+                    59€
                   </span>
-                  {LAUNCH_PRICE_ACTIVE && (
-                    <span className="text-xl font-bold line-through text-muted-foreground/40 mb-1">
-                      59€
-                    </span>
-                  )}
                   <span className="text-muted-foreground text-sm mb-1.5">
                     TTC/mois
                   </span>
@@ -542,11 +522,6 @@ export default function Pricing() {
                 <p className="text-xs text-muted-foreground font-mono">
                   par organisation · jusqu'à 25 membres
                 </p>
-                {LAUNCH_PRICE_ACTIVE && (
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    Prix de lancement — tarif standard : 59€/mois
-                  </p>
-                )}
               </div>
 
               <ScanLine />

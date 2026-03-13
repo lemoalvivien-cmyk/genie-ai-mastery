@@ -97,7 +97,8 @@ interface TimeseriesRow { day: string; event_type: string; cnt: number; }
 interface LatencyPoint { ts: string; latency_ms: number; agents_count: number; }
 
 const PIE_COLORS = ["#EF4444", "#F97316", "#10B981"];
-const PLAN_PRICE: Record<string, number> = { business: 59, compliance: 199, free: 0 };
+// Prix unique fixe : 59€ TTC/mois
+const PLAN_PRICE: Record<string, number> = { business: 59, compliance: 59, pro: 59, free: 0 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const euros = (cents: number) =>
@@ -287,10 +288,10 @@ function BillingSection({ orgId }: { orgId: string | null }) {
           </div>
           <p className="text-xs text-muted-foreground">
             Plan actuel : <strong className="text-foreground">{billing?.org_plan ?? "free"}</strong> ·
-            {planPrice > 0 ? ` ${planPrice}€/mois × sièges` : " Passez à Business pour débloquer tout"}
+            {planPrice > 0 ? ` 59€ TTC/mois — jusqu'à 25 membres` : " Passez à Pro pour débloquer tout — 59€ TTC/mois"}
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            Checkout Stripe sécurisé · Essai gratuit 14j · Annulation à tout moment
+            Checkout Stripe sécurisé · 14j d'essai inclus · Annulation à tout moment
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -307,7 +308,7 @@ function BillingSection({ orgId }: { orgId: string | null }) {
             disabled={checkoutLoading}
           >
             <Zap className="w-3 h-3" />
-            {checkoutLoading ? "Ouverture…" : `Upgrade — ${seatsInput * planPrice || 59}€/mois`}
+            {checkoutLoading ? "Ouverture…" : "Upgrade — 59€ TTC/mois"}
             <ChevronRight className="w-3 h-3" />
           </Button>
           <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={handlePortal}>
