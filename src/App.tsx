@@ -271,6 +271,14 @@ const App = () => (
                   path="/manager/revenue-ops"
                   element={<ProtectedRoute requireRole="manager"><RevenueOpsDashboard /></ProtectedRoute>}
                 />
+                <Route
+                  path="/manager/onboarding"
+                  element={<ProtectedRoute><ManagerOnboarding /></ProtectedRoute>}
+                />
+                <Route
+                  path="/manager/attack-simulation"
+                  element={<ProtectedRoute requireRole="manager"><EnterpriseAttackSimulation /></ProtectedRoute>}
+                />
 
                 {/* ── Partner ──────────────────────────────────────────── */}
                 <Route
