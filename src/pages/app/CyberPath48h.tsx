@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   {
     id: "diagnostic",
     step: 1,
-    title: "Diagnostic JARVIS",
+    title: "Diagnostic Genie",
     subtitle: "Swarm Predictor — Analyse votre profil de risque",
     icon: Brain,
     color: "#5257D8",

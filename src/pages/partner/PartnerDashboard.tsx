@@ -442,7 +442,7 @@ function PartnerApply() {
             <Building2 className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-extrabold text-foreground mb-2">Programme Partenaire</h1>
-          <p className="text-muted-foreground text-sm">Revendez GENIE IA et gagnez <strong className="text-primary">30% de revshare</strong> sur chaque client.</p>
+          <p className="text-muted-foreground text-sm">Revendez Formetoialia et gagnez <strong className="text-primary">30% de revshare</strong> sur chaque client.</p>
         </div>
         <Card className="bg-card border-border shadow-elegant">
           <CardContent className="p-6 space-y-4">
