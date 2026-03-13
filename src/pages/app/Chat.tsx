@@ -404,17 +404,20 @@ export default function Chat() {
         }
         return prev;
       });
-      // Track swarm completion events
+      // Track swarm completion with real latency from human_comparison
+      const latencyMs = brainState.humanComparison?.genie_response_ms ?? undefined;
       trackBrain("swarm_completed", {
         session_id: sessionId,
         risk_score: brainState.riskScore,
         agents_used: brainState.activeAgents,
-        metadata: { risk_delta: brainState.riskDelta },
+        latency_ms: latencyMs,
+        metadata: { risk_delta: brainState.riskDelta, agents_count: brainState.activeAgents.length },
       });
       if (brainState.humanComparison) {
         trackBrain("destroyer_shown", {
           session_id: sessionId,
           risk_score: brainState.riskScore,
+          latency_ms: latencyMs,
           metadata: { genie_ms: brainState.humanComparison.genie_response_ms },
         });
       }
