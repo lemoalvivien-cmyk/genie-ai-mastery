@@ -34,7 +34,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
+// useQuery removed — prix fixe 59€ TTC/mois, pas besoin de check-launch-price
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
