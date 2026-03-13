@@ -297,7 +297,7 @@ export default function CyberPath48h() {
     (async () => {
       const { data } = await supabase
         .from("progress")
-        .select("module_id, status, metadata")
+        .select("module_id, status")
         .eq("user_id", session.user.id)
         .eq("status", "completed");
 
@@ -309,7 +309,7 @@ export default function CyberPath48h() {
       };
       for (const p of data ?? []) {
         for (const [key, stepId] of Object.entries(mapping)) {
-          if (p.module_id?.includes(key)) done.add(stepId);
+          if ((p.module_id ?? "").includes(key)) done.add(stepId);
         }
       }
 
