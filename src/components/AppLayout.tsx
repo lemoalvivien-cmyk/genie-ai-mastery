@@ -246,6 +246,7 @@ export default function AppLayout() {
 
       <PanicButton />
       <JarvisNudgeProvider />
+      <JarvisOverlay />
     </div>
   );
 }
