@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp } from "lucide-react";
+import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
