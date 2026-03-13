@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Cpu, Briefcase } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Cpu, Briefcase, Sparkles } from "lucide-react";
 import logoGenie from "@/assets/logo-genie.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
@@ -40,10 +40,10 @@ export default function AppLayout() {
       dot: !missionDone,
       showProBadge: false,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
-    { to: "/app/jarvis", icon: Bot, label: "KITT IA", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/chat", icon: MessageCircle, label: "Chat Genie", dot: false, badge: null, showProBadge: false },
+    { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
-    { to: "/os", icon: Cpu, label: "GENIE OS", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/os", icon: Cpu, label: "Genie OS", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
@@ -70,13 +70,13 @@ export default function AppLayout() {
     },
     { to: "/app/chat", icon: MessageCircle, label: "Chat", dot: false, badge: null },
     { to: "/app/jarvis", icon: Bot, label: "KITT", dot: false, badge: null },
-    { to: "/os", icon: Cpu, label: "GENIE OS", dot: false, badge: null },
+    { to: "/os", icon: Cpu, label: "Genie OS", dot: false, badge: null },
     { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
   ];
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : profile?.email?.[0]?.toUpperCase() ?? "G";
+    : profile?.email?.[0]?.toUpperCase() ?? "F";
 
   const planLabel = isPro ? "Pro" : "Free";
 
@@ -93,10 +93,9 @@ export default function AppLayout() {
             onClick={() => navigate("/app/today")}
             className="flex items-center gap-2.5"
           >
-            <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
-            <span className="text-lg font-bold tracking-tight">
-              <span style={{ color: "#5257D8" }}>GENIE</span>
-              <span style={{ color: "#FE2C40" }}>IA</span>
+            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto" />
+            <span className="text-sm font-black tracking-tight leading-tight" style={{ fontFamily: "'Orbitron', monospace" }}>
+              <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
             </span>
           </button>
         </div>
@@ -195,10 +194,9 @@ export default function AppLayout() {
           style={{ borderBottom: "1px solid #2A2D3A", background: "#13151E" }}
         >
           <button onClick={() => navigate("/app/today")} className="flex items-center gap-2">
-            <img src={logoGenie} alt="GENIE IA" className="h-7 w-auto" />
-            <span className="text-base font-bold">
-              <span style={{ color: "#5257D8" }}>GENIE</span>
-              <span style={{ color: "#FE2C40" }}>IA</span>
+            <img src={logoGenie} alt="Formetoialia" className="h-7 w-auto" />
+            <span className="text-sm font-black" style={{ fontFamily: "'Orbitron', monospace" }}>
+              <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
             </span>
           </button>
           <button

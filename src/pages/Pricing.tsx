@@ -1,9 +1,9 @@
 /**
- * Pricing — GENIE IA
+ * Pricing — Formetoialia
  *
  * Promesse alignée avec la landing :
  * Devenir autonome avec l'IA, la cybersécurité et le vibe coding,
- * grâce à KITT, des modules, des labs, des attestations et un pilotage équipe.
+ * grâce à Genie, des modules, des labs, des attestations et un pilotage équipe.
  *
  * Règles :
  * - Zéro faux sentiment d'urgence
@@ -129,12 +129,12 @@ const PRO_SECTIONS: {
 /* ─── FAQ ────────────────────────────────────────────────────── */
 const FAQ = [
   {
-    q: "Qu'est-ce que GENIE IA concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (KITT), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    q: "Qu'est-ce que Formetoialia concrètement ?",
+    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (Genie), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
   },
   {
-    q: "KITT, c'est quoi exactement ?",
-    a: "KITT est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "Genie, c'est quoi exactement ?",
+    a: "Genie est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
     q: "Que contiennent les labs ?",
@@ -142,7 +142,7 @@ const FAQ = [
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Les attestations GENIE IA sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
+    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
   },
   {
     q: "Le plan inclut combien de personnes ?",
@@ -158,7 +158,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. KITT vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding adapte le parcours à votre niveau. Genie vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
   },
 ];
 
@@ -373,15 +373,15 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs GENIE IA — Devenez autonome avec l'IA</title>
+        <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="GENIE IA Pro à partir de 35€ TTC/mois — modules, labs, copilote KITT, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
+          content="Formetoialia Pro à partir de 35€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
         />
-        <link rel="canonical" href="https://genie-ai-mastery.lovable.app/pricing" />
+        <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
           property="og:title"
-          content="Tarifs GENIE IA — Modules, Labs, Attestations"
+          content="Tarifs Formetoialia — Modules, Labs, Attestations"
         />
         <meta
           property="og:description"
@@ -389,7 +389,7 @@ export default function Pricing() {
         />
         <meta
           property="og:image"
-          content="https://genie-ai-mastery.lovable.app/logo-genie.png"
+          content="https://formetoialia.com/logo-genie.png"
         />
         <script type="application/ld+json">
           {JSON.stringify(productSchema())}
@@ -410,99 +410,16 @@ export default function Pricing() {
           }}
         >
           <Link to="/" className="flex items-center gap-2.5">
-            <img
-              src={logoGenie}
-              alt="GENIE IA"
-              className="h-8 w-auto"
-              style={{
-                filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))",
-              }}
-            />
+            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto"
+              style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" }} />
           </Link>
-
           <nav className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <button
-                  onClick={handlePortal}
-                  disabled={portalLoading}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-                >
-                  {portalLoading && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  )}
-                  Mon abonnement
-                </button>
-                <Link
-                  to="/app/dashboard"
-                  className="text-sm font-semibold transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--primary))" }}
-                >
-                  Mon espace →
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Se connecter
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
-                  style={{
-                    background: "hsl(var(--accent))",
-                    color: "hsl(var(--accent-foreground))",
-                  }}
-                >
-                  Démarrer gratuitement
-                </Link>
-              </>
-            )}
+            <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Se connecter</Link>
+            <Link to="/register" className="px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-[0.98]" style={{ background: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Démarrer gratuitement</Link>
           </nav>
         </header>
 
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-14 sm:py-20">
-
-          {/* ── Hero pricing ─────────────────────────────────── */}
-          <div className="text-center mb-14 sm:mb-16">
-            {LAUNCH_PRICE_ACTIVE && (
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-5"
-                style={{
-                  background: "hsl(var(--accent) / 0.1)",
-                  color: "hsl(var(--accent))",
-                  border: "1px solid hsl(var(--accent) / 0.25)",
-                }}
-              >
-                <KittDot />
-                Prix de lancement actif
-              </div>
-            )}
-            <h1 className="text-3xl sm:text-4xl font-black mb-4 leading-tight tracking-tight">
-              Un tarif clair.
-              <br />
-              <span
-                style={{
-                  background:
-                    "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Une transformation mesurable.
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              GENIE IA vous rend autonome avec l'IA, la cybersécurité et le vibe
-              coding — grâce à des modules structurés, des labs pratiques, un
-              copilote KITT et des attestations vérifiables.
-            </p>
-          </div>
-
           {/* ── Plans ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start mb-12">
 
