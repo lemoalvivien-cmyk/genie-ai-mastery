@@ -300,11 +300,27 @@ export default function RevenueOpsDashboard() {
           </p>
 
           {/* ── KPI row ─────────────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             <StatCard icon={Zap} label="Activations Palantir" value={metrics?.total_activations ?? "—"} sub={`+${metrics?.activations_7d ?? 0} cette semaine`} color="text-primary" />
-            <StatCard icon={Users} label="Utilisateurs Brain" value={metrics?.unique_activators ?? "—"} sub={`Taux : ${activationRate}%`} color="text-blue-400" />
+            <StatCard icon={Users} label="Utilisateurs Brain" value={metrics?.unique_activators ?? "—"} sub={`Taux all-time : ${activationRate}%`} color="text-blue-400" />
             <StatCard icon={Brain} label="Messages Brain" value={metrics?.total_messages ?? "—"} sub={`+${metrics?.messages_7d ?? 0}/7j`} color="text-purple-400" />
             <StatCard icon={Award} label="Modules acceptés" value={metrics?.modules_accepted ?? "—"} sub="Auto-générés acceptés" color="text-emerald-400" />
+            {/* NEW KPI: Taux Activation Palantir 7j */}
+            <div className="rounded-xl border-2 p-4 flex flex-col gap-1 relative overflow-hidden"
+              style={{ borderColor: "rgba(82,87,216,0.5)", background: "rgba(82,87,216,0.07)" }}>
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-xs text-muted-foreground">Taux Activation 7j</span>
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">LIVE</span>
+              </div>
+              <div className="text-2xl font-black text-primary">{palantirActivationRate7d}%</div>
+              <div className="text-[11px] text-muted-foreground">{metrics?.activations_7d ?? 0} activations / {metrics?.messages_7d ?? 0} sessions</div>
+              {/* Mini bar */}
+              <div className="mt-1 h-1.5 rounded-full bg-border/30 overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all duration-700"
+                  style={{ width: `${palantirActivationRate7d}%` }} />
+              </div>
+            </div>
             <StatCard icon={TrendingUp} label="ROI estimé" value={`${Number(roiSaved).toLocaleString("fr-FR")}€`} sub="vs formateur humain" color="text-yellow-400" />
             <StatCard icon={AlertTriangle} label="Risque churn" value={`${churnRisk}%`} sub={`${brainStats?.high_risk_count ?? 0} apprenants critiques`} color={churnRisk > 30 ? "text-destructive" : "text-emerald-400"} />
           </div>
