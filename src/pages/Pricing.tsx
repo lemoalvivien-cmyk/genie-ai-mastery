@@ -129,12 +129,12 @@ const PRO_SECTIONS: {
 /* ─── FAQ ────────────────────────────────────────────────────── */
 const FAQ = [
   {
-    q: "Qu'est-ce que GENIE IA concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (KITT), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    q: "Qu'est-ce que Formetoialia concrètement ?",
+    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (Genie), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
   },
   {
-    q: "KITT, c'est quoi exactement ?",
-    a: "KITT est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "Genie, c'est quoi exactement ?",
+    a: "Genie est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
     q: "Que contiennent les labs ?",
@@ -142,7 +142,7 @@ const FAQ = [
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Les attestations GENIE IA sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
+    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
   },
   {
     q: "Le plan inclut combien de personnes ?",
@@ -158,7 +158,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. KITT vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding adapte le parcours à votre niveau. Genie vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
   },
 ];
 
