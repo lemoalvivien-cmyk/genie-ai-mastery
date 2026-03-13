@@ -185,3 +185,7 @@ verify_jwt = false
 
 [functions.enterprise-rag]
 verify_jwt = true
+
+# ── SleepForge — cron nocturne, protégé par X-CRON-SECRET ───────────────────
+[functions.sleepforge]
+verify_jwt = false

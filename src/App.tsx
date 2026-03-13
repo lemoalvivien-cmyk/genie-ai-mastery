@@ -55,6 +55,8 @@ const PartnerDashboard          = lazy(() => import("./pages/partner/PartnerDash
 
 // ── OpenClaw Agent Jobs ───────────────────────────────────────────
 const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
+const CyberPath48h          = lazy(() => import("./pages/app/CyberPath48h"));
+const AttestationNFT        = lazy(() => import("./pages/app/AttestationNFT"));
 const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
 const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
