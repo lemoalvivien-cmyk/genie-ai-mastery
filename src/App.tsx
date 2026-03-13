@@ -101,6 +101,7 @@ const SmartOnboarding    = lazy(() => import("./pages/genieos/SmartOnboarding"))
 const EnterpriseDashboard = lazy(() => import("./pages/genieos/EnterpriseDashboard"));
 const RevenueAnalytics   = lazy(() => import("./pages/genieos/RevenueAnalytics"));
 const SystemHealth       = lazy(() => import("./pages/genieos/SystemHealth"));
+const EnterpriseKnowledge = lazy(() => import("./pages/genieos/EnterpriseKnowledge"));
 const LogsViewer         = lazy(() => import("./pages/genieos/LogsViewer"));
 
 // forwardRef required: React 18 Suspense can pass internal refs to fallback elements
