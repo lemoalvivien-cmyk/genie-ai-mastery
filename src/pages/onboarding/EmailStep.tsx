@@ -71,7 +71,7 @@ export function EmailStep({ onFinish, onBack, saving }: Props) {
         >
           {saving
             ? <><Loader2 className="w-5 h-5 animate-spin" /> Sauvegarde...</>
-            : <><ArrowRight className="w-5 h-5" /> Lancer mon GENIE IA ✨</>
+            : <><ArrowRight className="w-5 h-5" /> Activer Formetoialia ✨</>
           }
         </button>
 
