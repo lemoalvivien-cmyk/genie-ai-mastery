@@ -373,15 +373,15 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs GENIE IA — Devenez autonome avec l'IA</title>
+        <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="GENIE IA Pro à partir de 35€ TTC/mois — modules, labs, copilote KITT, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
+          content="Formetoialia Pro à partir de 35€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
         />
-        <link rel="canonical" href="https://genie-ai-mastery.lovable.app/pricing" />
+        <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
           property="og:title"
-          content="Tarifs GENIE IA — Modules, Labs, Attestations"
+          content="Tarifs Formetoialia — Modules, Labs, Attestations"
         />
         <meta
           property="og:description"
@@ -389,7 +389,7 @@ export default function Pricing() {
         />
         <meta
           property="og:image"
-          content="https://genie-ai-mastery.lovable.app/logo-genie.png"
+          content="https://formetoialia.com/logo-genie.png"
         />
         <script type="application/ld+json">
           {JSON.stringify(productSchema())}
