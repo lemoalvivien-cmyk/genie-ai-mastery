@@ -153,6 +153,7 @@ const App = () => (
                 <Route path="/register"      element={<Register />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/pricing"       element={<Pricing />} />
+                <Route path="/demo"          element={<Demo />} />
                 <Route path="/verify/:id"    element={<VerifyAttestation />} />
                 <Route path="/guides"        element={<GuideList />} />
                 <Route path="/guides/:slug"  element={<GuideDetail />} />
