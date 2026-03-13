@@ -21,10 +21,13 @@ import { CopilotDock } from "@/components/jarvis/CopilotDock";
 import { useCopilot, parseJarvisResponse } from "@/hooks/useCopilot";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+type JarvisAction = "attack" | "motivate" | "generate_exercise" | "sleepforge" | "quiz" | "explain" | "synthesis" | "remediate";
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  action?: JarvisAction;
 }
 
 interface ActionSuggestion {
@@ -36,6 +39,18 @@ interface ActionSuggestion {
 function sanitize(t: string) {
   return DOMPurify.sanitize(t, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
+
+// ─── Action badge config ──────────────────────────────────────────────────────
+const ACTION_BADGES: Record<JarvisAction, { emoji: string; label: string; color: string }> = {
+  attack:            { emoji: "⚔️", label: "Simulation",     color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  motivate:          { emoji: "🚀", label: "Boost Stark",    color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+  generate_exercise: { emoji: "🎯", label: "Exercice live",  color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30" },
+  sleepforge:        { emoji: "🌙", label: "SleepForge",     color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
+  quiz:              { emoji: "🧠", label: "Quiz",           color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" },
+  explain:           { emoji: "💡", label: "Explication",    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  synthesis:         { emoji: "📊", label: "Bilan",          color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  remediate:         { emoji: "🛠️", label: "Remédiation",   color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+};
 
 // ─── Persona-driven quick actions ─────────────────────────────────────────────
 function getPersonaActions(persona: string | null | undefined, mode: "senior" | "pro"): ActionSuggestion[] {
