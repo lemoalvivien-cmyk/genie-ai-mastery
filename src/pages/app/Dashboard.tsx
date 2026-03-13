@@ -399,6 +399,11 @@ export default function Dashboard() {
             <RecentArtifactsCard />
           </div>
 
+          {/* ── 10. Neuro-Rewards + Hive Intelligence ── */}
+          <div className="animate-slide-up">
+            <NeuroRewardsDashboard />
+          </div>
+
         </main>
       </div>
     </>
