@@ -365,7 +365,7 @@ export default function Pricing() {
         <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro à partir de 35€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe. Essai 14 jours, sans carte requise."
+          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
