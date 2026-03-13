@@ -647,6 +647,7 @@ export default function Index() {
                 { label: "Fonctionnalités", href: "#weapons" },
                 { label: "Tarifs", href: "/pricing" },
                 { label: "Guides", href: "/guides" },
+                { label: "Démo", href: "/demo" },
               ].map((item) => (
                 <a
                   key={item.label}

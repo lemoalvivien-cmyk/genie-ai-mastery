@@ -59,6 +59,7 @@ const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"
 const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
 // ── Public pages ─────────────────────────────────────────────────
+const Demo              = lazy(() => import("./pages/Demo"));
 const Pricing           = lazy(() => import("./pages/Pricing"));
 const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const GuideList         = lazy(() => import("./pages/guides/GuideList"));
@@ -152,6 +153,7 @@ const App = () => (
                 <Route path="/register"      element={<Register />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/pricing"       element={<Pricing />} />
+                <Route path="/demo"          element={<Demo />} />
                 <Route path="/verify/:id"    element={<VerifyAttestation />} />
                 <Route path="/guides"        element={<GuideList />} />
                 <Route path="/guides/:slug"  element={<GuideDetail />} />
