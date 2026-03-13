@@ -48,6 +48,7 @@ const AdminOperations   = lazy(() => import("./pages/admin/GodMode"));
 // ── Other protected ──────────────────────────────────────────────
 const ManagerDashboard      = lazy(() => import("./pages/manager/ManagerDashboard"));
 const ManagerOpenClawPage   = lazy(() => import("./pages/manager/ManagerOpenClawPage"));
+const RevenueOpsDashboard   = lazy(() => import("./pages/manager/RevenueOpsDashboard"));
 const PartnerDashboard      = lazy(() => import("./pages/partner/PartnerDashboard"));
 
 // ── OpenClaw Agent Jobs ───────────────────────────────────────────
