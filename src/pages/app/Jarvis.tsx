@@ -249,7 +249,17 @@ export default function Jarvis() {
       const raw: string = data?.content ?? "Je n'ai pas pu générer une réponse. Réessaie !";
       const parsed = parseJarvisResponse(raw);
       const displayContent = parsed.message || raw;
-      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent };
+
+      // Extract Jarvis action and tts_text from parsed JSON
+      let jarvisAction: JarvisAction | undefined;
+      let ttsText: string | undefined;
+      try {
+        const rawObj = JSON.parse(raw.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+        if (rawObj?.action) jarvisAction = rawObj.action as JarvisAction;
+        if (rawObj?.tts_text) ttsText = rawObj.tts_text;
+      } catch { /* use defaults */ }
+
+      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent, action: jarvisAction };
       setMessages(prev => [...prev, assistantMsg]);
 
       if (parsed.plan.length > 0 || parsed.immediate_action) {
@@ -258,7 +268,8 @@ export default function Jarvis() {
       }
 
       setKittState("speaking");
-      if (voiceEnabled) speak(displayContent.slice(0, 200));
+      // Prefer tts_text (clean, no markdown) for voice; fallback to display content
+      if (voiceEnabled) speak((ttsText || displayContent).slice(0, 250));
     } catch (err) {
       const isAbort = err instanceof Error && err.name === "AbortError";
       toast({
@@ -274,6 +285,7 @@ export default function Jarvis() {
       setIsLoading(false);
     }
   }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak, copilot]);
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
