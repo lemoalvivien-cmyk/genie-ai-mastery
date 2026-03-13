@@ -612,8 +612,8 @@ export default function Index() {
               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                 className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl"
                 style={{ background: "rgba(46,204,113,0.1)", border: "1px solid rgba(46,204,113,0.3)" }}>
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span className="font-bold" style={{ color: "#2ECC71" }}>Accès en cours d'activation — Vérifiez votre email.</span>
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+                <span className="font-bold text-emerald-400">Accès en cours d'activation — Vérifiez votre email.</span>
               </motion.div>
             ) : (
               <form onSubmit={handleEmailCapture} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-6">
