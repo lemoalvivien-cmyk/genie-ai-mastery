@@ -321,10 +321,11 @@ export default function CyberPath48h() {
         .in("event_type", ["cyberpath_diagnostic", "cyberpath_sleepforge", "cyberpath_adversarial", "cyberpath_attestation"]);
 
       for (const log of logs ?? []) {
-        if (log.event_type === "cyberpath_diagnostic") done.add("diagnostic");
-        if (log.event_type === "cyberpath_sleepforge")  done.add("sleepforge");
-        if (log.event_type === "cyberpath_adversarial") done.add("adversarial");
-        if (log.event_type === "cyberpath_attestation") done.add("attestation");
+        const et = log.event_type ?? "";
+        if (et === "cyberpath_diagnostic") done.add("diagnostic");
+        if (et === "cyberpath_sleepforge")  done.add("sleepforge");
+        if (et === "cyberpath_adversarial") done.add("adversarial");
+        if (et === "cyberpath_attestation") done.add("attestation");
       }
 
       setCompletedSteps(done);
