@@ -229,6 +229,15 @@ const App = () => (
                     path="agent-jobs/:id"
                     element={<ProtectedRoute requirePro><AgentJobDetailPage /></ProtectedRoute>}
                   />
+                  {/* ── CyberPath 48h + Attestation NFT ──────────────────────── */}
+                  <Route
+                    path="cyberpath"
+                    element={<ProtectedRoute><CyberPath48h /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="attestation-nft"
+                    element={<ProtectedRoute><AttestationNFT /></ProtectedRoute>}
+                  />
                 </Route>
 
                 {/* ── Admin ────────────────────────────────────────────── */}
