@@ -18,6 +18,7 @@ import { KITTModePanel } from "@/components/chat/KITTModePanel";
 import { useGenieBrain } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
+import { useBrainTracker } from "@/hooks/useBrainTracker";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -321,6 +322,7 @@ export default function Chat() {
   const { data: kittContext } = useKITTContext();
   const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
   const { track } = useAnalytics();
+  const { trackBrain } = useBrainTracker();
 
   const {
     state: brainState,
@@ -384,6 +386,33 @@ export default function Chat() {
         }
         return prev;
       });
+      // Track swarm completion events
+      trackBrain("swarm_completed", {
+        session_id: sessionId,
+        risk_score: brainState.riskScore,
+        agents_used: brainState.activeAgents,
+        metadata: { risk_delta: brainState.riskDelta },
+      });
+      if (brainState.humanComparison) {
+        trackBrain("destroyer_shown", {
+          session_id: sessionId,
+          risk_score: brainState.riskScore,
+          metadata: { genie_ms: brainState.humanComparison.genie_response_ms },
+        });
+      }
+      if (brainState.generatedModule) {
+        trackBrain("module_accepted", {
+          session_id: sessionId,
+          metadata: { title: brainState.generatedModule.title, domain: brainState.generatedModule.domain },
+        });
+      }
+      if (brainState.prediction) {
+        trackBrain("prediction_displayed", {
+          session_id: sessionId,
+          risk_score: brainState.riskScore,
+          metadata: { urgency: (brainState.prediction as { urgency?: string }).urgency },
+        });
+      }
       setIsLoading(false);
     }
     if (brainState.phase === "error") {
@@ -391,6 +420,7 @@ export default function Chat() {
         ? { ...m, isLoading: false, content: `❌ Erreur swarm : ${brainState.error}` } : m));
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brainState.phase, brainState.finalContent]);
 
   const suggestions = getSuggestions(profile?.persona ?? null, hasProgress);
@@ -455,6 +485,15 @@ export default function Chat() {
         palantirData: { riskScore: brainStateRef.current.riskScore, riskDelta: 0, agentResponses: [] },
       };
       setMessages(prev => [...prev, loadingPalantirMsg]);
+
+      // Track Brain message
+      trackBrain("brain_message_sent", {
+        session_id: sessionId,
+        risk_score: brainStateRef.current.riskScore,
+        agents_used: brainStateRef.current.activeAgents,
+        metadata: { msg_length: text.length },
+      });
+      track("chat_sent", { mode: "palantir", session_id: sessionId });
 
       const apiMessages = [...messagesRef.current, userMsg]
         .filter(m => !m.isLoading)
@@ -569,7 +608,16 @@ export default function Chat() {
 
           {/* Palantir Mode toggle */}
           <button
-            onClick={() => { togglePalantirMode(); if (brainState.palantirMode) resetBrain(); }}
+            onClick={() => {
+              const nextMode = !brainState.palantirMode;
+              togglePalantirMode();
+              if (brainState.palantirMode) resetBrain();
+              trackBrain(nextMode ? "palantir_activated" : "palantir_deactivated", {
+                session_id: sessionId,
+                metadata: { persona: profile?.persona ?? null },
+              });
+              track(nextMode ? "jarvis_used" : "chat_sent", { mode: "palantir", action: nextMode ? "activate" : "deactivate" });
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all duration-300 ${
               brainState.palantirMode
                 ? "bg-primary/20 border-primary/60 text-primary shadow-[0_0_16px_hsl(var(--primary)/0.5)]"

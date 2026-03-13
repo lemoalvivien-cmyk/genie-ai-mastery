@@ -1231,6 +1231,71 @@ export type Database = {
           },
         ]
       }
+      brain_events: {
+        Row: {
+          agents_used: string[] | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          org_id: string | null
+          risk_score: number | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          agents_used?: string[] | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          org_id?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          agents_used?: string[] | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          org_id?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brain_generated_modules: {
         Row: {
           content: Json
@@ -4762,6 +4827,15 @@ export type Database = {
         Returns: Json
       }
       flush_usage_buffer: { Args: never; Returns: Json }
+      get_brain_events_timeseries: {
+        Args: { _days?: number; _org_id: string }
+        Returns: {
+          cnt: number
+          day: string
+          event_type: string
+        }[]
+      }
+      get_brain_revenue_ops: { Args: { _org_id: string }; Returns: Json }
       get_guided_daily_mission: {
         Args: {
           _level?: number
