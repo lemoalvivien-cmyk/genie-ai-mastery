@@ -59,6 +59,7 @@ const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"
 const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
 // ── Public pages ─────────────────────────────────────────────────
+const Demo              = lazy(() => import("./pages/Demo"));
 const Pricing           = lazy(() => import("./pages/Pricing"));
 const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const GuideList         = lazy(() => import("./pages/guides/GuideList"));
