@@ -1233,10 +1233,13 @@ export type Database = {
       }
       brain_events: {
         Row: {
+          agents_count: number | null
           agents_used: string[] | null
           created_at: string
+          error_type: string | null
           event_type: string
           id: string
+          latency_ms: number | null
           metadata: Json | null
           org_id: string | null
           risk_score: number | null
@@ -1244,10 +1247,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          agents_count?: number | null
           agents_used?: string[] | null
           created_at?: string
+          error_type?: string | null
           event_type: string
           id?: string
+          latency_ms?: number | null
           metadata?: Json | null
           org_id?: string | null
           risk_score?: number | null
@@ -1255,10 +1261,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          agents_count?: number | null
           agents_used?: string[] | null
           created_at?: string
+          error_type?: string | null
           event_type?: string
           id?: string
+          latency_ms?: number | null
           metadata?: Json | null
           org_id?: string | null
           risk_score?: number | null
@@ -4834,6 +4843,19 @@ export type Database = {
           day: string
           event_type: string
         }[]
+      }
+      get_brain_latency_timeseries: {
+        Args: { _hours?: number; _org_id: string }
+        Returns: {
+          agents_count: number
+          event_type: string
+          latency_ms: number
+          ts: string
+        }[]
+      }
+      get_brain_monitoring: {
+        Args: { _hours?: number; _org_id: string }
+        Returns: Json
       }
       get_brain_revenue_ops: { Args: { _org_id: string }; Returns: Json }
       get_guided_daily_mission: {
