@@ -458,6 +458,15 @@ export default function Chat() {
       };
       setMessages(prev => [...prev, loadingPalantirMsg]);
 
+      // Track Brain message
+      trackBrain("brain_message_sent", {
+        session_id: sessionId,
+        risk_score: brainStateRef.current.riskScore,
+        agents_used: brainStateRef.current.activeAgents,
+        metadata: { msg_length: text.length },
+      });
+      track("chat_sent", { mode: "palantir", session_id: sessionId });
+
       const apiMessages = [...messagesRef.current, userMsg]
         .filter(m => !m.isLoading)
         .slice(-20)
