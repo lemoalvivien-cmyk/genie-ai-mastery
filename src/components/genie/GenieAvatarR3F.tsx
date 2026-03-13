@@ -123,16 +123,14 @@ function OrbitParticle({ index }: { index: number }) {
   );
 }
 
-/* ── Exported wrapper ─────────────────────────────────────────── */
-export function GenieAvatarR3F({
-  size = 220,
-  className = "",
-}: {
+/* ── Exported wrapper — forwardRef so lazy() + Framer Motion don't warn ──── */
+export const GenieAvatarR3F = forwardRef<HTMLDivElement, {
   size?: number;
   className?: string;
-}) {
+}>(function GenieAvatarR3F({ size = 220, className = "" }, ref) {
   return (
     <div
+      ref={ref}
       className={className}
       style={{
         width: size,
@@ -155,7 +153,7 @@ export function GenieAvatarR3F({
 
         <MorphCore />
 
-        {/* Orbital particles — not given refs from parent, internal refs only */}
+        {/* Orbital particles */}
         {Array.from({ length: 10 }).map((_, i) => (
           <OrbitParticle key={i} index={i} />
         ))}
@@ -181,4 +179,5 @@ export function GenieAvatarR3F({
       </div>
     </div>
   );
-}
+});
+GenieAvatarR3F.displayName = "GenieAvatarR3F";
