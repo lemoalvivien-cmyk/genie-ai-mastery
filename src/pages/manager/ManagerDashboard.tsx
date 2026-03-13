@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
 import { useWeeklyReport } from "@/hooks/useWeeklyReport";
-import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock } from "lucide-react";
+import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock, Shield, Target, ChevronRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -596,6 +596,51 @@ export default function ManagerDashboard() {
                 <div className="text-xs text-muted-foreground mt-1">{stats?.total_attestations ?? 0} attestations</div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* ── Enterprise Navigation Cards ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Attack Simulation CTA */}
+            <Link to="/manager/attack-simulation">
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 hover:border-destructive/50 transition-all p-4 cursor-pointer group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-destructive/15 flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-destructive" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Attack Simulation</p>
+                      <p className="text-[10px] text-muted-foreground">Enterprise</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Simulez une attaque sur toute l'org — heatmap par département, risk score global, recommandations.
+                </p>
+              </div>
+            </Link>
+
+            {/* Revenue Ops CTA */}
+            <Link to="/manager/revenue-ops">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all p-4 cursor-pointer group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Revenue Ops</p>
+                      <p className="text-[10px] text-muted-foreground">MRR · Factures · Monitoring</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Billing Stripe, métriques Brain, taux d'activation Palantir 7j et monitoring swarm en temps réel.
+                </p>
+              </div>
+            </Link>
           </div>
 
           {/* ── Budget IA du jour ── */}
