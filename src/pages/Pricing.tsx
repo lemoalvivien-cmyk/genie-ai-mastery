@@ -255,20 +255,9 @@ export default function Pricing() {
     track("pricing_viewed");
   }, []);
 
-  const { data: launchData } = useQuery<LaunchData>({
-    queryKey: ["launch-price"],
-    staleTime: 60 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke(
-        "check-launch-price"
-      );
-      if (error) return { launch_price_active: true, spots_remaining: 0 };
-      return data as LaunchData;
-    },
-  });
-
-  const LAUNCH_PRICE_ACTIVE = launchData?.launch_price_active ?? true;
-  const currentPrice = LAUNCH_PRICE_ACTIVE ? 35 : 59;
+  // Prix unique fixe : 59€ TTC/mois — aucun tier, aucune promo
+  const LAUNCH_PRICE_ACTIVE = false;
+  const currentPrice = 59;
 
   const handlePortal = async () => {
     setPortalLoading(true);
