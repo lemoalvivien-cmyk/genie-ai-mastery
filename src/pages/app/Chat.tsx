@@ -386,6 +386,33 @@ export default function Chat() {
         }
         return prev;
       });
+      // Track swarm completion events
+      trackBrain("swarm_completed", {
+        session_id: sessionId,
+        risk_score: brainState.riskScore,
+        agents_used: brainState.activeAgents,
+        metadata: { risk_delta: brainState.riskDelta },
+      });
+      if (brainState.humanComparison) {
+        trackBrain("destroyer_shown", {
+          session_id: sessionId,
+          risk_score: brainState.riskScore,
+          metadata: { genie_ms: brainState.humanComparison.genie_response_ms },
+        });
+      }
+      if (brainState.generatedModule) {
+        trackBrain("module_accepted", {
+          session_id: sessionId,
+          metadata: { title: brainState.generatedModule.title, domain: brainState.generatedModule.domain },
+        });
+      }
+      if (brainState.prediction) {
+        trackBrain("prediction_displayed", {
+          session_id: sessionId,
+          risk_score: brainState.riskScore,
+          metadata: { urgency: (brainState.prediction as { urgency?: string }).urgency },
+        });
+      }
       setIsLoading(false);
     }
     if (brainState.phase === "error") {
@@ -393,6 +420,7 @@ export default function Chat() {
         ? { ...m, isLoading: false, content: `❌ Erreur swarm : ${brainState.error}` } : m));
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brainState.phase, brainState.finalContent]);
 
   const suggestions = getSuggestions(profile?.persona ?? null, hasProgress);
