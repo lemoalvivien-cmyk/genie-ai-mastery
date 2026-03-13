@@ -276,12 +276,12 @@ export default function Index() {
               <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#4ade80" }} />
             </motion.div>
 
-            {/* R3F 3D Genie Avatar — morphing icosahedron */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.8, ease: [0.34, 1.3, 0.64, 1] }}
+            {/* R3F 3D Genie Avatar — morphing icosahedron, plain div wrapper avoids lazy-ref warning */}
+            <div
               className="relative mb-8"
+              style={{
+                animation: "splash-fade-scale 0.8s 0.4s cubic-bezier(0.34,1.3,0.64,1) both",
+              }}
             >
               <Suspense fallback={
                 <div style={{ width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -291,7 +291,7 @@ export default function Index() {
                 <GenieAvatarR3F size={220} />
               </Suspense>
               <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(82,87,216,0.18) 0%, transparent 70%)", filter: "blur(24px)", transform: "scale(2.2)" }} />
-            </motion.div>
+            </div>
 
             {/* Scarcity douce */}
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
