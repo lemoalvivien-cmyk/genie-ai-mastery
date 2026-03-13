@@ -288,10 +288,10 @@ function BillingSection({ orgId }: { orgId: string | null }) {
           </div>
           <p className="text-xs text-muted-foreground">
             Plan actuel : <strong className="text-foreground">{billing?.org_plan ?? "free"}</strong> ·
-            {planPrice > 0 ? ` ${planPrice}€/mois × sièges` : " Passez à Business pour débloquer tout"}
+            {planPrice > 0 ? ` 59€ TTC/mois — jusqu'à 25 membres` : " Passez à Pro pour débloquer tout — 59€ TTC/mois"}
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            Checkout Stripe sécurisé · Essai gratuit 14j · Annulation à tout moment
+            Checkout Stripe sécurisé · 14j d'essai inclus · Annulation à tout moment
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
