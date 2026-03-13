@@ -410,18 +410,9 @@ export default function Pricing() {
           }}
         >
           <Link to="/" className="flex items-center gap-2.5">
-            <img
-              src={logoGenie}
-              alt="Formetoialia"
-              className="h-8 w-auto"
-              style={{
-...
-            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              Formetoialia vous rend autonome avec l'IA, la cybersécurité et le vibe
-              coding — grâce à des modules structurés, des labs pratiques, un
-              copilote Genie et des attestations vérifiables.
-            </p>
-          </div>
+            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto"
+              style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" }} />
+          </Link>
 
           {/* ── Plans ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start mb-12">
