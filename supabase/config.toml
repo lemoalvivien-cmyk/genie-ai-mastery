@@ -41,6 +41,9 @@ verify_jwt = false
 [functions.adaptive-learning-path]
 verify_jwt = true
 
+[functions.adversarial-exercise-gen]
+verify_jwt = true
+
 [functions.chat-completion]
 verify_jwt = true
 

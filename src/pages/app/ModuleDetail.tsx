@@ -14,6 +14,7 @@ import { ELI10Button } from "@/components/jarvis/ELI10Button";
 import { useSkillMastery } from "@/hooks/useSkillMastery";
 import { useEffect, useRef } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { AdversarialExerciseWidget } from "@/components/modules/AdversarialExerciseWidget";
 
 const DOMAIN_CONFIG: Record<string, { label: string; cls: string }> = {
   ia_pro: { label: "IA Pro", cls: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
@@ -349,6 +350,13 @@ export default function ModuleDetail() {
                   )}
                 </div>
               )}
+
+              {/* Adversarial Exercise */}
+              <AdversarialExerciseWidget
+                moduleTitle={mod.title}
+                moduleDomain={mod.domain}
+                moduleSlug={mod.slug}
+              />
 
               {/* Deliverables */}
               {mod.deliverables.length > 0 && (
