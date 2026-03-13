@@ -598,6 +598,51 @@ export default function ManagerDashboard() {
             </Card>
           </div>
 
+          {/* ── Enterprise Navigation Cards ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Attack Simulation CTA */}
+            <Link to="/manager/attack-simulation">
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 hover:border-destructive/50 transition-all p-4 cursor-pointer group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-destructive/15 flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-destructive" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Attack Simulation</p>
+                      <p className="text-[10px] text-muted-foreground">Enterprise</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Simulez une attaque sur toute l'org — heatmap par département, risk score global, recommandations.
+                </p>
+              </div>
+            </Link>
+
+            {/* Revenue Ops CTA */}
+            <Link to="/manager/revenue-ops">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all p-4 cursor-pointer group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Revenue Ops</p>
+                      <p className="text-[10px] text-muted-foreground">MRR · Factures · Monitoring</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Billing Stripe, métriques Brain, taux d'activation Palantir 7j et monitoring swarm en temps réel.
+                </p>
+              </div>
+            </Link>
+          </div>
+
           {/* ── Budget IA du jour ── */}
           {budgetUsage && (() => {
             const costToday = budgetUsage.org_cost_today;
