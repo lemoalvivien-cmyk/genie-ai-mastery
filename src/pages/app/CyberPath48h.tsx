@@ -355,7 +355,7 @@ export default function CyberPath48h() {
 
     // Navigate with Jarvis pre-primed
     if (step.id === "diagnostic") {
-      toast.success("🧠 JARVIS active le mode Predictor — analyse en cours…");
+      toast.success("🧠 Genie active le mode Predictor — analyse en cours…");
       navigate("/app/chat", {
         state: { prePrompt: "Lance un diagnostic complet de mon profil cyber. Mode Predictor activé.", agentMode: "predictor" },
       });
