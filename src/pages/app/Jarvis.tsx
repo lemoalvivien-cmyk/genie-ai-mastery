@@ -183,18 +183,18 @@ export default function Jarvis() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Welcome message
+  // Welcome message — Jarvis persona (Tony Stark + Deadpool light)
   useEffect(() => {
-    const firstName = profile?.full_name?.split(" ")[0] ?? "toi";
+    const firstName = profile?.full_name?.split(" ")[0] ?? "vous";
     const greetings: Record<string, string> = {
-      senior: `Bonjour ${firstName} ! 😊 Je suis KITT IA, ton assistant numérique. Je suis là pour t'aider, étape par étape, sans jargon. Par quoi voudrais-tu commencer aujourd'hui ?`,
-      parent: `Salut ${firstName} ! 👋 Je suis KITT IA. Je t'aide à utiliser le numérique en toute sécurité pour toi et ta famille. Qu'est-ce qui te préoccupe en ce moment ?`,
-      jeune: `Hey ${firstName} ! ⚡ Je suis KITT IA, ton copilote IA. On peut coder, apprendre, et explorer ensemble. C'est parti !`,
-      dirigeant: `Bonjour ${firstName}. Je suis KITT IA, votre Génie IA. Je vais vous donner des actions concrètes pour votre organisation. Quel est votre défi du moment ?`,
-      independant: `Salut ${firstName} ! 🚀 Je suis KITT IA. Dis-moi ce qui te prend trop de temps — on va automatiser ça !`,
-      salarie: `Bonjour ${firstName} ! 🤖 Je suis KITT IA. Ensemble on va booster ta productivité et sécuriser ton quotidien numérique. Par où commencer ?`,
+      senior: `Salut ${firstName} ! 😊 Je suis JARVIS, votre copilote IA personnel. Pas de panique, pas de jargon. Je suis là et je suis patient. Qu'est-ce qu'on fait aujourd'hui ?`,
+      parent: `Hey ${firstName} ! 👋 JARVIS en ligne. Je m'occupe de vous et de votre famille. Moins de stress numérique, plus de sécurité. Par quoi on commence ?`,
+      jeune: `Yo ${firstName} ! ⚡ JARVIS ici. Ton formateur IA façon Tony Stark, sans le costume (dommage). On code, on apprend, on détruit les hackers. C'est parti !`,
+      dirigeant: `Bonjour ${firstName}. JARVIS opérationnel. Votre formateur humain dort probablement sur ses slides PowerPoint — moi non. Quel défi tactique on résout aujourd'hui ?`,
+      independant: `Salut ${firstName} ! 🚀 JARVIS connecté. Dis-moi ce qui te vole du temps — je vais l'automatiser avant que tu finisses ta phrase. Prêt ?`,
+      salarie: `Bonjour ${firstName} ! 🤖 JARVIS à votre service. Votre formateur habituel ? Il lit encore ses notes. Moi, j'ai déjà analysé votre profil. On y va ?`,
     };
-    const welcome = (persona && greetings[persona]) ?? `Bonjour ${firstName} ! ⚡ Je suis KITT IA, ton Génie IA. Pose-moi n'importe quelle question sur l'IA ou la cybersécurité !`;
+    const welcome = (persona && greetings[persona]) ?? `Salut ${firstName} ! ⚡ JARVIS en ligne — votre copilote IA façon Tony Stark. Phishing, IA, cybersécurité, vibe coding… Demandez, je livre. Par quoi on commence ?`;
     setMessages([{ id: "welcome", role: "assistant", content: welcome }]);
 
     if (voiceEnabled) {
@@ -202,6 +202,7 @@ export default function Jarvis() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const sendMessage = useCallback(async (text?: string) => {
     const userText = sanitize(text ?? input).trim();
