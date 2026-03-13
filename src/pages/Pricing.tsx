@@ -412,94 +412,14 @@ export default function Pricing() {
           <Link to="/" className="flex items-center gap-2.5">
             <img
               src={logoGenie}
-              alt="GENIE IA"
+              alt="Formetoialia"
               className="h-8 w-auto"
               style={{
-                filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))",
-              }}
-            />
-          </Link>
-
-          <nav className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <button
-                  onClick={handlePortal}
-                  disabled={portalLoading}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-                >
-                  {portalLoading && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  )}
-                  Mon abonnement
-                </button>
-                <Link
-                  to="/app/dashboard"
-                  className="text-sm font-semibold transition-colors hover:opacity-80"
-                  style={{ color: "hsl(var(--primary))" }}
-                >
-                  Mon espace →
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Se connecter
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
-                  style={{
-                    background: "hsl(var(--accent))",
-                    color: "hsl(var(--accent-foreground))",
-                  }}
-                >
-                  Démarrer gratuitement
-                </Link>
-              </>
-            )}
-          </nav>
-        </header>
-
-        <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-14 sm:py-20">
-
-          {/* ── Hero pricing ─────────────────────────────────── */}
-          <div className="text-center mb-14 sm:mb-16">
-            {LAUNCH_PRICE_ACTIVE && (
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-5"
-                style={{
-                  background: "hsl(var(--accent) / 0.1)",
-                  color: "hsl(var(--accent))",
-                  border: "1px solid hsl(var(--accent) / 0.25)",
-                }}
-              >
-                <KittDot />
-                Prix de lancement actif
-              </div>
-            )}
-            <h1 className="text-3xl sm:text-4xl font-black mb-4 leading-tight tracking-tight">
-              Un tarif clair.
-              <br />
-              <span
-                style={{
-                  background:
-                    "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Une transformation mesurable.
-              </span>
-            </h1>
+...
             <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              GENIE IA vous rend autonome avec l'IA, la cybersécurité et le vibe
+              Formetoialia vous rend autonome avec l'IA, la cybersécurité et le vibe
               coding — grâce à des modules structurés, des labs pratiques, un
-              copilote KITT et des attestations vérifiables.
+              copilote Genie et des attestations vérifiables.
             </p>
           </div>
 
