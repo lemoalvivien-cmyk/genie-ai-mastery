@@ -1,9 +1,9 @@
 /**
- * Pricing — GENIE IA
+ * Pricing — Formetoialia
  *
  * Promesse alignée avec la landing :
  * Devenir autonome avec l'IA, la cybersécurité et le vibe coding,
- * grâce à KITT, des modules, des labs, des attestations et un pilotage équipe.
+ * grâce à Genie, des modules, des labs, des attestations et un pilotage équipe.
  *
  * Règles :
  * - Zéro faux sentiment d'urgence
