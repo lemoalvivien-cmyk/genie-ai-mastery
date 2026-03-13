@@ -350,12 +350,13 @@ export default function Jarvis() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">KITT IA</span>
+                  <span className="text-sm font-bold">JARVIS</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">En ligne</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Guide IA · Ultra patient · Toujours là</p>
+                <p className="text-[10px] text-muted-foreground">Tony Stark IA · Formateur humain obsolète remplacé · 24/7</p>
               </div>
             </div>
+
 
             <div className="flex items-center gap-2">
               {/* Mode toggle */}
