@@ -492,6 +492,15 @@ export default function Chat() {
     setIsLoading(true);
     setKittState("thinking");
 
+    // ── Auto-nudge: after 2nd normal message, show QuickStart modal ──────────
+    if (!brainStateRef.current.palantirMode) {
+      normalMsgCountRef.current += 1;
+      if (normalMsgCountRef.current === 2 && shouldShowQuickStart()) {
+        // Show after response is rendered — 1s delay
+        setTimeout(() => setShowQuickStart(true), 1200);
+      }
+    }
+
     // ── PALANTIR MODE: use genie-brain-orchestrator ────────────────────────
     if (brainStateRef.current.palantirMode) {
       const loadingPalantirMsg: Message = {
