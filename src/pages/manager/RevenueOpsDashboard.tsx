@@ -97,7 +97,8 @@ interface TimeseriesRow { day: string; event_type: string; cnt: number; }
 interface LatencyPoint { ts: string; latency_ms: number; agents_count: number; }
 
 const PIE_COLORS = ["#EF4444", "#F97316", "#10B981"];
-const PLAN_PRICE: Record<string, number> = { business: 59, compliance: 199, free: 0 };
+// Prix unique fixe : 59€ TTC/mois
+const PLAN_PRICE: Record<string, number> = { business: 59, compliance: 59, pro: 59, free: 0 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const euros = (cents: number) =>
