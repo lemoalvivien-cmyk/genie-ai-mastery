@@ -383,12 +383,17 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── 7. NBA Card ── */}
+          {/* ── 7. Adaptive Path (Temporal Mirror + Infinite Branching) ── */}
+          <div className="animate-slide-up">
+            <AdaptivePathPanel />
+          </div>
+
+          {/* ── 8. NBA Card ── */}
           <div className="animate-slide-up">
             <NextBestActionCard />
           </div>
 
-          {/* ── 8. Recent Artifacts ── */}
+          {/* ── 9. Recent Artifacts ── */}
           <div className="animate-slide-up">
             <RecentArtifactsCard />
           </div>
