@@ -628,6 +628,29 @@ export default function Chat() {
     <>
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
 
+      {/* ── Onboarding Tour (shown once, first visit) ── */}
+      {showTour && (
+        <PalantirOnboardingTour
+          onComplete={() => setShowTour(false)}
+          onActivatePalantir={() => {
+            setShowTour(false);
+            if (!brainState.palantirMode) togglePalantirMode();
+          }}
+        />
+      )}
+
+      {/* ── Quick Start Modal (after 2nd normal message) ── */}
+      {showQuickStart && !showTour && !brainState.palantirMode && (
+        <QuickStartModal
+          sessionId={sessionId}
+          onActivate={() => {
+            setShowQuickStart(false);
+            if (!brainState.palantirMode) togglePalantirMode();
+          }}
+          onDismiss={() => setShowQuickStart(false)}
+        />
+      )}
+
       <div className="flex flex-col h-full" style={{ background: "#0F1119" }}>
         {/* ── Header with KITT + Palantir toggle ── */}
         <div className="shrink-0 flex flex-col items-center pt-4 pb-2 gap-2">

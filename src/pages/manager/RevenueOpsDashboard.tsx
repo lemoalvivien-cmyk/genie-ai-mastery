@@ -13,7 +13,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
-import { Brain, TrendingUp, Users, Zap, Shield, Download, RefreshCw, AlertTriangle, Award, ArrowLeft } from "lucide-react";
+import { Brain, TrendingUp, Users, Zap, Shield, Download, RefreshCw, AlertTriangle, Award, ArrowLeft, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
