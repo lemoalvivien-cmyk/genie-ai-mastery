@@ -283,10 +283,11 @@ function GlassCard({ children, className = "", hover = true, accent = false }:
 /* ═══════════════════════════════════════════════════════════════
    SECTION WRAPPER
 ═══════════════════════════════════════════════════════════════ */
-function Section({ children, className = "", id = "" }:
-  { children: React.ReactNode; className?: string; id?: string }) {
+function Section({ children, className = "", id = "", style }: {
+  children: React.ReactNode; className?: string; id?: string; style?: React.CSSProperties;
+}) {
   return (
-    <motion.section id={id}
+    <motion.section id={id} style={style}
       initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className={className}>
