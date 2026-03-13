@@ -421,11 +421,31 @@ function MonitoringPanel({ orgId }: { orgId: string | null }) {
     setLoading(true);
     try {
       const [monResult, latResult] = await Promise.all([
-        supabase.rpc("get_brain_monitoring" as never, { _org_id: orgId, _hours: 24 }),
-        supabase.rpc("get_brain_latency_timeseries" as never, { _org_id: orgId, _hours: 24 }),
+        supabase.from("brain_events").select("latency_ms,agents_count,error_type,created_at").eq("org_id", orgId).not("latency_ms", "is", null).order("created_at", { ascending: false }).limit(30),
+        supabase.from("brain_events").select("latency_ms,agents_count,error_type,created_at").eq("org_id", orgId).not("latency_ms", "is", null).order("created_at", { ascending: false }).limit(100),
       ]);
-      if (monResult.data) setMonitoring(monResult.data as unknown as MonitoringMetrics);
-      if (latResult.data) setLatencyData((latResult.data as LatencyPoint[]).reverse());
+      // Build monitoring metrics from raw data
+      if (monResult.data && monResult.data.length > 0) {
+        const rows = monResult.data as Array<{ latency_ms: number; agents_count: number | null; error_type: string | null; created_at: string }>;
+        const latencies = rows.map(r => r.latency_ms).filter(Boolean).sort((a, b) => a - b);
+        const errors = rows.filter(r => r.error_type).length;
+        const sorted = [...latencies].sort((a, b) => a - b);
+        setMonitoring({
+          avg_latency_ms: latencies.length ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) : null,
+          p95_latency_ms: sorted.length ? sorted[Math.floor(sorted.length * 0.95)] : null,
+          total_swarms: rows.length,
+          error_count: errors,
+          error_rate_pct: rows.length ? Math.round((errors / rows.length) * 100) : null,
+          avg_agents: rows.length ? Math.round(rows.reduce((a, r) => a + (r.agents_count ?? 0), 0) / rows.length) : null,
+          swarms_last_hour: rows.filter(r => new Date(r.created_at) > new Date(Date.now() - 3600000)).length,
+          last_latency_ms: rows[0]?.latency_ms ?? null,
+        });
+      }
+      if (latResult.data) {
+        const pts = (latResult.data as Array<{ latency_ms: number; agents_count: number | null; created_at: string }>)
+          .slice(0, 30).reverse().map(r => ({ ts: r.created_at, latency_ms: r.latency_ms, agents_count: r.agents_count ?? 0 }));
+        setLatencyData(pts);
+      }
     } catch (_e) { /* silent */ } finally { setLoading(false); }
   }, [orgId]);
 
