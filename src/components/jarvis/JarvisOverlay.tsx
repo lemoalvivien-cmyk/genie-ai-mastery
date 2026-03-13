@@ -362,7 +362,7 @@ export function JarvisOverlay() {
         </div>
 
         {/* KITT Visualizer ──────────────────────────────────────────────── */}
-        <div className="shrink-0 flex items-center justify-center py-2 px-3 border-b border-border/30 bg-[hsl(var(--background)/0.6)]">
+        <div className="shrink-0 flex items-center justify-center py-2 px-3 border-b border-border/30 bg-background/60">
           <KittVisualizer state={state.kittState} analyserNode={getAnalyser()} />
         </div>
 
