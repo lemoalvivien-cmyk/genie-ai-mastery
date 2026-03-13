@@ -386,7 +386,7 @@ export default function CyberPath48h() {
   return (
     <>
       <Helmet>
-        <title>CyberPath 48h — Défi Obsolescence Totale | GENIE IA</title>
+        <title>CyberPath 48h — Défi Obsolescence Totale | Formetoialia</title>
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>
