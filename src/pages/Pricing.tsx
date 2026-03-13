@@ -517,13 +517,8 @@ export default function Pricing() {
                     className="text-4xl font-black"
                     style={{ color: "hsl(var(--accent))" }}
                   >
-                    {currentPrice}€
+                    59€
                   </span>
-                  {LAUNCH_PRICE_ACTIVE && (
-                    <span className="text-xl font-bold line-through text-muted-foreground/40 mb-1">
-                      59€
-                    </span>
-                  )}
                   <span className="text-muted-foreground text-sm mb-1.5">
                     TTC/mois
                   </span>
@@ -531,11 +526,6 @@ export default function Pricing() {
                 <p className="text-xs text-muted-foreground font-mono">
                   par organisation · jusqu'à 25 membres
                 </p>
-                {LAUNCH_PRICE_ACTIVE && (
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    Prix de lancement — tarif standard : 59€/mois
-                  </p>
-                )}
               </div>
 
               <ScanLine />

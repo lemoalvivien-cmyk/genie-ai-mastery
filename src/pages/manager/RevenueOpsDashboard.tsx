@@ -308,7 +308,7 @@ function BillingSection({ orgId }: { orgId: string | null }) {
             disabled={checkoutLoading}
           >
             <Zap className="w-3 h-3" />
-            {checkoutLoading ? "Ouverture…" : `Upgrade — ${seatsInput * planPrice || 59}€/mois`}
+            {checkoutLoading ? "Ouverture…" : "Upgrade — 59€ TTC/mois"}
             <ChevronRight className="w-3 h-3" />
           </Button>
           <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={handlePortal}>

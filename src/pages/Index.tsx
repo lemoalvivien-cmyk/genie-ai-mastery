@@ -199,7 +199,7 @@ export default function Index() {
     <>
       <Helmet>
         <title>Formetoialia — La formation qui apprend plus vite que vous.</title>
-        <meta name="description" content="Formetoialia — Plateforme IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote Genie, attestations vérifiables. Disponible 24/7 à partir de 35€/mois." />
+        <meta name="description" content="Formetoialia — Plateforme IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote Genie, attestations vérifiables. Disponible 24/7 — 59€ TTC/mois." />
         <meta property="og:title" content="Formetoialia — La formation qui apprend plus vite que vous." />
         <meta property="og:description" content="Modules IA, cybersécurité, labs pratiques, attestations vérifiables. Une alternative fluide et disponible 24/7 aux formations classiques." />
         <meta property="og:image" content="https://formetoialia.com/logo-genie.png" />

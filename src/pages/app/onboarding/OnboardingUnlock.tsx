@@ -24,7 +24,7 @@ export default function OnboardingUnlock() {
 
   return (
     <>
-      <Helmet><title>Débloquez GENIE Pro – 59€/mois</title></Helmet>
+      <Helmet><title>Débloquez Formetoialia Pro — 59€ TTC/mois</title></Helmet>
 
       {/* Top progress bar — complete */}
       <div className="fixed top-0 left-0 right-0 z-40 h-1">
