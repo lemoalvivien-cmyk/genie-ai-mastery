@@ -40,11 +40,7 @@ import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
 import logoGenie from "@/assets/logo-genie.png";
 
-/* ─── Types ──────────────────────────────────────────────────── */
-interface LaunchData {
-  launch_price_active: boolean;
-  spots_remaining: number;
-}
+/* ─── Prix unique fixe : 59€ TTC/mois ──────────────────────── */
 
 /* ─── KITT scanner minimal ───────────────────────────────────── */
 function KittDot() {
