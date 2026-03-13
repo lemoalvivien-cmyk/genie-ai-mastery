@@ -1,10 +1,10 @@
 /**
- * Formetoialia — Landing Page v8 — SWISS PREMIUM EDITION 2049
- * Blade Runner × Palantir × Apple — Messaging softeé, élégant, premium
+ * Formetoialia — Landing Page v9 — BLADE RUNNER 2049 PREMIUM EDITION
+ * Glassmorphism 2.0 · R3F Morphing Avatar · WebGL Perlin Hero · 60fps
  * Route: / — Ne modifie AUCUNE autre route ni composant
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -23,6 +23,12 @@ import {
   softwareApplicationSchema, productSchema,
   organizationSchema, faqSchema,
 } from "@/lib/seo";
+import { PerlinNoiseHero } from "@/components/hero/PerlinNoiseHero";
+
+// Lazy-load heavy R3F avatar — zero impact on initial paint
+const GenieAvatarR3F = lazy(() =>
+  import("@/components/genie/GenieAvatarR3F").then(m => ({ default: m.GenieAvatarR3F }))
+);
 
 /* ═══════════════════════════════════════════════════════════════
    CURSEUR MAGNÉTIQUE GLOBAL
