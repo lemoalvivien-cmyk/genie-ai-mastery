@@ -339,6 +339,7 @@ const App = () => (
                     <Route path="enterprise"     element={<EnterpriseDashboard />} />
                     <Route path="revenue-analytics" element={<RevenueAnalytics />} />
                     <Route path="system"         element={<SystemHealth />} />
+                    <Route path="rag"            element={<EnterpriseKnowledge />} />
                     <Route path="logs"           element={<LogsViewer />} />
                     <Route path="start"          element={<SmartOnboarding />} />
                   </Route>
