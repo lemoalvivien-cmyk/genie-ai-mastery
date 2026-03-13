@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NextBestActionCard } from "@/components/dashboard/NextBestActionCard";
 import { RecentArtifactsCard } from "@/components/dashboard/RecentArtifactsCard";
 import { AdaptivePathPanel } from "@/components/dashboard/AdaptivePathPanel";
+import NeuroRewardsDashboard from "@/components/rewards/NeuroRewardsDashboard";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
 function AnimatedNumber({ value }: { value: number }) {
@@ -396,6 +397,11 @@ export default function Dashboard() {
           {/* ── 9. Recent Artifacts ── */}
           <div className="animate-slide-up">
             <RecentArtifactsCard />
+          </div>
+
+          {/* ── 10. Neuro-Rewards + Hive Intelligence ── */}
+          <div className="animate-slide-up">
+            <NeuroRewardsDashboard />
           </div>
 
         </main>
