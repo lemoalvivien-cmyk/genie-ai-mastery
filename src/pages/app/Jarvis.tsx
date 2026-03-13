@@ -21,10 +21,13 @@ import { CopilotDock } from "@/components/jarvis/CopilotDock";
 import { useCopilot, parseJarvisResponse } from "@/hooks/useCopilot";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+type JarvisAction = "attack" | "motivate" | "generate_exercise" | "sleepforge" | "quiz" | "explain" | "synthesis" | "remediate";
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  action?: JarvisAction;
 }
 
 interface ActionSuggestion {
@@ -36,6 +39,18 @@ interface ActionSuggestion {
 function sanitize(t: string) {
   return DOMPurify.sanitize(t, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
+
+// ─── Action badge config ──────────────────────────────────────────────────────
+const ACTION_BADGES: Record<JarvisAction, { emoji: string; label: string; color: string }> = {
+  attack:            { emoji: "⚔️", label: "Simulation",     color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  motivate:          { emoji: "🚀", label: "Boost Stark",    color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+  generate_exercise: { emoji: "🎯", label: "Exercice live",  color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30" },
+  sleepforge:        { emoji: "🌙", label: "SleepForge",     color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
+  quiz:              { emoji: "🧠", label: "Quiz",           color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" },
+  explain:           { emoji: "💡", label: "Explication",    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  synthesis:         { emoji: "📊", label: "Bilan",          color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  remediate:         { emoji: "🛠️", label: "Remédiation",   color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+};
 
 // ─── Persona-driven quick actions ─────────────────────────────────────────────
 function getPersonaActions(persona: string | null | undefined, mode: "senior" | "pro"): ActionSuggestion[] {
@@ -84,6 +99,7 @@ function getPersonaActions(persona: string | null | undefined, mode: "senior" | 
 // ─── Message bubble ───────────────────────────────────────────────────────────
 function MessageBubble({ msg }: { msg: ChatMessage }) {
   const isUser = msg.role === "user";
+  const badge = !isUser && msg.action ? ACTION_BADGES[msg.action] : null;
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-1`}>
       {!isUser && (
@@ -91,7 +107,14 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
           <Zap className="w-4 h-4 text-primary-foreground" />
         </div>
       )}
-      <div className={`max-w-[85%] space-y-2`}>
+      <div className="max-w-[85%] space-y-2">
+        {/* Action badge — shown above assistant messages */}
+        {badge && (
+          <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badge.color}`}>
+            <span>{badge.emoji}</span>
+            <span>{badge.label}</span>
+          </div>
+        )}
         <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
           isUser
             ? "bg-primary text-primary-foreground rounded-br-sm"
@@ -160,18 +183,18 @@ export default function Jarvis() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Welcome message
+  // Welcome message — Jarvis persona (Tony Stark + Deadpool light)
   useEffect(() => {
-    const firstName = profile?.full_name?.split(" ")[0] ?? "toi";
+    const firstName = profile?.full_name?.split(" ")[0] ?? "vous";
     const greetings: Record<string, string> = {
-      senior: `Bonjour ${firstName} ! 😊 Je suis KITT IA, ton assistant numérique. Je suis là pour t'aider, étape par étape, sans jargon. Par quoi voudrais-tu commencer aujourd'hui ?`,
-      parent: `Salut ${firstName} ! 👋 Je suis KITT IA. Je t'aide à utiliser le numérique en toute sécurité pour toi et ta famille. Qu'est-ce qui te préoccupe en ce moment ?`,
-      jeune: `Hey ${firstName} ! ⚡ Je suis KITT IA, ton copilote IA. On peut coder, apprendre, et explorer ensemble. C'est parti !`,
-      dirigeant: `Bonjour ${firstName}. Je suis KITT IA, votre Génie IA. Je vais vous donner des actions concrètes pour votre organisation. Quel est votre défi du moment ?`,
-      independant: `Salut ${firstName} ! 🚀 Je suis KITT IA. Dis-moi ce qui te prend trop de temps — on va automatiser ça !`,
-      salarie: `Bonjour ${firstName} ! 🤖 Je suis KITT IA. Ensemble on va booster ta productivité et sécuriser ton quotidien numérique. Par où commencer ?`,
+      senior: `Salut ${firstName} ! 😊 Je suis JARVIS, votre copilote IA personnel. Pas de panique, pas de jargon. Je suis là et je suis patient. Qu'est-ce qu'on fait aujourd'hui ?`,
+      parent: `Hey ${firstName} ! 👋 JARVIS en ligne. Je m'occupe de vous et de votre famille. Moins de stress numérique, plus de sécurité. Par quoi on commence ?`,
+      jeune: `Yo ${firstName} ! ⚡ JARVIS ici. Ton formateur IA façon Tony Stark, sans le costume (dommage). On code, on apprend, on détruit les hackers. C'est parti !`,
+      dirigeant: `Bonjour ${firstName}. JARVIS opérationnel. Votre formateur humain dort probablement sur ses slides PowerPoint — moi non. Quel défi tactique on résout aujourd'hui ?`,
+      independant: `Salut ${firstName} ! 🚀 JARVIS connecté. Dis-moi ce qui te vole du temps — je vais l'automatiser avant que tu finisses ta phrase. Prêt ?`,
+      salarie: `Bonjour ${firstName} ! 🤖 JARVIS à votre service. Votre formateur habituel ? Il lit encore ses notes. Moi, j'ai déjà analysé votre profil. On y va ?`,
     };
-    const welcome = (persona && greetings[persona]) ?? `Bonjour ${firstName} ! ⚡ Je suis KITT IA, ton Génie IA. Pose-moi n'importe quelle question sur l'IA ou la cybersécurité !`;
+    const welcome = (persona && greetings[persona]) ?? `Salut ${firstName} ! ⚡ JARVIS en ligne — votre copilote IA façon Tony Stark. Phishing, IA, cybersécurité, vibe coding… Demandez, je livre. Par quoi on commence ?`;
     setMessages([{ id: "welcome", role: "assistant", content: welcome }]);
 
     if (voiceEnabled) {
@@ -179,6 +202,7 @@ export default function Jarvis() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const sendMessage = useCallback(async (text?: string) => {
     const userText = sanitize(text ?? input).trim();
@@ -226,7 +250,17 @@ export default function Jarvis() {
       const raw: string = data?.content ?? "Je n'ai pas pu générer une réponse. Réessaie !";
       const parsed = parseJarvisResponse(raw);
       const displayContent = parsed.message || raw;
-      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent };
+
+      // Extract Jarvis action and tts_text from parsed JSON
+      let jarvisAction: JarvisAction | undefined;
+      let ttsText: string | undefined;
+      try {
+        const rawObj = JSON.parse(raw.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+        if (rawObj?.action) jarvisAction = rawObj.action as JarvisAction;
+        if (rawObj?.tts_text) ttsText = rawObj.tts_text;
+      } catch { /* use defaults */ }
+
+      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: displayContent, action: jarvisAction };
       setMessages(prev => [...prev, assistantMsg]);
 
       if (parsed.plan.length > 0 || parsed.immediate_action) {
@@ -235,7 +269,8 @@ export default function Jarvis() {
       }
 
       setKittState("speaking");
-      if (voiceEnabled) speak(displayContent.slice(0, 200));
+      // Prefer tts_text (clean, no markdown) for voice; fallback to display content
+      if (voiceEnabled) speak((ttsText || displayContent).slice(0, 250));
     } catch (err) {
       const isAbort = err instanceof Error && err.name === "AbortError";
       toast({
@@ -251,6 +286,7 @@ export default function Jarvis() {
       setIsLoading(false);
     }
   }, [input, isLoading, profile, persona, expertMode, ecoMode, sessionId, voiceEnabled, speak, copilot]);
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -314,12 +350,13 @@ export default function Jarvis() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">KITT IA</span>
+                  <span className="text-sm font-bold">JARVIS</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">En ligne</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Guide IA · Ultra patient · Toujours là</p>
+                <p className="text-[10px] text-muted-foreground">Tony Stark IA · Formateur humain obsolète remplacé · 24/7</p>
               </div>
             </div>
+
 
             <div className="flex items-center gap-2">
               {/* Mode toggle */}
