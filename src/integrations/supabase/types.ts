@@ -3412,6 +3412,203 @@ export type Database = {
           },
         ]
       }
+      org_knowledge_chunks: {
+        Row: {
+          chunk_index: number
+          content: string
+          created_at: string
+          document_id: string
+          embedding: string | null
+          id: string
+          metadata: Json
+          org_id: string
+        }
+        Insert: {
+          chunk_index: number
+          content: string
+          created_at?: string
+          document_id: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json
+          org_id: string
+        }
+        Update: {
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          document_id?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_knowledge_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "org_knowledge_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_chunks_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_chunks_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_knowledge_documents: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string
+          file_path: string | null
+          id: string
+          is_auto: boolean
+          metadata: Json
+          org_id: string
+          source_type: string
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          is_auto?: boolean
+          metadata?: Json
+          org_id: string
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          is_auto?: boolean
+          metadata?: Json
+          org_id?: string
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_knowledge_documents_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_documents_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_system_prompts: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          org_id: string
+          prompt_text: string
+          updated_at: string
+          updated_by: string | null
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          org_id: string
+          prompt_text?: string
+          updated_at?: string
+          updated_by?: string | null
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          org_id?: string
+          prompt_text?: string
+          updated_at?: string
+          updated_by?: string | null
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_system_prompts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_system_prompts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_system_prompts_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_system_prompts_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_weekly_reports: {
         Row: {
           at_risk_count: number
@@ -4998,6 +5195,54 @@ export type Database = {
         }
         Relationships: []
       }
+      worldwatch_entries: {
+        Row: {
+          cvss_score: number | null
+          entry_id: string
+          fetched_at: string
+          id: string
+          is_ingested: boolean
+          metadata: Json
+          published_at: string | null
+          severity: string | null
+          source: string
+          summary: string | null
+          tags: string[] | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          cvss_score?: number | null
+          entry_id: string
+          fetched_at?: string
+          id?: string
+          is_ingested?: boolean
+          metadata?: Json
+          published_at?: string | null
+          severity?: string | null
+          source: string
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          cvss_score?: number | null
+          entry_id?: string
+          fetched_at?: string
+          id?: string
+          is_ingested?: boolean
+          metadata?: Json
+          published_at?: string | null
+          severity?: string | null
+          source?: string
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       org_member_profiles: {
@@ -5351,6 +5596,35 @@ export type Database = {
           content: string
           document_id: string
           similarity: number
+          title: string
+        }[]
+      }
+      search_org_knowledge_fts: {
+        Args: { _limit?: number; _org_id: string; _query: string }
+        Returns: {
+          category: string
+          chunk_id: string
+          content: string
+          document_id: string
+          similarity: number
+          source_type: string
+          title: string
+        }[]
+      }
+      search_org_knowledge_semantic: {
+        Args: {
+          _category?: string
+          _embedding: string
+          _limit?: number
+          _org_id: string
+        }
+        Returns: {
+          category: string
+          chunk_id: string
+          content: string
+          document_id: string
+          similarity: number
+          source_type: string
           title: string
         }[]
       }
