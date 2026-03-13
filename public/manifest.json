@@ -1,7 +1,7 @@
 {
-  "name": "GENIE IA",
-  "short_name": "GENIE IA",
-  "description": "Maîtrisez l'IA & la Cybersécurité",
+  "name": "Formetoialia",
+  "short_name": "Formetoialia",
+  "description": "La formation qui apprend plus vite que vous.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0C1014",
