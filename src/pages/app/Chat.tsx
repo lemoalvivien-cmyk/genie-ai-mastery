@@ -360,6 +360,22 @@ export default function Chat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ── Onboarding tour + quick start modal state ─────────────────────────────
+  const [showTour, setShowTour] = useState(() => shouldShowTour());
+  const [showQuickStart, setShowQuickStart] = useState(false);
+  // Count user messages sent in normal (non-Palantir) mode
+  const normalMsgCountRef = useRef(0);
+
+  // Listen for prefill event from QuickStartModal demo prompts
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ text: string }>).detail;
+      if (detail?.text) setInput(detail.text);
+    };
+    window.addEventListener("genie:prefill_chat", handler);
+    return () => window.removeEventListener("genie:prefill_chat", handler);
+  }, []);
+
   // Sync KITT state with brain phase
   useEffect(() => {
     if (brainState.phase === "swarming" || brainState.phase === "thinking") setKittState("thinking");
