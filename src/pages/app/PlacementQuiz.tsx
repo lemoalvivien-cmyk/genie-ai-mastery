@@ -294,7 +294,7 @@ export default function PlacementQuiz() {
 
   return (
     <>
-      <Helmet><title>Benchmark de positionnement – GENIE IA</title></Helmet>
+      <Helmet><title>Benchmark de positionnement — Formetoialia</title></Helmet>
 
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-border/30">

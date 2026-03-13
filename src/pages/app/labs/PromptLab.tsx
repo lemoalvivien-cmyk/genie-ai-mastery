@@ -250,7 +250,7 @@ Sois constructif et précis. Maximum 300 mots au total.`;
   return (
     <>
       <Helmet>
-        <title>Prompt Lab — GENIE IA</title>
+        <title>Prompt Lab — Formetoialia</title>
         <meta name="description" content="Entraînez-vous au prompt engineering. Soumettez vos prompts, obtenez une évaluation IA et téléchargez votre Fiche Prompt Pro." />
       </Helmet>
 

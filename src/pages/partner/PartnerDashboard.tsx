@@ -162,7 +162,7 @@ export default function PartnerDashboard() {
   return (
     <>
       <Helmet>
-        <title>Portail Partenaire – GENIE IA</title>
+        <title>Portail Partenaire — Formetoialia</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 

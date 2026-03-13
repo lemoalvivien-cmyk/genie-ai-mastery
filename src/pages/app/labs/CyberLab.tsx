@@ -396,7 +396,7 @@ export default function CyberLab() {
   return (
     <>
       <Helmet>
-        <title>Cyber Lab — GENIE IA</title>
+        <title>Cyber Lab — Formetoialia</title>
         <meta name="description" content="3 exercices pratiques de cybersécurité : phishing, mots de passe, réponse à incident." />
       </Helmet>
 

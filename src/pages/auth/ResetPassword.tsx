@@ -91,7 +91,7 @@ export default function ResetPassword() {
   return (
     <>
       <Helmet>
-        <title>Nouveau mot de passe – GENIE IA</title>
+        <title>Nouveau mot de passe — Formetoialia</title>
       </Helmet>
       <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
         <div className="w-full max-w-md">
