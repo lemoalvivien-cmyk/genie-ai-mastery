@@ -514,6 +514,12 @@ export default function ManagerDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={loadData} aria-label="Rafraîchir"><RefreshCw className="w-4 h-4" /></Button>
+            <Link to="/manager/revenue-ops">
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs border-primary/40 text-primary hover:bg-primary/10">
+                <Brain className="w-3.5 h-3.5" />
+                Revenue Ops
+              </Button>
+            </Link>
             <Link to="/app/dashboard">
               <Button variant="ghost" size="sm">Tableau de bord</Button>
             </Link>
