@@ -3250,6 +3250,78 @@ export type Database = {
           },
         ]
       }
+      org_invoices: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string | null
+          hosted_invoice_url: string | null
+          id: string
+          invoice_pdf_url: string | null
+          org_id: string
+          paid_at: string | null
+          period_end: string | null
+          period_start: string | null
+          seats: number | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_invoice_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          hosted_invoice_url?: string | null
+          id?: string
+          invoice_pdf_url?: string | null
+          org_id: string
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          seats?: number | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          hosted_invoice_url?: string | null
+          id?: string
+          invoice_pdf_url?: string | null
+          org_id?: string
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          seats?: number | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "org_public_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_weekly_reports: {
         Row: {
           at_risk_count: number
@@ -4836,6 +4908,14 @@ export type Database = {
         Returns: Json
       }
       flush_usage_buffer: { Args: never; Returns: Json }
+      get_billing_timeseries: {
+        Args: { _days?: number; _org_id: string }
+        Returns: {
+          day: string
+          invoice_count: number
+          revenue_cents: number
+        }[]
+      }
       get_brain_events_timeseries: {
         Args: { _days?: number; _org_id: string }
         Returns: {
@@ -4875,7 +4955,26 @@ export type Database = {
       }
       get_next_best_action: { Args: { _user_id: string }; Returns: Json }
       get_openclaw_policy: { Args: { _org_id: string }; Returns: Json }
+      get_org_billing_metrics: { Args: { _org_id: string }; Returns: Json }
       get_org_brain_analytics: { Args: { _org_id: string }; Returns: Json }
+      get_org_invoices_list: {
+        Args: { _limit?: number; _offset?: number; _org_id: string }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string
+          hosted_invoice_url: string
+          id: string
+          invoice_pdf_url: string
+          paid_at: string
+          period_end: string
+          period_start: string
+          seats: number
+          status: string
+          stripe_invoice_id: string
+        }[]
+      }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
