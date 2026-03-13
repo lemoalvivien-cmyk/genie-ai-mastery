@@ -19,6 +19,8 @@ import { useGenieBrain } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
+import { PalantirOnboardingTour, shouldShowTour } from "@/components/onboarding/PalantirOnboardingTour";
+import { QuickStartModal, shouldShowQuickStart } from "@/components/chat/QuickStartModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -358,6 +360,22 @@ export default function Chat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ── Onboarding tour + quick start modal state ─────────────────────────────
+  const [showTour, setShowTour] = useState(() => shouldShowTour());
+  const [showQuickStart, setShowQuickStart] = useState(false);
+  // Count user messages sent in normal (non-Palantir) mode
+  const normalMsgCountRef = useRef(0);
+
+  // Listen for prefill event from QuickStartModal demo prompts
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ text: string }>).detail;
+      if (detail?.text) setInput(detail.text);
+    };
+    window.addEventListener("genie:prefill_chat", handler);
+    return () => window.removeEventListener("genie:prefill_chat", handler);
+  }, []);
+
   // Sync KITT state with brain phase
   useEffect(() => {
     if (brainState.phase === "swarming" || brainState.phase === "thinking") setKittState("thinking");
@@ -473,6 +491,15 @@ export default function Chat() {
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
     setKittState("thinking");
+
+    // ── Auto-nudge: after 2nd normal message, show QuickStart modal ──────────
+    if (!brainStateRef.current.palantirMode) {
+      normalMsgCountRef.current += 1;
+      if (normalMsgCountRef.current === 2 && shouldShowQuickStart()) {
+        // Show after response is rendered — 1s delay
+        setTimeout(() => setShowQuickStart(true), 1200);
+      }
+    }
 
     // ── PALANTIR MODE: use genie-brain-orchestrator ────────────────────────
     if (brainStateRef.current.palantirMode) {
@@ -600,6 +627,29 @@ export default function Chat() {
   return (
     <>
       <Helmet><title>Chat Genie – GENIE IA</title></Helmet>
+
+      {/* ── Onboarding Tour (shown once, first visit) ── */}
+      {showTour && (
+        <PalantirOnboardingTour
+          onComplete={() => setShowTour(false)}
+          onActivatePalantir={() => {
+            setShowTour(false);
+            if (!brainState.palantirMode) togglePalantirMode();
+          }}
+        />
+      )}
+
+      {/* ── Quick Start Modal (after 2nd normal message) ── */}
+      {showQuickStart && !showTour && !brainState.palantirMode && (
+        <QuickStartModal
+          sessionId={sessionId}
+          onActivate={() => {
+            setShowQuickStart(false);
+            if (!brainState.palantirMode) togglePalantirMode();
+          }}
+          onDismiss={() => setShowQuickStart(false)}
+        />
+      )}
 
       <div className="flex flex-col h-full" style={{ background: "#0F1119" }}>
         {/* ── Header with KITT + Palantir toggle ── */}
