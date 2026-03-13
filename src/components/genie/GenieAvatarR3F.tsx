@@ -1,18 +1,34 @@
 /**
  * GenieAvatarR3F — React Three Fiber morphing 3D avatar
- * Icosahedron + noise-morphing vertices + neon fresnel shader
- * Lazy-loaded to avoid SSR/bundle issues
+ * Fixed: forwardRef on all mesh components to silence React warnings
+ * Icosahedron + MeshDistortMaterial + orbital rings + particles
  */
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, forwardRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { MeshDistortMaterial, Sphere } from "@react-three/drei";
+import { MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-/* ── Inner sphere that morphs ─────────────────────────────────── */
-function MorphCore() {
-  const meshRef    = useRef<THREE.Mesh>(null);
-  const outerRef   = useRef<THREE.Mesh>(null);
-  const ringsRef   = useRef<THREE.Group>(null);
+/* ── Outer glow sphere ───────────────────────────────────────── */
+const GlowSphere = forwardRef<THREE.Mesh>((_, ref) => (
+  <mesh ref={ref}>
+    <sphereGeometry args={[1.15, 48, 48]} />
+    <meshPhysicalMaterial
+      color="#3466A8"
+      transparent
+      opacity={0.06}
+      roughness={0.2}
+      metalness={0.9}
+      side={THREE.BackSide}
+    />
+  </mesh>
+));
+GlowSphere.displayName = "GlowSphere";
+
+/* ── Core morphing icosahedron ────────────────────────────────── */
+const MorphCore = forwardRef<THREE.Group>((_, ref) => {
+  const meshRef   = useRef<THREE.Mesh>(null);
+  const glowRef   = useRef<THREE.Mesh>(null);
+  const ringsRef  = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -21,36 +37,28 @@ function MorphCore() {
       meshRef.current.rotation.y = t * 0.31;
       meshRef.current.scale.setScalar(0.85 + Math.sin(t * 2.1) * 0.08);
     }
-    if (outerRef.current) {
-      outerRef.current.rotation.x = -t * 0.12;
-      outerRef.current.rotation.z =  t * 0.09;
+    if (glowRef.current) {
+      glowRef.current.rotation.x = -t * 0.12;
+      glowRef.current.rotation.z =  t * 0.09;
     }
     if (ringsRef.current) {
       ringsRef.current.rotation.y = t * 0.18;
     }
   });
 
-  /* Torus rings */
   const rings = useMemo(() => [
-    { rx: 0,         ry: Math.PI / 2, rz: 0,          r: 1.35, tube: 0.014, color: "#5257D8", opacity: 0.45 },
-    { rx: Math.PI/3, ry: 0,          rz: Math.PI / 5, r: 1.55, tube: 0.010, color: "#00F0FF", opacity: 0.30 },
-    { rx: Math.PI/6, ry: Math.PI/4,  rz: Math.PI / 3, r: 1.75, tube: 0.008, color: "#3466A8", opacity: 0.22 },
+    { rx: 0,           ry: Math.PI / 2, rz: 0,            r: 1.35, tube: 0.014, color: "#5257D8", op: 0.45 },
+    { rx: Math.PI / 3, ry: 0,           rz: Math.PI / 5,  r: 1.55, tube: 0.010, color: "#00F0FF", op: 0.30 },
+    { rx: Math.PI / 6, ry: Math.PI / 4, rz: Math.PI / 3,  r: 1.75, tube: 0.008, color: "#3466A8", op: 0.22 },
   ], []);
 
   return (
-    <>
-      {/* Outer glow sphere */}
-      <Sphere ref={outerRef} args={[1.15, 48, 48]}>
-        <meshPhysicalMaterial
-          color="#3466A8"
-          transparent
-          opacity={0.06}
-          roughness={0.2}
-          metalness={0.9}
-          wireframe={false}
-          side={THREE.BackSide}
-        />
-      </Sphere>
+    <group ref={ref}>
+      {/* Outer glow */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[1.15, 48, 48]} />
+        <meshPhysicalMaterial color="#3466A8" transparent opacity={0.06} roughness={0.2} metalness={0.9} side={THREE.BackSide} />
+      </mesh>
 
       {/* Main morphing core */}
       <mesh ref={meshRef}>
@@ -68,37 +76,29 @@ function MorphCore() {
         />
       </mesh>
 
-      {/* Inner core white */}
-      <Sphere args={[0.28, 32, 32]}>
-        <meshStandardMaterial
-          color="#ffffff"
-          emissive="#8088ff"
-          emissiveIntensity={2.5}
-          roughness={0.0}
-          metalness={0.0}
-        />
-      </Sphere>
+      {/* Inner white core */}
+      <mesh>
+        <sphereGeometry args={[0.28, 32, 32]} />
+        <meshStandardMaterial color="#ffffff" emissive="#8088ff" emissiveIntensity={2.5} roughness={0.0} metalness={0.0} />
+      </mesh>
 
       {/* Orbital rings */}
       <group ref={ringsRef}>
         {rings.map((r, i) => (
           <mesh key={i} rotation={[r.rx, r.ry, r.rz]}>
             <torusGeometry args={[r.r, r.tube, 16, 120]} />
-            <meshBasicMaterial color={r.color} transparent opacity={r.opacity} />
+            <meshBasicMaterial color={r.color} transparent opacity={r.op} />
           </mesh>
         ))}
       </group>
-
-      {/* Orbiting particles */}
-      {Array.from({ length: 10 }).map((_, i) => (
-        <OrbitParticle key={i} index={i} />
-      ))}
-    </>
+    </group>
   );
-}
+});
+MorphCore.displayName = "MorphCore";
 
+/* ── Single orbit particle ───────────────────────────────────── */
 function OrbitParticle({ index }: { index: number }) {
-  const ref = useRef<THREE.Mesh>(null);
+  const ref    = useRef<THREE.Mesh>(null);
   const phase  = (index / 10) * Math.PI * 2;
   const radius = 1.0 + (index % 3) * 0.25;
   const speed  = 0.8 + index * 0.07;
@@ -110,7 +110,7 @@ function OrbitParticle({ index }: { index: number }) {
       ref.current.position.set(
         Math.cos(t) * radius,
         Math.sin(t * 0.7) * radius * 0.45,
-        Math.sin(t) * radius
+        Math.sin(t) * radius,
       );
     }
   });
@@ -123,7 +123,7 @@ function OrbitParticle({ index }: { index: number }) {
   );
 }
 
-/* ── Exported lazy-safe wrapper ─────────────────────────────────── */
+/* ── Exported wrapper ─────────────────────────────────────────── */
 export function GenieAvatarR3F({
   size = 220,
   className = "",
@@ -154,6 +154,11 @@ export function GenieAvatarR3F({
         <pointLight position={[0, -4, 2]}   intensity={0.5} color="#FE2C40" />
 
         <MorphCore />
+
+        {/* Orbital particles — not given refs from parent, internal refs only */}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <OrbitParticle key={i} index={i} />
+        ))}
       </Canvas>
 
       {/* Label */}
