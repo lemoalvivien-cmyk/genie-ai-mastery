@@ -413,7 +413,13 @@ export default function Pricing() {
             <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto"
               style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" }} />
           </Link>
+          <nav className="flex items-center gap-3">
+            <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Se connecter</Link>
+            <Link to="/register" className="px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-[0.98]" style={{ background: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Démarrer gratuitement</Link>
+          </nav>
+        </header>
 
+        <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-14 sm:py-20">
           {/* ── Plans ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start mb-12">
 
