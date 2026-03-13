@@ -198,7 +198,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
         }
         // Update active chapter based on progress (total ~5min = 300s)
         const currentSec = (p / 100) * 300;
-        const chIdx = CHAPTERS.findLastIndex(c => c.timestamp <= currentSec);
+        const chIdx = [...CHAPTERS].map((c, i) => ({ ...c, i })).filter(c => c.timestamp <= currentSec).reduce((acc, c) => c.i, 0);
         setActiveChapter(Math.max(0, chIdx));
         return p + 0.05;
       });
