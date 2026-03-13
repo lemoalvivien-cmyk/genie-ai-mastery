@@ -19,6 +19,8 @@ import { useGenieBrain } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
+import { PalantirOnboardingTour, shouldShowTour } from "@/components/onboarding/PalantirOnboardingTour";
+import { QuickStartModal, shouldShowQuickStart } from "@/components/chat/QuickStartModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
