@@ -99,6 +99,7 @@ function getPersonaActions(persona: string | null | undefined, mode: "senior" | 
 // ─── Message bubble ───────────────────────────────────────────────────────────
 function MessageBubble({ msg }: { msg: ChatMessage }) {
   const isUser = msg.role === "user";
+  const badge = !isUser && msg.action ? ACTION_BADGES[msg.action] : null;
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-1`}>
       {!isUser && (
@@ -106,7 +107,14 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
           <Zap className="w-4 h-4 text-primary-foreground" />
         </div>
       )}
-      <div className={`max-w-[85%] space-y-2`}>
+      <div className="max-w-[85%] space-y-2">
+        {/* Action badge — shown above assistant messages */}
+        {badge && (
+          <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badge.color}`}>
+            <span>{badge.emoji}</span>
+            <span>{badge.label}</span>
+          </div>
+        )}
         <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
           isUser
             ? "bg-primary text-primary-foreground rounded-br-sm"
