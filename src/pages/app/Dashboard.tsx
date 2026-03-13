@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp } from "lucide-react";
+import { Flame, BookOpen, CheckCircle, Zap, ChevronRight, Crown, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useStreak } from "@/hooks/useStreak";
@@ -384,7 +384,44 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── 7. Adaptive Path (Temporal Mirror + Infinite Branching) ── */}
+          {/* ── 7. CyberPath 48h Challenge Banner ── */}
+          <Link
+            to="/app/cyberpath"
+            className="block animate-slide-up group"
+          >
+            <div
+              className="p-4 rounded-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.01]"
+              style={{
+                background: "rgba(254,44,64,0.06)",
+                border: "1px solid rgba(254,44,64,0.25)",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)" }}
+                  >
+                    <Shield className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Défi Exclusif
+                    </p>
+                    <p className="text-sm font-bold" style={{ color: "#E8E9F0" }}>
+                      CyberPath 48h — Zéro formateur humain
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Formation cyber complète guidée par l'IA. +700 XP.
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+              </div>
+            </div>
+          </Link>
+
+          {/* ── 8. Adaptive Path (Temporal Mirror + Infinite Branching) ── */}
           <div className="animate-slide-up">
             <AdaptivePathPanel />
           </div>

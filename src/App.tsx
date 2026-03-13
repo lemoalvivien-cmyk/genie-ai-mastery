@@ -55,6 +55,8 @@ const PartnerDashboard          = lazy(() => import("./pages/partner/PartnerDash
 
 // ── OpenClaw Agent Jobs ───────────────────────────────────────────
 const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
+const CyberPath48h          = lazy(() => import("./pages/app/CyberPath48h"));
+const AttestationNFT        = lazy(() => import("./pages/app/AttestationNFT"));
 const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
 const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
@@ -99,6 +101,7 @@ const SmartOnboarding    = lazy(() => import("./pages/genieos/SmartOnboarding"))
 const EnterpriseDashboard = lazy(() => import("./pages/genieos/EnterpriseDashboard"));
 const RevenueAnalytics   = lazy(() => import("./pages/genieos/RevenueAnalytics"));
 const SystemHealth       = lazy(() => import("./pages/genieos/SystemHealth"));
+const EnterpriseKnowledge = lazy(() => import("./pages/genieos/EnterpriseKnowledge"));
 const LogsViewer         = lazy(() => import("./pages/genieos/LogsViewer"));
 
 // forwardRef required: React 18 Suspense can pass internal refs to fallback elements
@@ -227,6 +230,15 @@ const App = () => (
                     path="agent-jobs/:id"
                     element={<ProtectedRoute requirePro><AgentJobDetailPage /></ProtectedRoute>}
                   />
+                  {/* ── CyberPath 48h + Attestation NFT ──────────────────────── */}
+                  <Route
+                    path="cyberpath"
+                    element={<ProtectedRoute><CyberPath48h /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="attestation-nft"
+                    element={<ProtectedRoute><AttestationNFT /></ProtectedRoute>}
+                  />
                 </Route>
 
                 {/* ── Admin ────────────────────────────────────────────── */}
@@ -327,6 +339,7 @@ const App = () => (
                     <Route path="enterprise"     element={<EnterpriseDashboard />} />
                     <Route path="revenue-analytics" element={<RevenueAnalytics />} />
                     <Route path="system"         element={<SystemHealth />} />
+                    <Route path="rag"            element={<EnterpriseKnowledge />} />
                     <Route path="logs"           element={<LogsViewer />} />
                     <Route path="start"          element={<SmartOnboarding />} />
                   </Route>
