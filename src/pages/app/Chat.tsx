@@ -571,7 +571,16 @@ export default function Chat() {
 
           {/* Palantir Mode toggle */}
           <button
-            onClick={() => { togglePalantirMode(); if (brainState.palantirMode) resetBrain(); }}
+            onClick={() => {
+              const nextMode = !brainState.palantirMode;
+              togglePalantirMode();
+              if (brainState.palantirMode) resetBrain();
+              trackBrain(nextMode ? "palantir_activated" : "palantir_deactivated", {
+                session_id: sessionId,
+                metadata: { persona: profile?.persona ?? null },
+              });
+              track(nextMode ? "jarvis_used" : "chat_sent", { mode: "palantir", action: nextMode ? "activate" : "deactivate" });
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all duration-300 ${
               brainState.palantirMode
                 ? "bg-primary/20 border-primary/60 text-primary shadow-[0_0_16px_hsl(var(--primary)/0.5)]"
