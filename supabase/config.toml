@@ -38,6 +38,9 @@ verify_jwt = false
 verify_jwt = false
 
 # ── Authenticated functions (verify_jwt = true) ───────────────────────────────
+[functions.adaptive-learning-path]
+verify_jwt = true
+
 [functions.chat-completion]
 verify_jwt = true
 
