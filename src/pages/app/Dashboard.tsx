@@ -12,6 +12,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NextBestActionCard } from "@/components/dashboard/NextBestActionCard";
 import { RecentArtifactsCard } from "@/components/dashboard/RecentArtifactsCard";
+import { AdaptivePathPanel } from "@/components/dashboard/AdaptivePathPanel";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
 function AnimatedNumber({ value }: { value: number }) {
