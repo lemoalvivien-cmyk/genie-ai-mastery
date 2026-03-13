@@ -232,6 +232,20 @@ export default function RevenueOpsDashboard() {
   // Churn prediction: users with high risk + no messages in 7d → at-risk
   const churnRisk = brainStats ? Math.min(100, Math.round((brainStats.high_risk_count / Math.max(1, brainStats.total_users)) * 100)) : 0;
 
+  // ── NEW KPI: Taux Activation Palantir 7j ──────────────────────────────────
+  // = unique users who activated Palantir in last 7d / total unique Brain users (all time)
+  const palantirRate7d = (() => {
+    if (!metrics) return 0;
+    // activations_7d = count of palantir_activated events in last 7d
+    // unique_activators = total unique users who ever activated
+    const totalUniqueBrain = Math.max(1, metrics.unique_activators + Math.max(0, metrics.total_messages - metrics.total_activations));
+    return Math.min(100, Math.round((metrics.activations_7d / totalUniqueBrain) * 100));
+  })();
+  // Simple direct rate: activations_7d vs messages_7d
+  const palantirActivationRate7d = metrics && metrics.messages_7d > 0
+    ? Math.round((metrics.activations_7d / Math.max(1, metrics.messages_7d)) * 100)
+    : activationRate; // fallback to all-time rate
+
   if (!isAdmin && !isManager) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
