@@ -1,10 +1,10 @@
 /**
- * Formetoialia — Landing Page v8 — SWISS PREMIUM EDITION 2049
- * Blade Runner × Palantir × Apple — Messaging softeé, élégant, premium
+ * Formetoialia — Landing Page v9 — BLADE RUNNER 2049 PREMIUM EDITION
+ * Glassmorphism 2.0 · R3F Morphing Avatar · WebGL Perlin Hero · 60fps
  * Route: / — Ne modifie AUCUNE autre route ni composant
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -23,200 +23,16 @@ import {
   softwareApplicationSchema, productSchema,
   organizationSchema, faqSchema,
 } from "@/lib/seo";
+import { PerlinNoiseHero } from "@/components/hero/PerlinNoiseHero";
 
-/* ═══════════════════════════════════════════════════════════════
-   CURSEUR MAGNÉTIQUE GLOBAL
-═══════════════════════════════════════════════════════════════ */
-function MagneticCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const trailRef = useRef<HTMLDivElement>(null);
-  const pos = useRef({ x: 0, y: 0 });
-  const trail = useRef({ x: 0, y: 0 });
-  const raf = useRef<number>(0);
-  const [visible, setVisible] = useState(false);
-  const [clicked, setClicked] = useState(false);
-  const [onCTA, setOnCTA] = useState(false);
+// Lazy-load heavy R3F avatar — zero impact on initial paint
+const GenieAvatarR3F = lazy(() =>
+  import("@/components/genie/GenieAvatarR3F").then(m => ({ default: m.GenieAvatarR3F }))
+);
 
-  useEffect(() => {
-    const move = (e: MouseEvent) => {
-      pos.current = { x: e.clientX, y: e.clientY };
-      setVisible(true);
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const btn = el?.closest("button, a, [data-magnetic]");
-      if (btn) {
-        const r = btn.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
-        pos.current = { x: e.clientX + (cx - e.clientX) * 0.3, y: e.clientY + (cy - e.clientY) * 0.3 };
-        setOnCTA(true);
-      } else { setOnCTA(false); }
-    };
-    const down = () => setClicked(true);
-    const up = () => setClicked(false);
-    const leave = () => setVisible(false);
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mousedown", down);
-    window.addEventListener("mouseup", up);
-    document.documentElement.addEventListener("mouseleave", leave);
-    const animate = () => {
-      trail.current.x += (pos.current.x - trail.current.x) * 0.12;
-      trail.current.y += (pos.current.y - trail.current.y) * 0.12;
-      if (trailRef.current) trailRef.current.style.transform = `translate(${trail.current.x - 16}px, ${trail.current.y - 16}px)`;
-      if (cursorRef.current) cursorRef.current.style.transform = `translate(${pos.current.x - 5}px, ${pos.current.y - 5}px)`;
-      raf.current = requestAnimationFrame(animate);
-    };
-    raf.current = requestAnimationFrame(animate);
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mousedown", down);
-      window.removeEventListener("mouseup", up);
-      document.documentElement.removeEventListener("mouseleave", leave);
-      cancelAnimationFrame(raf.current);
-    };
-  }, []);
-
-  return (
-    <>
-      <div ref={cursorRef} className="fixed top-0 left-0 z-[9999] pointer-events-none"
-        style={{ width: 10, height: 10, borderRadius: "50%", background: clicked ? "#FE2C40" : onCTA ? "#00F0FF" : "#fff", opacity: visible ? 1 : 0, transition: "background 0.15s, opacity 0.2s", mixBlendMode: "difference", willChange: "transform" }} />
-      <div ref={trailRef} className="fixed top-0 left-0 z-[9998] pointer-events-none"
-        style={{ width: 32, height: 32, borderRadius: "50%", border: `1px solid ${onCTA ? "rgba(0,240,255,0.6)" : "rgba(254,44,64,0.4)"}`, opacity: visible ? 1 : 0, transform: `scale(${clicked ? 0.7 : onCTA ? 1.5 : 1})`, transition: "border-color 0.2s, opacity 0.3s, transform 0.3s", willChange: "transform" }} />
-    </>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   GENIE 3D CANVAS
-═══════════════════════════════════════════════════════════════ */
-function Genie3D({ active = true }: { active?: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const t = useRef(0);
-  const raf = useRef<number>(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2;
-    const draw = () => {
-      t.current += 0.016;
-      ctx.clearRect(0, 0, W, H);
-      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.6);
-      bg.addColorStop(0, "rgba(82,87,216,0.06)");
-      bg.addColorStop(1, "transparent");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, W, H);
-      for (let ring = 0; ring < 3; ring++) {
-        const r = 55 + ring * 28;
-        const rot = t.current * (0.3 - ring * 0.08) + ring * Math.PI / 6;
-        const alpha = 0.08 + ring * 0.04 + Math.sin(t.current * 2 + ring) * 0.03;
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const a = rot + (i / 6) * Math.PI * 2;
-          i === 0 ? ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r) : ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = `rgba(82,87,216,${alpha})`;
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-      }
-      const pulse = 0.85 + Math.sin(t.current * 3) * 0.15;
-      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40 * pulse);
-      core.addColorStop(0, "rgba(100,108,220,0.95)");
-      core.addColorStop(0.3, "rgba(82,87,216,0.7)");
-      core.addColorStop(0.6, "rgba(40,45,160,0.3)");
-      core.addColorStop(1, "transparent");
-      ctx.beginPath();
-      ctx.arc(cx, cy, 40 * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = core;
-      ctx.fill();
-      const sweepX = cx + Math.sin(t.current * 2.5) * 50;
-      const sweepGrad = ctx.createLinearGradient(sweepX - 60, 0, sweepX + 60, 0);
-      sweepGrad.addColorStop(0, "transparent");
-      sweepGrad.addColorStop(0.5, "rgba(82,87,216,0.7)");
-      sweepGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = sweepGrad;
-      ctx.fillRect(sweepX - 60, cy - 1.5, 120, 3);
-      for (let i = 0; i < 8; i++) {
-        const angle = t.current * 1.2 + (i / 8) * Math.PI * 2;
-        const r = 52 + Math.sin(t.current * 2 + i) * 6;
-        const px = cx + Math.cos(angle) * r;
-        const py = cy + Math.sin(angle) * 0.45 * r;
-        const alpha = 0.5 + Math.sin(t.current * 3 + i) * 0.4;
-        ctx.beginPath();
-        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(82,87,216,${alpha})`;
-        ctx.fill();
-      }
-      ctx.beginPath();
-      ctx.arc(cx, cy, 6 * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
-      ctx.shadowColor = "#5257D8";
-      ctx.shadowBlur = 20;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.font = `bold 7px 'JetBrains Mono', monospace`;
-      ctx.fillStyle = "rgba(82,87,216,0.8)";
-      ctx.textAlign = "center";
-      ctx.fillText("GENIE · ACTIF", cx, cy + 72);
-      raf.current = requestAnimationFrame(draw);
-    };
-    raf.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(raf.current);
-  }, [active]);
-
-  return <canvas ref={canvasRef} width={200} height={200} style={{ display: "block" }} aria-label="Genie IA Visualizer" />;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PARTICULES
-═══════════════════════════════════════════════════════════════ */
-function ParticleField({ scrollY }: { scrollY: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particles = useRef<Array<{ x: number; y: number; vx: number; vy: number; size: number; alpha: number; color: string }>>([]);
-  const raf = useRef<number>(0);
-  const t = useRef(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const count = Math.min(80, Math.floor(canvas.width * 0.05));
-    particles.current = Array.from({ length: count }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.2,
-      size: Math.random() * 1.5 + 0.5, alpha: Math.random() * 0.5 + 0.1,
-      color: Math.random() > 0.7 ? "#5257D8" : Math.random() > 0.5 ? "#00F0FF" : "#3466A8",
-    }));
-    const draw = () => {
-      t.current += 0.005;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const scrollFactor = scrollY * 0.0002;
-      particles.current.forEach((p) => {
-        p.x += p.vx + Math.sin(t.current + p.y * 0.01) * 0.1;
-        p.y += p.vy - scrollFactor * 0.5;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.alpha * (0.8 + Math.sin(t.current * 2 + p.x) * 0.2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      });
-      raf.current = requestAnimationFrame(draw);
-    };
-    raf.current = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(raf.current); window.removeEventListener("resize", resize); };
-  }, []);
-
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.6 }} />;
-}
+/* Inline MagneticCursor removed — now global in main.tsx */
+/* Inline Genie3D removed  — replaced by lazy GenieAvatarR3F */
+/* Inline ParticleField removed — replaced by PerlinNoiseHero */
 
 /* ═══════════════════════════════════════════════════════════════
    CTA PREMIUM
@@ -397,7 +213,7 @@ export default function Index() {
         <script type="application/ld+json">{JSON.stringify(faqSchema())}</script>
       </Helmet>
 
-      <MagneticCursor />
+      {/* MagneticCursor is now mounted globally in main.tsx */}
 
       <div className="min-h-screen text-foreground overflow-x-hidden" style={{ background: "#0A0F1C", cursor: "none" }}>
 
@@ -443,7 +259,8 @@ export default function Index() {
             SECTION 1 — HERO
         ══════════════════════════════════════════════════ */}
         <section ref={heroRef} className="relative flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 pt-24 pb-20 text-center overflow-hidden">
-          <ParticleField scrollY={scrollY} />
+          {/* WebGL Perlin noise animated background */}
+          <PerlinNoiseHero />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 20%, rgba(82,87,216,0.12) 0%, transparent 70%)" }} />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(82,87,216,0.04) 0%, transparent 70%)" }} />
           <div className="absolute top-14 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent 5%, rgba(82,87,216,0.6) 50%, transparent 95%)" }} />
@@ -456,13 +273,24 @@ export default function Index() {
               style={{ background: "rgba(82,87,216,0.12)", border: "1px solid rgba(82,87,216,0.3)", backdropFilter: "blur(10px)" }}>
               <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#00F0FF" }} />
               <span className="text-xs font-semibold" style={{ color: "#00F0FF", ...orbitron }}>AI ACT 2026 · ANSSI · HÉBERGEMENT UE</span>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#4ade80" }} />
             </motion.div>
 
-            {/* Genie 3D */}
-            <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.8, ease: [0.34, 1.3, 0.64, 1] }} className="relative mb-8">
-              <Genie3D active />
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(82,87,216,0.15) 0%, transparent 70%)", filter: "blur(20px)", transform: "scale(2)" }} />
+            {/* R3F 3D Genie Avatar — morphing icosahedron */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.8, ease: [0.34, 1.3, 0.64, 1] }}
+              className="relative mb-8"
+            >
+              <Suspense fallback={
+                <div style={{ width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 60, height: 60, borderRadius: "50%", border: "2px solid rgba(82,87,216,0.5)", animation: "spin 1s linear infinite" }} />
+                </div>
+              }>
+                <GenieAvatarR3F size={220} />
+              </Suspense>
+              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(82,87,216,0.18) 0%, transparent 70%)", filter: "blur(24px)", transform: "scale(2.2)" }} />
             </motion.div>
 
             {/* Scarcity douce */}
@@ -784,8 +612,8 @@ export default function Index() {
               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                 className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl"
                 style={{ background: "rgba(46,204,113,0.1)", border: "1px solid rgba(46,204,113,0.3)" }}>
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span className="font-bold" style={{ color: "#2ECC71" }}>Accès en cours d'activation — Vérifiez votre email.</span>
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+                <span className="font-bold text-emerald-400">Accès en cours d'activation — Vérifiez votre email.</span>
               </motion.div>
             ) : (
               <form onSubmit={handleEmailCapture} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-6">
