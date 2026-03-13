@@ -1231,6 +1231,51 @@ export type Database = {
           },
         ]
       }
+      badge_definitions: {
+        Row: {
+          category: string
+          condition_type: string
+          condition_value: number
+          created_at: string
+          description: string
+          emoji: string
+          id: string
+          is_secret: boolean
+          name: string
+          rarity: string
+          sort_order: number
+          xp_reward: number
+        }
+        Insert: {
+          category?: string
+          condition_type: string
+          condition_value?: number
+          created_at?: string
+          description: string
+          emoji?: string
+          id: string
+          is_secret?: boolean
+          name: string
+          rarity?: string
+          sort_order?: number
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          condition_type?: string
+          condition_value?: number
+          created_at?: string
+          description?: string
+          emoji?: string
+          id?: string
+          is_secret?: boolean
+          name?: string
+          rarity?: string
+          sort_order?: number
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       brain_events: {
         Row: {
           agents_count: number | null
@@ -2461,6 +2506,51 @@ export type Database = {
           skill_level?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      hive_feedback: {
+        Row: {
+          created_at: string
+          embedding_hint: string | null
+          feedback_type: string
+          hive_weight: number
+          id: string
+          module_slug: string
+          processed_at: string | null
+          quality_score: number | null
+          question_hash: string | null
+          suggested_fix: string | null
+          upvotes: number
+          user_id_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          embedding_hint?: string | null
+          feedback_type: string
+          hive_weight?: number
+          id?: string
+          module_slug: string
+          processed_at?: string | null
+          quality_score?: number | null
+          question_hash?: string | null
+          suggested_fix?: string | null
+          upvotes?: number
+          user_id_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          embedding_hint?: string | null
+          feedback_type?: string
+          hive_weight?: number
+          id?: string
+          module_slug?: string
+          processed_at?: string | null
+          quality_score?: number | null
+          question_hash?: string | null
+          suggested_fix?: string | null
+          upvotes?: number
+          user_id_hash?: string | null
         }
         Relationships: []
       }
@@ -4089,6 +4179,67 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_events: {
+        Row: {
+          badge_id: string | null
+          context: Json | null
+          created_at: string
+          event_type: string
+          id: string
+          is_surprise: boolean
+          multiplier: number
+          notified_at: string | null
+          user_id: string
+          xp_delta: number
+        }
+        Insert: {
+          badge_id?: string | null
+          context?: Json | null
+          created_at?: string
+          event_type: string
+          id?: string
+          is_surprise?: boolean
+          multiplier?: number
+          notified_at?: string | null
+          user_id: string
+          xp_delta?: number
+        }
+        Update: {
+          badge_id?: string | null
+          context?: Json | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_surprise?: boolean
+          multiplier?: number
+          notified_at?: string | null
+          user_id?: string
+          xp_delta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_events_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badge_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_graph: {
         Row: {
           category: string
@@ -4445,6 +4596,61 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          metadata: Json | null
+          notified: boolean
+          streak_at_earn: number | null
+          user_id: string
+          xp_at_earn: number | null
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          notified?: boolean
+          streak_at_earn?: number | null
+          user_id: string
+          xp_at_earn?: number | null
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          notified?: boolean
+          streak_at_earn?: number | null
+          user_id?: string
+          xp_at_earn?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badge_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_brain_profile: {
         Row: {
           ai_tools_used: string[] | null
@@ -4723,6 +4929,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_xp_ledger: {
+        Row: {
+          context: Json | null
+          created_at: string
+          id: string
+          multiplier: number
+          source: string
+          user_id: string
+          xp_after: number
+          xp_delta: number
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          multiplier?: number
+          source: string
+          user_id: string
+          xp_after?: number
+          xp_delta: number
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          id?: string
+          multiplier?: number
+          source?: string
+          user_id?: string
+          xp_after?: number
+          xp_delta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_xp_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xp_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waitlist: {
         Row: {
           created_at: string
@@ -4872,6 +5126,7 @@ export type Database = {
         }
         Returns: Json
       }
+      check_and_award_badges: { Args: { p_user_id: string }; Returns: Json }
       check_and_increment_ai_budget: {
         Args: { _cost_delta?: number; _org_id: string }
         Returns: Json
@@ -4975,6 +5230,19 @@ export type Database = {
           stripe_invoice_id: string
         }[]
       }
+      get_unnotified_rewards: {
+        Args: { p_user_id: string }
+        Returns: {
+          badge_id: string
+          context: Json
+          created_at: string
+          event_type: string
+          id: string
+          is_surprise: boolean
+          multiplier: number
+          xp_delta: number
+        }[]
+      }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -5039,6 +5307,10 @@ export type Database = {
           _session_id?: string
           _user_id: string
         }
+        Returns: undefined
+      }
+      mark_rewards_notified: {
+        Args: { p_ids: string[]; p_user_id: string }
         Returns: undefined
       }
       org_attestation_blocked: { Args: { _org_id: string }; Returns: boolean }
