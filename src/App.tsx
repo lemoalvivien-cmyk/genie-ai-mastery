@@ -267,6 +267,10 @@ const App = () => (
                   path="/manager/openclaw"
                   element={<ProtectedRoute requireRole="manager"><ManagerOpenClawPage /></ProtectedRoute>}
                 />
+                <Route
+                  path="/manager/revenue-ops"
+                  element={<ProtectedRoute requireRole="manager"><RevenueOpsDashboard /></ProtectedRoute>}
+                />
 
                 {/* ── Partner ──────────────────────────────────────────── */}
                 <Route
