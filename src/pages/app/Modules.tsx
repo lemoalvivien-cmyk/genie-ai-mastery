@@ -63,7 +63,7 @@ export default function Modules() {
   return (
     <>
       <Helmet>
-        <title>Modules – GENIE IA</title>
+        <title>Modules — Formetoialia</title>
         <meta name="description" content="Explorez tous les modules de formation IA et cybersécurité." />
       </Helmet>
 

@@ -241,7 +241,7 @@ export default function PlacementQuiz() {
   if (phase === "done") {
     return (
       <>
-        <Helmet><title>Résultat benchmark – GENIE IA</title></Helmet>
+        <Helmet><title>Résultat benchmark — Formetoialia</title></Helmet>
         <div className="min-h-screen bg-background flex items-center justify-center p-6">
           <div className="w-full max-w-lg space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="text-center space-y-2">
@@ -294,7 +294,7 @@ export default function PlacementQuiz() {
 
   return (
     <>
-      <Helmet><title>Benchmark de positionnement – GENIE IA</title></Helmet>
+      <Helmet><title>Benchmark de positionnement — Formetoialia</title></Helmet>
 
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50 bg-border/30">

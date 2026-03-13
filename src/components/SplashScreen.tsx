@@ -5,7 +5,7 @@ export function SplashScreen() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const fadeTimer  = setTimeout(() => setFadeOut(true),  2000);
+    const fadeTimer   = setTimeout(() => setFadeOut(true),   2000);
     const removeTimer = setTimeout(() => setVisible(false), 2600);
     return () => {
       clearTimeout(fadeTimer);
@@ -26,90 +26,90 @@ export function SplashScreen() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#13151E",
+        background: "#0A0F1C",
         transition: "opacity 0.55s ease",
         opacity: fadeOut ? 0 : 1,
         pointerEvents: fadeOut ? "none" : "auto",
         gap: "2rem",
       }}
     >
-      {/* Ambient violet glow */}
+      {/* Ambient indigo glow */}
       <div
         style={{
           position: "absolute",
-          width: 320,
-          height: 320,
+          width: 360,
+          height: 360,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(82,87,216,0.18) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(82,87,216,0.16) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Logo text */}
+      {/* Logo text — formetoialia */}
       <div
         style={{
           animation: "splash-fade-scale 0.8s cubic-bezier(0.34,1.3,0.64,1) forwards",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "0.25rem",
+          gap: "0.4rem",
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 0 }}>
           <span
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 56,
+              fontFamily: "'Orbitron', 'Inter', sans-serif",
+              fontSize: 42,
               fontWeight: 900,
               color: "#5257D8",
-              letterSpacing: "-2px",
+              letterSpacing: "-1.5px",
               textShadow: "0 0 30px rgba(82,87,216,0.6)",
               lineHeight: 1,
             }}
           >
-            GENIE
+            formetoi
           </span>
           <span
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 36,
-              fontWeight: 800,
+              fontFamily: "'Orbitron', 'Inter', sans-serif",
+              fontSize: 42,
+              fontWeight: 900,
               color: "#FE2C40",
-              letterSpacing: "-1px",
+              letterSpacing: "-1.5px",
               textShadow: "0 0 20px rgba(254,44,64,0.6)",
               lineHeight: 1,
             }}
           >
-            IA
+            alia
           </span>
         </div>
 
         <span
           style={{
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: 500,
-            letterSpacing: "0.25em",
-            color: "#8B8FA3",
+            letterSpacing: "0.28em",
+            color: "#6B7080",
             textTransform: "uppercase",
-            marginTop: "0.25rem",
+            marginTop: "0.2rem",
+            fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          Votre copilote intelligent
+          La formation qui apprend plus vite que vous
         </span>
       </div>
 
-      {/* K2000 neon bar */}
+      {/* K2000 scanner bar */}
       <div
         style={{
           position: "relative",
           width: 240,
-          height: 4,
-          background: "rgba(254,44,64,0.12)",
+          height: 3,
+          background: "rgba(254,44,64,0.10)",
           borderRadius: 9999,
           overflow: "hidden",
         }}
       >
-        {/* Static pulsing bar */}
         <div
           style={{
             position: "absolute",
@@ -119,7 +119,6 @@ export function SplashScreen() {
             animation: "splash-bar-pulse 2s ease-in-out infinite",
           }}
         />
-        {/* Moving scanner light */}
         <div
           style={{
             position: "absolute",
@@ -127,11 +126,25 @@ export function SplashScreen() {
             left: 0,
             width: "40%",
             height: "100%",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)",
             animation: "kitt-scan 1.2s ease-in-out infinite",
             borderRadius: 9999,
           }}
         />
+      </div>
+
+      {/* Atomic badge */}
+      <div
+        style={{
+          fontSize: 9,
+          fontWeight: 600,
+          letterSpacing: "0.15em",
+          color: "rgba(82,87,216,0.55)",
+          textTransform: "uppercase",
+          fontFamily: "'JetBrains Mono', monospace",
+        }}
+      >
+        🇨🇭 Atomic Clock Edition
       </div>
     </div>
   );
