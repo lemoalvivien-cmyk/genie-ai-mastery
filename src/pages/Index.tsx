@@ -213,7 +213,7 @@ export default function Index() {
         <script type="application/ld+json">{JSON.stringify(faqSchema())}</script>
       </Helmet>
 
-      <MagneticCursor />
+      {/* MagneticCursor is now mounted globally in main.tsx */}
 
       <div className="min-h-screen text-foreground overflow-x-hidden" style={{ background: "#0A0F1C", cursor: "none" }}>
 
@@ -259,7 +259,8 @@ export default function Index() {
             SECTION 1 — HERO
         ══════════════════════════════════════════════════ */}
         <section ref={heroRef} className="relative flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 pt-24 pb-20 text-center overflow-hidden">
-          <ParticleField scrollY={scrollY} />
+          {/* WebGL Perlin noise animated background */}
+          <PerlinNoiseHero />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 20%, rgba(82,87,216,0.12) 0%, transparent 70%)" }} />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(82,87,216,0.04) 0%, transparent 70%)" }} />
           <div className="absolute top-14 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent 5%, rgba(82,87,216,0.6) 50%, transparent 95%)" }} />
@@ -272,13 +273,24 @@ export default function Index() {
               style={{ background: "rgba(82,87,216,0.12)", border: "1px solid rgba(82,87,216,0.3)", backdropFilter: "blur(10px)" }}>
               <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#00F0FF" }} />
               <span className="text-xs font-semibold" style={{ color: "#00F0FF", ...orbitron }}>AI ACT 2026 · ANSSI · HÉBERGEMENT UE</span>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#4ade80" }} />
             </motion.div>
 
-            {/* Genie 3D */}
-            <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.8, ease: [0.34, 1.3, 0.64, 1] }} className="relative mb-8">
-              <Genie3D active />
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(82,87,216,0.15) 0%, transparent 70%)", filter: "blur(20px)", transform: "scale(2)" }} />
+            {/* R3F 3D Genie Avatar — morphing icosahedron */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.8, ease: [0.34, 1.3, 0.64, 1] }}
+              className="relative mb-8"
+            >
+              <Suspense fallback={
+                <div style={{ width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 60, height: 60, borderRadius: "50%", border: "2px solid rgba(82,87,216,0.5)", animation: "spin 1s linear infinite" }} />
+                </div>
+              }>
+                <GenieAvatarR3F size={220} />
+              </Suspense>
+              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(82,87,216,0.18) 0%, transparent 70%)", filter: "blur(24px)", transform: "scale(2.2)" }} />
             </motion.div>
 
             {/* Scarcity douce */}
