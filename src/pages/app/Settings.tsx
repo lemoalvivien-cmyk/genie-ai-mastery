@@ -124,7 +124,7 @@ export default function Settings() {
 
   return (
     <>
-      <Helmet><title>Paramètres – GENIE IA</title></Helmet>
+      <Helmet><title>Paramètres – Formetoialia</title></Helmet>
 
       <div className="gradient-hero min-h-full">
         <main className="max-w-2xl mx-auto px-4 py-12">

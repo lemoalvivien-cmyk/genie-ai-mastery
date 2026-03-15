@@ -333,8 +333,8 @@ export default function Jarvis() {
   return (
     <>
       <Helmet>
-        <title>KITT IA — Votre copilote intelligent | GENIE IA</title>
-        <meta name="description" content="KITT IA : votre copilote intelligent. Guide, coaching, missions du jour et cockpit de progression." />
+        <title>Mode KITT — Votre copilote intelligent | Formetoialia</title>
+        <meta name="description" content="Mode KITT : votre copilote intelligent. Guide, coaching, missions du jour et cockpit de progression." />
       </Helmet>
 
       <div className="flex h-full overflow-hidden">
