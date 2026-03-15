@@ -13,9 +13,7 @@ const GRAY    = rgb(0.40, 0.40, 0.45);
 const LIGHT   = rgb(0.96, 0.97, 1.00);
 const WHITE   = rgb(1, 1, 1);
 
-// ─── QR Code generator (pure Deno - no external service) ─────────────────────
-// Generates a minimal QR-like pixel matrix for a URL
-// We use a simplified approach: fetch a QR PNG from a public API
+// ─── QR Code generator ────────────────────────────────────────────────────────
 async function fetchQRCodeBytes(url: string): Promise<Uint8Array | null> {
   try {
     const encoded = encodeURIComponent(url);
@@ -29,6 +27,21 @@ async function fetchQRCodeBytes(url: string): Promise<Uint8Array | null> {
   } catch (_e) {
     return null;
   }
+}
+
+// ─── Crypto helpers for immutable attestations ───────────────────────────────
+async function computeAttestationHash(data: {
+  user_id: string;
+  attestation_id: string;
+  full_name: string;
+  modules: { title: string; score: number; completed_at: string }[];
+  score_average: number;
+  issued_at: string;
+}): Promise<string> {
+  const payload = JSON.stringify(data);
+  const enc = new TextEncoder().encode(payload);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -56,6 +69,7 @@ function formatDate(d: Date): string {
 // ─── PDF builders ─────────────────────────────────────────────────────────────
 
 async function buildAttestation(data: {
+  user_id: string;
   full_name: string;
   org_name?: string;
   modules: { title: string; score: number; completed_at: string }[];
@@ -63,7 +77,7 @@ async function buildAttestation(data: {
   attestation_id: string;
   base_url: string;
   partner_name?: string;
-}): Promise<Uint8Array> {
+}): Promise<{ bytes: Uint8Array; signature_hash: string }> {
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595, 842]); // A4
   const { width, height } = page.getSize();
@@ -71,6 +85,17 @@ async function buildAttestation(data: {
   const fontBold    = await pdf.embedFont(StandardFonts.HelveticaBold);
   const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
   const fontOblique = await pdf.embedFont(StandardFonts.HelveticaOblique);
+
+  // ── Compute immutable hash ─────────────────────────────────────────────────
+  const issuedAt = new Date().toISOString();
+  const signatureHash = await computeAttestationHash({
+    user_id: data.user_id,
+    attestation_id: data.attestation_id,
+    full_name: data.full_name,
+    modules: data.modules,
+    score_average: data.score_average,
+    issued_at: issuedAt,
+  });
 
   // Background
   page.drawRectangle({ x: 0, y: 0, width, height, color: WHITE });
@@ -85,8 +110,8 @@ async function buildAttestation(data: {
   page.drawRectangle({ x: 0, y: 50, width: 6, height: height - 130, color: INDIGO });
   page.drawRectangle({ x: width - 6, y: 50, width: 6, height: height - 130, color: INDIGO });
 
-  // Header: logo text
-  page.drawText("GENIE IA", { x: 40, y: height - 50, size: 22, font: fontBold, color: WHITE });
+  // Header: brand name
+  page.drawText("formetoialia", { x: 40, y: height - 50, size: 22, font: fontBold, color: WHITE });
   page.drawText("Plateforme de Formation Professionnelle", {
     x: 40, y: height - 66, size: 9, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
   });
@@ -105,7 +130,7 @@ async function buildAttestation(data: {
 
   // Certifying text
   let y = height - 183;
-  page.drawText("Je soussigné(e), la plateforme GENIE IA, certifie que :", {
+  page.drawText("Je soussigné(e), la plateforme Formetoialia, certifie que :", {
     x: 60, y, size: 11, font: fontOblique, color: GRAY,
   });
 
@@ -157,45 +182,48 @@ async function buildAttestation(data: {
 
   // Try to embed QR image
   const qrBytes = await fetchQRCodeBytes(verifyUrl);
-  const blockH = 80;
-  page.drawRectangle({ x: 55, y: y - 15, width: width - 110, height: blockH, color: LIGHT });
+  const blockH = 100;
+  page.drawRectangle({ x: 55, y: y - 25, width: width - 110, height: blockH, color: LIGHT });
 
   if (qrBytes) {
     try {
       const qrImg = await pdf.embedPng(qrBytes);
-      page.drawImage(qrImg, { x: 65, y: y - 10, width: 60, height: 60 });
+      page.drawImage(qrImg, { x: 65, y: y - 18, width: 60, height: 60 });
       page.drawText("Vérifier l'authenticité :", { x: 138, y: y + 42, size: 9, font: fontBold, color: NAVY });
       page.drawText(verifyUrl, { x: 138, y: y + 28, size: 7.5, font: fontOblique, color: INDIGO });
       page.drawText(`N° : ${data.attestation_id}`, { x: 138, y: y + 14, size: 7, font: fontRegular, color: GRAY });
       page.drawText("Scanner le QR code pour valider ce document", { x: 138, y: y, size: 7.5, font: fontRegular, color: GRAY });
+      // SHA-256 hash for immutability
+      page.drawText(`SHA-256 : ${signatureHash.slice(0, 32)}...`, { x: 138, y: y - 14, size: 6, font: fontRegular, color: GRAY });
     } catch (_e) {
-      // Fallback text
       page.drawText("Vérification en ligne :", { x: 75, y: y + 38, size: 9, font: fontBold, color: NAVY });
       page.drawText(verifyUrl, { x: 75, y: y + 24, size: 7.5, font: fontOblique, color: INDIGO });
       page.drawText(`N° : ${data.attestation_id}`, { x: 75, y: y + 10, size: 7, font: fontRegular, color: GRAY });
+      page.drawText(`SHA-256 : ${signatureHash.slice(0, 32)}...`, { x: 75, y: y - 4, size: 6, font: fontRegular, color: GRAY });
     }
   } else {
     page.drawText("Vérification en ligne :", { x: 75, y: y + 38, size: 9, font: fontBold, color: NAVY });
     page.drawText(verifyUrl, { x: 75, y: y + 24, size: 7.5, font: fontOblique, color: INDIGO });
     page.drawText(`N° : ${data.attestation_id}`, { x: 75, y: y + 10, size: 7, font: fontRegular, color: GRAY });
+    page.drawText(`SHA-256 : ${signatureHash.slice(0, 32)}...`, { x: 75, y: y - 4, size: 6, font: fontRegular, color: GRAY });
   }
 
   // Partner mention (if present)
   if (data.partner_name) {
-    y -= 35;
+    y -= 45;
     page.drawText(`En partenariat avec : ${data.partner_name}`, {
       x: 60, y, size: 8, font: fontOblique, color: INDIGO,
     });
   }
 
   // Footer
-  const footerText = "GENIE IA — Plateforme de formation professionnelle en IA & Cybersécurité — genie-ia.app";
+  const footerText = "Formetoialia — La formation qui apprend plus vite que vous — formetoialia.com";
   page.drawText(footerText, {
     x: width / 2 - fontRegular.widthOfTextAtSize(footerText, 7) / 2,
     y: 20, size: 7, font: fontRegular, color: rgb(0.7, 0.75, 0.9),
   });
 
-  return pdf.save();
+  return { bytes: await pdf.save(), signature_hash: signatureHash };
 }
 
 async function buildCharte(data: {
@@ -247,8 +275,8 @@ async function buildCharte(data: {
   // ── Viral footer on last page ──────────────────────────────────────────────
   const lastPage = pdf.getPages()[pdf.getPageCount() - 1];
   const lastH = lastPage.getSize().height;
+  void lastH;
 
-  // Get QR code for landing page
   const landingQr = await fetchQRCodeBytes(data.base_url);
   lastPage.drawLine({ start: { x: 20, y: 78 }, end: { x: width - 20, y: 78 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.85) });
 
@@ -256,19 +284,19 @@ async function buildCharte(data: {
     try {
       const qrImg = await pdf.embedPng(landingQr);
       lastPage.drawImage(qrImg, { x: 25, y: 10, width: 50, height: 50 });
-      lastPage.drawText("Formez votre équipe sur GENIE IA", { x: 85, y: 52, size: 9, font: fontBold, color: NAVY });
+      lastPage.drawText("Formez votre équipe sur Formetoialia", { x: 85, y: 52, size: 9, font: fontBold, color: NAVY });
       lastPage.drawText(data.base_url, { x: 85, y: 38, size: 8, font: fontRegular, color: INDIGO });
       if (data.partner_name) {
         lastPage.drawText(`Programme partenaire : ${data.partner_name}`, { x: 85, y: 24, size: 7, font: fontRegular, color: INDIGO });
       }
-      lastPage.drawText(`Généré par GENIE IA — ${formatDate(new Date())}`, { x: 85, y: 12, size: 7, font: fontRegular, color: GRAY });
+      lastPage.drawText(`Généré par Formetoialia — ${formatDate(new Date())}`, { x: 85, y: 12, size: 7, font: fontRegular, color: GRAY });
     } catch (_e) {
-      lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par GENIE IA — ${formatDate(new Date())}`, {
+      lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par Formetoialia — ${formatDate(new Date())}`, {
         x: 30, y: 30, size: 7, font: fontRegular, color: GRAY,
       });
     }
   } else {
-    lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par GENIE IA — ${formatDate(new Date())}`, {
+    lastPage.drawText(`Formez votre équipe : ${data.base_url} — Généré par Formetoialia — ${formatDate(new Date())}`, {
       x: 30, y: 42, size: 8, font: fontRegular, color: NAVY,
     });
     if (data.partner_name) {
@@ -300,7 +328,6 @@ async function buildChecklist(data: {
 
   let y = height - 110;
   for (const item of data.items) {
-    // Checkbox
     page.drawRectangle({ x: 40, y: y - 2, width: 14, height: 14, borderColor: NAVY, borderWidth: 1.5, color: WHITE });
     page.drawText(item, { x: 62, y, size: 10, font: fontRegular, color: NAVY });
     y -= 30;
@@ -320,17 +347,17 @@ async function buildChecklist(data: {
       if (data.partner_name) {
         page.drawText(`Programme partenaire : ${data.partner_name}`, { x: 115, y: 34, size: 7, font: fontRegular, color: INDIGO });
       }
-      page.drawText("Généré par GENIE IA", { x: 115, y: 20, size: 7, font: fontRegular, color: GRAY });
+      page.drawText("Généré par Formetoialia", { x: 115, y: 20, size: 7, font: fontRegular, color: GRAY });
     } catch (_e) {
       page.drawText(`Formez votre équipe sur ${data.base_url}`, { x: 40, y: 62, size: 8, font: fontRegular, color: INDIGO });
-      page.drawText("Généré par GENIE IA", { x: 40, y: 48, size: 7, font: fontRegular, color: GRAY });
+      page.drawText("Généré par Formetoialia", { x: 40, y: 48, size: 7, font: fontRegular, color: GRAY });
     }
   } else {
     page.drawText(`Formez votre équipe sur ${data.base_url}`, { x: 40, y: 70, size: 8, font: fontRegular, color: INDIGO });
     if (data.partner_name) {
       page.drawText(`Programme partenaire : ${data.partner_name}`, { x: 40, y: 56, size: 7, font: fontRegular, color: INDIGO });
     }
-    page.drawText("Généré par GENIE IA", { x: 40, y: 42, size: 7, font: fontRegular, color: GRAY });
+    page.drawText("Généré par Formetoialia", { x: 40, y: 42, size: 7, font: fontRegular, color: GRAY });
   }
 
   return pdf.save();
@@ -372,7 +399,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ── Auth : getUser() réseau via _shared/auth.ts ───────────────────────────
+    // ── Auth ─────────────────────────────────────────────────────────────────
     const supabaseAdmin = createServiceClient();
     const authUser = await getAuthenticatedUser(req, supabaseAdmin);
     const userId = authUser.id;
@@ -400,10 +427,9 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { type, module_id, attestation_id, org_name, base_url = "https://genie-ia.app", referral_code } = body;
+    const { type, module_id, attestation_id, org_name, base_url = "https://formetoialia.com", referral_code } = body;
 
     // ── Quota check ───────────────────────────────────────────────────────────
-    // Get user's org_id for quota calculation
     const { data: userProfile } = await supabaseAdmin
       .from("profiles").select("org_id, full_name").eq("id", userId).single();
     const orgId = userProfile?.org_id ?? null;
@@ -417,12 +443,12 @@ Deno.serve(async (req) => {
     if (quotaResult && quotaResult.allowed === false) {
       return new Response(JSON.stringify({
         error: "quota_exceeded",
-        message: `Quota PDF atteint (${quotaResult.current_usage}/${quotaResult.limit} ce mois). Passez à GENIE Pro pour plus.`,
+        message: `Quota PDF atteint (${quotaResult.current_usage}/${quotaResult.limit} ce mois). Passez à Formetoialia Pro pour plus.`,
         quota: quotaResult,
       }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ── Nudge block: reject attestation if org has delayed users (> 7 days) ──
+    // ── Nudge block ───────────────────────────────────────────────────────────
     if (type === "attestation" && orgId) {
       const { data: isBlocked } = await supabaseAdmin.rpc("org_attestation_blocked", { _org_id: orgId });
       if (isBlocked === true) {
@@ -434,7 +460,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── Resolve partner name if referral_code provided ────────────────────────
+    // ── Resolve partner name ──────────────────────────────────────────────────
     let partnerName: string | undefined;
     if (referral_code) {
       const { data: referralData } = await supabaseAdmin.rpc("resolve_referral", { _code: referral_code });
@@ -446,9 +472,9 @@ Deno.serve(async (req) => {
     let pdfBytes: Uint8Array;
     let filename = "";
     let attestId = attestation_id;
+    let signatureHash: string | undefined;
 
     if (type === "attestation") {
-      // Fetch org if needed
       let orgName: string | undefined;
       if (orgId) {
         const { data: org } = await supabaseAdmin
@@ -456,7 +482,6 @@ Deno.serve(async (req) => {
         orgName = org?.name;
       }
 
-      // Fetch completed modules
       const { data: progRows } = await supabaseAdmin
         .from("progress")
         .select("score, completed_at, module_id, modules(title)")
@@ -485,7 +510,8 @@ Deno.serve(async (req) => {
         attestId = att?.id;
       }
 
-      pdfBytes = await buildAttestation({
+      const result = await buildAttestation({
+        user_id: userId,
         full_name: userProfile?.full_name ?? "Utilisateur",
         org_name: orgName ?? org_name,
         modules,
@@ -494,7 +520,17 @@ Deno.serve(async (req) => {
         base_url,
         partner_name: partnerName,
       });
-      filename = `attestation_${new Date().toISOString().slice(0, 10)}.pdf`;
+      pdfBytes = result.bytes;
+      signatureHash = result.signature_hash;
+
+      // Store signature hash in attestation record for verification
+      if (attestId && signatureHash) {
+        await supabaseAdmin.from("attestations")
+          .update({ signature_hash: signatureHash })
+          .eq("id", attestId);
+      }
+
+      filename = `attestation_formetoialia_${new Date().toISOString().slice(0, 10)}.pdf`;
 
     } else if (type === "charte") {
       pdfBytes = await buildCharte({
@@ -504,7 +540,7 @@ Deno.serve(async (req) => {
         base_url,
         partner_name: partnerName,
       });
-      filename = "charte_ia_interne.pdf";
+      filename = "charte_ia_formetoialia.pdf";
 
     } else if (type === "sop") {
       pdfBytes = await buildCharte({
@@ -514,7 +550,7 @@ Deno.serve(async (req) => {
         base_url,
         partner_name: partnerName,
       });
-      filename = "sop_cybersecurite.pdf";
+      filename = "sop_cybersecurite_formetoialia.pdf";
 
     } else if (type === "checklist") {
       const { data: mod } = await supabaseAdmin
@@ -568,27 +604,25 @@ Deno.serve(async (req) => {
       console.error("Storage upload error:", uploadErr);
     }
 
-    // Generate signed URL (24h)
+    // Generate signed URL (7 days = 604800s)
     let signedUrl: string | null = null;
     if (!uploadErr) {
       const { data: signed } = await supabaseAdmin.storage
         .from("pdfs")
-        .createSignedUrl(storagePath, 86400);
+        .createSignedUrl(storagePath, 604800);
       signedUrl = signed?.signedUrl ?? null;
 
-      // Update attestation with pdf_url
       if (type === "attestation" && attestId && signedUrl) {
         await supabaseAdmin.from("attestations")
           .update({ pdf_url: signedUrl })
           .eq("id", attestId);
       }
 
-      // Save artifact record
       const artifactTitles: Record<string, string> = {
         checklist: "Checklist — Module",
-        charte: "Charte IA Interne",
-        sop: "SOP Cybersécurité",
-        attestation: "Attestation de Formation",
+        charte: "Charte IA — Formetoialia",
+        sop: "SOP Cybersécurité — Formetoialia",
+        attestation: "Attestation de Formation — Formetoialia",
       };
       await supabaseAdmin.from("artifacts").insert({
         user_id: userId,
@@ -601,7 +635,6 @@ Deno.serve(async (req) => {
       }).select().single();
     }
 
-    // Always return PDF bytes as base64 for direct download fallback
     const base64 = btoa(String.fromCharCode(...pdfBytes));
 
     return new Response(JSON.stringify({
@@ -610,6 +643,7 @@ Deno.serve(async (req) => {
       signed_url: signedUrl,
       pdf_base64: base64,
       attestation_id: attestId,
+      signature_hash: signatureHash,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (err) {
