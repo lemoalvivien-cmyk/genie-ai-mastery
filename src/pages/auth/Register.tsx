@@ -44,6 +44,7 @@ export default function Register() {
 
   const passwordValue = watch("password", "");
   const pwdError = passwordValue ? validatePassword(passwordValue) : null;
+  const SPECIAL_CHARS_RE = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
 
   const onSubmit = async (data: FormData) => {
     setSubmitError(null);
