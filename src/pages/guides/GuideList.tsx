@@ -15,9 +15,9 @@ export default function GuideList() {
   return (
     <>
       <Helmet>
-        <title>Guides IA, Cybersécurité & Vibe Coding | GENIE IA</title>
-        <meta name="description" content="Guides ultra-vulgarisés sur l'IA générative, la cybersécurité et le Vibe Coding. Gratuits, sans jargon, écrits par GENIE IA." />
-        <link rel="canonical" href="https://genie-ai-mastery.lovable.app/guides" />
+        <title>Guides IA, Cybersécurité & Vibe Coding | Formetoialia</title>
+        <meta name="description" content="Guides ultra-vulgarisés sur l'IA générative, la cybersécurité et le Vibe Coding. Gratuits, sans jargon, par Formetoialia." />
+        <link rel="canonical" href="https://formetoialia.com/guides" />
         <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
       </Helmet>
 
