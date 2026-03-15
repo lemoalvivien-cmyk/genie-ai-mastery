@@ -65,7 +65,7 @@ export default function Runbook() {
 
   return (
     <>
-      <Helmet><title>Runbook Ops – GENIE IA Admin</title></Helmet>
+      <Helmet><title>Runbook Ops – Formetoialia Admin</title></Helmet>
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-8">
 

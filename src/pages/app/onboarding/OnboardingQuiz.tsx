@@ -63,7 +63,7 @@ export default function OnboardingQuiz() {
 
   return (
     <>
-      <Helmet><title>Mini Quiz Phishing – GENIE IA</title></Helmet>
+      <Helmet><title>Mini Quiz Phishing – Formetoialia</title></Helmet>
 
       {/* Skip link */}
       <div className="fixed top-4 right-4 z-50">
