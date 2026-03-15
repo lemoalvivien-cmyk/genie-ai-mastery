@@ -1121,6 +1121,16 @@ export default function ManagerDashboard() {
           </Tabs>
         </main>
       </div>
+
+      {/* CSV Import Dialog */}
+      {org && (
+        <CsvImportDialog
+          open={csvImportOpen}
+          onClose={() => setCsvImportOpen(false)}
+          orgId={org.id}
+          onComplete={loadData}
+        />
+      )}
     </>
   );
 }
