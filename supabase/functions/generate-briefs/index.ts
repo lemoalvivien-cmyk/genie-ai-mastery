@@ -1,19 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const ALLOWED_ORIGINS = [
-  "https://genie-ia.app",
-  "https://genie-ai-mastery.lovable.app",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type",
-  };
-}
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const DOMAIN_LABELS: Record<string, string> = {
   ia_pro: "IA Professionnelle",
