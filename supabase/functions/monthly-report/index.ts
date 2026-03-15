@@ -14,6 +14,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import { verifyCronSecret } from "../_shared/cron-auth.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const NAVY    = rgb(0.08, 0.12, 0.27);
 const INDIGO  = rgb(0.39, 0.40, 0.94);
@@ -325,12 +326,7 @@ async function buildMonthlyReport(data: {
 // ─────────────────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "https://genie-ai-mastery.lovable.app",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
-      },
-    });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {

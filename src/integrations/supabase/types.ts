@@ -5496,6 +5496,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_access_code_uses: {
+        Args: { _code_id: string }
+        Returns: undefined
+      }
       increment_ai_usage: {
         Args: { p_date?: string; p_function: string; p_user_id: string }
         Returns: Json
