@@ -121,7 +121,8 @@ export default function ManagerDashboard() {
   const { logEvent } = useAuditTrail();
   const [exportingDossier, setExportingDossier] = useState(false);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
-  const { data: weeklyReport, refetch: refetchReport } = useWeeklyReport(orgId);
+  const weeklyReport = null;
+  const refetchReport = () => {};
 
   const [org, setOrg] = useState<Organization | null>(null);
   const [stats, setStats] = useState<OrgStats | null>(null);

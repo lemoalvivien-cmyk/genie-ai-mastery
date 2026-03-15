@@ -420,11 +420,6 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          {/* ── 8. Adaptive Path (Temporal Mirror + Infinite Branching) ── */}
-          <div className="animate-slide-up">
-            <AdaptivePathPanel />
-          </div>
-
           {/* ── 8. NBA Card ── */}
           <div className="animate-slide-up">
             <NextBestActionCard />
