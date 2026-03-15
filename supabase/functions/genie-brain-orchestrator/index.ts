@@ -1,15 +1,8 @@
 /**
- * genie-brain-orchestrator v3.0 — Stable · Fast · Monitored
+ * genie-brain-orchestrator v3.1 — Secured · Audited · Rate-limited
  *
- * Swarm de 5 agents en parallèle via Lovable AI Gateway :
- *  🗡️  Attaquant  — MITRE ATT&CK
- *  🛡️  Défenseur  — contre-mesures
- *  🎓  Tuteur     — pédagogie adaptative
- *  🔮  Predictor  — prédiction d'échec 24h
- *  📊  Analyst    — insights Palantir-style
- *
- * Monitoring: latency_ms + error_type tracé dans brain_events.
- * Auth: getClaims() via SUPABASE_ANON_KEY (verify_jwt=false).
+ * Auth: getUser() réseau (verify_jwt=true) — aucun getClaims() local.
+ * Security: rate-limit 30 req/min + audit_log sur chaque appel.
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -35,6 +28,21 @@ const HUMAN_TRAINER_STATS = {
   personalization: "générique",
   cost_per_session_eur: 120,
 };
+
+// ── Rate limiting (in-memory, per instance) ───────────────────────────────────
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(userId: string, maxPerMin = 30): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + 60_000 });
+    return true;
+  }
+  if (entry.count >= maxPerMin) return false;
+  entry.count++;
+  return true;
+}
 
 // ── Agent prompts ─────────────────────────────────────────────────────────────
 function buildAgentPrompt(
@@ -85,7 +93,6 @@ async function callLLM(
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-  // Retry once on 429
   for (let attempt = 0; attempt < 2; attempt++) {
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -99,7 +106,7 @@ async function callLLM(
         max_tokens: maxTokens,
         temperature: 0.65,
       }),
-      signal: AbortSignal.timeout(12000), // 12s per agent
+      signal: AbortSignal.timeout(12000),
     });
 
     if (resp.status === 429 && attempt === 0) {
@@ -123,14 +130,15 @@ function sseEvent(type: string, data: Record<string, unknown>): string {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
   const startTime = Date.now();
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
+  // ── Auth: getUser() réseau — source de vérité ─────────────────────────────
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -144,14 +152,20 @@ serve(async (req) => {
     { global: { headers: { Authorization: authHeader } } }
   );
 
-  const token = authHeader.replace("Bearer ", "");
-  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-  if (claimsError || !claimsData?.claims) {
-    return new Response(JSON.stringify({ error: "Invalid token" }), {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-  const userId = claimsData.claims.sub as string;
+  const userId = user.id;
+
+  // ── Rate limiting ──────────────────────────────────────────────────────────
+  if (!checkRateLimit(userId)) {
+    return new Response(JSON.stringify({ error: "Too many requests" }), {
+      status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   // ── Parse body ────────────────────────────────────────────────────────────
   let body: {
@@ -179,6 +193,23 @@ serve(async (req) => {
   } = body;
 
   const userMessage = messages[messages.length - 1]?.content ?? "";
+
+  // ── Audit log — appel tracé ───────────────────────────────────────────────
+  const ipHash = req.headers.get("x-forwarded-for") ?? "unknown";
+  try {
+    await supabase.from("audit_logs").insert({
+      user_id: userId,
+      action: "brain_orchestrator",
+      event_type: "brain_orchestrator",
+      resource_type: "genie_brain",
+      details: {
+        agents: active_agents,
+        palantir_mode,
+        session_id: session_id ?? null,
+      },
+      ip_address: ipHash,
+    });
+  } catch (_e) { /* never fail the main flow */ }
 
   // ── Load brain state + org_id ─────────────────────────────────────────────
   const [brainResult, profileResult] = await Promise.all([
@@ -224,7 +255,6 @@ serve(async (req) => {
           mitre_techniques: mitreContext,
         }));
 
-        // ── Fire all agents in parallel ────────────────────────────────────
         const agentPromises = active_agents.map(agentType => {
           const prompt = buildAgentPrompt(agentType, userMessage, userContext, mitreContext, palantir_mode);
           const model = (agentType === "predictor" || agentType === "analyst")
@@ -244,15 +274,12 @@ serve(async (req) => {
             });
         });
 
-        // All agents run truly in parallel
         const results = await Promise.all(agentPromises);
         const latencyMs = Date.now() - startTime;
 
-        // ── Extract tutor response ─────────────────────────────────────────
         const tuteurResult = results.find(r => r.agent === "tuteur");
         const finalContent = tuteurResult?.content || results.find(r => r.ok)?.content || "";
 
-        // ── Parse predictor JSON ───────────────────────────────────────────
         const predictorResult = results.find(r => r.agent === "predictor");
         let newRiskScore = riskScore;
         let predictionData: Record<string, unknown> | null = null;
@@ -288,7 +315,6 @@ serve(async (req) => {
           } catch (_e) { /* ignore JSON parse failures */ }
         }
 
-        // ── Persist brain state ───────────────────────────────────────────
         const agentStates: Record<string, unknown> = {};
         for (const r of results) {
           agentStates[r.agent] = { last_response: r.content.slice(0, 200), updated_at: new Date().toISOString() };
@@ -303,7 +329,6 @@ serve(async (req) => {
               ? new Date(Date.now() + (predictionData.predicted_failure_hours as number) * 3600000).toISOString()
               : null,
           }),
-          // Log swarm_completed event with monitoring data
           supabase.from("brain_events").insert({
             user_id: userId,
             org_id: orgId,
@@ -323,7 +348,6 @@ serve(async (req) => {
           } as never),
         ]);
 
-        // ── Human Trainer comparison ───────────────────────────────────────
         const humanComparison = palantir_mode ? {
           genie_response_ms: latencyMs,
           human_response_s: HUMAN_TRAINER_STATS.avg_response_time_s,
@@ -339,7 +363,7 @@ serve(async (req) => {
           risk_delta: newRiskScore - riskScore,
           prediction: predictionData,
           human_comparison: humanComparison,
-          model_used: "GÉNIE BRAIN Swarm v3.0",
+          model_used: "GÉNIE BRAIN Swarm v3.1",
           agents_run: active_agents,
           mitre_techniques: mitreContext,
           latency_ms: latencyMs,
@@ -353,7 +377,6 @@ serve(async (req) => {
         send(sseEvent("error", { error: msg }));
         send("data: [DONE]\n\n");
 
-        // Log the failure
         try {
           await supabase.from("brain_events").insert({
             user_id: userId,
