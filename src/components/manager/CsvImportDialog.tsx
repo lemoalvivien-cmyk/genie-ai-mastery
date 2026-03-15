@@ -408,9 +408,9 @@ export function CsvImportDialog({ open, onClose, orgId, onComplete }: Props) {
                             {isInvalid ? (
                               <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Invalide</Badge>
                             ) : isDuplicate ? (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-orange-400 border-orange-500/40">Doublon</Badge>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-[hsl(var(--orange-alert))] border-[hsl(var(--orange-alert)_/_0.4)]">Doublon</Badge>
                             ) : (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-400 border-emerald-500/40">OK</Badge>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-[hsl(var(--emerald))] border-[hsl(var(--emerald)_/_0.4)]">OK</Badge>
                             )}
                           </td>
                         </tr>

@@ -829,7 +829,7 @@ export default function ManagerDashboard() {
                   <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
                     <Download className="w-4 h-4" />CSV
                   </Button>
-                  <label>
+                   <label>
                     <Button variant="outline" size="sm" className="gap-1.5 cursor-pointer" asChild>
                       <span><Upload className="w-4 h-4" />Import CSV</span>
                     </Button>
