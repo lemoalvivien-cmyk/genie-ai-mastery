@@ -496,7 +496,7 @@ export default function ManagerDashboard() {
 
   return (
     <>
-      <Helmet><title>Dashboard Manager – {org?.name ?? "GENIE IA"}</title></Helmet>
+      <Helmet><title>Dashboard Manager – {org?.name ?? "Formetoialia"}</title></Helmet>
       <div className="min-h-screen gradient-hero">
         {/* Header */}
         <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30 bg-background/80 backdrop-blur-md">

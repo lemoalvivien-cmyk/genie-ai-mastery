@@ -356,7 +356,7 @@ function GenericLegalPage({ slug }: { slug: string }) {
   return (
     <>
       <Helmet>
-        <title>{page.title} — GENIE IA</title>
+        <title>{page.title} — Formetoialia</title>
         <meta name="description" content={page.metaDescription} />
       </Helmet>
 
