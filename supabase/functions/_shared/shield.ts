@@ -7,8 +7,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // ─── Config ───────────────────────────────────────────────────────────────────
 export const SHIELD_CONFIG = {
   demo: { maxRequests: 1, windowHours: 24 },      // 1 PDF/IP/24h
-  verify: { maxRequests: 30, windowHours: 1 },     // 30 verif/IP/h anti-scrape
-  chat: { maxRequests: 60, windowHours: 1 },       // per-user via DB already, IP as 2nd layer
+  verify: { maxRequests: 20, windowHours: 1 },     // 20 verif/IP/h anti-scrape (SOC2 hardened)
+  chat: { maxRequests: 40, windowHours: 1 },       // 40/IP/h for chat (SOC2 hardened)
+  pdf: { maxRequests: 10, windowHours: 1 },        // 10 PDF/IP/h
+  default: { maxRequests: 100, windowHours: 1 },   // Default global limit
 } as const;
 
 // ─── Spam/loop patterns for chat ─────────────────────────────────────────────

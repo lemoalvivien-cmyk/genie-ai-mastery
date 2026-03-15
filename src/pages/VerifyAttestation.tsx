@@ -22,8 +22,8 @@ function formatDate(d: string | null): string {
   return new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
 }
 
-const LANDING_URL = "https://genie-ia.app";
-const APP_NAME = "GENIE IA";
+const LANDING_URL = "https://formetoialia.com";
+const APP_NAME = "Formetoialia";
 
 export default function VerifyAttestation() {
   const { id } = useParams<{ id: string }>();
@@ -103,7 +103,7 @@ export default function VerifyAttestation() {
               <Brain className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-bold text-foreground">
-              {APP_NAME} <span className="text-gradient">IA</span>
+              {APP_NAME}
             </span>
           </Link>
           <Link

@@ -212,7 +212,7 @@ function PalantirBubble({ message, onQuickAction }: { message: Message; onQuickA
           <div className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs">
             <div className="flex items-center gap-1.5 mb-2">
               <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="font-black text-emerald-400 text-[11px]">GÉNIE IA VS FORMATEUR HUMAIN MOYEN</span>
+              <span className="font-black text-emerald-400 text-[11px]">FORMETOIALIA VS FORMATEUR HUMAIN MOYEN</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -340,7 +340,7 @@ export default function Chat() {
     ? `⚡ MODE PALANTIR ACTIVÉ ${firstName ? `— Bonjour ${firstName}` : ""}. Swarm de 5 agents IA opérationnel. Posez votre question pour déclencher l'analyse.`
     : firstName
     ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
-    : `Salut ! Je suis ton Genie. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
+    : `Salut ! Je suis Jarvis, ton copilote Formetoialia. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
 
   const [messages, setMessages] = useState<Message[]>([
     { id: "welcome", role: "assistant", content: welcomeContent },
