@@ -78,11 +78,14 @@ export function clearActivity(): void {
   try { sessionStorage.removeItem(LAST_ACTIVITY_KEY); } catch (_e) { /* */ }
 }
 
-// ── Password strength validation (unchanged) ──────────────────────────────────
+// ── Password strength validation ─────────────────────────────────────────────
+const SPECIAL_CHARS_RE = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return "Minimum 8 caractères";
   if (!/[A-Z]/.test(password)) return "Au moins 1 majuscule requise";
   if (!/[0-9]/.test(password)) return "Au moins 1 chiffre requis";
+  if (!SPECIAL_CHARS_RE.test(password)) return "Au moins 1 caractère spécial requis (!@#$%^&*…)";
   return null;
 }
 
