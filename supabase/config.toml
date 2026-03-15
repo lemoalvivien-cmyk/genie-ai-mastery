@@ -193,3 +193,10 @@ verify_jwt = false
 # ── rate-limit-login — public endpoint, called before auth ────────────────────
 [functions.rate-limit-login]
 verify_jwt = false
+
+# ── AI Job Queue — async pipeline ────────────────────────────────────────────
+[functions.ai-queue-enqueue]
+verify_jwt = true
+
+[functions.ai-queue-processor]
+verify_jwt = false
