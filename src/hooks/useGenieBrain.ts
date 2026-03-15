@@ -1,5 +1,5 @@
 /**
- * useGenieBrain — stub léger après suppression de GenieOS.
+ * useGenieBrain — stub après suppression de GenieOS.
  * Fournit uniquement les types et l'état minimal pour Chat.tsx.
  */
 import { useState, useCallback } from "react";
@@ -12,12 +12,17 @@ export interface AgentResponse {
   latency_ms?: number;
 }
 
+export type BrainPhase = "idle" | "thinking" | "swarming" | "complete" | "error";
+
 export interface BrainState {
   palantirMode: boolean;
   isRunning: boolean;
+  phase: BrainPhase;
   riskScore: number;
   riskDelta: number;
   agentResponses: AgentResponse[];
+  activeAgents: string[];
+  finalContent: string;
   prediction: Record<string, unknown> | null;
   humanComparison: {
     genie_response_ms: number;
@@ -32,9 +37,12 @@ export interface BrainState {
 const DEFAULT_STATE: BrainState = {
   palantirMode: false,
   isRunning: false,
+  phase: "idle",
   riskScore: 0,
   riskDelta: 0,
   agentResponses: [],
+  activeAgents: [],
+  finalContent: "",
   prediction: null,
   humanComparison: null,
   generatedModule: null,
@@ -44,7 +52,8 @@ const DEFAULT_STATE: BrainState = {
 export function useGenieBrain(_userId: string | null) {
   const [state, setState] = useState<BrainState>(DEFAULT_STATE);
 
-  const runBrain = useCallback(async (_prompt: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const runBrain = useCallback(async (..._args: any[]) => {
     // Brain feature removed — no-op
     return null;
   }, []);

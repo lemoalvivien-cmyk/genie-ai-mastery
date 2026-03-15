@@ -5,9 +5,12 @@
 import { useCallback } from "react";
 
 export interface CopilotPlanStep {
-  label: string;
+  step: string;
   detail: string;
   to: string;
+  label?: string;
+  action_type?: string;
+  cta_label?: string;
   xp?: number;
 }
 
@@ -19,38 +22,40 @@ export interface CopilotImmediateAction {
 
 export interface ParsedJarvisResponse {
   message: string;
-  plan?: CopilotPlanStep[];
-  immediateAction?: CopilotImmediateAction | null;
+  plan: CopilotPlanStep[];
+  immediate_action: CopilotImmediateAction | null;
   proofType?: "badge" | "pdf" | "score" | "none";
 }
 
 export function parseJarvisResponse(raw: string): ParsedJarvisResponse {
-  // Attempt to parse JSON blocks, fall back to plain text
   try {
     const jsonMatch = raw.match(/```json\s*([\s\S]*?)```/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[1]);
-      if (parsed.message) return parsed as ParsedJarvisResponse;
+      if (parsed.message) return { plan: [], immediate_action: null, proofType: "none", ...parsed };
     }
   } catch {
     // fall through
   }
-  return { message: raw, plan: [], immediateAction: null, proofType: "none" };
+  return { message: raw, plan: [], immediate_action: null, proofType: "none" };
 }
 
 export function useCopilot() {
-  const activate = useCallback((_response: ParsedJarvisResponse) => {
-    // no-op stub — CopilotDock display only
-  }, []);
+  const applyResponse = useCallback((_response: ParsedJarvisResponse) => {}, []);
+  const markStepDone = useCallback((_i: number) => {}, []);
+  const dismiss = useCallback(() => {}, []);
+  const actionPath = useCallback((_step: CopilotPlanStep) => "/app/modules", []);
 
   return {
     plan: [] as CopilotPlanStep[],
     immediateAction: null as CopilotImmediateAction | null,
     proofType: "none" as const,
     completedSteps: new Set<number>(),
-    markDone: (_i: number) => {},
-    dismiss: () => {},
-    activate,
+    markStepDone,
+    dismiss,
+    applyResponse,
+    dockVisible: false,
     isVisible: false,
+    actionPath,
   };
 }

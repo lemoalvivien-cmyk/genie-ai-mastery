@@ -1,7 +1,5 @@
 /**
  * useBrainTracker — stub léger après suppression de GenieOS.
- * Le tracking Brain n'est plus actif mais les composants qui l'utilisent
- * continuent de compiler sans modification.
  */
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +12,8 @@ export function useBrainTracker() {
     async (eventType: string, metadata?: Record<string, unknown>) => {
       if (!user?.id) return;
       try {
-        await supabase.from("brain_events").insert({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).from("brain_events").insert({
           user_id: user.id,
           event_type: eventType,
           metadata: metadata ?? {},
