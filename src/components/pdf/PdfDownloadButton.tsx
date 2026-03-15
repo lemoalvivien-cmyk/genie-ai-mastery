@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FileText, Download, Loader2, Lock, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -20,8 +20,8 @@ interface PdfDownloadButtonProps {
 
 function triggerDownload(base64: string, filename: string) {
   const byteChars = atob(base64);
-  const byteNumbers = new Array(byteChars.length).fill(0).map((_, i) => byteChars.charCodeAt(i));
-  const byteArray = new Uint8Array(byteNumbers);
+  const byteArray = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
   const blob = new Blob([byteArray], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -46,45 +46,40 @@ export function PdfDownloadButton({
   const isDone = jobStatus === "completed";
   const isFailed = jobStatus === "failed";
 
-  // When job completes, trigger download
-  const handleResult = useCallback((res: Record<string, unknown> | null) => {
-    if (!res) return;
+  // Handle job completion side-effects declaratively
+  useEffect(() => {
+    if (!isDone || !result) return;
     track("pdf_generated", { type, is_attestation: type === "attestation" });
 
-    if (res.signed_url) {
-      window.open(res.signed_url as string, "_blank");
-    } else if (res.pdf_base64) {
-      triggerDownload(res.pdf_base64 as string, (res.filename as string) ?? `${type}.pdf`);
+    if (result.signed_url) {
+      window.open(result.signed_url as string, "_blank");
+    } else if (result.pdf_base64) {
+      triggerDownload(result.pdf_base64 as string, (result.filename as string) ?? `${type}.pdf`);
     }
 
-    if (type === "attestation" && res.attestation_id) {
+    if (type === "attestation" && result.attestation_id) {
       toast({
         title: "✅ Attestation générée !",
-        description: `Lien de vérification : ${window.location.origin}/verify/${res.attestation_id}`,
+        description: `Vérification : ${window.location.origin}/verify/${result.attestation_id}`,
       });
     } else {
-      toast({ title: "✅ PDF téléchargé !", description: res.filename as string ?? label });
+      toast({ title: "✅ PDF téléchargé !", description: (result.filename as string) ?? label });
     }
-    setTimeout(reset, 3000);
-  }, [type, track, toast, label, reset]);
 
-  // React when job completes
-  if (isDone && result) {
-    handleResult(result);
-  }
+    const t = setTimeout(reset, 3000);
+    return () => clearTimeout(t);
+  }, [isDone, result, type, label, track, toast, reset]);
 
-  if (isFailed && error) {
-    // Only show once
-    if (jobStatus === "failed") {
-      toast({ title: "Erreur PDF", description: error, variant: "destructive" });
-      setTimeout(reset, 3000);
-    }
-  }
+  useEffect(() => {
+    if (!isFailed || !error) return;
+    toast({ title: "Erreur PDF", description: error, variant: "destructive" });
+    const t = setTimeout(reset, 4000);
+    return () => clearTimeout(t);
+  }, [isFailed, error, toast, reset]);
 
   const handleClick = useCallback(async () => {
     if (locked || disabled || isLoading) return;
     const referralCode = localStorage.getItem("ref_code") ?? undefined;
-
     await enqueue("pdf", {
       type,
       module_id: moduleId,
@@ -111,7 +106,7 @@ export function PdfDownloadButton({
 
   const statusIcon = () => {
     if (isLoading) return <Loader2 className="w-4 h-4 text-primary animate-spin flex-shrink-0" />;
-    if (isDone) return <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />;
+    if (isDone) return <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />;
     if (isFailed) return <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />;
     return variant === "outline"
       ? <Download className="w-4 h-4 flex-shrink-0" />
@@ -119,8 +114,8 @@ export function PdfDownloadButton({
   };
 
   const statusLabel = () => {
-    if (isLoading && jobStatus === "queued") return "En file d'attente…";
-    if (isLoading) return "Génération en cours…";
+    if (jobStatus === "queued") return "En file d'attente…";
+    if (jobStatus === "processing") return "Génération en cours…";
     if (isDone) return "Téléchargement…";
     if (isFailed) return "Erreur — cliquer pour réessayer";
     if (locked) return "Disponible après quiz";
