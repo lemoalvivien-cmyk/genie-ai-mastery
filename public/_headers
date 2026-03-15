@@ -92,6 +92,20 @@ https://genie-ai-mastery.lovable.app/*
   # Cache control for HTML pages (always revalidate)
   Cache-Control: no-store
 
+https://formetoialia.com/*
+  # ── Enforced CSP ─────────────────────────────────────────────────────────────
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://api.dashscope.aliyuncs.com https://storage.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.qrserver.com https://ingest.sentry.io; media-src 'self' blob:; worker-src blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/csp-report
+
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), camera=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), speaker-selection=(self), usb=(), xr-spatial-tracking=()
+  Cross-Origin-Embedder-Policy: unsafe-none
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: cross-origin
+  Cache-Control: no-store
+
 /*.js
   Cache-Control: public, max-age=31536000, immutable
 
