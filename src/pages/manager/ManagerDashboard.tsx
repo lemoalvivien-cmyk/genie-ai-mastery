@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
-import { useWeeklyReport } from "@/hooks/useWeeklyReport";
+// useWeeklyReport removed (GenieOS cleanup)
 import { Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus, Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2, Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock, Shield, Target, ChevronRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

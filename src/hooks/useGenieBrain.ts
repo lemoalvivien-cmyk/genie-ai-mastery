@@ -5,6 +5,7 @@
 import { useState, useCallback } from "react";
 
 export type AgentType = "attaquant" | "defenseur" | "tuteur" | "predictor" | "analyst";
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 
 export interface AgentResponse {
   agent: AgentType;
