@@ -148,6 +148,7 @@ export default function ManagerDashboard() {
   // Dialogs
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [campaignTitle, setCampaignTitle] = useState("");
   const [campaignDesc, setCampaignDesc] = useState("");
   const [campaignModules, setCampaignModules] = useState<string[]>([]);
