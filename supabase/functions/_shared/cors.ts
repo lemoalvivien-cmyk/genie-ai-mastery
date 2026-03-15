@@ -3,8 +3,11 @@
  *
  * Single source of truth for ALL edge functions.
  * Supports formetoialia.com + all Lovable preview/sandbox URLs.
- * getCorsHeaders(origin) — pass req.headers.get("origin")
- * handleCorsPreflight(req) — call at the very top of every handler
+ *
+ * BACKWARD COMPATIBLE:
+ *   getCorsHeaders(req)              — legacy: pass the full Request object
+ *   getCorsHeaders(origin)           — new: pass req.headers.get("origin")
+ *   handleCorsPreflight(req)         — returns 204 Response or null
  */
 
 const ALLOWED_ORIGINS = [
@@ -31,17 +34,28 @@ const CORS_HEADERS_BASE = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-requested-with, " +
-    "accept, origin, x-supabase-auth-token, " +
+    "accept, origin, x-supabase-auth-token, x-cron-secret, " +
     "x-supabase-client-platform, x-supabase-client-platform-version, " +
     "x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Max-Age": "86400",
 } as const;
 
+function resolveOrigin(originOrReq: string | null | Request): string | null {
+  if (originOrReq === null) return null;
+  if (typeof originOrReq === "string") return originOrReq;
+  // It's a Request object (legacy usage)
+  return (originOrReq as Request).headers.get("origin");
+}
+
 /**
  * Returns CORS headers scoped to the request origin.
- * @param origin  Value of the "origin" request header (or null).
+ * Accepts either a Request object (legacy) or a plain origin string.
  */
-export function getCorsHeaders(origin: string | null): Record<string, string> {
+export function getCorsHeaders(
+  originOrReq: string | null | Request
+): Record<string, string> {
+  const origin = resolveOrigin(originOrReq);
+
   const isAllowed =
     origin !== null &&
     (
