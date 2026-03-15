@@ -7,6 +7,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { handleOptions } from "../_shared/auth.ts";
+import { sendAlert, aiJobFailedAlert, allProvidersFailed } from "../_shared/alerts.ts";
 
 // ── Provider configs ──────────────────────────────────────────────────────────
 interface ProviderConfig {
@@ -23,7 +24,7 @@ const PROVIDERS: ProviderConfig[] = [
     url: "https://openrouter.ai/api/v1/chat/completions",
     modelFn: (m) => m ?? "deepseek/deepseek-chat",
     authHeaderFn: () => `Bearer ${Deno.env.get("OPENROUTER_API_KEY") ?? ""}`,
-    extraHeaders: { "HTTP-Referer": "https://formetoialia.com", "X-Title": "GENIE IA" },
+    extraHeaders: { "HTTP-Referer": "https://formetoialia.com", "X-Title": "Formetoialia" },
   },
   {
     name: "groq",
@@ -44,12 +45,16 @@ async function callProviderWithFallback(
   requestedModel?: string,
   maxTokens = 2000,
 ): Promise<{ content: string; provider: string; model: string }> {
+  let lastError = "";
+  let allSkipped = true;
+
   for (const provider of PROVIDERS) {
     const apiKey = provider.authHeaderFn().replace("Bearer ", "");
     if (!apiKey) {
       console.warn(`[processor] ${provider.name}: no API key, skipping`);
       continue;
     }
+    allSkipped = false;
 
     const model = provider.modelFn(requestedModel);
     try {
@@ -69,19 +74,24 @@ async function callProviderWithFallback(
 
       if (!resp.ok) {
         const errText = await resp.text().catch(() => "");
-        console.warn(`[processor] ${provider.name} ${resp.status}: ${errText.slice(0, 200)}`);
-        continue; // try next provider
+        lastError = `${provider.name} ${resp.status}: ${errText.slice(0, 200)}`;
+        console.warn(`[processor] ${lastError}`);
+        continue;
       }
 
       const data = await resp.json();
       const content = data.choices?.[0]?.message?.content ?? "";
       return { content, provider: provider.name, model };
     } catch (e) {
-      console.warn(`[processor] ${provider.name} error:`, (e as Error).message);
-      // continue to next provider
+      lastError = `${provider.name}: ${(e as Error).message}`;
+      console.warn(`[processor] ${lastError}`);
     }
   }
-  throw new Error("All providers failed — no API keys configured or all returned errors");
+
+  const reason = allSkipped
+    ? "All providers failed — no API keys configured or all returned errors"
+    : `All providers failed — last error: ${lastError}`;
+  throw new Error(reason);
 }
 
 // ── Main handler ──────────────────────────────────────────────────────────────
@@ -172,14 +182,23 @@ async function processJob(supabase: ReturnType<typeof createClient>, jobId: stri
 
       if (!messages?.length) throw new Error("payload.messages is required for chat/brain jobs");
 
-      const { content, provider, model: usedModel } = await callProviderWithFallback(
-        messages,
-        model,
-        max_tokens ?? 2000,
-      );
+      let llmResult: { content: string; provider: string; model: string };
+      try {
+        llmResult = await callProviderWithFallback(messages, model, max_tokens ?? 2000);
+      } catch (providerErr) {
+        // All providers failed — send critical alert before re-throwing
+        EdgeRuntime.waitUntil(
+          sendAlert(allProvidersFailed({
+            jobId,
+            jobType: job.job_type,
+            userId: job.user_id ?? null,
+          }))
+        );
+        throw providerErr;
+      }
 
-      result = { content, model_used: usedModel };
-      providerUsed = provider;
+      result = { content: llmResult.content, model_used: llmResult.model };
+      providerUsed = llmResult.provider;
 
     } else if (job.job_type === "pdf") {
       // PDF job: delegate to generate-pdf edge function
@@ -190,7 +209,6 @@ async function processJob(supabase: ReturnType<typeof createClient>, jobId: stri
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Use internal service call with user_id injected via payload
           Authorization: `Bearer ${SERVICE_KEY}`,
           "x-internal-user-id": job.user_id,
         },
@@ -220,14 +238,26 @@ async function processJob(supabase: ReturnType<typeof createClient>, jobId: stri
 
     console.log(`[processor] ✅ job ${jobId} completed via ${providerUsed}`);
   } catch (e) {
+    const errMsg = String(e);
     console.error(`[processor] ❌ job ${jobId} failed:`, e);
+
     await supabase
       .from("ai_jobs")
       .update({
         status: "failed",
-        error: String(e),
+        error: errMsg,
         completed_at: new Date().toISOString(),
       })
       .eq("id", jobId);
+
+    // Send alert for any job failure (fire-and-forget via EdgeRuntime)
+    EdgeRuntime.waitUntil(
+      sendAlert(aiJobFailedAlert({
+        jobId,
+        jobType: job.job_type,
+        userId: job.user_id ?? null,
+        error: errMsg,
+      }))
+    );
   }
 }

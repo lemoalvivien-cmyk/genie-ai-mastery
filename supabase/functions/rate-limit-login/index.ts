@@ -12,6 +12,10 @@
  */
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendAlert, rateLimitAlert } from "../_shared/alerts.ts";
+
+// Alert threshold: only alert when attempts reach these values (avoid spam)
+const ALERT_THRESHOLDS = [5, 10, 20, 50];
 
 // SHA-256 hash using Web Crypto API (available in Deno)
 async function sha256hex(input: string): Promise<string> {
@@ -107,6 +111,18 @@ Deno.serve(async (req) => {
           ip_address: rawIp,
         });
       } catch (_e) { /* never fail the main flow */ }
+
+      // ── Alert on threshold breaches (fire-and-forget) ──────────────────
+      if (ALERT_THRESHOLDS.includes(result.attempts)) {
+        EdgeRuntime.waitUntil(
+          sendAlert(rateLimitAlert({
+            emailHash,
+            ipHash,
+            attempts: result.attempts,
+            blockedUntil: result.blocked_until,
+          }))
+        );
+      }
     }
 
     return new Response(JSON.stringify(result), { headers: JSON_HEADERS });
