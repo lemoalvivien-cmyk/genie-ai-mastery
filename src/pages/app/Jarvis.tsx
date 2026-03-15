@@ -305,7 +305,7 @@ export default function Jarvis() {
     return (
       <>
         <Helmet>
-          <title>KITT IA — Copilote Pro | GENIE IA</title>
+          <title>Mode KITT — Copilote Pro | Formetoialia</title>
         </Helmet>
         <div className="flex min-h-full items-center justify-center p-6">
           <div className="w-full max-w-sm">
