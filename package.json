@@ -19,7 +19,14 @@
     "test:load:smoke:reads": "bash tests/load/run.sh smoke reads",
     "test:load:full:chat": "bash tests/load/run.sh full chat",
     "test:load:full:pdf": "bash tests/load/run.sh full pdf",
-    "test:load:full:reads": "bash tests/load/run.sh full reads"
+    "test:load:full:reads": "bash tests/load/run.sh full reads",
+    "test:simulation": "npx playwright test tests/formetoialia-full-simulation.spec.ts",
+    "test:simulation:headed": "HEADED=true npx playwright test tests/formetoialia-full-simulation.spec.ts --headed",
+    "test:simulation:ui": "npx playwright test tests/formetoialia-full-simulation.spec.ts --ui",
+    "test:simulation:b2c": "npx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"B2C\"",
+    "test:simulation:b2b": "npx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"B2B\"",
+    "test:simulation:mobile": "npx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"Mobile\"",
+    "test:simulation:perf": "npx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"Performance\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
