@@ -16,8 +16,9 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Minimum 8 caractères")
-    .regex(/[A-Z]/, "Au moins 1 majuscule")
-    .regex(/[0-9]/, "Au moins 1 chiffre"),
+    .regex(/[A-Z]/, "Au moins 1 majuscule requise")
+    .regex(/[0-9]/, "Au moins 1 chiffre requis")
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Au moins 1 caractère spécial requis (!@#$%^&*…)"),
   accept_cgu: z.boolean().refine((v) => v === true, {
     message: "Vous devez accepter les CGU",
   }),
@@ -43,6 +44,7 @@ export default function Register() {
 
   const passwordValue = watch("password", "");
   const pwdError = passwordValue ? validatePassword(passwordValue) : null;
+  const SPECIAL_CHARS_RE = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
 
   const onSubmit = async (data: FormData) => {
     setSubmitError(null);
@@ -223,6 +225,7 @@ export default function Register() {
                           { ok: passwordValue.length >= 8, label: "8 caractères" },
                           { ok: /[A-Z]/.test(passwordValue), label: "Majuscule" },
                           { ok: /[0-9]/.test(passwordValue), label: "Chiffre" },
+                          { ok: SPECIAL_CHARS_RE.test(passwordValue), label: "Caractère spécial" },
                         ].map((hint) => (
                           <span
                             key={hint.label}
