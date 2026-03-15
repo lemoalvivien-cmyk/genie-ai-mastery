@@ -304,7 +304,7 @@ function LegalIndexPage() {
   return (
     <>
       <Helmet>
-        <title>Centre légal — GENIE IA</title>
+        <title>Centre légal — Formetoialia</title>
         <meta
           name="description"
           content="Centre légal GENIE IA — mentions légales, confidentialité, cookies, CGU, DPA, sous-traitants."
