@@ -171,17 +171,17 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.create-org-bootstrap]
-verify_jwt = false
+verify_jwt = true
 
 # ── Public stats — no JWT needed (public endpoint) ───────────────────────────
 [functions.get-public-stats]
 verify_jwt = false
 
 [functions.genie-brain-orchestrator]
-verify_jwt = false
+verify_jwt = true
 
 [functions.voice-clone-register]
-verify_jwt = false
+verify_jwt = true
 
 [functions.enterprise-rag]
 verify_jwt = true
