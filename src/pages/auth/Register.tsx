@@ -225,6 +225,7 @@ export default function Register() {
                           { ok: passwordValue.length >= 8, label: "8 caractères" },
                           { ok: /[A-Z]/.test(passwordValue), label: "Majuscule" },
                           { ok: /[0-9]/.test(passwordValue), label: "Chiffre" },
+                          { ok: SPECIAL_CHARS_RE.test(passwordValue), label: "Caractère spécial" },
                         ].map((hint) => (
                           <span
                             key={hint.label}
