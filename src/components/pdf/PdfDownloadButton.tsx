@@ -111,7 +111,7 @@ export function PdfDownloadButton({
 
   const statusIcon = () => {
     if (isLoading) return <Loader2 className="w-4 h-4 text-primary animate-spin flex-shrink-0" />;
-    if (isDone) return <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />;
+    if (isDone) return <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />;
     if (isFailed) return <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />;
     return variant === "outline"
       ? <Download className="w-4 h-4 flex-shrink-0" />

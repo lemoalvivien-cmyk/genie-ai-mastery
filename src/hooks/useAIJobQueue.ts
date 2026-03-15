@@ -87,7 +87,7 @@ export function useAIJobQueue() {
       .single();
 
     if (data && (data.status === "completed" || data.status === "failed")) {
-      handleJobDone(data as JobResult);
+      handleJobDone({ job_id: data.id, ...data } as JobResult);
       return true;
     }
     if (data) setJobStatus(data.status as JobStatus);
