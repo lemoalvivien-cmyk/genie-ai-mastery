@@ -442,9 +442,9 @@ export function CsvImportDialog({ open, onClose, orgId, onComplete }: Props) {
         {step === "done" && importResult && (
           <div className="space-y-4 py-2">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${importResult.success > 0 ? "bg-emerald-500/15" : "bg-destructive/15"}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${importResult.success > 0 ? "bg-[hsl(var(--emerald)_/_0.15)]" : "bg-destructive/15"}`}>
                 {importResult.success > 0
-                  ? <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                  ? <CheckCircle2 className="w-6 h-6 text-[hsl(var(--emerald))]" />
                   : <AlertCircle className="w-6 h-6 text-destructive" />}
               </div>
               <div>
