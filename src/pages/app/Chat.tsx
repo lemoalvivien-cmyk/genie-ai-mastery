@@ -212,7 +212,7 @@ function PalantirBubble({ message, onQuickAction }: { message: Message; onQuickA
           <div className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs">
             <div className="flex items-center gap-1.5 mb-2">
               <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="font-black text-emerald-400 text-[11px]">GÉNIE IA VS FORMATEUR HUMAIN MOYEN</span>
+              <span className="font-black text-emerald-400 text-[11px]">FORMETOIALIA VS FORMATEUR HUMAIN MOYEN</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
