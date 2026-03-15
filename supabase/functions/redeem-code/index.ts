@@ -101,6 +101,7 @@ serve(async (req) => {
           name: profile?.full_name ? `${profile.full_name} – Business` : "Mon espace Business",
           slug,
           plan: codeRow.plan,
+          plan_source: "access_code",
           seats_max: 5,
         })
         .select("id")
@@ -112,20 +113,32 @@ serve(async (req) => {
         await adminSupabase.from("user_roles").upsert({ user_id: userId, role: "manager", org_id: orgId });
       }
     } else {
+      // Always set plan_source so subscription.ts recognises the plan as active
       await adminSupabase
         .from("organizations")
-        .update({ plan: codeRow.plan })
+        .update({ plan: codeRow.plan, plan_source: "access_code" })
         .eq("id", orgId);
     }
 
-    await adminSupabase
+    // Atomic increment — prevents race condition on concurrent redeems
+    const { error: codeUpdateErr } = await adminSupabase
       .from("access_codes")
       .update({
-        current_uses: codeRow.current_uses + 1,
         used_by: [...usedBy, userId],
         is_active: codeRow.current_uses + 1 >= codeRow.max_uses ? false : true,
       })
-      .eq("id", codeRow.id);
+      .eq("id", codeRow.id)
+      .lt("current_uses", codeRow.max_uses); // Only update if still under limit
+
+    // Separate atomic counter increment (avoids stale-read race)
+    await adminSupabase.rpc("increment_access_code_uses", { _code_id: codeRow.id });
+
+    if (codeUpdateErr) {
+      return new Response(JSON.stringify({ error: "Ce code a déjà été utilisé au maximum" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(
       JSON.stringify({
