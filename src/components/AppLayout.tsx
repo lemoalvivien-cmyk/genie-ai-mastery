@@ -43,7 +43,6 @@ export default function AppLayout() {
     { to: "/app/chat", icon: MessageCircle, label: "Chat Genie", dot: false, badge: null, showProBadge: false },
     { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
-    { to: "/os", icon: Cpu, label: "Genie OS", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
