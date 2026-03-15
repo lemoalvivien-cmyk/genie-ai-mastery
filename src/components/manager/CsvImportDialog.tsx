@@ -316,12 +316,12 @@ export function CsvImportDialog({ open, onClose, orgId, onComplete }: Props) {
           <div className="space-y-4">
             {/* Summary badges */}
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="gap-1.5 text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
+              <Badge variant="outline" className="gap-1.5 text-[hsl(var(--emerald))] border-[hsl(var(--emerald)_/_0.3)] bg-[hsl(var(--emerald)_/_0.1)]">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {validCount} valide{validCount > 1 ? "s" : ""}
               </Badge>
               {parsed.duplicates.length > 0 && (
-                <Badge variant="outline" className="gap-1.5 text-orange-400 border-orange-500/30 bg-orange-500/10">
+                <Badge variant="outline" className="gap-1.5 text-[hsl(var(--orange-alert))] border-[hsl(var(--orange-alert)_/_0.3)] bg-[hsl(var(--orange-alert)_/_0.1)]">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   {parsed.duplicates.length} doublon{parsed.duplicates.length > 1 ? "s" : ""}
                 </Badge>
