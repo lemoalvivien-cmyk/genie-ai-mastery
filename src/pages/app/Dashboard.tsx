@@ -105,7 +105,7 @@ export default function Dashboard() {
   return (
     <>
       <Helmet>
-        <title>Dashboard – GENIE IA</title>
+        <title>Dashboard – Formetoialia</title>
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>
@@ -278,7 +278,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <h3 className="font-bold" style={{ color: "#E8E9F0" }}>
-                      Débloquez tout GENIE IA
+                      Débloquez tout Formetoialia Pro
                     </h3>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       Vous avez utilisé {usedMessages}/{maxMessages} message{maxMessages > 1 ? "s" : ""} KITT aujourd'hui. Passez Pro pour un accès illimité.

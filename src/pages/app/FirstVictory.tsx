@@ -133,7 +133,7 @@ export default function FirstVictory() {
 
   return (
     <>
-      <Helmet><title>Première Victoire – GENIE IA</title></Helmet>
+      <Helmet><title>Première Victoire – Formetoialia</title></Helmet>
 
       {/* Confetti */}
       {showConfetti && (

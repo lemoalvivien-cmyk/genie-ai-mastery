@@ -246,7 +246,7 @@ export default function ControlRoom() {
 
   return (
     <>
-      <Helmet><title>Control Room – GENIE IA Admin</title></Helmet>
+      <Helmet><title>Control Room – Formetoialia Admin</title></Helmet>
       <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">

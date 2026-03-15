@@ -757,7 +757,7 @@ export default function RevenueOpsDashboard() {
 
   return (
     <>
-      <Helmet><title>Revenue Ops — Génie Brain | GENIE IA</title></Helmet>
+      <Helmet><title>Revenue Ops — Formetoialia Brain</title></Helmet>
       <div className="min-h-screen bg-background text-foreground">
         {/* Header */}
         <div className="border-b border-border/50 bg-card/30 backdrop-blur sticky top-0 z-10">

@@ -228,7 +228,7 @@ export default function AttestationNFT() {
   return (
     <>
       <Helmet>
-        <title>Attestation NFT — GENIE IA</title>
+        <title>Attestation NFT — Formetoialia</title>
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>

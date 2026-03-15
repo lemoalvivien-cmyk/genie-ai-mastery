@@ -134,7 +134,7 @@ export default function OnboardingResult() {
 
   return (
     <>
-      <Helmet><title>Mon Bilan Cyber – GENIE IA</title></Helmet>
+      <Helmet><title>Mon Bilan Cyber – Formetoialia</title></Helmet>
 
       {/* Confetti */}
       {confetti && (

@@ -170,7 +170,7 @@ function SubprocessorsPage() {
   return (
     <>
       <Helmet>
-        <title>Sous-traitants — GENIE IA</title>
+        <title>Sous-traitants — Formetoialia</title>
         <meta
           name="description"
           content="Liste des sous-traitants de GENIE IA — hébergement, paiement, IA, emailing."
@@ -304,7 +304,7 @@ function LegalIndexPage() {
   return (
     <>
       <Helmet>
-        <title>Centre légal — GENIE IA</title>
+        <title>Centre légal — Formetoialia</title>
         <meta
           name="description"
           content="Centre légal GENIE IA — mentions légales, confidentialité, cookies, CGU, DPA, sous-traitants."
@@ -356,7 +356,7 @@ function GenericLegalPage({ slug }: { slug: string }) {
   return (
     <>
       <Helmet>
-        <title>{page.title} — GENIE IA</title>
+        <title>{page.title} — Formetoialia</title>
         <meta name="description" content={page.metaDescription} />
       </Helmet>
 

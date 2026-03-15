@@ -186,7 +186,7 @@ export default function Onboarding() {
   return (
     <>
       <Helmet>
-        <title>Bienvenue – GENIE IA</title>
+        <title>Bienvenue – Formetoialia</title>
       </Helmet>
 
       {/* Confetti */}

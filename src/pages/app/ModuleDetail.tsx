@@ -108,7 +108,7 @@ export default function ModuleDetail() {
   return (
     <>
       <Helmet>
-        <title>{mod.title} – GENIE IA</title>
+        <title>{mod.title} – Formetoialia</title>
         <meta name="description" content={mod.description ?? mod.subtitle ?? ""} />
       </Helmet>
 

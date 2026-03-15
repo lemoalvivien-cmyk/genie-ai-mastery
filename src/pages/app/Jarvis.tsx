@@ -305,7 +305,7 @@ export default function Jarvis() {
     return (
       <>
         <Helmet>
-          <title>KITT IA — Copilote Pro | GENIE IA</title>
+          <title>Mode KITT — Copilote Pro | Formetoialia</title>
         </Helmet>
         <div className="flex min-h-full items-center justify-center p-6">
           <div className="w-full max-w-sm">
@@ -333,8 +333,8 @@ export default function Jarvis() {
   return (
     <>
       <Helmet>
-        <title>KITT IA — Votre copilote intelligent | GENIE IA</title>
-        <meta name="description" content="KITT IA : votre copilote intelligent. Guide, coaching, missions du jour et cockpit de progression." />
+        <title>Mode KITT — Votre copilote intelligent | Formetoialia</title>
+        <meta name="description" content="Mode KITT : votre copilote intelligent. Guide, coaching, missions du jour et cockpit de progression." />
       </Helmet>
 
       <div className="flex h-full overflow-hidden">

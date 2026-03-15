@@ -146,7 +146,7 @@ export default function OpsCenter() {
 
   return (
     <>
-      <Helmet><title>OPS Center – GENIE IA Admin</title></Helmet>
+      <Helmet><title>OPS Center – Formetoialia Admin</title></Helmet>
       <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto px-4 py-8">
 

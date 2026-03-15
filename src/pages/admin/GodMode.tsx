@@ -219,7 +219,7 @@ export default function GodMode() {
   return (
     <>
       <Helmet>
-        <title>GOD MODE — GENIE IA</title>
+        <title>GOD MODE — Formetoialia Admin</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

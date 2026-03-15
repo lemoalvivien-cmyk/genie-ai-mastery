@@ -95,7 +95,7 @@ export default function Welcome() {
   useEffect(() => {
     if (!profile) return;
     if (profile.onboarding_completed === false) {
-      navigate("/app/onboarding/quiz", { replace: true });
+      navigate("/onboarding", { replace: true });
     }
   }, [profile?.id, profile?.onboarding_completed, navigate]);
 
@@ -162,7 +162,7 @@ export default function Welcome() {
 
   return (
     <>
-      <Helmet><title>Bienvenue – GENIE IA</title></Helmet>
+      <Helmet><title>Bienvenue – Formetoialia</title></Helmet>
 
       {/* Confetti */}
       {showConfetti && (
