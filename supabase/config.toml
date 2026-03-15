@@ -178,10 +178,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.genie-brain-orchestrator]
-verify_jwt = false
+verify_jwt = true
 
 [functions.voice-clone-register]
-verify_jwt = false
+verify_jwt = true
 
 [functions.enterprise-rag]
 verify_jwt = true
