@@ -103,7 +103,7 @@ export default function VerifyAttestation() {
               <Brain className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-bold text-foreground">
-              {APP_NAME} <span className="text-gradient">IA</span>
+              {APP_NAME}
             </span>
           </Link>
           <Link
