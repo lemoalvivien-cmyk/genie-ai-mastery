@@ -408,7 +408,7 @@ export default function Today() {
   if (!isSubscribed) {
     return (
       <>
-        <Helmet><title>Mission du jour – GENIE IA</title></Helmet>
+        <Helmet><title>Mission du jour – Formetoialia</title></Helmet>
         <div className="gradient-hero min-h-full flex items-center justify-center p-6">
           <div className="w-full max-w-sm">
             <PaywallOverlay
