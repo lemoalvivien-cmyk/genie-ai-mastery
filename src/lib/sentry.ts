@@ -8,6 +8,7 @@ export function initSentry() {
   Sentry.init({
     dsn: DSN,
     environment: import.meta.env.MODE,
+    release: "formetoialia@" + (import.meta.env.VITE_APP_VERSION ?? "latest"),
     // Only sample 20% of transactions in prod to keep quota low
     tracesSampleRate: 0.2,
     // Don't send source maps to users console
@@ -21,9 +22,13 @@ export function initSentry() {
       /^AbortError/,
     ],
     beforeSend(event) {
-      // Strip PII from breadcrumbs
+      // Strip PII from breadcrumbs — SOC2 compliance
       if (event.user) {
         event.user = { id: event.user.id }; // keep only anonymous ID
+      }
+      // Sanitize URLs with email params
+      if (event.request?.url) {
+        event.request.url = event.request.url.replace(/email=[^&]*/gi, "email=[REDACTED]");
       }
       return event;
     },
@@ -46,3 +51,14 @@ export function captureError(
     Sentry.captureException(err);
   });
 }
+
+/** Set user context (anonymous — no PII) */
+export function setSentryUser(userId: string | null) {
+  if (!DSN) return;
+  if (userId) {
+    Sentry.setUser({ id: userId }); // No email/name — SOC2 compliant
+  } else {
+    Sentry.setUser(null);
+  }
+}
+
