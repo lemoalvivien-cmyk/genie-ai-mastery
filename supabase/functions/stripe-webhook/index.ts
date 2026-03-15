@@ -89,7 +89,7 @@ serve(async (req) => {
       amount_cents:       invoice.amount_paid ?? invoice.amount_due ?? 0,
       currency:           invoice.currency ?? "eur",
       status:             invoice.status ?? "draft",
-      description:        invoice.description ?? `Abonnement Génie IA — ${new Date().toLocaleDateString("fr-FR")}`,
+      description:        invoice.description ?? `Abonnement Formetoialia — ${new Date().toLocaleDateString("fr-FR")}`,
       period_start:       periodStart,
       period_end:         periodEnd,
       paid_at:            paidAt,

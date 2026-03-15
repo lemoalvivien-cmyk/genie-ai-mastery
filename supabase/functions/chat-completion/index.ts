@@ -301,8 +301,8 @@ async function callOpenRouter(
       headers: {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://genie-ia.app",
-        "X-Title": "GENIE IA",
+        "HTTP-Referer": "https://formetoialia.com",
+        "X-Title": "Formetoialia",
       },
       body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
       signal: controller.signal,

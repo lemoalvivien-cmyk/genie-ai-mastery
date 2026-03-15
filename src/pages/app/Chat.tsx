@@ -340,7 +340,7 @@ export default function Chat() {
     ? `⚡ MODE PALANTIR ACTIVÉ ${firstName ? `— Bonjour ${firstName}` : ""}. Swarm de 5 agents IA opérationnel. Posez votre question pour déclencher l'analyse.`
     : firstName
     ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
-    : `Salut ! Je suis ton Genie. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
+    : `Salut ! Je suis Jarvis, ton copilote Formetoialia. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
 
   const [messages, setMessages] = useState<Message[]>([
     { id: "welcome", role: "assistant", content: welcomeContent },
