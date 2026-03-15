@@ -31,7 +31,7 @@ function upgradeRequired(corsHeaders: Record<string, string>): Response {
     JSON.stringify({
       error: "upgrade_required",
       message: "Cette fonctionnalité nécessite un abonnement Pro.",
-      upgrade_url: "https://genie-ia.app/pricing",
+      upgrade_url: "https://formetoialia.com/pricing",
     }),
     {
       status: 403,
