@@ -830,12 +830,9 @@ export default function ManagerDashboard() {
                   <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
                     <Download className="w-4 h-4" />CSV
                   </Button>
-                   <label>
-                    <Button variant="outline" size="sm" className="gap-1.5 cursor-pointer" asChild>
-                      <span><Upload className="w-4 h-4" />Import CSV</span>
-                    </Button>
-                    <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
-                  </label>
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setCsvImportOpen(true)}>
+                    <Upload className="w-4 h-4" />Import CSV
+                  </Button>
                   <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                     <DialogTrigger asChild>
                       <Button size="sm" className="gap-1.5 gradient-primary">
