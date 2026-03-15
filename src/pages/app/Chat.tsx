@@ -15,7 +15,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
 import { KITTModePanel } from "@/components/chat/KITTModePanel";
-import { useGenieBrain } from "@/hooks/useGenieBrain";
+import { useGenieBrain, type AgentType } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
