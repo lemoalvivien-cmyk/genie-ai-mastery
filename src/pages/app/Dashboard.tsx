@@ -12,7 +12,6 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NextBestActionCard } from "@/components/dashboard/NextBestActionCard";
 import { RecentArtifactsCard } from "@/components/dashboard/RecentArtifactsCard";
-import { AdaptivePathPanel } from "@/components/dashboard/AdaptivePathPanel";
 import NeuroRewardsDashboard from "@/components/rewards/NeuroRewardsDashboard";
 
 // ── Animated counter ────────────────────────────────────────────────────────────
@@ -420,11 +419,6 @@ export default function Dashboard() {
               </div>
             </div>
           </Link>
-
-          {/* ── 8. Adaptive Path (Temporal Mirror + Infinite Branching) ── */}
-          <div className="animate-slide-up">
-            <AdaptivePathPanel />
-          </div>
 
           {/* ── 8. NBA Card ── */}
           <div className="animate-slide-up">

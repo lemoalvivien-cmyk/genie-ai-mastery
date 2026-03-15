@@ -15,7 +15,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
 import { KITTModePanel } from "@/components/chat/KITTModePanel";
-import { useGenieBrain } from "@/hooks/useGenieBrain";
+import { useGenieBrain, type AgentType } from "@/hooks/useGenieBrain";
 import { AgentSwarmVisualizer } from "@/components/brain/AgentSwarmVisualizer";
 import { Badge } from "@/components/ui/badge";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
@@ -689,7 +689,7 @@ export default function Chat() {
             <div className="w-full max-w-2xl px-4">
               <AgentSwarmVisualizer
                 phase={brainState.phase}
-                activeAgents={brainState.activeAgents}
+                activeAgents={brainState.activeAgents as AgentType[]}
                 agentResponses={brainState.agentResponses}
                 riskScore={brainState.riskScore}
                 riskDelta={brainState.riskDelta}

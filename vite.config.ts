@@ -20,9 +20,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["logo-genie.png", "favicon.ico", "robots.txt"],
       manifest: {
-        name: "GENIE IA",
-        short_name: "GENIE IA",
-        description: "Formez-vous à l'IA. Prouvez-le. Modules, quiz adaptatifs et attestations vérifiables.",
+        name: "Formetoialia",
+        short_name: "Formetoialia",
+        description: "Formetoialia — La formation qui apprend plus vite que vous. Modules IA, cybersécurité, copilote Genie, attestations vérifiables.",
         start_url: "/",
         display: "standalone",
         background_color: "#0C1014",
