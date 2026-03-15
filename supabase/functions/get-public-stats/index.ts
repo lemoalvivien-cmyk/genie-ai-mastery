@@ -1,14 +1,13 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 
 const CACHE_TTL_SECONDS = 86400; // 24h
 
 Deno.serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
+  const preflight = handleCorsPreflight(req);
+  if (preflight) return preflight;
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
   try {
     const supabase = createClient(
