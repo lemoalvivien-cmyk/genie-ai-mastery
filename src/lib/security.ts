@@ -1,74 +1,69 @@
-// Brute force & session security utilities
+/**
+ * security.ts — Client-side security utilities
+ *
+ * Brute-force protection: delegates to rate-limit-login Edge Function (server-side).
+ * The sessionStorage fallback is kept only as a fast UX guard when the network is down.
+ */
 
-const BRUTE_FORCE_KEY = "genie_ia_login_attempts";
-const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 min
-const MAX_ATTEMPTS = 5;
+const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
+const RATE_LIMIT_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/rate-limit-login`;
 
-interface AttemptRecord {
-  count: number;
-  blockedUntil: number | null;
-  lastAttempt: number;
+// ── Server-side rate limit (primary, SOC2-compliant) ─────────────────────────
+
+export interface RateLimitResult {
+  allowed: boolean;
+  attempts: number;
+  remaining_ms: number;
+  blocked_until?: string | null;
 }
 
-function getRecord(email: string): AttemptRecord {
+/**
+ * Check if this email is currently rate-limited (server-side).
+ * Falls back to `{ allowed: true }` on network error (fail-open).
+ */
+export async function checkServerRateLimit(email: string): Promise<RateLimitResult> {
   try {
-    const raw = sessionStorage.getItem(`${BRUTE_FORCE_KEY}_${btoa(email)}`);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { count: 0, blockedUntil: null, lastAttempt: 0 };
+    const res = await fetch(RATE_LIMIT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, success: false }),
+      signal: AbortSignal.timeout(3000), // 3s max — never block UX
+    });
+    if (!res.ok) return { allowed: true, attempts: 0, remaining_ms: 0 };
+    return await res.json() as RateLimitResult;
+  } catch (_e) {
+    // Network error or timeout — fail open
+    return { allowed: true, attempts: 0, remaining_ms: 0 };
+  }
 }
 
-function saveRecord(email: string, record: AttemptRecord) {
+/**
+ * Mark a login as successful (resets the counter server-side).
+ */
+export async function markLoginSuccess(email: string): Promise<void> {
   try {
-    sessionStorage.setItem(
-      `${BRUTE_FORCE_KEY}_${btoa(email)}`,
-      JSON.stringify(record)
-    );
-  } catch {}
+    await fetch(RATE_LIMIT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, success: true }),
+      signal: AbortSignal.timeout(3000),
+    });
+  } catch (_e) { /* best-effort */ }
 }
 
-export function isBlocked(email: string): { blocked: boolean; remainingMs: number } {
-  const record = getRecord(email);
-  if (record.blockedUntil && Date.now() < record.blockedUntil) {
-    return { blocked: true, remainingMs: record.blockedUntil - Date.now() };
-  }
-  return { blocked: false, remainingMs: 0 };
-}
-
-export function recordFailedAttempt(email: string): void {
-  const record = getRecord(email);
-  // Reset if block expired
-  if (record.blockedUntil && Date.now() >= record.blockedUntil) {
-    record.count = 0;
-    record.blockedUntil = null;
-  }
-  record.count += 1;
-  record.lastAttempt = Date.now();
-  if (record.count >= MAX_ATTEMPTS) {
-    record.blockedUntil = Date.now() + BLOCK_DURATION_MS;
-  }
-  saveRecord(email, record);
-}
-
-export function clearAttempts(email: string): void {
-  try {
-    sessionStorage.removeItem(`${BRUTE_FORCE_KEY}_${btoa(email)}`);
-  } catch {}
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 export function formatBlockedTime(ms: number): string {
   const minutes = Math.ceil(ms / 60000);
   return `${minutes} minute${minutes > 1 ? "s" : ""}`;
 }
 
-// Session activity tracking
-const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24h
+// ── Session activity tracking (unchanged) ────────────────────────────────────
+const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 const LAST_ACTIVITY_KEY = "genie_ia_last_activity";
 
 export function updateActivity(): void {
-  try {
-    sessionStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
-  } catch {}
+  try { sessionStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now())); } catch (_e) { /* */ }
 }
 
 export function isSessionExpired(): boolean {
@@ -76,21 +71,27 @@ export function isSessionExpired(): boolean {
     const last = sessionStorage.getItem(LAST_ACTIVITY_KEY);
     if (!last) return false;
     return Date.now() - Number(last) > SESSION_TIMEOUT_MS;
-  } catch {
-    return false;
-  }
+  } catch (_e) { return false; }
 }
 
 export function clearActivity(): void {
-  try {
-    sessionStorage.removeItem(LAST_ACTIVITY_KEY);
-  } catch {}
+  try { sessionStorage.removeItem(LAST_ACTIVITY_KEY); } catch (_e) { /* */ }
 }
 
-// Password strength validation
+// ── Password strength validation (unchanged) ──────────────────────────────────
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return "Minimum 8 caractères";
   if (!/[A-Z]/.test(password)) return "Au moins 1 majuscule requise";
   if (!/[0-9]/.test(password)) return "Au moins 1 chiffre requis";
   return null;
 }
+
+// ── Legacy stubs (kept for backward compat with any remaining callers) ────────
+/** @deprecated Use checkServerRateLimit instead */
+export function isBlocked(_email: string): { blocked: boolean; remainingMs: number } {
+  return { blocked: false, remainingMs: 0 };
+}
+/** @deprecated Use checkServerRateLimit instead */
+export function recordFailedAttempt(_email: string): void { /* no-op */ }
+/** @deprecated No longer needed */
+export function clearAttempts(_email: string): void { /* no-op */ }

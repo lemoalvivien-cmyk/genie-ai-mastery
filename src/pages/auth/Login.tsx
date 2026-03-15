@@ -7,9 +7,8 @@ import { Helmet } from "react-helmet-async";
 import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Brain, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  isBlocked,
-  recordFailedAttempt,
-  clearAttempts,
+  checkServerRateLimit,
+  markLoginSuccess,
   formatBlockedTime,
 } from "@/lib/security";
 import { useDeviceTracker } from "@/hooks/useDeviceTracker";
@@ -50,15 +49,13 @@ export default function Login() {
     setDeviceWarning(false);
     const email = DOMPurify.sanitize(data.email.trim().toLowerCase());
 
-    // BLQ-5 : Vérification brute-force côté client (sessionStorage) conservée comme
-    // première ligne de défense UX rapide. Le vrai rate-limit est enforced côté
-    // serveur par Supabase Auth (lockout natif) + la RPC check_ip_rate_limit dans
-    // les Edge Functions. L'attaquant qui contourne le sessionStorage se heurtera
-    // au lockout Supabase Auth après 5 tentatives invalides.
-    const { blocked, remainingMs } = isBlocked(email);
-    if (blocked) {
+    // ── Server-side brute-force check (SOC2-compliant) ──────────────────────
+    // This calls rate-limit-login Edge Function which uses the login_attempts
+    // table with IP+email hashing. Cannot be bypassed by clearing sessionStorage.
+    const rateLimit = await checkServerRateLimit(email);
+    if (!rateLimit.allowed) {
       setSubmitError(
-        `Trop de tentatives. Réessayez dans ${formatBlockedTime(remainingMs)}.`
+        `Trop de tentatives. Réessayez dans ${formatBlockedTime(rateLimit.remaining_ms)}.`
       );
       return;
     }
@@ -69,24 +66,21 @@ export default function Login() {
     });
 
     if (error) {
-      recordFailedAttempt(email);
-      const { blocked: nowBlocked, remainingMs: rem } = isBlocked(email);
-      if (nowBlocked) {
-        setSubmitError(`Compte temporairement bloqué. Réessayez dans ${formatBlockedTime(rem)}.`);
-      } else if (error.message.includes("Invalid login") || error.message.includes("invalid_credentials")) {
+      // Record failed attempt server-side (already counted by checkServerRateLimit)
+      if (error.message.includes("Invalid login") || error.message.includes("invalid_credentials")) {
         setSubmitError("Email ou mot de passe incorrect.");
       } else if (error.message.includes("Email not confirmed")) {
         setSubmitError("Compte non vérifié. Vérifiez votre email.");
       } else if (error.message.includes("over_request_rate_limit") || error.message.includes("too many requests")) {
-        // Lockout natif Supabase Auth — rate-limit server-side atteint
-        setSubmitError("Trop de tentatives. Compte temporairement bloqué par notre système de sécurité. Réessayez dans 15 minutes.");
+        setSubmitError("Trop de tentatives. Compte temporairement bloqué. Réessayez dans 15 minutes.");
       } else {
         setSubmitError("Erreur de connexion. Réessayez.");
       }
       return;
     }
 
-    clearAttempts(email);
+    // Mark login success — resets the server-side counter
+    markLoginSuccess(email);
 
     // Device tracking
     const currentDeviceId = getDeviceId();

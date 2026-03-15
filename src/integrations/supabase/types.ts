@@ -2765,6 +2765,30 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempted_at: string
+          email_hash: string
+          id: string
+          ip_hash: string
+          success: boolean
+        }
+        Insert: {
+          attempted_at?: string
+          email_hash: string
+          id?: string
+          ip_hash: string
+          success?: boolean
+        }
+        Update: {
+          attempted_at?: string
+          email_hash?: string
+          id?: string
+          ip_hash?: string
+          success?: boolean
+        }
+        Relationships: []
+      }
       memory_timeline: {
         Row: {
           created_at: string | null
@@ -5387,6 +5411,10 @@ export type Database = {
           _max_requests?: number
           _window_hours?: number
         }
+        Returns: Json
+      }
+      check_login_rate_limit: {
+        Args: { _email_hash: string; _ip_hash: string; _success?: boolean }
         Returns: Json
       }
       check_rate_limit: {

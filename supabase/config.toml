@@ -189,3 +189,7 @@ verify_jwt = true
 # ── SleepForge — cron nocturne, protégé par X-CRON-SECRET ───────────────────
 [functions.sleepforge]
 verify_jwt = false
+
+# ── rate-limit-login — public endpoint, called before auth ────────────────────
+[functions.rate-limit-login]
+verify_jwt = false
