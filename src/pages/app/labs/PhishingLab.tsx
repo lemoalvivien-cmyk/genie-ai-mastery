@@ -507,7 +507,7 @@ export default function PhishingLab() {
 
   return (
     <>
-      <Helmet><title>Lab Phishing – GENIE IA</title></Helmet>
+      <Helmet><title>Lab Phishing – Formetoialia</title></Helmet>
       <div className="max-w-3xl mx-auto p-4 lg:p-6 space-y-4">
 
         {/* Header */}

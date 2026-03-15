@@ -430,7 +430,7 @@ export default function Today() {
 
   return (
     <>
-      <Helmet><title>Mission du jour – GENIE IA</title></Helmet>
+      <Helmet><title>Mission du jour – Formetoialia</title></Helmet>
       <div className="gradient-hero min-h-full">
         <main className="max-w-xl mx-auto px-4 sm:px-6 py-8">
           {/* KITT */}
