@@ -7,9 +7,8 @@ import { Helmet } from "react-helmet-async";
 import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Brain, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  isBlocked,
-  recordFailedAttempt,
-  clearAttempts,
+  checkServerRateLimit,
+  markLoginSuccess,
   formatBlockedTime,
 } from "@/lib/security";
 import { useDeviceTracker } from "@/hooks/useDeviceTracker";
