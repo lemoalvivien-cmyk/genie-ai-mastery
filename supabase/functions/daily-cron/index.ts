@@ -11,13 +11,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyCronSecret } from "../_shared/cron-auth.ts";
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyCronSecret } from "../_shared/cron-auth.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "https://genie-ai-mastery.lovable.app",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
-      },
+      headers: getCorsHeaders(req),
     });
   }
 
