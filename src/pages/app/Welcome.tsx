@@ -162,7 +162,7 @@ export default function Welcome() {
 
   return (
     <>
-      <Helmet><title>Bienvenue – GENIE IA</title></Helmet>
+      <Helmet><title>Bienvenue – Formetoialia</title></Helmet>
 
       {/* Confetti */}
       {showConfetti && (

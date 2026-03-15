@@ -164,8 +164,8 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Connexion – GENIE IA</title>
-        <meta name="description" content="Connectez-vous à votre espace GENIE IA." />
+        <title>Connexion – Formetoialia</title>
+        <meta name="description" content="Connectez-vous à votre espace Formetoialia." />
       </Helmet>
 
       <div className="min-h-screen gradient-hero flex items-center justify-center px-4 py-12">

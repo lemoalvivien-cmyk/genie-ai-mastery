@@ -105,7 +105,7 @@ export default function Dashboard() {
   return (
     <>
       <Helmet>
-        <title>Dashboard – GENIE IA</title>
+        <title>Dashboard – Formetoialia</title>
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>

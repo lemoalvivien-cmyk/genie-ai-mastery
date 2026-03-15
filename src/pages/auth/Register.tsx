@@ -108,8 +108,8 @@ export default function Register() {
   return (
     <>
       <Helmet>
-        <title>Inscription – GENIE IA</title>
-        <meta name="description" content="Créez votre compte GENIE IA gratuitement." />
+        <title>Inscription – Formetoialia</title>
+        <meta name="description" content="Créez votre compte Formetoialia gratuitement." />
       </Helmet>
 
       <div className="min-h-screen gradient-hero flex items-center justify-center px-4 py-12">
