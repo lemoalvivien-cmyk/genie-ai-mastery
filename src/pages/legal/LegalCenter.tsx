@@ -170,7 +170,7 @@ function SubprocessorsPage() {
   return (
     <>
       <Helmet>
-        <title>Sous-traitants — GENIE IA</title>
+        <title>Sous-traitants — Formetoialia</title>
         <meta
           name="description"
           content="Liste des sous-traitants de GENIE IA — hébergement, paiement, IA, emailing."
