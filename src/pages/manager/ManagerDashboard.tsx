@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { CsvImportDialog } from "@/components/manager/CsvImportDialog";
 import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
@@ -147,6 +148,7 @@ export default function ManagerDashboard() {
   // Dialogs
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [campaignTitle, setCampaignTitle] = useState("");
   const [campaignDesc, setCampaignDesc] = useState("");
   const [campaignModules, setCampaignModules] = useState<string[]>([]);
@@ -828,12 +830,9 @@ export default function ManagerDashboard() {
                   <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
                     <Download className="w-4 h-4" />CSV
                   </Button>
-                  <label>
-                    <Button variant="outline" size="sm" className="gap-1.5 cursor-pointer" asChild>
-                      <span><Upload className="w-4 h-4" />Import CSV</span>
-                    </Button>
-                    <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
-                  </label>
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setCsvImportOpen(true)}>
+                    <Upload className="w-4 h-4" />Import CSV
+                  </Button>
                   <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                     <DialogTrigger asChild>
                       <Button size="sm" className="gap-1.5 gradient-primary">
@@ -1122,6 +1121,16 @@ export default function ManagerDashboard() {
           </Tabs>
         </main>
       </div>
+
+      {/* CSV Import Dialog */}
+      {org && (
+        <CsvImportDialog
+          open={csvImportOpen}
+          onClose={() => setCsvImportOpen(false)}
+          orgId={org.id}
+          onComplete={loadData}
+        />
+      )}
     </>
   );
 }
