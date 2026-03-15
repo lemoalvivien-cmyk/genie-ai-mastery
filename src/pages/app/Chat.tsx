@@ -689,7 +689,7 @@ export default function Chat() {
             <div className="w-full max-w-2xl px-4">
               <AgentSwarmVisualizer
                 phase={brainState.phase}
-                activeAgents={brainState.activeAgents}
+                activeAgents={brainState.activeAgents as AgentType[]}
                 agentResponses={brainState.agentResponses}
                 riskScore={brainState.riskScore}
                 riskDelta={brainState.riskDelta}
