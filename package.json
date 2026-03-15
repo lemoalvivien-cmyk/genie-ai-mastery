@@ -20,13 +20,13 @@
     "test:load:full:chat": "bash tests/load/run.sh full chat",
     "test:load:full:pdf": "bash tests/load/run.sh full pdf",
     "test:load:full:reads": "bash tests/load/run.sh full reads",
-    "test:simulation": "bunx playwright test tests/formetoialia-full-simulation.spec.ts",
-    "test:simulation:headed": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --headed",
-    "test:simulation:ui": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --ui",
-    "test:simulation:b2c": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"B2C\"",
-    "test:simulation:b2b": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"B2B\"",
-    "test:simulation:mobile": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"Mobile\"",
-    "test:simulation:perf": "bunx playwright test tests/formetoialia-full-simulation.spec.ts --grep \"Performance\""
+    "test:simulation": "playwright test",
+    "test:simulation:headed": "playwright test --headed",
+    "test:simulation:b2c": "playwright test tests/formetoialia-b2c.spec.ts --headed",
+    "test:simulation:b2b": "playwright test tests/formetoialia-b2b.spec.ts --headed",
+    "test:simulation:mobile": "playwright test tests/formetoialia-mobile.spec.ts --headed",
+    "test:simulation:perf": "playwright test tests/formetoialia-perf.spec.ts --headed",
+    "test:simulation:ui": "playwright test --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
