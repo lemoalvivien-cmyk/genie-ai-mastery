@@ -1,33 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-
-const ALLOWED_ORIGINS = [
-  "https://genie-ia.app",
-  "https://genie-ai-mastery.lovable.app",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  // Allow Lovable preview URLs (*.lovableproject.com) in addition to production domains
-  const isAllowed =
-    ALLOWED_ORIGINS.includes(origin) ||
-    /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/.test(origin) ||
-    /^https:\/\/id-preview--[a-z0-9-]+\.lovable\.app$/.test(origin);
-  const allowedOrigin = isAllowed ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-  };
-}
+import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: unknown) =>
   console.log(`[CREATE-CHECKOUT] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
 
 serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const preflight = handleCorsPreflight(req);
+  if (preflight) return preflight;
+
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -51,7 +34,7 @@ serve(async (req) => {
     const user = userData.user;
     logStep("User authenticated", { userId: user.id });
 
-    // Rate limit: max 3 checkout sessions / hour
+    // Rate limit: max 5 checkout sessions / hour
     const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString();
     const { count } = await supabase
       .from("audit_logs")
@@ -65,7 +48,6 @@ serve(async (req) => {
       });
     }
 
-    // Read body: optional seat quantity + referral code
     let seats = 1;
     let referralCode: string | null = null;
     try {
@@ -78,7 +60,6 @@ serve(async (req) => {
       }
     } catch (_e) { /* body is optional */ }
 
-    // Fetch org
     const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
     const orgId = profile?.org_id;
     let orgData: { stripe_customer_id?: string; plan?: string; plan_source?: string; stripe_subscription_id?: string } = {};
@@ -91,7 +72,6 @@ serve(async (req) => {
       orgData = data ?? {};
     }
 
-    // Already subscribed via Stripe?
     if (
       (orgData.plan === "business" || orgData.plan === "compliance") &&
       orgData.plan_source === "stripe" &&
@@ -102,16 +82,12 @@ serve(async (req) => {
       });
     }
 
-    // ── ACTION REQUISE : Vérifier que le Price ID dans le dashboard Stripe correspond exactement à l'abonnement 59€ TTC/mois ──
-    // Variable d'environnement attendue : STRIPE_PRICE_59_TTC
     const priceId = Deno.env.get("STRIPE_PRICE_59_TTC") ?? Deno.env.get("STRIPE_PRICE_PRO");
     if (!priceId) throw new Error("Price ID non configuré — vérifier STRIPE_PRICE_59_TTC dans les secrets");
-    console.warn("[CREATE-CHECKOUT] Action requise : Vérifier que le Price ID dans le dashboard Stripe correspond exactement à l'abonnement 59€ TTC/mois");
     logStep("Using price", { priceId, seats });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Create or reuse Stripe customer
     let customerId = orgData.stripe_customer_id;
     if (!customerId) {
       const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
@@ -131,22 +107,19 @@ serve(async (req) => {
       logStep("Customer ready", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "https://genie-ai-mastery.lovable.app";
+    const origin = req.headers.get("origin") || "https://formetoialia.com";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [{ price: priceId, quantity: seats }],
       mode: "subscription",
-      // ── 14-day free trial ──
       subscription_data: {
         trial_period_days: 14,
         metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats), referral_code: referralCode ?? "" },
       },
-      // ── Stripe Tax: collect tax IDs + auto-calculate ──
       automatic_tax: { enabled: true },
       customer_update: { address: "auto" },
       tax_id_collection: { enabled: true },
-      // ──────────────────────────────────────────────────
       allow_promotion_codes: true,
       success_url: `${origin}/app/dashboard?payment=success&upgrade=success`,
       cancel_url: `${origin}/pricing?cancelled=true`,
@@ -154,7 +127,6 @@ serve(async (req) => {
     });
     logStep("Checkout session created", { sessionId: session.id, seats });
 
-    // Audit log
     await supabase.from("audit_logs").insert({
       user_id: user.id,
       action: "checkout_created",
