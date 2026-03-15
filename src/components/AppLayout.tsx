@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Cpu, Briefcase, Sparkles } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase } from "lucide-react";
 import logoGenie from "@/assets/logo-genie.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
