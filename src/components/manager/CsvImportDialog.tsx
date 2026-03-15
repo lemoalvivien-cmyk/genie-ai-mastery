@@ -350,8 +350,8 @@ export function CsvImportDialog({ open, onClose, orgId, onComplete }: Props) {
 
             {/* Duplicate list */}
             {parsed.duplicates.length > 0 && (
-              <details className="rounded-lg border border-orange-500/30 bg-orange-500/5 p-3">
-                <summary className="text-xs font-medium text-orange-400 cursor-pointer">
+              <details className="rounded-lg border border-[hsl(var(--orange-alert)_/_0.3)] bg-[hsl(var(--orange-alert)_/_0.05)] p-3">
+                <summary className="text-xs font-medium text-[hsl(var(--orange-alert))] cursor-pointer">
                   {parsed.duplicates.length} doublon(s) détecté(s) — sera ignoré(s)
                 </summary>
                 <ul className="mt-2 space-y-0.5">
