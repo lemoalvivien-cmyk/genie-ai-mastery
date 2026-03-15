@@ -123,7 +123,9 @@ export default function Register() {
               <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                 <Brain className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">GENIE <span className="text-gradient">IA</span></span>
+              <span className="text-xl font-black" style={{ fontFamily: "'Orbitron', monospace" }}>
+                <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
+              </span>
             </Link>
             <h1 className="text-2xl font-bold text-foreground">Créer votre compte</h1>
             <p className="text-sm text-muted-foreground mt-1">Gratuit, sans carte bancaire</p>

@@ -173,11 +173,13 @@ export default function Login() {
 
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                 <Brain className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">GENIE <span className="text-gradient">IA</span></span>
+              <span className="text-xl font-black" style={{ fontFamily: "'Orbitron', monospace" }}>
+                <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
+              </span>
             </Link>
             <h1 className="text-2xl font-bold">
               {resetMode ? "Mot de passe oublié" : magicMode ? "Lien magique" : "Connexion"}
