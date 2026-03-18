@@ -51,7 +51,7 @@ export function QuickStartModal({ onActivate, onDismiss, sessionId }: Props) {
     onActivate();
     if (prompt) {
       // Dispatch custom event to pre-fill chat input
-      window.dispatchEvent(new CustomEvent("genie:prefill_chat", { detail: { text: prompt } }));
+      window.dispatchEvent(new CustomEvent("formetoialia:prefill_chat", { detail: { text: prompt } }));
     }
   };
 

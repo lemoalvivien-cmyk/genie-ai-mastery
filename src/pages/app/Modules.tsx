@@ -194,7 +194,7 @@ export default function Modules() {
           ) : (
             <>
               {domain === "vibe_coding" && !isPro ? (
-                <PaywallOverlay feature="Vibe Coding — Débloquez avec GENIE Pro" className="rounded-2xl min-h-[300px]">
+                <PaywallOverlay feature="Vibe Coding — Débloquez avec Formetoialia Pro" className="rounded-2xl min-h-[300px]">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pointer-events-none">
                     {filtered.slice(0, 3).map((mod) => (
                       <ModuleCard key={mod.id} module={mod} progress={progressMap?.[mod.id]} />

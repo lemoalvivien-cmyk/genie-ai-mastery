@@ -24,7 +24,7 @@ export default function GuideList() {
       <div className="min-h-screen gradient-hero">
         <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/30 bg-background/80 backdrop-blur-md">
           <Link to="/">
-            <img src={logoGenie} alt="GENIE IA" className="h-10 w-auto" loading="lazy" />
+            <img src={logoGenie} alt="Formetoialia" className="h-10 w-auto" loading="lazy" />
           </Link>
           <Link to="/pricing" className="px-4 py-2 rounded-xl gradient-primary text-primary-foreground text-sm font-bold shadow-glow hover:brightness-110 transition-all">
             Essai 24h — 59€/mois
