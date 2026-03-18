@@ -52,8 +52,8 @@ export default function OnboardingUnlock() {
             </h1>
             <p className="text-sm text-muted-foreground">
               {score < 67
-                ? "GENIE a identifié vos vulnérabilités. Laissez l'IA les corriger pour vous."
-                : "Bonne base ! GENIE va renforcer et automatiser vos bonnes pratiques."}
+                ? "Formetoialia a identifié vos vulnérabilités. Laissez l'IA les corriger pour vous."
+                : "Bonne base ! Formetoialia va renforcer et automatiser vos bonnes pratiques."}
             </p>
           </div>
 
