@@ -214,7 +214,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
       setShared(true);
       setTimeout(() => setShared(false), 2500);
     } catch {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent("🤖 GENIE IA - La seule IA qui simule 10 000 attaques réelles et forme votre équipe")}`, "_blank");
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent("🤖 Formetoialia - La seule IA qui simule 10 000 attaques réelles et forme votre équipe")}`, "_blank");
     }
   };
 
