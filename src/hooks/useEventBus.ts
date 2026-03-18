@@ -86,23 +86,18 @@ export async function enqueueJob(
   userId: string,
   job: JobPayload
 ): Promise<string | null> {
-  type JobQueueInsert = {
-    user_id: string;
-    job_type: string;
-    payload: Record<string, unknown>;
-    priority: number;
-    scheduled_at: string;
-  };
-  const row: JobQueueInsert = {
+  const row = {
     user_id: userId,
     job_type: job.job_type,
     payload: job.payload ?? {},
     priority: job.priority ?? 5,
     scheduled_at: job.scheduled_at ?? new Date().toISOString(),
   };
-  const { data, error } = await (supabase
-    .from("job_queue") as ReturnType<typeof supabase.from>)
-    .insert([row as unknown as Parameters<ReturnType<typeof supabase.from>["insert"]>[0]])
+  // job_queue is not in generated types yet — intentional cast
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("job_queue")
+    .insert([row])
     .select("id")
     .single();
 
