@@ -8,7 +8,7 @@ import { Brain, Sword, Shield, Eye, BarChart3, Zap, ChevronRight, X, Rocket } fr
 import { Button } from "@/components/ui/button";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
 
-const TOUR_KEY = "genie_palantir_tour_v1_done";
+const TOUR_KEY = "formetoialia_palantir_tour_v1_done";
 
 interface Props {
   onComplete: () => void;
