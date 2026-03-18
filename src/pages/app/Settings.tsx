@@ -252,7 +252,7 @@ export default function Settings() {
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(142_71%_45%/0.1)] border border-[hsl(142_71%_45%/0.3)] text-[hsl(142_71%_45%)] text-xs font-semibold">
-                      <CheckCircle2 className="w-3 h-3" /> GENIE Pro ✓
+                      <CheckCircle2 className="w-3 h-3" /> Formetoialia Pro ✓
                     </span>
                   )}
                 </div>

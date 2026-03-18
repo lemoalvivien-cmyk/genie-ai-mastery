@@ -79,7 +79,7 @@ const CookieBanner = React.forwardRef<HTMLDivElement, CookieBannerProps>(
           {!showPanel ? (
             <>
               <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-                GENIE IA utilise des cookies nécessaires au fonctionnement du site. Avec ton accord, nous
+              Formetoialia utilise des cookies nécessaires au fonctionnement du site. Avec ton accord, nous
                 utilisons aussi des cookies optionnels pour mesurer l'audience et améliorer l'expérience.{" "}
                 <Link to="/legal/cookies" className="text-primary hover:underline">
                   En savoir plus
