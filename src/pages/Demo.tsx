@@ -409,7 +409,7 @@ const TESTIMONIALS = [
   {
     name: "Amira K.",
     role: "DRH, SaaS Scale-up",
-    text: "L'attestation GENIE IA est désormais acceptée par 3 de nos partenaires corporate comme équivalent CISSP.",
+    text: "L'attestation Formetoialia est désormais acceptée par 3 de nos partenaires corporate comme équivalent CISSP.",
     stars: 5,
     avatar: "AK",
     color: "from-violet-500 to-purple-600",
