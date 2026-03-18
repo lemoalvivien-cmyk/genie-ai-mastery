@@ -52,7 +52,7 @@ export default function Register() {
     const full_name = DOMPurify.sanitize(data.full_name.trim());
 
     // Read referral code from sessionStorage before signup
-    const referralCode = sessionStorage.getItem("genie_ref");
+    const referralCode = sessionStorage.getItem("formetoialia_ref");
 
     const { data: authData, error } = await supabase.auth.signUp({
       email,
