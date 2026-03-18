@@ -102,7 +102,7 @@ export function faqSchema() {
       },
       {
         "@type": "Question",
-        name: "Comment fonctionne le copilote Genie ?",
+        name: "Comment fonctionne le copilote IA Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "Genie est le copilote IA intégré à la plateforme. Il répond à vos questions sur les modules en cours, suggère des missions quotidiennes adaptées à votre niveau et vous guide en cas de blocage. Il fonctionne en mode texte et vocal.",
