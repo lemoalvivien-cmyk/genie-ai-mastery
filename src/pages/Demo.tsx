@@ -277,7 +277,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
                 </motion.div>
 
                 <div className="text-center">
-                  <div className="text-white font-black text-2xl mb-1 font-mono tracking-wider">GENIE IA × KITT</div>
+                  <div className="text-white font-black text-2xl mb-1 font-mono tracking-wider">Formetoialia × KITT</div>
                   <div className="text-cyan-400/70 text-sm font-mono">DÉMO END-TO-END — 5 MIN</div>
                 </div>
 
