@@ -9,8 +9,8 @@ const schema = z.object({
     .string()
     .optional()
     .refine(
-      (v) => !v || /^GENIE-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(v.trim()),
-      { message: "Format attendu : GENIE-XXXX-XXXX" },
+      (v) => !v || /^FTI-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(v.trim()),
+      { message: "Format attendu : FTI-XXXX-XXXX" },
     ),
   referral_code: z
     .string()
