@@ -271,7 +271,7 @@ Vous pouvez modifier votre choix à tout moment via le lien **"Gérer mes cookie
         title: "6. Liste des cookies",
         content: `| Nom | Finalité | Type | Durée |
 |---|---|---|---|
-| genie_cookie_consent | Stockage de votre choix de consentement | Nécessaire | 6 mois |
+| formetoialia_cookie_consent | Stockage de votre choix de consentement | Nécessaire | 6 mois |
 | sb-* (session auth) | Authentification et session sécurisée | Nécessaire | Session |
 | À compléter | … | … | … |`,
       },
