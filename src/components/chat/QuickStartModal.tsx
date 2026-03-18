@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
 
-const QUICK_START_KEY = "genie_quickstart_shown_v1";
+const QUICK_START_KEY = "formetoialia_quickstart_shown_v1";
 
 interface Props {
   onActivate: () => void;
