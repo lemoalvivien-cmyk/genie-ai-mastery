@@ -347,7 +347,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
               {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
             <span className="text-xs text-white/40 font-mono">
-              {playing ? `Chapitre ${activeChapter + 1}/${CHAPTERS.length}: ${CHAPTERS[activeChapter]?.title}` : "GENIE IA — Démo complète"}
+              {playing ? `Chapitre ${activeChapter + 1}/${CHAPTERS.length}: ${CHAPTERS[activeChapter]?.title}` : "Formetoialia — Démo complète"}
             </span>
           </div>
           <div className="flex items-center gap-2">
