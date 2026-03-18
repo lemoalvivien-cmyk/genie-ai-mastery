@@ -21,7 +21,7 @@ const STEPS = [
     icon: Brain,
     iconColor: "text-primary",
     iconBg: "bg-primary/20 border-primary/40",
-    badge: "GÉNIE BRAIN",
+    badge: "FORMETOIALIA BRAIN",
     badgeColor: "bg-primary/20 text-primary border-primary/30",
     title: "Votre IA de niveau entreprise est prête",
     desc: "Génie Brain fusionne en temps réel tout ce que vous avez appris — vos lacunes, vos risques cyber, vos scores — dans une ontologie intelligente. Exactement comme Palantir Foundry, mais pour votre formation.",
