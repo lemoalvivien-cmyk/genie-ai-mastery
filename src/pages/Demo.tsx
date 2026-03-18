@@ -544,7 +544,7 @@ export default function Demo() {
             </motion.div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight">
-              <span className="text-white">Regardez GENIE IA</span>
+              <span className="text-white">Regardez Formetoialia</span>
               <br />
               <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-red-400 bg-clip-text text-transparent">
                 détruire un formateur humain
