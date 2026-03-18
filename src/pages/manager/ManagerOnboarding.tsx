@@ -28,7 +28,7 @@ const PLANS: PlanInfo[] = [
     name: "Starter",
     price: 59,
     seats: 10,
-    features: ["Génie Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
+    features: ["Formetoialia Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
   },
   {
     id: "business",
