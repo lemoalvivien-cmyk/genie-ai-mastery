@@ -124,7 +124,7 @@ export default function OnboardingResult() {
     } catch (err) {
       toast({
         title: "PDF non disponible",
-        description: "Disponible avec GENIE Pro. Continuez votre parcours !",
+        description: "Disponible avec Formetoialia Pro. Continuez votre parcours !",
         variant: "destructive",
       });
     } finally {

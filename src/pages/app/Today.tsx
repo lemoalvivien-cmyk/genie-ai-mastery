@@ -536,7 +536,7 @@ export default function Today() {
 
               {!isSubscribed && (
                 <div className="p-4 rounded-xl bg-primary/10 border border-primary/30 text-sm text-left">
-                  <p className="font-semibold mb-1">Avec GENIE Pro, débloquez des missions illimitées et boostez votre progression →</p>
+                  <p className="font-semibold mb-1">Avec Formetoialia Pro, débloquez des missions illimitées et boostez votre progression →</p>
                   <Link to="/pricing" className="text-primary hover:underline font-medium">
                     Voir les offres Pro
                   </Link>
