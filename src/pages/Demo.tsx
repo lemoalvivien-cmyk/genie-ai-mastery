@@ -597,8 +597,8 @@ export default function Demo() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
                   <div>
-                    <div className="font-bold text-green-400 text-sm">Démo complète visionnée ✓</div>
-                    <div className="text-white/60 text-xs">Prêt à activer votre propre GENIE IA ?</div>
+                  <div className="font-bold text-green-400 text-sm">Démo complète visionnée ✓</div>
+                    <div className="text-white/60 text-xs">Prêt à activer votre propre Formetoialia ?</div>
                   </div>
                 </div>
                 <button
