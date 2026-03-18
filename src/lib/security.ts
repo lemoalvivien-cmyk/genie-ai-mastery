@@ -79,7 +79,7 @@ export function clearActivity(): void {
 }
 
 // ── Password strength validation ─────────────────────────────────────────────
-const SPECIAL_CHARS_RE = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+const SPECIAL_CHARS_RE = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
 
 export function validatePassword(password: string): string | null {
   if (password.length < 8) return "Minimum 8 caractères";
