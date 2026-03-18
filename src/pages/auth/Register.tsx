@@ -83,7 +83,7 @@ export default function Register() {
       } catch {
         // Non-blocking — referral attribution failure shouldn't block signup
       }
-      sessionStorage.removeItem("genie_ref");
+      sessionStorage.removeItem("formetoialia_ref");
     }
 
     await track("signup", { method: "email", referral_code: referralCode ?? undefined });
