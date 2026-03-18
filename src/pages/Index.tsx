@@ -189,7 +189,7 @@ export default function Index() {
     try {
       await supabase.from("email_leads").insert({ email: em, source: "landing_v8_swiss" });
       setEmailDone(true);
-      toast({ title: "✅ Accès activé", description: "Votre accès Genie est en cours d'activation." });
+      toast({ title: "✅ Accès activé", description: "Votre accès est en cours d'activation." });
     } catch {
       toast({ title: "Erreur", description: "Réessayez.", variant: "destructive" });
     } finally { setEmailLoading(false); }
