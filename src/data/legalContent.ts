@@ -1,26 +1,26 @@
 // ============================================================
-// SOURCE DE VÉRITÉ LÉGALE — GENIE IA
+// SOURCE DE VÉRITÉ LÉGALE — FORMETOIALIA
 // Modifier les variables LEGAL_CONFIG pour mettre à jour
 // tout le centre légal d'un seul coup.
 // ============================================================
 
 export const LEGAL_CONFIG = {
-  COMPANY_NAME: "GENIE IA",
+  COMPANY_NAME: "Formetoialia",
   PUBLISHER_NAME: "Vivien LE MOAL",
   BUSINESS_STATUS: "Entrepreneur individuel",
   SIRET: "835 125 089 00028",
   NAF: "7022Z — Conseil pour les affaires et autres conseils de gestion",
   BUSINESS_ADDRESS: "295 Rue Verte, 59170 Croix, France",
-  CONTACT_EMAIL: "contact@vlmconsulting.fr",
-  CONTACT_PHONE: "+33 X XX XX XX XX", // TODO: remplacer par le numéro réel
-  SECURITY_EMAIL: "security@vlmconsulting.fr",
-  RGPD_EMAIL: "rgpd@vlmconsulting.fr",
-  HOSTING_STATEMENT: "hébergé dans l'Union européenne (UE)",
-  HOST_NAME: "", // TODO: renseigner le nom de l'hébergeur (ex: OVH, Scaleway…)
-  HOST_ADDRESS: "", // TODO: adresse complète
-  HOST_PHONE: "", // TODO: téléphone hébergeur
-  LAST_UPDATED_DATE: "03/03/2026",
-  DOMAIN: "genie-ai-mastery.lovable.app", // TODO: remplacer par le domaine final
+  CONTACT_EMAIL: "contact@formetoialia.com",
+  CONTACT_PHONE: "+33 X XX XX XX XX",
+  SECURITY_EMAIL: "security@formetoialia.com",
+  RGPD_EMAIL: "rgpd@formetoialia.com",
+  HOSTING_STATEMENT: "hébergé dans l'Union européenne (UE) via Supabase/Lovable Cloud",
+  HOST_NAME: "Lovable / Supabase (hébergement EU)",
+  HOST_ADDRESS: "Union européenne",
+  HOST_PHONE: "support@lovable.dev",
+  LAST_UPDATED_DATE: "18/03/2026",
+  DOMAIN: "formetoialia.com",
 };
 
 export type LegalSection = {
