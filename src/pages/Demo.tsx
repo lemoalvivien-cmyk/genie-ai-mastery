@@ -490,11 +490,11 @@ export default function Demo() {
   return (
     <>
       <Helmet>
-        <title>Démo live GENIE IA — KITT + Simulation Entreprise + Attestation Blockchain</title>
-        <meta name="description" content="Regardez la démo complète de GENIE IA : Mode KITT vocal, simulation de 10 000 attaques entreprise, attestation blockchain. Gratuit, shareable, 5 minutes." />
-        <meta property="og:title" content="GENIE IA — Démo end-to-end" />
+        <title>Démo live Formetoialia — KITT + Simulation Entreprise + Attestation</title>
+        <meta name="description" content="Regardez la démo complète de Formetoialia : Mode KITT vocal, simulation de 10 000 attaques entreprise, attestation vérifiable. Gratuit, shareable, 5 minutes." />
+        <meta property="og:title" content="Formetoialia — Démo end-to-end" />
         <meta property="og:description" content="KITT + Enterprise Attack Simulation + Attestation. 5 min. Gratuit." />
-        <meta property="og:url" content="https://genie-ai-mastery.lovable.app/demo" />
+        <meta property="og:url" content="https://formetoialia.com/demo" />
       </Helmet>
 
       <div className="min-h-screen bg-[#0A0F1C] text-white overflow-x-hidden">
