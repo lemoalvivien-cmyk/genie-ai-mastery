@@ -561,7 +561,7 @@ export default function Demo() {
             {/* Share URL */}
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-mono text-white/60 mb-6">
               <ExternalLink className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span className="truncate">genie-ai-mastery.lovable.app/demo</span>
+              <span className="truncate">formetoialia.com/demo</span>
               <button
                 onClick={handleShare}
                 className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-semibold text-xs shrink-0 transition-colors"
