@@ -92,7 +92,7 @@ export function PaywallOverlay({
               {feature ?? "Débloquez cette fonctionnalité"}
             </p>
             <p className="text-sm text-muted-foreground mt-1.5">
-              {description ?? "Accès immédiat avec GENIE Pro — 14 jours gratuits"}
+              {description ?? "Accès immédiat avec Formetoialia Pro — 14 jours gratuits"}
             </p>
           </div>
 
