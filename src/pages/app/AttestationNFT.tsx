@@ -133,17 +133,17 @@ export default function AttestationNFT() {
 
       // NFT metadata
       const metadata: NFTMetadata = {
-        name: `GENIE IA Cyber Certification — ${rarity.tier}`,
-        description: `Certification blockchain-grade délivrée par GENIE IA. ${completedCount} modules cyber complétés, score moyen ${avgScore}/100. Vérifiable publiquement.`,
-        image: `https://genie-ia.app/og/cert-${rarity.tier.toLowerCase()}.png`,
-        external_url: `https://genie-ia.app/verify/${tokenId}`,
+        name: `Formetoialia Cyber Certification — ${rarity.tier}`,
+        description: `Certification blockchain-grade délivrée par Formetoialia. ${completedCount} modules cyber complétés, score moyen ${avgScore}/100. Vérifiable publiquement.`,
+        image: `https://formetoialia.com/og/cert-${rarity.tier.toLowerCase()}.png`,
+        external_url: `https://formetoialia.com/verify/${tokenId}`,
         background_color: rarity.color.replace("#", ""),
         attributes: [
           { trait_type: "Rarity",           value: rarity.tier },
           { trait_type: "Modules Completed", value: completedCount },
           { trait_type: "Average Score",     value: avgScore },
           { trait_type: "Domain",            value: "Cybersecurity" },
-          { trait_type: "Issuer",            value: "GENIE IA" },
+          { trait_type: "Issuer",            value: "Formetoialia" },
           { trait_type: "Standard",          value: "ERC-721 Compatible" },
           { trait_type: "Year",              value: new Date().getFullYear() },
         ],
@@ -348,7 +348,7 @@ export default function AttestationNFT() {
                     {rarity.tier}
                   </div>
                   <h2 className="text-lg font-black mt-2" style={{ color: "#E8E9F0" }}>
-                    GENIE IA Cyber Certification
+                    Formetoialia Cyber Certification
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {profile?.full_name ?? session?.user?.email}

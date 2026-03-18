@@ -63,7 +63,7 @@ export default function ReferralSection() {
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({ title: "GENIE IA", url: referralLink });
+      navigator.share({ title: "Formetoialia", url: referralLink });
       track("referral_shared", { method: "native_share" });
     } else {
       handleCopy();

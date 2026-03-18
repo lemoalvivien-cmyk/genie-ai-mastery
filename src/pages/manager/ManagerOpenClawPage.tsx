@@ -56,7 +56,7 @@ export default function ManagerOpenClawPage() {
         <div className="rounded-xl border border-border bg-card p-4 flex items-start gap-3">
           <Shield className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
           <div className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-medium text-foreground">Modèle de confiance :</span> Tous les appels agentiques transitent par le backend GENIE IA.
+            <span className="font-medium text-foreground">Modèle de confiance :</span> Tous les appels agentiques transitent par le backend Formetoialia.
             Aucun secret n'est exposé au client. Chaque job est isolé par organisation et traçé dans l'audit trail.
           </div>
         </div>

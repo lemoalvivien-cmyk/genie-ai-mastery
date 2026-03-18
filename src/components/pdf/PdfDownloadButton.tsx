@@ -94,11 +94,11 @@ export function PdfDownloadButton({
       ? "flex items-center gap-2 px-4 py-2 rounded-xl border border-border/40 text-muted-foreground text-sm font-medium opacity-60 cursor-pointer hover:opacity-80 transition-all"
       : "w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 text-left opacity-60 cursor-pointer hover:opacity-80 transition-all";
     return (
-      <button className={cls} onClick={() => navigate("/pricing")} title="PDF — Débloquez avec GENIE Pro">
+      <button className={cls} onClick={() => navigate("/pricing")} title="PDF — Débloquez avec Formetoialia Pro">
         <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium truncate">{label}</div>
-          <div className="text-xs text-muted-foreground">PDF — GENIE Pro</div>
+          <div className="text-xs text-muted-foreground">PDF — Formetoialia Pro</div>
         </div>
       </button>
     );

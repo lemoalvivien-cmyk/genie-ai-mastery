@@ -218,7 +218,7 @@ export default function Onboarding() {
         {/* Top bar with progress */}
         <div className="px-4 pt-6 pb-2 max-w-2xl mx-auto w-full">
           <div className="flex items-center justify-between mb-3">
-            <img src={logoGenie} alt="GENIE IA" className="h-8 w-auto" />
+            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto" />
             <div className="flex items-center gap-3">
               {isInvited && (
                 <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary font-medium">

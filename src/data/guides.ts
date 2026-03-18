@@ -18,7 +18,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "c-est-quoi-l-ia-generative",
     title: "C'est quoi l'IA générative ? (explication simple)",
-    metaTitle: "IA générative : définition simple et concrète | GENIE IA",
+    metaTitle: "IA générative : définition simple et concrète | Formetoialia",
     metaDescription:
       "Comprendre l'IA générative en 5 minutes. Pas de jargon. Exemples concrets, utilisations pratiques et comment s'y former à moindre coût.",
     domain: "ia",
@@ -45,15 +45,15 @@ export const GUIDES: Guide[] = [
     faq: [
       { q: "L'IA peut-elle remplacer mon métier ?", a: "Pas votre métier — mais quelqu'un qui maîtrise l'IA pourrait vous concurrencer. Mieux vaut l'utiliser que la subir." },
       { q: "Faut-il savoir coder pour utiliser l'IA ?", a: "Non. 90% des usages professionnels de l'IA se font sans une ligne de code." },
-      { q: "Combien coûte une formation IA sérieuse ?", a: "Entre 500€ et 3 000€ pour une formation classique. GENIE IA propose tout ça à 59€/mois, avec des attestations vérifiables." },
+      { q: "Combien coûte une formation IA sérieuse ?", a: "Entre 500€ et 3 000€ pour une formation classique. Formetoialia propose tout ça à 59€/mois, avec des attestations vérifiables." },
     ],
   },
   {
     slug: "prompt-engineering-debutant",
     title: "Prompt engineering : le guide complet pour débutants",
-    metaTitle: "Prompt engineering débutant : guide pratique 2026 | GENIE IA",
+    metaTitle: "Prompt engineering débutant : guide pratique 2026 | Formetoialia",
     metaDescription:
-      "Apprenez le prompt engineering sans jargon. Techniques de base, exemples concrets, erreurs à éviter. Formez-vous à 59€/mois avec GENIE IA.",
+      "Apprenez le prompt engineering sans jargon. Techniques de base, exemples concrets, erreurs à éviter. Formez-vous à 59€/mois avec Formetoialia.",
     domain: "ia",
     readingMinutes: 6,
     datePublished: "2026-03-01",
@@ -71,8 +71,8 @@ export const GUIDES: Guide[] = [
         body: "Trop vague (\"parle-moi de la cybersécurité\"), trop long sans structure, ou oublier le format de sortie. Résultat : une réponse inutilisable que vous retravaillez pendant 20 minutes.",
       },
       {
-        heading: "Pratiquer avec GENIE IA",
-        body: "GENIE IA intègre 500+ modules de prompt engineering, des exercices guidés et un Jarvis vocal qui corrige vos prompts en temps réel. Vous progressez en pratiquant, pas en lisant.",
+        heading: "Pratiquer avec Formetoialia",
+        body: "Formetoialia intègre 500+ modules de prompt engineering, des exercices guidés et un copilote vocal qui corrige vos prompts en temps réel. Vous progressez en pratiquant, pas en lisant.",
       },
     ],
     faq: [
@@ -84,7 +84,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "cybersecurite-pour-les-nuls",
     title: "Cybersécurité pour les nuls : 10 réflexes qui protègent vraiment",
-    metaTitle: "Cybersécurité pour les nuls : 10 réflexes essentiels 2026 | GENIE IA",
+    metaTitle: "Cybersécurité pour les nuls : 10 réflexes essentiels 2026 | Formetoialia",
     metaDescription:
       "10 réflexes de cybersécurité expliqués simplement. Protégez vous et votre entreprise sans être informaticien. Formation cyber à 59€/mois.",
     domain: "cyber",
@@ -106,15 +106,15 @@ export const GUIDES: Guide[] = [
     ],
     faq: [
       { q: "Mon entreprise est petite, les hackers ne s'y intéressent pas ?", a: "Faux. Les PME sont des cibles privilégiées : moins de défenses, mais des données de valeur et des accès aux grands comptes." },
-      { q: "La certification NIS2 me concerne-t-elle ?", a: "Si votre entreprise a plus de 50 salariés ou opère dans un secteur critique, probablement oui. GENIE IA propose un module de conformité NIS2." },
+      { q: "La certification NIS2 me concerne-t-elle ?", a: "Si votre entreprise a plus de 50 salariés ou opère dans un secteur critique, probablement oui. Formetoialia propose un module de conformité NIS2." },
     ],
   },
   {
     slug: "phishing-reconnaitre-eviter",
     title: "Phishing : comment reconnaître et éviter les arnaques en 2026",
-    metaTitle: "Reconnaître le phishing en 2026 : guide pratique | GENIE IA",
+    metaTitle: "Reconnaître le phishing en 2026 : guide pratique | Formetoialia",
     metaDescription:
-      "Apprenez à détecter les emails et SMS de phishing avec des exemples réels. Exercices pratiques disponibles sur GENIE IA à 59€/mois.",
+      "Apprenez à détecter les emails et SMS de phishing avec des exemples réels. Exercices pratiques disponibles sur Formetoialia à 59€/mois.",
     domain: "cyber",
     readingMinutes: 4,
     datePublished: "2026-03-01",
@@ -128,8 +128,8 @@ export const GUIDES: Guide[] = [
         body: "1. Urgence imposée (\"votre compte sera clôturé dans 24h\"). 2. Demande de clic sur un lien pour vérifier quelque chose. 3. Expéditeur légèrement différent de l'officiel (support@app1e.com). 4. Pièce jointe inattendue. 5. Demande d'information confidentielle par email.",
       },
       {
-        heading: "L'exercice GENIE IA Phishing Lab",
-        body: "GENIE IA propose un laboratoire interactif où vous analysez de vrais emails de phishing reconstitués. Vous identifiez les indices, vous validez vos réflexes, vous obtenez un score. Idéal pour la formation d'équipe.",
+        heading: "L'exercice Formetoialia Phishing Lab",
+        body: "Formetoialia propose un laboratoire interactif où vous analysez de vrais emails de phishing reconstitués. Vous identifiez les indices, vous validez vos réflexes, vous obtenez un score. Idéal pour la formation d'équipe.",
       },
     ],
     faq: [
@@ -140,7 +140,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "vibe-coding-c-est-quoi",
     title: "Vibe Coding : créer une app sans savoir coder en 2026",
-    metaTitle: "Vibe Coding : créer une app sans coder | Guide 2026 | GENIE IA",
+    metaTitle: "Vibe Coding : créer une app sans coder | Guide 2026 | Formetoialia",
     metaDescription:
       "Le Vibe Coding permet de créer de vraies applications web en décrivant ce que vous voulez en langage naturel. Guide complet pour débutants.",
     domain: "vibe",
@@ -160,8 +160,8 @@ export const GUIDES: Guide[] = [
         body: "Les outils no-code classiques (Webflow, Bubble) vous contraignent à leur logique. Le Vibe Coding génère du vrai code modifiable — vous n'êtes pas enfermé. Si vous apprenez les bases, vous pouvez personnaliser et évoluer sans limite.",
       },
       {
-        heading: "Comment démarrer avec GENIE IA",
-        body: "GENIE IA propose un module Vibe Coding complet : des exercices guidés pour passer de l'idée à l'application déployée en une session. Vous construisez, vous apprenez en faisant, vous obtenez une attestation.",
+        heading: "Comment démarrer avec Formetoialia",
+        body: "Formetoialia propose un module Vibe Coding complet : des exercices guidés pour passer de l'idée à l'application déployée en une session. Vous construisez, vous apprenez en faisant, vous obtenez une attestation.",
       },
     ],
     faq: [
@@ -172,7 +172,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "automatiser-son-travail-avec-ia",
     title: "Automatiser son travail avec l'IA : les 5 cas d'usage les plus rentables",
-    metaTitle: "Automatiser son travail avec l'IA en 2026 | Guide GENIE IA",
+    metaTitle: "Automatiser son travail avec l'IA en 2026 | Guide Formetoialia",
     metaDescription:
       "Découvrez les 5 automatisations IA les plus rentables pour gagner du temps au travail. Guide pratique, sans jargon, avec exemples concrets.",
     domain: "ia",
@@ -193,7 +193,7 @@ export const GUIDES: Guide[] = [
       },
     ],
     faq: [
-      { q: "L'automatisation IA nécessite-t-elle un abonnement payant ?", a: "Les outils de base sont souvent gratuits en version limitée. GENIE IA inclut des automatisations pré-configurées dans son plan Pro à 59€/mois." },
+      { q: "L'automatisation IA nécessite-t-elle un abonnement payant ?", a: "Les outils de base sont souvent gratuits en version limitée. Formetoialia inclut des automatisations pré-configurées dans son plan Pro à 59€/mois." },
     ],
   },
 ];

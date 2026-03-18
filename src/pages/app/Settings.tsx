@@ -252,7 +252,7 @@ export default function Settings() {
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(142_71%_45%/0.1)] border border-[hsl(142_71%_45%/0.3)] text-[hsl(142_71%_45%)] text-xs font-semibold">
-                      <CheckCircle2 className="w-3 h-3" /> GENIE Pro ✓
+                      <CheckCircle2 className="w-3 h-3" /> Formetoialia Pro ✓
                     </span>
                   )}
                 </div>
@@ -328,7 +328,7 @@ export default function Settings() {
             ) : (
               <div className="space-y-4">
                 <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-                  <p className="text-sm font-bold text-foreground mb-2">Passez à GENIE Pro</p>
+                  <p className="text-sm font-bold text-foreground mb-2">Passez à Formetoialia Pro</p>
                   <ul className="space-y-1 mb-4">
                     {["Voix Jarvis activée", "Attestations vérifiables", "Vibe Coding complet", "Dashboard manager", "500 messages/jour"].map(f => (
                       <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
