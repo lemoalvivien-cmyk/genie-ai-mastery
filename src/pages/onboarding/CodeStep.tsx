@@ -144,7 +144,7 @@ export function CodeStep({ onDone, onSkip }: Props) {
               type="text"
               value={accessCode}
               onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-              placeholder="GENIE-A1B2-C3D4"
+              placeholder="FTI-A1B2-C3D4"
               maxLength={14}
               className="w-full px-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm font-mono placeholder:text-muted-foreground/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all uppercase"
             />

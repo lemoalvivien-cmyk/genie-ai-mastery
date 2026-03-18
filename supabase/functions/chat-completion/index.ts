@@ -478,7 +478,7 @@ Deno.serve(async (req) => {
         quota_exceeded: true,
         budget_exceeded: true,
         model_used: "genie-upsell",
-        upgrade_url: "https://genie-ia.app/pricing",
+        upgrade_url: "https://formetoialia.com/pricing",
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

@@ -46,7 +46,7 @@ serve(async (req) => {
     if (error) throw error;
 
     // Auto-create first referral code
-    const code = `GENIE-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    const code = `FTI-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
     await supabase.from("partner_referrals").insert({
       partner_id: account.id,
       referral_code: code,

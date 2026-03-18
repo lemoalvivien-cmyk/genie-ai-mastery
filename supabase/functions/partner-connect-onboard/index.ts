@@ -42,8 +42,8 @@ serve(async (req) => {
     // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
       account: connectAccountId,
-      refresh_url: return_url ?? "https://genie-ai-mastery.lovable.app/partner",
-      return_url: return_url ?? "https://genie-ai-mastery.lovable.app/partner",
+      refresh_url: return_url ?? "https://formetoialia.com/partner",
+      return_url: return_url ?? "https://formetoialia.com/partner",
       type: "account_onboarding",
     });
 
