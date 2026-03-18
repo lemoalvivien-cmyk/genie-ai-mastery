@@ -127,7 +127,7 @@ const WEAPONS = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Sarah K.", role: "RSSI @ Fintech Series B", text: "En 3 jours Genie a simulé 847 scénarios phishing sur mon équipe. Notre score de risque a baissé de 78% à 12%. Bluffant.", score: 5, avatar: "SK" },
+  { name: "Sarah K.", role: "RSSI @ Fintech Series B", text: "En 3 jours la plateforme a simulé 847 scénarios phishing sur mon équipe. Notre score de risque a baissé de 78% à 12%. Bluffant.", score: 5, avatar: "SK" },
   { name: "Marc D.", role: "CTO @ Scale-up 200 pers.", text: "Mes 40 devs ont leur attestation IA en 2 semaines. Rapide, structuré, pas de logistique à gérer. Exactement ce qu'il fallait.", score: 5, avatar: "MD" },
   { name: "Léa T.", role: "Consultante freelance IA", text: "L'attestation vérifiable m'a permis de montrer une preuve concrète à mes clients. C'est devenu un vrai argument différenciant.", score: 5, avatar: "LT" },
 ];
