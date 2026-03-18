@@ -27,7 +27,7 @@ export interface Branch {
 }
 
 export const BRANCHES: Branch[] = [
-  { id: "optimal", label: "Optimal", emoji: "⚡", description: "Chemin recommandé par Genie" },
+  { id: "optimal", label: "Optimal", emoji: "⚡", description: "Chemin recommandé par l'IA" },
   { id: "accelerated", label: "Accéléré", emoji: "🚀", description: "Progression rapide" },
   { id: "balanced", label: "Équilibré", emoji: "🎯", description: "Rythme soutenable" },
 ];
