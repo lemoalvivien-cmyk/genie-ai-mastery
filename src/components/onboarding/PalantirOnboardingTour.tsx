@@ -1,7 +1,7 @@
 /**
  * PalantirOnboardingTour — 3-step interactive tour
  * Shows once per user (localStorage key). Skippable. Tracked in brain_events.
- * Steps: 1) Génie Brain intro 2) Swarm 5 agents 3) Activate Palantir CTA
+ * Steps: 1) Formetoialia Brain intro 2) Swarm 5 agents 3) Activate Palantir CTA
  */
 import { useState, useEffect } from "react";
 import { Brain, Sword, Shield, Eye, BarChart3, Zap, ChevronRight, X, Rocket } from "lucide-react";
