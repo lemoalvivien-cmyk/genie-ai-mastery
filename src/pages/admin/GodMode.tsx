@@ -204,7 +204,22 @@ export default function GodMode() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["god-users"] }); toast({ title: "✅ Rôle mis à jour" }); },
   });
 
+  // Access guard — après les hooks
+  useEffect(() => {
+    if (!authLoading && !isAuthorized) {
+      navigate("/", { replace: true });
+    }
+  }, [authLoading, isAuthorized, navigate]);
+
   if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
