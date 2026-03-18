@@ -801,9 +801,9 @@ export default function Demo() {
         <footer className="border-t border-white/5 py-8 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="GENIE IA" className="w-5 h-5 object-contain opacity-50" />
-              <span>© 2026 GENIE IA — Lien public :</span>
-              <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">genie-ai-mastery.lovable.app/demo</a>
+              <img src={logoGenie} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
+              <span>© 2026 Formetoialia — Lien public :</span>
+              <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">formetoialia.com/demo</a>
             </div>
             <div className="flex gap-4">
               <Link to="/" className="hover:text-white/60 transition-colors">Accueil</Link>
