@@ -240,12 +240,12 @@ export function BrainDashboard() {
         </CardContent>
       </Card>
 
-      {/* GÉNIE IA vs Formateur Humain Moyen — DESTROYER MODE */}
+      {/* Formetoialia vs Formateur Humain Moyen — DESTROYER MODE */}
       <Card className="border-primary/20 bg-primary/3">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Zap className="w-4 h-4 text-primary"/>
-            GÉNIE IA vs Formateur Humain Moyen
+            Formetoialia vs Formateur Humain Moyen
             <Badge className="text-[9px] ml-1 bg-destructive/20 text-destructive border-destructive/30 px-1.5 font-black">DESTROYER MODE</Badge>
           </CardTitle>
         </CardHeader>
@@ -269,13 +269,13 @@ export function BrainDashboard() {
                 </div>
                 <div className="flex items-center gap-1">
                   <TrendingUp className="w-3 h-3 text-emerald-400"/>
-                  <span className="text-[9px] text-emerald-400 font-bold">GENIE IA GAGNE</span>
+                  <span className="text-[9px] text-emerald-400 font-bold">Formetoialia GAGNE</span>
                 </div>
               </div>
             ))}
           </div>
           <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-muted-foreground">
-            <span className="font-bold text-emerald-400">Un formateur humain moyen</span> aurait mis <span className="font-bold text-destructive">47 secondes</span> et fait <span className="font-bold text-destructive">62% d'erreurs</span>. GÉNIE IA répond en <span className="font-bold text-primary">&lt;2 secondes</span>, avec <span className="font-bold text-primary">0% d'erreur structurelle</span>, disponible 24/7, pour <span className="font-bold text-primary">0.002€</span> vs <span className="font-bold text-destructive line-through">120€</span>.
+            <span className="font-bold text-emerald-400">Un formateur humain moyen</span> aurait mis <span className="font-bold text-destructive">47 secondes</span> et fait <span className="font-bold text-destructive">62% d'erreurs</span>. Formetoialia répond en <span className="font-bold text-primary">&lt;2 secondes</span>, avec <span className="font-bold text-primary">0% d'erreur structurelle</span>, disponible 24/7, pour <span className="font-bold text-primary">0.002€</span> vs <span className="font-bold text-destructive line-through">120€</span>.
           </div>
         </CardContent>
       </Card>

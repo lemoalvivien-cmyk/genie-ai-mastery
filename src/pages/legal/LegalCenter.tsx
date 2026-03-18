@@ -173,7 +173,7 @@ function SubprocessorsPage() {
         <title>Sous-traitants — Formetoialia</title>
         <meta
           name="description"
-          content="Liste des sous-traitants de GENIE IA — hébergement, paiement, IA, emailing."
+          content="Liste des sous-traitants de Formetoialia — hébergement, paiement, IA, emailing."
         />
       </Helmet>
 
@@ -191,7 +191,7 @@ function SubprocessorsPage() {
         <Link to="/legal/dpa" className="text-primary hover:underline">
           Accord de sous-traitance (DPA)
         </Link>
-        , voici la liste des sous-traitants auxquels fait appel GENIE IA pour fournir ses services. Tout transfert hors UE/EEE est encadré par des garanties appropriées (clauses contractuelles types ou équivalent).
+        , voici la liste des sous-traitants auxquels fait appel Formetoialia pour fournir ses services. Tout transfert hors UE/EEE est encadré par des garanties appropriées (clauses contractuelles types ou équivalent).
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-border/60">
@@ -307,7 +307,7 @@ function LegalIndexPage() {
         <title>Centre légal — Formetoialia</title>
         <meta
           name="description"
-          content="Centre légal GENIE IA — mentions légales, confidentialité, cookies, CGU, DPA, sous-traitants."
+          content="Centre légal Formetoialia — mentions légales, confidentialité, cookies, CGU, DPA, sous-traitants."
         />
       </Helmet>
 
@@ -437,7 +437,7 @@ function LegalLayout({ children }: { children: React.ReactNode }) {
         <footer className="mt-12 pt-6 border-t border-border/40">
           <LegalFooterLinks />
           <p className="text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} GENIE IA — {LEGAL_CONFIG.PUBLISHER_NAME} — {LEGAL_CONFIG.HOSTING_STATEMENT}
+            © {new Date().getFullYear()} Formetoialia — {LEGAL_CONFIG.PUBLISHER_NAME} — {LEGAL_CONFIG.HOSTING_STATEMENT}
           </p>
         </footer>
       </div>

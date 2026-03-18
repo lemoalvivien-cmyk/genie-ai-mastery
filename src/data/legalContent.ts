@@ -46,7 +46,7 @@ export const legalPages: LegalPage[] = [
   {
     slug: "mentions-legales",
     title: "Mentions légales",
-    metaDescription: "Mentions légales de GENIE IA — éditeur, hébergement, propriété intellectuelle, signalement.",
+    metaDescription: "Mentions légales de Formetoialia — éditeur, hébergement, propriété intellectuelle, signalement.",
     sections: [
       {
         id: "editeur",
@@ -101,7 +101,7 @@ Nous traitons les signalements dans les meilleurs délais.`,
   {
     slug: "confidentialite",
     title: "Politique de confidentialité",
-    metaDescription: "Politique de confidentialité RGPD de GENIE IA — données traitées, finalités, droits des utilisateurs.",
+    metaDescription: "Politique de confidentialité RGPD de Formetoialia — données traitées, finalités, droits des utilisateurs.",
     updatedAt: C.LAST_UPDATED_DATE,
     sections: [
       {
@@ -208,7 +208,7 @@ Délai de réponse : en général 1 mois (prolongeable dans les cas complexes).`
   {
     slug: "cookies",
     title: "Politique cookies",
-    metaDescription: "Politique cookies de GENIE IA — catégories, durée, gestion de vos préférences.",
+    metaDescription: "Politique cookies de Formetoialia — catégories, durée, gestion de vos préférences.",
     updatedAt: C.LAST_UPDATED_DATE,
     sections: [
       {
@@ -291,7 +291,7 @@ Vous pouvez également gérer les cookies directement dans les paramètres de vo
   {
     slug: "rgpd",
     title: "Exercer mes droits RGPD",
-    metaDescription: "Comment exercer vos droits RGPD avec GENIE IA : accès, rectification, suppression, portabilité, opposition.",
+    metaDescription: "Comment exercer vos droits RGPD avec Formetoialia : accès, rectification, suppression, portabilité, opposition.",
     sections: [
       {
         id: "intro",
@@ -342,7 +342,7 @@ Nous répondons dans un délai d'**1 mois** (prolongeable en cas de complexité)
   {
     slug: "cgu",
     title: "Conditions Générales d'Utilisation",
-    metaDescription: "Conditions Générales d'Utilisation de GENIE IA.",
+    metaDescription: "Conditions Générales d'Utilisation de Formetoialia.",
     updatedAt: C.LAST_UPDATED_DATE,
     sections: [
       {
@@ -393,7 +393,7 @@ Nous répondons dans un délai d'**1 mois** (prolongeable en cas de complexité)
   {
     slug: "dpa",
     title: "Accord de sous-traitance (DPA)",
-    metaDescription: "Data Processing Agreement — Accord de sous-traitance RGPD Art. 28 entre GENIE IA et ses clients B2B.",
+    metaDescription: "Data Processing Agreement — Accord de sous-traitance RGPD Art. 28 entre Formetoialia et ses clients B2B.",
     updatedAt: C.LAST_UPDATED_DATE,
     sections: [
       {
