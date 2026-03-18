@@ -18,7 +18,7 @@ const schema = z.object({
     .min(8, "Minimum 8 caractères")
     .regex(/[A-Z]/, "Au moins 1 majuscule requise")
     .regex(/[0-9]/, "Au moins 1 chiffre requis")
-    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Au moins 1 caractère spécial requis (!@#$%^&*…)"),
+    .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, "Au moins 1 caractère spécial requis (!@#$%^&*…)"),
   accept_cgu: z.boolean().refine((v) => v === true, {
     message: "Vous devez accepter les CGU",
   }),
