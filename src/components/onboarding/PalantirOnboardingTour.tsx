@@ -1,14 +1,14 @@
 /**
  * PalantirOnboardingTour — 3-step interactive tour
  * Shows once per user (localStorage key). Skippable. Tracked in brain_events.
- * Steps: 1) Génie Brain intro 2) Swarm 5 agents 3) Activate Palantir CTA
+ * Steps: 1) Formetoialia Brain intro 2) Swarm 5 agents 3) Activate Palantir CTA
  */
 import { useState, useEffect } from "react";
 import { Brain, Sword, Shield, Eye, BarChart3, Zap, ChevronRight, X, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBrainTracker } from "@/hooks/useBrainTracker";
 
-const TOUR_KEY = "genie_palantir_tour_v1_done";
+const TOUR_KEY = "formetoialia_palantir_tour_v1_done";
 
 interface Props {
   onComplete: () => void;
@@ -21,10 +21,10 @@ const STEPS = [
     icon: Brain,
     iconColor: "text-primary",
     iconBg: "bg-primary/20 border-primary/40",
-    badge: "GÉNIE BRAIN",
+    badge: "FORMETOIALIA BRAIN",
     badgeColor: "bg-primary/20 text-primary border-primary/30",
     title: "Votre IA de niveau entreprise est prête",
-    desc: "Génie Brain fusionne en temps réel tout ce que vous avez appris — vos lacunes, vos risques cyber, vos scores — dans une ontologie intelligente. Exactement comme Palantir Foundry, mais pour votre formation.",
+    desc: "Formetoialia Brain fusionne en temps réel tout ce que vous avez appris — vos lacunes, vos risques cyber, vos scores — dans une ontologie intelligente. Exactement comme Palantir Foundry, mais pour votre formation.",
     visual: (
       <div className="relative flex items-center justify-center h-28">
         <div className="absolute inset-0 rounded-full bg-primary/5 animate-ping" style={{ animationDuration: "3s" }} />

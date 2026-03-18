@@ -9,8 +9,8 @@ const schema = z.object({
     .string()
     .optional()
     .refine(
-      (v) => !v || /^GENIE-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(v.trim()),
-      { message: "Format attendu : GENIE-XXXX-XXXX" },
+      (v) => !v || /^FTI-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(v.trim()),
+      { message: "Format attendu : FTI-XXXX-XXXX" },
     ),
   referral_code: z
     .string()
@@ -137,14 +137,14 @@ export function CodeStep({ onDone, onSkip }: Props) {
           {/* Access code field */}
           <div>
             <label htmlFor="access-code" className="block text-sm font-medium mb-1.5">
-              Code d'accès <span className="text-muted-foreground font-normal">(GENIE-XXXX-XXXX)</span>
+              Code d'accès <span className="text-muted-foreground font-normal">(FTI-XXXX-XXXX)</span>
             </label>
             <input
               id="access-code"
               type="text"
               value={accessCode}
               onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-              placeholder="GENIE-A1B2-C3D4"
+              placeholder="FTI-A1B2-C3D4"
               maxLength={14}
               className="w-full px-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-sm font-mono placeholder:text-muted-foreground/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all uppercase"
             />

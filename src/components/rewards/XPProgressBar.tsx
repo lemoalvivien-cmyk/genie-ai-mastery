@@ -30,7 +30,7 @@ export function getLevel(xp: number): { level: number; currentXP: number; nextXP
 const LEVEL_TITLES = [
   "Néophyte", "Curieux", "Apprenti", "Initié", "Analyste",
   "Expert", "Vecteur d'Attaque", "Architecte Neural",
-  "Chasseur d'Élite", "Maître GENIE", "Légende",
+  "Chasseur d'Élite", "Maître Formetoialia", "Légende",
   "Titan Cyber", "Omniscient", "Transcendant", "Absolu",
   "Mythique", "Divin", "JARVIS",
 ];

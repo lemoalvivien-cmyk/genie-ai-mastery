@@ -29,7 +29,7 @@ export function softwareApplicationSchema() {
     operatingSystem: "Web",
     url: BASE_URL,
     description:
-      "Formetoialia — La formation qui apprend plus vite que vous. Plateforme de montée en compétence IA, cybersécurité et vibe coding. Modules structurés, labs pratiques, copilote Genie, attestations PDF vérifiables et dashboard manager équipe.",
+      "Formetoialia — La formation qui apprend plus vite que vous. Plateforme de montée en compétence IA, cybersécurité et vibe coding. Modules structurés, labs pratiques, copilote IA, attestations PDF vérifiables et dashboard manager équipe.",
     offers: {
       "@type": "Offer",
       price: "35",
@@ -49,7 +49,7 @@ export function productSchema() {
     "@type": "Product",
     name: "Formetoialia Pro",
     description:
-      "Abonnement Formetoialia Pro. Modules IA, cybersécurité et vibe coding, copilote Genie illimité, labs interactifs, attestations PDF vérifiables, dashboard manager jusqu'à 25 membres.",
+      "Abonnement Formetoialia Pro. Modules IA, cybersécurité et vibe coding, copilote IA illimité, labs interactifs, attestations PDF vérifiables, dashboard manager jusqu'à 25 membres.",
     brand: { "@type": "Brand", name: "Formetoialia" },
     image: OG_IMAGE,
     offers: {
@@ -102,10 +102,10 @@ export function faqSchema() {
       },
       {
         "@type": "Question",
-        name: "Comment fonctionne le copilote Genie ?",
+        name: "Comment fonctionne le copilote IA Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Genie est le copilote IA intégré à la plateforme. Il répond à vos questions sur les modules en cours, suggère des missions quotidiennes adaptées à votre niveau et vous guide en cas de blocage. Il fonctionne en mode texte et vocal.",
+          text: "JARVIS est le copilote IA intégré à la plateforme Formetoialia. Il répond à vos questions sur les modules en cours, suggère des missions quotidiennes adaptées à votre niveau et vous guide en cas de blocage. Il fonctionne en mode texte et vocal.",
         },
       },
     ],

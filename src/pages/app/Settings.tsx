@@ -266,7 +266,7 @@ export default function Settings() {
 
                 {sub.source === "access_code" && (
                   <p className="text-sm text-muted-foreground">
-                    À l'expiration, vous pourrez souscrire à GENIE Pro.
+                    À l'expiration, vous pourrez souscrire à Formetoialia Pro.
                   </p>
                 )}
 

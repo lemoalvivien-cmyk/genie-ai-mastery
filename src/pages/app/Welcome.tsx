@@ -116,7 +116,7 @@ export default function Welcome() {
     if (!profile) return;
     const run = async () => {
       await new Promise(r => setTimeout(r, 800));
-      await speakAndShow(`Salut ${firstName} ! Moi c'est Genie, ton assistant. Je suis là pour t'accompagner tous les jours. Pas de blabla, que de l'action.`);
+      await speakAndShow(`Salut ${firstName} ! Je suis ton assistant Formetoialia. Je suis là pour t'accompagner tous les jours. Pas de blabla, que de l'action.`);
       await new Promise(r => setTimeout(r, 1200));
       await speakAndShow("Pour commencer, on va faire un truc rapide ensemble. Ça prend 2 minutes. Tu es prêt ?");
       setPhase("cta");

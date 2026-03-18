@@ -372,8 +372,8 @@ export default function Chat() {
       const detail = (e as CustomEvent<{ text: string }>).detail;
       if (detail?.text) setInput(detail.text);
     };
-    window.addEventListener("genie:prefill_chat", handler);
-    return () => window.removeEventListener("genie:prefill_chat", handler);
+    window.addEventListener("formetoialia:prefill_chat", handler);
+    return () => window.removeEventListener("formetoialia:prefill_chat", handler);
   }, []);
 
   // Sync KITT state with brain phase

@@ -28,7 +28,7 @@ const PLANS: PlanInfo[] = [
     name: "Starter",
     price: 59,
     seats: 10,
-    features: ["Génie Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
+    features: ["Formetoialia Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
   },
   {
     id: "business",
@@ -81,7 +81,7 @@ function StepOrg({ form, setForm, onNext, loading }: {
         <div className="space-y-2">
           <Label htmlFor="org-slug" className="text-sm font-medium text-foreground">Identifiant unique (slug)</Label>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm shrink-0">genie.ai/</span>
+            <span className="text-muted-foreground text-sm shrink-0">formetoialia.com/</span>
             <Input
               id="org-slug"
               placeholder="acme-security"

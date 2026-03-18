@@ -15,8 +15,8 @@ const ALLOWED_ORIGINS = [
   "https://www.formetoialia.com",
   "https://app.formetoialia.com",
   "https://admin.formetoialia.com",
-  "https://genie-ai-mastery.lovable.app",
-  "https://genie-ia.app",
+  "https://genie-ai-mastery.lovable.app", // legacy Lovable URL — conservé pour rétrocompatibilité
+  "https://genie-ia.app",               // ancien domaine — conservé pour rétrocompatibilité
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
