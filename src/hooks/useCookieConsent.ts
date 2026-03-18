@@ -8,7 +8,7 @@ export type CookieConsent = {
   ts: number;
 };
 
-const STORAGE_KEY = "genie_cookie_consent";
+const STORAGE_KEY = "formetoialia_cookie_consent";
 const CONSENT_DURATION_MS = 6 * 30 * 24 * 60 * 60 * 1000; // ~6 months
 
 function readConsent(): CookieConsent | null {
