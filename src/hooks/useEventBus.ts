@@ -117,7 +117,8 @@ export async function logSystem(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   // system_logs is not in generated types — intentional cast
-  await (supabase.from("system_logs") as ReturnType<typeof supabase.from>).insert([{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).from("system_logs").insert([{
     user_id: userId,
     module,
     event,
