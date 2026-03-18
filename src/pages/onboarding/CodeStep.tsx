@@ -137,7 +137,7 @@ export function CodeStep({ onDone, onSkip }: Props) {
           {/* Access code field */}
           <div>
             <label htmlFor="access-code" className="block text-sm font-medium mb-1.5">
-              Code d'accès <span className="text-muted-foreground font-normal">(GENIE-XXXX-XXXX)</span>
+              Code d'accès <span className="text-muted-foreground font-normal">(FTI-XXXX-XXXX)</span>
             </label>
             <input
               id="access-code"
