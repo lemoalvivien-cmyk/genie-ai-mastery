@@ -86,16 +86,23 @@ export async function enqueueJob(
   userId: string,
   job: JobPayload
 ): Promise<string | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await supabase
-    .from("job_queue")
-    .insert([{
-      user_id: userId,
-      job_type: job.job_type,
-      payload: (job.payload ?? {}) as unknown as import("@/integrations/supabase/types").Json,
-      priority: job.priority ?? 5,
-      scheduled_at: job.scheduled_at ?? new Date().toISOString(),
-    }] as any)
+  type JobQueueInsert = {
+    user_id: string;
+    job_type: string;
+    payload: Record<string, unknown>;
+    priority: number;
+    scheduled_at: string;
+  };
+  const row: JobQueueInsert = {
+    user_id: userId,
+    job_type: job.job_type,
+    payload: job.payload ?? {},
+    priority: job.priority ?? 5,
+    scheduled_at: job.scheduled_at ?? new Date().toISOString(),
+  };
+  const { data, error } = await (supabase
+    .from("job_queue") as ReturnType<typeof supabase.from>)
+    .insert([row as unknown as Parameters<ReturnType<typeof supabase.from>["insert"]>[0]])
     .select("id")
     .single();
 
