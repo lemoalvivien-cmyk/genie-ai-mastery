@@ -103,8 +103,9 @@ export function useJarvisTriggers(onNudge: NudgeHandler) {
 
     async function loadContext() {
       // Session count (profiles.session_count or fallback to 1)
-      const sessionCount = // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (profile as unknown as Record<string, unknown>)?.session_count ?? 1;
+      const sessionCount = Number(
+        (profile as unknown as Record<string, unknown>)?.session_count ?? 1
+      );
       ctxRef.current.sessionCount = sessionCount;
 
       // Last quiz score — quiz_attempts may not be in generated types, use any cast

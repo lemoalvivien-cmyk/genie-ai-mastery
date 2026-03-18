@@ -1,5 +1,5 @@
 /**
- * GENIE IA — Page /demo publique
+ * Formetoialia — Page /demo publique
  * Démo end-to-end : KITT + Simulation Entreprise + Paiement
  * Shareable, 60fps badge, funnel tracking
  */
@@ -214,7 +214,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
       setShared(true);
       setTimeout(() => setShared(false), 2500);
     } catch {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent("🤖 GENIE IA - La seule IA qui simule 10 000 attaques réelles et forme votre équipe")}`, "_blank");
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent("🤖 Formetoialia - La seule IA qui simule 10 000 attaques réelles et forme votre équipe")}`, "_blank");
     }
   };
 
@@ -277,7 +277,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
                 </motion.div>
 
                 <div className="text-center">
-                  <div className="text-white font-black text-2xl mb-1 font-mono tracking-wider">GENIE IA × KITT</div>
+                  <div className="text-white font-black text-2xl mb-1 font-mono tracking-wider">Formetoialia × KITT</div>
                   <div className="text-cyan-400/70 text-sm font-mono">DÉMO END-TO-END — 5 MIN</div>
                 </div>
 
@@ -314,7 +314,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
               ref={iframeRef}
               className="absolute inset-0 w-full h-full"
               src={embedUrl}
-              title="GENIE IA Démo complète — KITT + Simulation Entreprise"
+              title="Formetoialia Démo complète — KITT + Simulation Entreprise"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
@@ -347,7 +347,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
               {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
             <span className="text-xs text-white/40 font-mono">
-              {playing ? `Chapitre ${activeChapter + 1}/${CHAPTERS.length}: ${CHAPTERS[activeChapter]?.title}` : "GENIE IA — Démo complète"}
+              {playing ? `Chapitre ${activeChapter + 1}/${CHAPTERS.length}: ${CHAPTERS[activeChapter]?.title}` : "Formetoialia — Démo complète"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -409,7 +409,7 @@ const TESTIMONIALS = [
   {
     name: "Amira K.",
     role: "DRH, SaaS Scale-up",
-    text: "L'attestation GENIE IA est désormais acceptée par 3 de nos partenaires corporate comme équivalent CISSP.",
+    text: "L'attestation Formetoialia est désormais acceptée par 3 de nos partenaires corporate comme équivalent CISSP.",
     stars: 5,
     avatar: "AK",
     color: "from-violet-500 to-purple-600",
@@ -480,7 +480,7 @@ export default function Demo() {
     const url = `${window.location.origin}/demo`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "GENIE IA — Démo live", url });
+        await navigator.share({ title: "Formetoialia — Démo live", url });
       } else {
         await navigator.clipboard.writeText(url);
       }
@@ -490,19 +490,19 @@ export default function Demo() {
   return (
     <>
       <Helmet>
-        <title>Démo live GENIE IA — KITT + Simulation Entreprise + Attestation Blockchain</title>
-        <meta name="description" content="Regardez la démo complète de GENIE IA : Mode KITT vocal, simulation de 10 000 attaques entreprise, attestation blockchain. Gratuit, shareable, 5 minutes." />
-        <meta property="og:title" content="GENIE IA — Démo end-to-end" />
+        <title>Démo live Formetoialia — KITT + Simulation Entreprise + Attestation</title>
+        <meta name="description" content="Regardez la démo complète de Formetoialia : Mode KITT vocal, simulation de 10 000 attaques entreprise, attestation vérifiable. Gratuit, shareable, 5 minutes." />
+        <meta property="og:title" content="Formetoialia — Démo end-to-end" />
         <meta property="og:description" content="KITT + Enterprise Attack Simulation + Attestation. 5 min. Gratuit." />
-        <meta property="og:url" content="https://genie-ai-mastery.lovable.app/demo" />
+        <meta property="og:url" content="https://formetoialia.com/demo" />
       </Helmet>
 
       <div className="min-h-screen bg-[#0A0F1C] text-white overflow-x-hidden">
         {/* ── NAV ── */}
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0A0F1C]/80 backdrop-blur-xl border-b border-white/5">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoGenie} alt="GENIE IA" className="w-7 h-7 object-contain" />
-            <span className="font-black text-white text-lg tracking-tight">GENIE IA</span>
+            <img src={logoGenie} alt="Formetoialia" className="w-7 h-7 object-contain" />
+            <span className="font-black text-white text-lg tracking-tight">formetoialia</span>
             <span className="text-xs text-cyan-400 font-mono bg-cyan-400/10 px-2 py-0.5 rounded-full border border-cyan-400/20">DÉMO</span>
           </Link>
           <div className="flex items-center gap-3">
@@ -544,7 +544,7 @@ export default function Demo() {
             </motion.div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 leading-tight">
-              <span className="text-white">Regardez GENIE IA</span>
+              <span className="text-white">Regardez Formetoialia</span>
               <br />
               <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-red-400 bg-clip-text text-transparent">
                 détruire un formateur humain
@@ -561,7 +561,7 @@ export default function Demo() {
             {/* Share URL */}
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-mono text-white/60 mb-6">
               <ExternalLink className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span className="truncate">genie-ai-mastery.lovable.app/demo</span>
+              <span className="truncate">formetoialia.com/demo</span>
               <button
                 onClick={handleShare}
                 className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-semibold text-xs shrink-0 transition-colors"
@@ -597,8 +597,8 @@ export default function Demo() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
                   <div>
-                    <div className="font-bold text-green-400 text-sm">Démo complète visionnée ✓</div>
-                    <div className="text-white/60 text-xs">Prêt à activer votre propre GENIE IA ?</div>
+                  <div className="font-bold text-green-400 text-sm">Démo complète visionnée ✓</div>
+                    <div className="text-white/60 text-xs">Prêt à activer votre propre Formetoialia ?</div>
                   </div>
                 </div>
                 <button
@@ -801,9 +801,9 @@ export default function Demo() {
         <footer className="border-t border-white/5 py-8 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="GENIE IA" className="w-5 h-5 object-contain opacity-50" />
-              <span>© 2026 GENIE IA — Lien public :</span>
-              <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">genie-ai-mastery.lovable.app/demo</a>
+              <img src={logoGenie} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
+              <span>© 2026 Formetoialia — Lien public :</span>
+              <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">formetoialia.com/demo</a>
             </div>
             <div className="flex gap-4">
               <Link to="/" className="hover:text-white/60 transition-colors">Accueil</Link>

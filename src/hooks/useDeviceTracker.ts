@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-const DEVICE_ID_KEY = "genie_ia_device_id";
+const DEVICE_ID_KEY = "formetoialia_device_id";
 
 function generateDeviceId(): string {
   const array = new Uint8Array(16);

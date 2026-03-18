@@ -89,7 +89,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     // Supprimer les artefacts localStorage Supabase pour bloquer le bouton retour
     Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("sb-") || key === "genie_last_activity") {
+      if (key.startsWith("sb-") || key === "formetoialia_last_activity") {
         localStorage.removeItem(key);
       }
     });
@@ -98,8 +98,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     Object.keys(sessionStorage).forEach((key) => {
       if (
         key.startsWith("genie_") ||
+        key.startsWith("formetoialia_") ||
         key.startsWith("sb-") ||
-        key === "formetoialia_ref" ||
         key === "onboarding_quiz_score"
       ) {
         sessionStorage.removeItem(key);

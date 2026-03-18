@@ -1,5 +1,5 @@
 // ============================================================
-// LISTE DES SOUS-TRAITANTS — GENIE IA
+// LISTE DES SOUS-TRAITANTS — FORMETOIALIA
 // Mettre à jour cette liste à chaque ajout/retrait de prestataire.
 // ============================================================
 

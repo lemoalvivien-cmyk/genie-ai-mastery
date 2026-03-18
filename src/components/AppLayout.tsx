@@ -40,7 +40,7 @@ export default function AppLayout() {
       dot: !missionDone,
       showProBadge: false,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Chat Genie", dot: false, badge: null, showProBadge: false },
+    { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
     { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
     { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },

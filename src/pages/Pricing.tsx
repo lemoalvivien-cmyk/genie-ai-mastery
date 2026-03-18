@@ -286,7 +286,7 @@ export default function Pricing() {
     track("checkout_started");
     try {
       const referralCode =
-        sessionStorage.getItem("genie_ref") ?? undefined;
+        sessionStorage.getItem("formetoialia_ref") ?? undefined;
       const { data, error } = await supabase.functions.invoke(
         "create-checkout",
         {
@@ -298,8 +298,8 @@ export default function Pricing() {
       );
       if (error || data?.error)
         throw new Error(data?.error ?? "Erreur checkout");
-      // Passe E : stocker flag pending pour réconciliation post-redirect
-      sessionStorage.setItem("genie_payment_pending", "1");
+      // Stocker flag pending pour réconciliation post-redirect
+      sessionStorage.setItem("formetoialia_payment_pending", "1");
       window.location.href = data.url;
     } catch (err) {
       toast({

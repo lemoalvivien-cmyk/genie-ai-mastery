@@ -8,7 +8,7 @@ interface PublicStats {
   generated_at: string;
 }
 
-const CACHE_KEY = "genie_public_stats";
+const CACHE_KEY = "formetoialia_public_stats";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 function loadFromCache(): PublicStats | null {

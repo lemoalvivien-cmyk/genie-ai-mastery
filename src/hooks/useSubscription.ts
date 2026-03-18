@@ -52,10 +52,9 @@ export function useSubscription() {
       const isPro = data.subscribed === true;
       const source = (data.source ?? "none") as SubscriptionInfo["source"];
 
-      // Passe E : réconciliation post-paiement
-      // Si le flag pending est présent mais que la souscription est active, on nettoie
-      if (isPro && sessionStorage.getItem("genie_payment_pending")) {
-        sessionStorage.removeItem("genie_payment_pending");
+      // Réconciliation post-paiement : nettoie le flag pending si l'abonnement est actif
+      if (isPro && sessionStorage.getItem("formetoialia_payment_pending")) {
+        sessionStorage.removeItem("formetoialia_payment_pending");
       }
 
       return {

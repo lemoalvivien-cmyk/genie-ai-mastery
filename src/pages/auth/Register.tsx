@@ -52,7 +52,7 @@ export default function Register() {
     const full_name = DOMPurify.sanitize(data.full_name.trim());
 
     // Read referral code from sessionStorage before signup
-    const referralCode = sessionStorage.getItem("genie_ref");
+    const referralCode = sessionStorage.getItem("formetoialia_ref");
 
     const { data: authData, error } = await supabase.auth.signUp({
       email,
@@ -83,7 +83,7 @@ export default function Register() {
       } catch {
         // Non-blocking — referral attribution failure shouldn't block signup
       }
-      sessionStorage.removeItem("genie_ref");
+      sessionStorage.removeItem("formetoialia_ref");
     }
 
     await track("signup", { method: "email", referral_code: referralCode ?? undefined });

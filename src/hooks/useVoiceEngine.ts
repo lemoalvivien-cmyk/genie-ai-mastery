@@ -78,12 +78,13 @@ export function useVoiceEngine({
       onStateChange("listening");
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: Event) => {
+      const e = event as unknown as { resultIndex: number; results: SpeechRecognitionResultList };
       let interim = "";
       let final = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final += t;
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t;
         else interim += t;
       }
       if (final) {
