@@ -1,5 +1,5 @@
 /**
- * GENIE IA — Page /demo publique
+ * Formetoialia — Page /demo publique
  * Démo end-to-end : KITT + Simulation Entreprise + Paiement
  * Shareable, 60fps badge, funnel tracking
  */
