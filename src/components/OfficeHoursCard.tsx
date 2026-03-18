@@ -54,7 +54,7 @@ export function OfficeHoursCard() {
             />
             <img
               src={vivienPhoto}
-              alt="Vivien Le Moal, CEO GENIE IA"
+              alt="Vivien Le Moal, CEO Formetoialia"
               className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover"
               style={{
                 border: "2px solid rgba(212,175,55,0.4)",

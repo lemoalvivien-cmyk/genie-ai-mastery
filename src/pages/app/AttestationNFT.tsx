@@ -348,7 +348,7 @@ export default function AttestationNFT() {
                     {rarity.tier}
                   </div>
                   <h2 className="text-lg font-black mt-2" style={{ color: "#E8E9F0" }}>
-                    GENIE IA Cyber Certification
+                    Formetoialia Cyber Certification
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {profile?.full_name ?? session?.user?.email}
