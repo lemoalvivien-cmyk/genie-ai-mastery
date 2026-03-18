@@ -121,8 +121,8 @@ export async function logSystem(
   level: "debug" | "info" | "warn" | "error" | "fatal" = "info",
   metadata?: Record<string, unknown>
 ): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from("system_logs") as any).insert([{
+  // system_logs is not in generated types — intentional cast
+  await (supabase.from("system_logs") as ReturnType<typeof supabase.from>).insert([{
     user_id: userId,
     module,
     event,
