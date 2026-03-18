@@ -49,7 +49,7 @@ export function productSchema() {
     "@type": "Product",
     name: "Formetoialia Pro",
     description:
-      "Abonnement Formetoialia Pro. Modules IA, cybersécurité et vibe coding, copilote Genie illimité, labs interactifs, attestations PDF vérifiables, dashboard manager jusqu'à 25 membres.",
+      "Abonnement Formetoialia Pro. Modules IA, cybersécurité et vibe coding, copilote IA illimité, labs interactifs, attestations PDF vérifiables, dashboard manager jusqu'à 25 membres.",
     brand: { "@type": "Brand", name: "Formetoialia" },
     image: OG_IMAGE,
     offers: {
