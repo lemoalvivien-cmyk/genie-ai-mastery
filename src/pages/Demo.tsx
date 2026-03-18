@@ -314,7 +314,7 @@ function DemoVideoPlayer({ onChapterClick, onPlay, onComplete }: {
               ref={iframeRef}
               className="absolute inset-0 w-full h-full"
               src={embedUrl}
-              title="GENIE IA Démo complète — KITT + Simulation Entreprise"
+              title="Formetoialia Démo complète — KITT + Simulation Entreprise"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
