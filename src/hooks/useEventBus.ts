@@ -86,16 +86,18 @@ export async function enqueueJob(
   userId: string,
   job: JobPayload
 ): Promise<string | null> {
+  const row = {
+    user_id: userId,
+    job_type: job.job_type,
+    payload: job.payload ?? {},
+    priority: job.priority ?? 5,
+    scheduled_at: job.scheduled_at ?? new Date().toISOString(),
+  };
+  // job_queue is not in generated types yet — intentional cast
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("job_queue")
-    .insert([{
-      user_id: userId,
-      job_type: job.job_type,
-      payload: (job.payload ?? {}) as unknown as import("@/integrations/supabase/types").Json,
-      priority: job.priority ?? 5,
-      scheduled_at: job.scheduled_at ?? new Date().toISOString(),
-    }] as any)
+    .insert([row])
     .select("id")
     .single();
 
@@ -114,8 +116,9 @@ export async function logSystem(
   level: "debug" | "info" | "warn" | "error" | "fatal" = "info",
   metadata?: Record<string, unknown>
 ): Promise<void> {
+  // system_logs is not in generated types — intentional cast
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from("system_logs") as any).insert([{
+  await (supabase as any).from("system_logs").insert([{
     user_id: userId,
     module,
     event,
