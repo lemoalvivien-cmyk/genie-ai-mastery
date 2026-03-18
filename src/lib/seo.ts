@@ -29,7 +29,7 @@ export function softwareApplicationSchema() {
     operatingSystem: "Web",
     url: BASE_URL,
     description:
-      "Formetoialia — La formation qui apprend plus vite que vous. Plateforme de montée en compétence IA, cybersécurité et vibe coding. Modules structurés, labs pratiques, copilote Genie, attestations PDF vérifiables et dashboard manager équipe.",
+      "Formetoialia — La formation qui apprend plus vite que vous. Plateforme de montée en compétence IA, cybersécurité et vibe coding. Modules structurés, labs pratiques, copilote IA, attestations PDF vérifiables et dashboard manager équipe.",
     offers: {
       "@type": "Offer",
       price: "35",
