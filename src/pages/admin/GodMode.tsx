@@ -122,13 +122,9 @@ export default function GodMode() {
   const qc = useQueryClient();
   const [selectedOrgForStripe, setSelectedOrgForStripe] = useState<OrgRow | null>(null);
 
-  // Access guard
-  if (!authLoading && (!user || user.email !== GOD_EMAIL)) {
-    navigate("/", { replace: true });
-    return null;
-  }
+  const isAuthorized = !authLoading && !!user && user.email === GOD_EMAIL;
 
-  // ── Queries ──────────────────────────────────────────────────
+  // ── Queries — toujours appelés (règle React Hooks) ───────────
   const statsQ = useQuery({
     queryKey: ["god-stats"],
     queryFn: () => godCall<Stats>("stats"),
