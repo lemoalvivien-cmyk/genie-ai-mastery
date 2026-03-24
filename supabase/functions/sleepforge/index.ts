@@ -55,7 +55,7 @@ async function generateModule(brain: {
   target_skill: string;
   predicted_gap: number;
 }> {
-  const predictPrompt = `Tu es le Predictor Agent GÉNIE BRAIN.
+  const predictPrompt = `Tu es le Predictor Agent Formetoialia Brain.
 Profil: persona=${brain.persona}, niveau=${brain.level}/5, modules=${brain.completed_modules}, risk_score=${brain.risk_score}/100.
 Réponds UNIQUEMENT en JSON valide:
 {"prediction":"...","risk_domain":"phishing|ransomware|iam|cloud|zero_trust|prompt_injection","confidence_pct":75,"module_title":"...","module_description":"...","urgency":"high|medium|low","target_skill":"...","predicted_failure_hours":24}`;
@@ -74,7 +74,7 @@ Réponds UNIQUEMENT en JSON valide:
   const skill      = (prediction.target_skill as string)    ?? domain;
 
   // Generate full module content
-  const contentPrompt = `Tu es le Tuteur GÉNIE BRAIN. Génère un micro-module cyber 5-7 min.
+  const contentPrompt = `Tu es le Tuteur Formetoialia Brain. Génère un micro-module cyber 5-7 min.
 Domaine: ${domain}. Titre: "${title}". Niveau: ${brain.level}/5. Persona: ${brain.persona}.
 Réponds UNIQUEMENT en JSON:
 {
@@ -235,14 +235,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ ok: true, generated, skipped, already_done: alreadyForged.size, latency_ms: latency }),
-      { headers: { ...CORS, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
     console.error("SleepForge fatal:", err);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
