@@ -1,27 +1,18 @@
 /**
  * Edge function: csp-report
- * Receives Content-Security-Policy violation reports from browsers
- * and stores them in the csp_reports table.
- *
- * Browsers POST to:
- *   https://<project>.supabase.co/functions/v1/csp-report
- *
- * Content-Type: application/csp-report  (standard)
- *           or: application/json         (some browsers)
- *
- * Note: This endpoint intentionally accepts requests from any browser origin
- * (browsers cannot control the Origin header for CSP reports). The wildcard
- * is kept deliberately here for report-uri compatibility.
+ * Receives CSP violation reports from browsers and stores them in csp_reports table.
+ * Note: this endpoint intentionally accepts reports from any browser origin
+ * (browsers cannot control the Origin header for CSP reports).
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://genie-ai-mastery.lovable.app",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  const corsHeaders = {
+    ...getCorsHeaders(req.headers.get("origin")),
+    "Access-Control-Allow-Origin": "*", // CSP reports come from browsers without Origin
+  };
+
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Only accept POST

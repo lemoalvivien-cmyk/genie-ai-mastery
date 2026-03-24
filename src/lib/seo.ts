@@ -1,7 +1,7 @@
 /** Centralised JSON-LD helpers for schema.org structured data */
 
 const BASE_URL = "https://formetoialia.com";
-const OG_IMAGE = `${BASE_URL}/logo-genie.png`;
+const OG_IMAGE = `${BASE_URL}/logo-formetoialia.png`;
 
 export function organizationSchema() {
   return {
@@ -32,7 +32,7 @@ export function softwareApplicationSchema() {
       "Formetoialia — La formation qui apprend plus vite que vous. Plateforme de montée en compétence IA, cybersécurité et vibe coding. Modules structurés, labs pratiques, copilote IA, attestations PDF vérifiables et dashboard manager équipe.",
     offers: {
       "@type": "Offer",
-      price: "35",
+      price: "59",
       priceCurrency: "EUR",
       priceSpecification: {
         "@type": "UnitPriceSpecification",
@@ -54,7 +54,7 @@ export function productSchema() {
     image: OG_IMAGE,
     offers: {
       "@type": "Offer",
-      price: "35",
+      price: "59",
       priceCurrency: "EUR",
       availability: "https://schema.org/InStock",
       url: `${BASE_URL}/pricing`,
@@ -89,7 +89,7 @@ export function faqSchema() {
         name: "Combien coûte l'abonnement Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "L'abonnement Pro démarre à 35€ TTC/mois par organisation (prix de lancement). Il couvre jusqu'à 25 membres, sans engagement. Résiliation en 2 clics, remboursement 30 jours.",
+          text: "L'abonnement Pro est à 59€ TTC/mois par organisation. Il couvre jusqu'à 25 membres, sans engagement. Résiliation en 2 clics, remboursement 30 jours.",
         },
       },
       {

@@ -30,7 +30,7 @@ export interface GenieOSEvent<T = unknown> {
   source?: string;
 }
 
-const PREFIX = "genieos:";
+const PREFIX = "fti:";
 
 /** Emit an event on the bus */
 export function emit<T = unknown>(

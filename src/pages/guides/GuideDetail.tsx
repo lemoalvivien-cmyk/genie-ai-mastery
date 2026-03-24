@@ -3,7 +3,7 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowLeft, Clock, CheckCircle2, ChevronDown, Brain, Shield, Code2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getGuideBySlug, type Guide } from "@/data/guides";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { articleSchema, organizationSchema } from "@/lib/seo";
 
 const DOMAIN_META: Record<Guide["domain"], { label: string; Icon: React.ElementType; color: string }> = {
@@ -25,11 +25,11 @@ export default function GuideDetail() {
       <Helmet>
         <title>{guide.metaTitle}</title>
         <meta name="description" content={guide.metaDescription} />
-        <link rel="canonical" href={`https://genie-ai-mastery.lovable.app/guides/${guide.slug}`} />
+        <link rel="canonical" href={`https://formetoialia.com/guides/${guide.slug}`} />
         <meta property="og:title" content={guide.metaTitle} />
         <meta property="og:description" content={guide.metaDescription} />
         <meta property="og:type" content="article" />
-        <meta property="og:image" content="https://genie-ai-mastery.lovable.app/logo-genie.png" />
+        <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <script type="application/ld+json">
           {JSON.stringify(articleSchema({
             title: guide.title,
@@ -45,7 +45,7 @@ export default function GuideDetail() {
         {/* Header */}
         <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/30 bg-background/80 backdrop-blur-md">
           <Link to="/">
-            <img src={logoGenie} alt="GENIE IA" className="h-10 w-auto" loading="lazy" />
+            <img src={logoFormetoialia} alt="Formetoialia" className="h-10 w-auto" loading="lazy" />
           </Link>
           <Link
             to="/pricing"
@@ -123,7 +123,7 @@ export default function GuideDetail() {
               <CheckCircle2 className="w-6 h-6 text-primary-foreground" />
             </div>
             <h3 className="text-xl font-black text-foreground mb-2">
-              Passez à la pratique avec GENIE IA
+              Passez à la pratique avec Formetoialia
             </h3>
             <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
               Modules interactifs, KITT IA vocal, attestations PDF vérifiables. Tout ce guide — et bien plus — en pratique.
@@ -152,7 +152,7 @@ export default function GuideDetail() {
         {/* Footer */}
         <footer className="border-t border-border/40 px-4 py-6 mt-8">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-            <span>© 2026 GENIE IA — Tous droits réservés</span>
+            <span>© 2026 Formetoialia — Tous droits réservés</span>
             <div className="flex items-center gap-4">
               <Link to="/guides" className="hover:text-foreground transition-colors">Guides</Link>
               <Link to="/pricing" className="hover:text-foreground transition-colors">Tarifs</Link>

@@ -14,16 +14,12 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const CRON_SECRET  = Deno.env.get("CRON_SECRET") ?? "";
 const LOVABLE_KEY  = Deno.env.get("LOVABLE_API_KEY") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SK  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const CORS = {
-  "Access-Control-Allow-Origin":  "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
-};
 
 // ── LLM call ──────────────────────────────────────────────────────────────────
 async function callLLM(prompt: string, maxTokens = 600): Promise<string> {
@@ -59,7 +55,7 @@ async function generateModule(brain: {
   target_skill: string;
   predicted_gap: number;
 }> {
-  const predictPrompt = `Tu es le Predictor Agent GÉNIE BRAIN.
+  const predictPrompt = `Tu es le Predictor Agent Formetoialia Brain.
 Profil: persona=${brain.persona}, niveau=${brain.level}/5, modules=${brain.completed_modules}, risk_score=${brain.risk_score}/100.
 Réponds UNIQUEMENT en JSON valide:
 {"prediction":"...","risk_domain":"phishing|ransomware|iam|cloud|zero_trust|prompt_injection","confidence_pct":75,"module_title":"...","module_description":"...","urgency":"high|medium|low","target_skill":"...","predicted_failure_hours":24}`;
@@ -78,7 +74,7 @@ Réponds UNIQUEMENT en JSON valide:
   const skill      = (prediction.target_skill as string)    ?? domain;
 
   // Generate full module content
-  const contentPrompt = `Tu es le Tuteur GÉNIE BRAIN. Génère un micro-module cyber 5-7 min.
+  const contentPrompt = `Tu es le Tuteur Formetoialia Brain. Génère un micro-module cyber 5-7 min.
 Domaine: ${domain}. Titre: "${title}". Niveau: ${brain.level}/5. Persona: ${brain.persona}.
 Réponds UNIQUEMENT en JSON:
 {
@@ -113,12 +109,13 @@ Réponds UNIQUEMENT en JSON:
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth: X-CRON-SECRET or Bearer CRON_SECRET
   const secret = req.headers.get("x-cron-secret") ?? req.headers.get("authorization")?.replace("Bearer ", "");
   if (CRON_SECRET && secret !== CRON_SECRET) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: CORS });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SK);
@@ -238,14 +235,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ ok: true, generated, skipped, already_done: alreadyForged.size, latency_ms: latency }),
-      { headers: { ...CORS, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
     console.error("SleepForge fatal:", err);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

@@ -85,7 +85,7 @@ async function generateExercise(
   const stressEmoji = userLevel >= 4 ? "🔥" : userLevel >= 2 ? "⚡" : "🌱";
   const difficulty = apexMode ? "apex" : userLevel <= 1 ? "debutant" : userLevel <= 3 ? "intermediaire" : "expert";
 
-  const systemPrompt = `Tu es l'Agent Adversarial Exercise Generator de GENIE IA — style Tony Stark + Deadpool.
+  const systemPrompt = `Tu es l'Agent Adversarial Exercise Generator de Formetoialia — style Tony Stark + Deadpool.
 Tu génères des exercices de cybersécurité / IA réalistes basés sur des TTPs MITRE réels.
 
 CHAÎNE DE PENSÉE OBLIGATOIRE :
