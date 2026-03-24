@@ -6,4 +6,4 @@ Disallow: /admin/
 Disallow: /onboarding
 Disallow: /reset-password
 
-Sitemap: https://genie-ai-mastery.lovable.app/sitemap.xml
+Sitemap: https://formetoialia.com/sitemap.xml
