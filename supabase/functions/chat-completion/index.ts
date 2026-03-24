@@ -477,7 +477,7 @@ Deno.serve(async (req) => {
         content: "J'étais en train de préparer une réponse détaillée pour vous... mais votre plan gratuit est limité à 2 échanges par jour. Avec le plan Pro, je peux aller beaucoup plus loin. 🚀",
         quota_exceeded: true,
         budget_exceeded: true,
-        model_used: "genie-upsell",
+        model_used: "fti-upsell",
         upgrade_url: "https://formetoialia.com/pricing",
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
