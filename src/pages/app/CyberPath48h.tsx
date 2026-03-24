@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   {
     id: "diagnostic",
     step: 1,
-    title: "Diagnostic Genie",
+    title: "Diagnostic JARVIS",
     subtitle: "Swarm Predictor — Analyse votre profil de risque",
     icon: Brain,
     color: "#5257D8",
@@ -355,7 +355,7 @@ export default function CyberPath48h() {
 
     // Navigate with Jarvis pre-primed
     if (step.id === "diagnostic") {
-      toast.success("🧠 Genie active le mode Predictor — analyse en cours…");
+      toast.success("🧠 JARVIS active le mode Predictor — analyse en cours…");
       navigate("/app/chat", {
         state: { prePrompt: "Lance un diagnostic complet de mon profil cyber. Mode Predictor activé.", agentMode: "predictor" },
       });

@@ -629,7 +629,7 @@ export default function Chat() {
 
   return (
     <>
-      <Helmet><title>Chat Genie — Formetoialia</title></Helmet>
+      <Helmet><title>Chat IA — Formetoialia</title></Helmet>
 
       {/* ── Onboarding Tour (shown once, first visit) ── */}
       {showTour && (

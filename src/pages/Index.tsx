@@ -31,7 +31,7 @@ const GenieAvatarR3F = lazy(() =>
 );
 
 /* Inline MagneticCursor removed — now global in main.tsx */
-/* Inline Genie3D removed  — replaced by lazy GenieAvatarR3F */
+/* Inline 3D avatar — lazy loaded */
 /* Inline ParticleField removed — replaced by PerlinNoiseHero */
 
 /* ═══════════════════════════════════════════════════════════════

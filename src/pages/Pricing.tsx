@@ -126,11 +126,11 @@ const PRO_SECTIONS: {
 const FAQ = [
   {
     q: "Qu'est-ce que Formetoialia concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (Genie), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel IA (JARVIS), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
   },
   {
-    q: "Genie, c'est quoi exactement ?",
-    a: "Genie est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "JARVIS, c'est quoi exactement ?",
+    a: "JARVIS est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
     q: "Que contiennent les labs ?",
@@ -154,7 +154,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. Genie vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding adapte le parcours à votre niveau. JARVIS vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
   },
 ];
 
@@ -361,7 +361,7 @@ export default function Pricing() {
         <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
+          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote IA, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
