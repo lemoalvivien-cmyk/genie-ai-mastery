@@ -87,7 +87,7 @@ async function buildMonthlyReport(data: {
     page.drawRectangle({ x: 0, y: H - 90, width: W, height: 90, color: NAVY });
     page.drawText("BILAN FORMATION MENSUEL", { x: 30, y: H - 45, size: 18, font: fontBold, color: WHITE });
     page.drawText(`${data.org_name}  ·  ${data.month_label}`, { x: 30, y: H - 68, size: 10, font: fontRegular, color: LIGHT });
-    page.drawText("Généré automatiquement par GENIE IA Autopilot", { x: 30, y: H - 82, size: 8, font: fontRegular, color: rgb(0.6, 0.65, 0.85) });
+    page.drawText("Généré automatiquement par Formetoialia Autopilot", { x: 30, y: H - 82, size: 8, font: fontRegular, color: rgb(0.6, 0.65, 0.85) });
 
     // Résumé exécutif
     let y = H - 125;
@@ -142,8 +142,8 @@ async function buildMonthlyReport(data: {
 
     // Footer
     page.drawRectangle({ x: 0, y: 0, width: W, height: 28, color: NAVY });
-    page.drawText(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 1/4`, {
-      x: W / 2 - fontRegular.widthOfTextAtSize(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 1/4`, 7) / 2,
+    page.drawText(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 1/4`, {
+      x: W / 2 - fontRegular.widthOfTextAtSize(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 1/4`, 7) / 2,
       y: 10, size: 7, font: fontRegular, color: LIGHT,
     });
   }
@@ -190,8 +190,8 @@ async function buildMonthlyReport(data: {
     }
 
     page.drawRectangle({ x: 0, y: 0, width: W, height: 28, color: NAVY });
-    page.drawText(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 2/4`, {
-      x: W / 2 - fontRegular.widthOfTextAtSize(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 2/4`, 7) / 2,
+    page.drawText(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 2/4`, {
+      x: W / 2 - fontRegular.widthOfTextAtSize(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 2/4`, 7) / 2,
       y: 10, size: 7, font: fontRegular, color: LIGHT,
     });
   }
@@ -250,8 +250,8 @@ async function buildMonthlyReport(data: {
     }
 
     page.drawRectangle({ x: 0, y: 0, width: W, height: 28, color: NAVY });
-    page.drawText(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 3/4`, {
-      x: W / 2 - fontRegular.widthOfTextAtSize(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 3/4`, 7) / 2,
+    page.drawText(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 3/4`, {
+      x: W / 2 - fontRegular.widthOfTextAtSize(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 3/4`, 7) / 2,
       y: 10, size: 7, font: fontRegular, color: LIGHT,
     });
   }
@@ -301,19 +301,19 @@ async function buildMonthlyReport(data: {
     y -= 10;
     page.drawLine({ start: { x: 30, y }, end: { x: W - 30, y }, thickness: 0.5, color: INDIGO });
     y -= 18;
-    page.drawText("Ce rapport a été généré automatiquement par l'Autopilot GENIE IA.", { x: 30, y, size: 8, font: fontRegular, color: GRAY });
+    page.drawText("Ce rapport a été généré automatiquement par l'Autopilot Formetoialia.", { x: 30, y, size: 8, font: fontRegular, color: GRAY });
     y -= 14;
-    page.drawText("Pour toute question : formation@genie-ia.app — genie-ia.app/pro", { x: 30, y, size: 8, font: fontRegular, color: INDIGO });
+    page.drawText("Pour toute question : contact@formetoialia.com — formetoialia.com", { x: 30, y, size: 8, font: fontRegular, color: INDIGO });
 
     // CTA block at bottom
     page.drawRectangle({ x: 30, y: 50, width: W - 60, height: 40, color: NAVY });
-    page.drawText("Formez toute votre équipe automatiquement → genie-ia.app/pro", {
+    page.drawText("Formez toute votre équipe automatiquement → formetoialia.com", {
       x: 50, y: 66, size: 10, font: fontBold, color: WHITE,
     });
 
     page.drawRectangle({ x: 0, y: 0, width: W, height: 28, color: NAVY });
-    page.drawText(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 4/4`, {
-      x: W / 2 - fontRegular.widthOfTextAtSize(`GENIE IA — Rapport Autopilot — ${formatDate(new Date())} — Page 4/4`, 7) / 2,
+    page.drawText(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 4/4`, {
+      x: W / 2 - fontRegular.widthOfTextAtSize(`Formetoialia — Rapport Autopilot — ${formatDate(new Date())} — Page 4/4`, 7) / 2,
       y: 10, size: 7, font: fontRegular, color: LIGHT,
     });
   }
