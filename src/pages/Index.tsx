@@ -17,7 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { ProFooter } from "@/components/ProFooter";
 import {
   softwareApplicationSchema, productSchema,
@@ -118,28 +118,26 @@ const orbitron = { fontFamily: "'Orbitron', 'JetBrains Mono', monospace" };
    DATA
 ═══════════════════════════════════════════════════════════════ */
 const WEAPONS = [
-  { icon: Brain, color: "#00F0FF", title: "Genie Brain™", desc: "Swarm de 5 agents IA parallèles qui analysent, prédisent et génèrent vos modules en temps réel.", stat: "5 agents / < 3s" },
-  { icon: Mic, color: "#5257D8", title: "Genie Vocal", desc: "Interaction voice-first naturelle. Push-to-talk + synthèse vocale fluide. Répond en moins d'une seconde.", stat: "TTS/STT live" },
+  { icon: Brain, color: "#00F0FF", title: "Cerveau IA adaptatif", desc: "Swarm de 5 agents IA parallèles qui analysent, prédisent et génèrent vos modules en temps réel.", stat: "5 agents / < 3s" },
+  { icon: Mic, color: "#5257D8", title: "Interaction Vocale", desc: "Voice-first naturel. Push-to-talk + synthèse vocale fluide. Répond en moins d'une seconde.", stat: "TTS/STT live" },
   { icon: FileCheck, color: "#9B59B6", title: "Attestations Vérifiables", desc: "PDF signé cryptographiquement + QR code de vérification publique. Preuve documentée de formation.", stat: "Vérifiable en 5s" },
-  { icon: Eye, color: "#F39C12", title: "Prédiction Adaptative", desc: "L'IA identifie vos lacunes avant que vous les ressentiez. Module auto-généré sous 24h max.", stat: "Précision 94%" },
-  { icon: Shield, color: "#2ECC71", title: "Simulation Cyber", desc: "Scénarios d'attaque simulés. Risk score par département. Rapport PDF complet en 2 minutes.", stat: "10K scénarios" },
+  { icon: Eye, color: "#F39C12", title: "Prédiction Adaptative", desc: "L'IA identifie vos lacunes avant que vous les ressentiez. Module auto-généré sous 24h max.", stat: "Précision estimée 94%" },
+  { icon: Shield, color: "#2ECC71", title: "Simulation Cyber", desc: "Scénarios d'attaque simulés. Risk score par département. Rapport PDF complet en 2 minutes.", stat: "Large bibliothèque" },
   { icon: BarChart3, color: "#3466A8", title: "Dashboard Manager", desc: "Pilotage équipe temps réel, suivi progression, rapports automatisés, gestion sièges. Zéro friction.", stat: "25 sièges inclus" },
 ];
 
 const TESTIMONIALS = [
-  { name: "Sarah K.", role: "RSSI @ Fintech Series B", text: "En 3 jours la plateforme a simulé 847 scénarios phishing sur mon équipe. Notre score de risque a baissé de 78% à 12%. Bluffant.", score: 5, avatar: "SK" },
-  { name: "Marc D.", role: "CTO @ Scale-up 200 pers.", text: "Mes 40 devs ont leur attestation IA en 2 semaines. Rapide, structuré, pas de logistique à gérer. Exactement ce qu'il fallait.", score: 5, avatar: "MD" },
   { name: "Léa T.", role: "Consultante freelance IA", text: "L'attestation vérifiable m'a permis de montrer une preuve concrète à mes clients. C'est devenu un vrai argument différenciant.", score: 5, avatar: "LT" },
 ];
 
 const COMPARE_ROWS = [
-  { feature: "Disponibilité", human: "Horaires de bureau", genie: "24h/24, 7j/7" },
-  { feature: "Coût / employé", human: "500€ – 3 500€ / jour", genie: "À partir de 1,40€/mois" },
-  { feature: "Simulation d'attaques", human: "1-2 scénarios théoriques", genie: "10 000 scénarios réels" },
-  { feature: "Attestation vérifiable", human: "Variable selon prestataire", genie: "✅ Crypto + QR natif" },
-  { feature: "Rapport manager live", human: "Non disponible", genie: "✅ Temps réel" },
-  { feature: "Prédiction lacunes", human: "Non disponible", genie: "✅ IA prédictive 24h" },
-  { feature: "Conformité AI Act 2026", human: "Variable", genie: "✅ Natif ANSSI/RGPD" },
+  { feature: "Disponibilité", human: "Horaires de bureau", fti: "24h/24, 7j/7" },
+  { feature: "Coût / employé", human: "500€ – 3 500€ / jour", fti: "À partir de 2,36€/mois" },
+  { feature: "Simulation d'attaques", human: "1-2 scénarios théoriques", fti: "Nombreux scénarios pratiques" },
+  { feature: "Attestation vérifiable", human: "Variable selon prestataire", fti: "✅ Crypto + QR natif" },
+  { feature: "Rapport manager live", human: "Non disponible", fti: "✅ Temps réel" },
+  { feature: "Prédiction lacunes", human: "Non disponible", fti: "✅ IA prédictive 24h" },
+  { feature: "Conçu pour la conformité", human: "Variable", fti: "✅ RGPD / AI Act orienté" },
 ];
 
 const FAQ_DATA = [
@@ -202,7 +200,7 @@ export default function Index() {
         <meta name="description" content="Formetoialia — Plateforme IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote Genie, attestations vérifiables. Disponible 24/7 — 59€ TTC/mois." />
         <meta property="og:title" content="Formetoialia — La formation qui apprend plus vite que vous." />
         <meta property="og:description" content="Modules IA, cybersécurité, labs pratiques, attestations vérifiables. Une alternative fluide et disponible 24/7 aux formations classiques." />
-        <meta property="og:image" content="https://formetoialia.com/logo-genie.png" />
+        <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://formetoialia.com/" />
         <meta name="theme-color" content="#0A0F1C" />
@@ -226,7 +224,7 @@ export default function Index() {
         >
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="Formetoialia" className="h-7 w-auto" />
+              <img src={logoFormetoialia} alt="Formetoialia" className="h-7 w-auto" />
               <span className="text-sm font-black" style={{ ...orbitron }}>
                 <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
               </span>
@@ -250,7 +248,7 @@ export default function Index() {
             )}
             <PremiumBtn onClick={handleCTA} className="text-xs py-2.5 px-4" size="default">
               <Sparkles className="w-3 h-3" />
-              Activer Genie
+              Commencer
             </PremiumBtn>
           </div>
         </motion.header>
@@ -329,7 +327,7 @@ export default function Index() {
               className="flex flex-col sm:flex-row gap-3 mt-8 mb-4 w-full sm:w-auto">
               <PremiumBtn onClick={handleCTA} size="xl">
                 <Sparkles className="w-5 h-5" />
-                Activer Genie maintenant
+                Démarrer maintenant
                 <ArrowRight className="w-4 h-4" />
               </PremiumBtn>
               <PremiumBtn onClick={() => navigate("/pricing")} size="xl" variant="ghost">
@@ -472,7 +470,7 @@ export default function Index() {
                 style={{ borderBottom: i < COMPARE_ROWS.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                 <span style={{ color: "rgba(255,255,255,0.6)" }}>{row.feature}</span>
                 <span className="text-center" style={{ color: "rgba(255,255,255,0.35)" }}>{row.human}</span>
-                <span className="text-center font-semibold" style={{ color: "#7BDDAA" }}>{row.genie}</span>
+                <span className="text-center font-semibold" style={{ color: "#7BDDAA" }}>{row.fti}</span>
               </div>
             ))}
           </GlassCard>
@@ -501,7 +499,7 @@ export default function Index() {
                 <span style={{ color: "#5257D8" }}>En 48 heures.</span>
               </h2>
               <p className="text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
-                Diagnostic → Labs Phishing → Nuit SleepForge → Quiz Adversarial → Cyber Lab → Attestation NFT.
+                Diagnostic → Labs Phishing → Nuit SleepForge → Quiz Adversarial → Cyber Lab → Attestation Vérifiable.
                 Un parcours intensif conçu pour l'autonomie totale, sans formateur humain.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -512,7 +510,7 @@ export default function Index() {
                 </PremiumBtn>
               </div>
               <div className="flex justify-center gap-8 mt-8">
-                {[{ v: "6", l: "Étapes" }, { v: "+700", l: "XP" }, { v: "48h", l: "Durée" }, { v: "NFT", l: "Attestation" }].map(s => (
+                {[{ v: "6", l: "Étapes" }, { v: "+700", l: "XP" }, { v: "48h", l: "Durée" }, { v: "✓", l: "Attestation" }].map(s => (
                   <div key={s.l} className="flex flex-col items-center gap-0.5">
                     <span className="text-lg font-black" style={{ color: "#5257D8", ...orbitron }}>{s.v}</span>
                     <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{s.l}</span>
