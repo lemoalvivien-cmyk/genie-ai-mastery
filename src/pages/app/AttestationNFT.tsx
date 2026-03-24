@@ -1,10 +1,10 @@
 /**
- * AttestationNFT — Certification cryptographique grade NFT
+ * AttestationVerifiable — Certification cryptographique signée
  *
  * Génère une attestation avec :
  *  - Hash SHA-256 des données (modules + scores + date + user_id)
  *  - Token ID unique (UUID v4)
- *  - Métadonnées OpenSea-compatible (ERC-721 style JSON)
+ *  - Métadonnées de certification vérifiable
  *  - QR code de vérification publique
  *  - Export PDF via edge function generate-pdf
  *  - Ancrage dans la table attestations (signature_hash)
@@ -30,8 +30,8 @@ async function sha256(data: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// ── NFT Metadata (ERC-721 style) ──────────────────────────────────────────────
-interface NFTMetadata {
+// ── Cert Metadata ─────────────────────────────────────────────────────────────
+interface CertMetadata {
   name: string;
   description: string;
   image: string;
