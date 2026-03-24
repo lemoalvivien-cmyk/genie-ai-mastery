@@ -216,14 +216,14 @@ function PalantirBubble({ message, onQuickAction }: { message: Message; onQuickA
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: "Temps réponse", genie: `${d.humanComparison.genie_response_ms}ms`, human: `${d.humanComparison.human_response_s}s` },
-                { label: "Taux d'erreur", genie: "0%", human: `${d.humanComparison.human_error_rate}%` },
-                { label: "Disponibilité", genie: "24/7", human: "8h-18h" },
-                { label: "Coût / session", genie: "0.002€", human: `${d.humanComparison.human_cost_eur}€` },
+                { label: "Temps réponse", jarvis: `${d.humanComparison.genie_response_ms}ms`, human: `${d.humanComparison.human_response_s}s` },
+                { label: "Taux d'erreur", jarvis: "0%", human: `${d.humanComparison.human_error_rate}%` },
+                { label: "Disponibilité", jarvis: "24/7", human: "8h-18h" },
+                { label: "Coût / session", jarvis: "0.002€", human: `${d.humanComparison.human_cost_eur}€` },
               ].map(row => (
                 <div key={row.label} className="flex items-center gap-1.5">
                   <span className="text-muted-foreground text-[10px] w-20 shrink-0">{row.label}</span>
-                  <span className="text-emerald-400 font-bold">{row.genie}</span>
+                  <span className="text-emerald-400 font-bold">{row.jarvis}</span>
                   <span className="text-muted-foreground/50 text-[10px] line-through">{row.human}</span>
                 </div>
               ))}

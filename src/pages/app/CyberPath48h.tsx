@@ -499,20 +499,20 @@ export default function CyberPath48h() {
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-[hsl(var(--primary))]" />
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#E8E9F0" }}>
-                GENIE IA vs Formateur Humain
+                JARVIS IA vs Formateur Humain
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: "Temps de réponse", genie: "< 2s", human: "47s moy." },
-                { label: "Disponibilité",    genie: "24/7",   human: "8h-18h L-V" },
-                { label: "Personnalisation", genie: "100%",   human: "Générique" },
-                { label: "Coût / session",   genie: "0.002€", human: "120€" },
-              ].map(({ label, genie, human }) => (
+                { label: "Temps de réponse", jarvis: "< 2s", human: "47s moy." },
+                { label: "Disponibilité",    jarvis: "24/7",   human: "8h-18h L-V" },
+                { label: "Personnalisation", jarvis: "100%",   human: "Générique" },
+                { label: "Coût / session",   jarvis: "0.002€", human: "120€" },
+              ].map(({ label, jarvis, human }) => (
                 <div key={label} className="text-xs space-y-1">
                   <p className="text-muted-foreground">{label}</p>
                   <div className="flex gap-2">
-                    <span className="font-bold text-emerald-400">⚡ {genie}</span>
+                    <span className="font-bold text-emerald-400">⚡ {jarvis}</span>
                     <span className="text-muted-foreground line-through">{human}</span>
                   </div>
                 </div>
