@@ -222,8 +222,8 @@ serve(async (req) => {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${authTokenForDispatch}`,
-        "X-Genie-Job-Id": job.id,
-        "X-Genie-Org-Id": job.org_id,
+        "X-FTI-Job-Id": job.id,
+        "X-FTI-Org-Id": job.org_id,
       },
       body: JSON.stringify(openclawPayload),
       signal: AbortSignal.timeout(OPENCLAW_TIMEOUT_MS),

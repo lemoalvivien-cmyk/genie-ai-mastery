@@ -81,7 +81,7 @@ async function fetchNVDRecent(): Promise<FeedEntry[]> {
   try {
     const res = await fetch(
       "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=20&startIndex=0",
-      { headers: { "User-Agent": "GENIE-WorldWatch/1.0" }, signal: AbortSignal.timeout(10_000) }
+      { headers: { "User-Agent": "FTI-WorldWatch/1.0" }, signal: AbortSignal.timeout(10_000) }
     );
     if (!res.ok) return [];
     const d = await res.json();

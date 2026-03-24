@@ -106,7 +106,7 @@ serve(async (req) => {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${OPENCLAW_API_TOKEN}`,
-        "X-Genie-Runtime-Id": runtime_id,
+        "X-FTI-Runtime-Id": runtime_id,
       },
       signal: AbortSignal.timeout(OPENCLAW_TIMEOUT_MS),
     });
