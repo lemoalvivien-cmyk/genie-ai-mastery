@@ -73,7 +73,7 @@ export function faqSchema() {
         name: "Qu'est-ce que Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Formetoialia est un système guidé de montée en compétence IA. Il combine des modules structurés (IA Pro, IA Perso, Cybersécurité), un copilote conversationnel Genie, des labs pratiques et des attestations PDF vérifiables.",
+          text: "Formetoialia est un système guidé de montée en compétence IA. Il combine des modules structurés (IA Pro, IA Perso, Cybersécurité), un copilote conversationnel IA (JARVIS), des labs pratiques et des attestations PDF vérifiables.",
         },
       },
       {

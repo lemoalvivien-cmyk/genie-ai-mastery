@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Lock, Globe, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 
 export const ProFooter = React.forwardRef<HTMLElement>(
@@ -13,7 +13,7 @@ export const ProFooter = React.forwardRef<HTMLElement>(
           {/* Col 1 — Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="Formetoialia" className="h-7 w-auto" />
+              <img src={logoFormetoialia} alt="Formetoialia" className="h-7 w-auto" />
               <span className="text-base font-black tracking-tight" style={{ fontFamily: "'Orbitron', monospace", fontSize: "0.9rem" }}>
                 <span style={{ color: "hsl(var(--primary))" }}>formetoi</span><span style={{ color: "hsl(var(--accent))" }}>alia</span>
               </span>
@@ -50,7 +50,7 @@ export const ProFooter = React.forwardRef<HTMLElement>(
               {[
                 { to: "/pricing", label: "Tarifs" },
                 { to: "/app/modules", label: "Modules" },
-                { to: "/app/chat", label: "Copilote Genie" },
+                { to: "/app/chat", label: "Copilote IA" },
                 { to: "/app/today", label: "Missions quotidiennes" },
                 { to: "/guides", label: "Guides gratuits" },
                 { to: "/app/cyberpath", label: "CyberPath 48h" },

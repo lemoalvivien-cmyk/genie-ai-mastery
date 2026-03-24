@@ -175,7 +175,7 @@ export const GenieAvatarR3F = forwardRef<HTMLDivElement, {
           pointerEvents: "none",
         }}
       >
-        GENIE · ACTIF
+        JARVIS · ACTIF
       </div>
     </div>
   );

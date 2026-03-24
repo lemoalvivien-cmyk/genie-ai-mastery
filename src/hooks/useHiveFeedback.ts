@@ -37,7 +37,7 @@ export interface HiveStats {
 async function hashUserId(userId: string): Promise<string> {
   try {
     const encoder = new TextEncoder();
-    const data = encoder.encode(userId + "genie-hive-salt");
+    const data = encoder.encode(userId + "fti-hive-salt");
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");

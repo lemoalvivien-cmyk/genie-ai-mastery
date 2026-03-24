@@ -10,7 +10,7 @@
  *  3. Module IA Auto-Généré (30 min) → SleepForge
  *  4. Quiz Adversarial (15 min)   → attaquant/défenseur
  *  5. Cyber Lab (25 min)          → hands-on
- *  6. Attestation NFT (5 min)     → signature cryptographique
+ *  6. Attestation Vérifiable (5 min)     → signature cryptographique
  *
  * Total : ~110 min actives sur 48h. JARVIS nudge toutes les 4h.
  */
@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   {
     id: "diagnostic",
     step: 1,
-    title: "Diagnostic Genie",
+    title: "Diagnostic JARVIS",
     subtitle: "Swarm Predictor — Analyse votre profil de risque",
     icon: Brain,
     color: "#5257D8",
@@ -112,8 +112,8 @@ const STEPS: Step[] = [
   {
     id: "attestation",
     step: 6,
-    title: "Attestation NFT",
-    subtitle: "Certification cryptographique vérifiable on-chain",
+    title: "Attestation Vérifiable",
+    subtitle: "Certification cryptographique cryptographiquement vérifiable",
     icon: Award,
     color: "#F59E0B",
     duration: "5 min",
@@ -355,7 +355,7 @@ export default function CyberPath48h() {
 
     // Navigate with Jarvis pre-primed
     if (step.id === "diagnostic") {
-      toast.success("🧠 Genie active le mode Predictor — analyse en cours…");
+      toast.success("🧠 JARVIS active le mode Predictor — analyse en cours…");
       navigate("/app/chat", {
         state: { prePrompt: "Lance un diagnostic complet de mon profil cyber. Mode Predictor activé.", agentMode: "predictor" },
       });
@@ -479,7 +479,7 @@ export default function CyberPath48h() {
                   style={{ background: "#FE2C40", color: "#fff" }}
                 >
                   <Award className="w-4 h-4" />
-                  Générer mon Attestation NFT
+                  Générer mon Attestation Vérifiable
                 </Link>
               </motion.div>
             )}
@@ -499,20 +499,20 @@ export default function CyberPath48h() {
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-[hsl(var(--primary))]" />
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#E8E9F0" }}>
-                GENIE IA vs Formateur Humain
+                JARVIS IA vs Formateur Humain
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: "Temps de réponse", genie: "< 2s", human: "47s moy." },
-                { label: "Disponibilité",    genie: "24/7",   human: "8h-18h L-V" },
-                { label: "Personnalisation", genie: "100%",   human: "Générique" },
-                { label: "Coût / session",   genie: "0.002€", human: "120€" },
-              ].map(({ label, genie, human }) => (
+                { label: "Temps de réponse", jarvis: "< 2s", human: "47s moy." },
+                { label: "Disponibilité",    jarvis: "24/7",   human: "8h-18h L-V" },
+                { label: "Personnalisation", jarvis: "100%",   human: "Générique" },
+                { label: "Coût / session",   jarvis: "0.002€", human: "120€" },
+              ].map(({ label, jarvis, human }) => (
                 <div key={label} className="text-xs space-y-1">
                   <p className="text-muted-foreground">{label}</p>
                   <div className="flex gap-2">
-                    <span className="font-bold text-emerald-400">⚡ {genie}</span>
+                    <span className="font-bold text-emerald-400">⚡ {jarvis}</span>
                     <span className="text-muted-foreground line-through">{human}</span>
                   </div>
                 </div>
@@ -551,7 +551,7 @@ export default function CyberPath48h() {
             <p className="text-xs text-muted-foreground">
               <span className="font-semibold text-amber-400">Challenge actif : </span>
               Complétez les 6 étapes dans les 48h pour obtenir le badge{" "}
-              <span className="font-bold text-amber-400">«Autonomous Cyber Master»</span> et votre attestation NFT.
+              <span className="font-bold text-amber-400">«Autonomous Cyber Master»</span> et votre attestation vérifiable.
             </p>
           </motion.div>
 

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
 /* ─── Types ─── */
 interface DemoChapter {
@@ -64,7 +64,7 @@ const CHAPTERS: DemoChapter[] = [
   },
   {
     id: "attestation",
-    title: "Attestation Blockchain",
+    title: "Attestation Vérifiable",
     description: "Génération PDF certifié avec signature cryptographique",
     timestamp: 255,
     icon: <Award className="w-4 h-4" />,
@@ -501,7 +501,7 @@ export default function Demo() {
         {/* ── NAV ── */}
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0A0F1C]/80 backdrop-blur-xl border-b border-white/5">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoGenie} alt="Formetoialia" className="w-7 h-7 object-contain" />
+            <img src={logoFormetoialia} alt="Formetoialia" className="w-7 h-7 object-contain" />
             <span className="font-black text-white text-lg tracking-tight">formetoialia</span>
             <span className="text-xs text-cyan-400 font-mono bg-cyan-400/10 px-2 py-0.5 rounded-full border border-cyan-400/20">DÉMO</span>
           </Link>
@@ -554,7 +554,7 @@ export default function Demo() {
             </h1>
 
             <p className="text-white/60 text-lg max-w-2xl mx-auto mb-8">
-              KITT vocal + swarm 5 agents + simulation 10 000 attaques + attestation blockchain.{" "}
+              KITT vocal + swarm 5 agents + simulation 10 000 attaques + attestation vérifiable.{" "}
               <strong className="text-white">End-to-end. En live. Testable maintenant.</strong>
             </p>
 
@@ -801,7 +801,7 @@ export default function Demo() {
         <footer className="border-t border-white/5 py-8 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
+              <img src={logoFormetoialia} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
               <span>© 2026 Formetoialia — Lien public :</span>
               <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">formetoialia.com/demo</a>
             </div>

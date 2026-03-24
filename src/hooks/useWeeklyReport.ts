@@ -1,5 +1,5 @@
 /**
- * useWeeklyReport — stub léger après suppression de GenieOS.
+ * useWeeklyReport — stub léger.
  */
 export function useWeeklyReport(_orgId?: string) {
   return { data: null, refetch: () => {} };

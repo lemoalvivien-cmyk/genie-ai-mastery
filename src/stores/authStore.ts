@@ -97,7 +97,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Purger sessionStorage (brute-force tracking, ref codes, payment pending, etc.)
     Object.keys(sessionStorage).forEach((key) => {
       if (
-        key.startsWith("genie_") ||
+        key.startsWith("fti_") ||
         key.startsWith("formetoialia_") ||
         key.startsWith("sb-") ||
         key === "onboarding_quiz_score"

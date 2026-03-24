@@ -1,10 +1,10 @@
 /**
- * GENIE OS — Internal Event Bus
+ * Formetoialia — Internal Event Bus
  * Lightweight pub/sub for cross-module communication.
  * Events are dispatched as native CustomEvents on window.
  */
 
-export type GenieOSEventType =
+export type FTIEventType =
   | "agent_created"
   | "agent_started"
   | "agent_completed"
@@ -23,22 +23,28 @@ export type GenieOSEventType =
   | "credit_spent"
   | "credit_earned";
 
-export interface GenieOSEvent<T = unknown> {
-  type: GenieOSEventType;
+/** @deprecated Use FTIEventType */
+export type GenieOSEventType = FTIEventType;
+
+export interface FTIEvent<T = unknown> {
+  type: FTIEventType;
   payload: T;
   timestamp: number;
   source?: string;
 }
 
+/** @deprecated Use FTIEvent */
+export type GenieOSEvent<T = unknown> = FTIEvent<T>;
+
 const PREFIX = "fti:";
 
 /** Emit an event on the bus */
 export function emit<T = unknown>(
-  type: GenieOSEventType,
+  type: FTIEventType,
   payload: T,
   source?: string
 ): void {
-  const event = new CustomEvent<GenieOSEvent<T>>(PREFIX + type, {
+  const event = new CustomEvent<FTIEvent<T>>(PREFIX + type, {
     detail: { type, payload, timestamp: Date.now(), source },
     bubbles: false,
   });
@@ -47,11 +53,11 @@ export function emit<T = unknown>(
 
 /** Subscribe to an event; returns an unsubscribe function */
 export function subscribe<T = unknown>(
-  type: GenieOSEventType,
-  handler: (event: GenieOSEvent<T>) => void
+  type: FTIEventType,
+  handler: (event: FTIEvent<T>) => void
 ): () => void {
   const listener = (e: Event) => {
-    handler((e as CustomEvent<GenieOSEvent<T>>).detail);
+    handler((e as CustomEvent<FTIEvent<T>>).detail);
   };
   window.addEventListener(PREFIX + type, listener);
   return () => window.removeEventListener(PREFIX + type, listener);
@@ -61,8 +67,8 @@ export function subscribe<T = unknown>(
 import { useEffect } from "react";
 
 export function useEventBus<T = unknown>(
-  types: GenieOSEventType | GenieOSEventType[],
-  handler: (event: GenieOSEvent<T>) => void
+  types: FTIEventType | FTIEventType[],
+  handler: (event: FTIEvent<T>) => void
 ): void {
   useEffect(() => {
     const arr = Array.isArray(types) ? types : [types];

@@ -43,7 +43,7 @@ const RISK_CONFIG: Record<RiskLevel, {
     color: "text-yellow-400",
     bg: "hsl(45 93% 47% / 0.12)",
     border: "hsl(45 93% 47% / 0.4)",
-    message: "Quelques angles morts détectés. GENIE va cibler exactement ces vulnérabilités.",
+    message: "Quelques angles morts détectés. JARVIS va cibler exactement ces vulnérabilités.",
   },
   eleve: {
     icon: <ShieldX className="w-10 h-10" />,
@@ -51,7 +51,7 @@ const RISK_CONFIG: Record<RiskLevel, {
     color: "text-red-400",
     bg: "hsl(0 72% 51% / 0.12)",
     border: "hsl(0 72% 51% / 0.4)",
-    message: "Pas de panique — la plupart des gens sont dans ce cas. C'est exactement pour ça que GENIE existe.",
+    message: "Pas de panique — la plupart des gens sont dans ce cas. C'est exactement pour ça que Formetoialia existe.",
   },
 };
 
@@ -117,7 +117,7 @@ export default function OnboardingResult() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "bilan-cyber-genie.pdf";
+        a.download = "bilan-cyber-formetoialia.pdf";
         a.click();
         URL.revokeObjectURL(url);
       }

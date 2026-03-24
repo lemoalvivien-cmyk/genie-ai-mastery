@@ -209,7 +209,7 @@ serve(async (req) => {
   }
 
   // ── Chain of thought prompt ───────────────────────────────────────────────
-  const systemPrompt = `Tu es le moteur de parcours adaptatif de GENIE IA.
+  const systemPrompt = `Tu es le moteur de parcours adaptatif de Formetoialia.
 Tu utilises deux concepts clés :
 
 1. **TEMPORAL MIRROR** : Simule l'utilisateur dans 6 mois si il suit le parcours optimal vs s'il ne fait rien. Décris cette vision du futur dans "temporal_mirror".

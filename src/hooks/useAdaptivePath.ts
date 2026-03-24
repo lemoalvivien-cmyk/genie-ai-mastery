@@ -1,5 +1,5 @@
 /**
- * useAdaptivePath — stub après suppression de GenieOS.
+ * useAdaptivePath — stub après refonte.
  * Retourne un état vide pour que AdaptivePathPanel compile.
  */
 import { useCallback } from "react";

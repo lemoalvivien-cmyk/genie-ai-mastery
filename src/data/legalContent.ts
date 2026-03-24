@@ -12,7 +12,7 @@ export const LEGAL_CONFIG = {
   NAF: "7022Z — Conseil pour les affaires et autres conseils de gestion",
   BUSINESS_ADDRESS: "295 Rue Verte, 59170 Croix, France",
   CONTACT_EMAIL: "contact@formetoialia.com",
-  CONTACT_PHONE: "+33 X XX XX XX XX",
+  CONTACT_PHONE: "contact@formetoialia.com",
   SECURITY_EMAIL: "security@formetoialia.com",
   RGPD_EMAIL: "rgpd@formetoialia.com",
   HOSTING_STATEMENT: "hébergé dans l'Union européenne (UE) via Supabase/Lovable Cloud",

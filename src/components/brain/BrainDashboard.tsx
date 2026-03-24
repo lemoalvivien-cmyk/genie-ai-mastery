@@ -252,10 +252,10 @@ export function BrainDashboard() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Temps de réponse", genie: "<2s", human: "47s", icon: Clock },
-              { label: "Taux d'erreur", genie: "0%", human: "62%", icon: AlertTriangle },
-              { label: "Disponibilité", genie: "24/7", human: "8h-18h", icon: Activity },
-              { label: "Coût / session", genie: "0.002€", human: "120€", icon: BarChart3 },
+              { label: "Temps de réponse", jarvis: "<2s", human: "47s", icon: Clock },
+              { label: "Taux d'erreur", jarvis: "0%", human: "62%", icon: AlertTriangle },
+              { label: "Disponibilité", jarvis: "24/7", human: "8h-18h", icon: Activity },
+              { label: "Coût / session", jarvis: "0.002€", human: "120€", icon: BarChart3 },
             ].map((row) => (
               <div key={row.label} className="p-3 rounded-xl bg-secondary/30 border border-border/30 space-y-1">
                 <div className="flex items-center gap-1.5">
@@ -263,7 +263,7 @@ export function BrainDashboard() {
                   <div className="text-[10px] text-muted-foreground">{row.label}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-sm font-black text-primary">{row.genie}</div>
+                  <div className="text-sm font-black text-primary">{row.jarvis}</div>
                   <div className="text-[10px] text-muted-foreground/50">vs</div>
                   <div className="text-sm font-medium text-muted-foreground line-through">{row.human}</div>
                 </div>

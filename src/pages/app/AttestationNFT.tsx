@@ -1,10 +1,10 @@
 /**
- * AttestationNFT — Certification cryptographique grade NFT
+ * AttestationVerifiable — Certification cryptographique signée
  *
  * Génère une attestation avec :
  *  - Hash SHA-256 des données (modules + scores + date + user_id)
  *  - Token ID unique (UUID v4)
- *  - Métadonnées OpenSea-compatible (ERC-721 style JSON)
+ *  - Métadonnées de certification vérifiable
  *  - QR code de vérification publique
  *  - Export PDF via edge function generate-pdf
  *  - Ancrage dans la table attestations (signature_hash)
@@ -30,8 +30,8 @@ async function sha256(data: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// ── NFT Metadata (ERC-721 style) ──────────────────────────────────────────────
-interface NFTMetadata {
+// ── Cert Metadata ─────────────────────────────────────────────────────────────
+interface CertMetadata {
   name: string;
   description: string;
   image: string;
@@ -50,7 +50,7 @@ interface AttestationData {
   score_average: number;
   modules_completed: unknown;
   pdf_url: string | null;
-  metadata: NFTMetadata;
+  metadata: CertMetadata;
   verify_url: string;
 }
 
@@ -72,7 +72,7 @@ export default function AttestationNFT() {
 
   // ── Load existing attestation ─────────────────────────────────────────────
   const { data: existing, refetch } = useQuery({
-    queryKey: ["attestation-nft", userId],
+    queryKey: ["attestation-cert", userId],
     enabled: !!userId,
     queryFn: async () => {
       const { data } = await supabase
@@ -88,7 +88,7 @@ export default function AttestationNFT() {
 
   // ── Load completed modules ─────────────────────────────────────────────────
   const { data: progress } = useQuery({
-    queryKey: ["progress-for-nft", userId],
+    queryKey: ["progress-for-cert", userId],
     enabled: !!userId,
     queryFn: async () => {
       const { data } = await supabase
@@ -109,7 +109,7 @@ export default function AttestationNFT() {
   const rarity = getRarity(avgScore, completedCount);
   const canMint = completedCount >= 3 && avgScore >= 60;
 
-  // ── Mint NFT attestation ──────────────────────────────────────────────────
+  // ── Générer attestation ──────────────────────────────────────────────────
   const mintAttestation = useCallback(async () => {
     if (!userId || !canMint) return;
     setMinting(true);
@@ -131,10 +131,10 @@ export default function AttestationNFT() {
       // Cryptographic hash
       const signatureHash = await sha256(payload);
 
-      // NFT metadata
-      const metadata: NFTMetadata = {
+      // Cert metadata
+      const metadata: CertMetadata = {
         name: `Formetoialia Cyber Certification — ${rarity.tier}`,
-        description: `Certification blockchain-grade délivrée par Formetoialia. ${completedCount} modules cyber complétés, score moyen ${avgScore}/100. Vérifiable publiquement.`,
+        description: `Certification cryptographique signée et vérifiable délivrée par Formetoialia. ${completedCount} modules cyber complétés, score moyen ${avgScore}/100. Vérifiable publiquement.`,
         image: `https://formetoialia.com/og/cert-${rarity.tier.toLowerCase()}.png`,
         external_url: `https://formetoialia.com/verify/${tokenId}`,
         background_color: rarity.color.replace("#", ""),
@@ -144,7 +144,7 @@ export default function AttestationNFT() {
           { trait_type: "Average Score",     value: avgScore },
           { trait_type: "Domain",            value: "Cybersecurity" },
           { trait_type: "Issuer",            value: "Formetoialia" },
-          { trait_type: "Standard",          value: "ERC-721 Compatible" },
+          { trait_type: "Standard",          value: "SHA-256 Signed" },
           { trait_type: "Year",              value: new Date().getFullYear() },
         ],
       };
@@ -221,14 +221,14 @@ export default function AttestationNFT() {
     score_average:     existing.score_average ?? 0,
     modules_completed: existing.modules_completed,
     pdf_url:           existing.pdf_url,
-    metadata:          existing.metadata as unknown as NFTMetadata,
+    metadata:          existing.metadata as unknown as CertMetadata,
     verify_url:        `${window.location.origin}/verify/${existing.id}`,
   } satisfies AttestationData : null);
 
   return (
     <>
       <Helmet>
-        <title>Attestation NFT — Formetoialia</title>
+        <title>Attestation Vérifiable — Formetoialia</title>
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>
@@ -239,14 +239,14 @@ export default function AttestationNFT() {
             <div className="flex items-center gap-2 mb-1">
               <Award className="w-5 h-5 text-amber-400" />
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Certification Blockchain-Grade
+                Certification Cryptographique Vérifiable
               </span>
             </div>
             <h1 className="text-2xl font-black" style={{ color: "#E8E9F0" }}>
-              Attestation NFT
+              Attestation Vérifiable
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Certification cryptographique vérifiable — standard ERC-721 compatible.
+              Certification cryptographique vérifiable — signature cryptographique vérifiable.
             </p>
           </motion.div>
 
@@ -314,13 +314,13 @@ export default function AttestationNFT() {
                 ) : !canMint ? (
                   <><Lock className="w-4 h-4 mr-2" />Complétez encore {Math.max(0, 3 - completedCount)} module(s)</>
                 ) : (
-                  <><Award className="w-4 h-4 mr-2" />Minter mon Attestation NFT</>
+                  <><Award className="w-4 h-4 mr-2" />Minter mon Attestation Vérifiable</>
                 )}
               </Button>
             </motion.div>
           )}
 
-          {/* ── NFT Card ── */}
+          {/* ── Cert Card ── */}
           {displayAttestation && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -434,7 +434,7 @@ export default function AttestationNFT() {
             </motion.div>
           )}
 
-          {/* ── What's NFT-grade ── */}
+          {/* ── Pourquoi "grade certification" ? ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -443,13 +443,13 @@ export default function AttestationNFT() {
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Pourquoi "NFT-grade" ?
+              Pourquoi "grade certification" ?
             </h3>
             <div className="space-y-2">
               {[
                 { icon: Hash,        text: "Hash SHA-256 immuable de vos données d'apprentissage" },
                 { icon: Shield,      text: "Vérification publique en temps réel via /verify/:id" },
-                { icon: Award,       text: "Métadonnées standard ERC-721 (compatible OpenSea)" },
+                { icon: Award,       text: "Métadonnées signées SHA-256 (vérifiables publiquement)" },
                 { icon: CheckCircle, text: "QR code encodant signature + URL de vérification" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-2">

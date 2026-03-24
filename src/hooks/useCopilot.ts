@@ -1,5 +1,5 @@
 /**
- * useCopilot + parseJarvisResponse — stub après suppression de GenieOS.
+ * useCopilot + parseJarvisResponse — stub après refonte.
  * Fournit les types attendus par Jarvis.tsx et CopilotDock.tsx.
  */
 import { useCallback } from "react";

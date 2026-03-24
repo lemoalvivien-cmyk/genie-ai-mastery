@@ -3,7 +3,7 @@
  *
  * Promesse alignée avec la landing :
  * Devenir autonome avec l'IA, la cybersécurité et le vibe coding,
- * grâce à Genie, des modules, des labs, des attestations et un pilotage équipe.
+ * grâce à JARVIS, des modules, des labs, des attestations et un pilotage équipe.
  *
  * Règles :
  * - Zéro faux sentiment d'urgence
@@ -38,7 +38,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
 /* ─── Prix unique fixe : 59€ TTC/mois ──────────────────────── */
 
@@ -126,11 +126,11 @@ const PRO_SECTIONS: {
 const FAQ = [
   {
     q: "Qu'est-ce que Formetoialia concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (Genie), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel IA (JARVIS), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
   },
   {
-    q: "Genie, c'est quoi exactement ?",
-    a: "Genie est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "JARVIS, c'est quoi exactement ?",
+    a: "JARVIS est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
     q: "Que contiennent les labs ?",
@@ -154,7 +154,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. Genie vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding adapte le parcours à votre niveau. JARVIS vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
   },
 ];
 
@@ -361,7 +361,7 @@ export default function Pricing() {
         <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote Genie, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
+          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote IA, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
@@ -374,7 +374,7 @@ export default function Pricing() {
         />
         <meta
           property="og:image"
-          content="https://formetoialia.com/logo-genie.png"
+          content="https://formetoialia.com/logo-formetoialia.png"
         />
         <script type="application/ld+json">
           {JSON.stringify(productSchema())}
@@ -395,7 +395,7 @@ export default function Pricing() {
           }}
         >
           <Link to="/" className="flex items-center gap-2.5">
-            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto"
+            <img src={logoFormetoialia} alt="Formetoialia" className="h-8 w-auto"
               style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" }} />
           </Link>
           <nav className="flex items-center gap-3">

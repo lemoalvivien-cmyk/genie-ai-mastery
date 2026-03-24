@@ -173,7 +173,7 @@ export default function PartnerDashboard() {
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
               <Brain className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-bold text-foreground">GENIE <span className="text-gradient">IA</span></span>
+            <span className="font-bold text-foreground">Formetoialia</span>
             <Badge variant="outline" className="ml-2 text-xs">Partenaire</Badge>
           </Link>
           <div className="flex items-center gap-3">
