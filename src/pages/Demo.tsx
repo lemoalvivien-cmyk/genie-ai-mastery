@@ -64,7 +64,7 @@ const CHAPTERS: DemoChapter[] = [
   },
   {
     id: "attestation",
-    title: "Attestation Blockchain",
+    title: "Attestation Vérifiable",
     description: "Génération PDF certifié avec signature cryptographique",
     timestamp: 255,
     icon: <Award className="w-4 h-4" />,
@@ -554,7 +554,7 @@ export default function Demo() {
             </h1>
 
             <p className="text-white/60 text-lg max-w-2xl mx-auto mb-8">
-              KITT vocal + swarm 5 agents + simulation 10 000 attaques + attestation blockchain.{" "}
+              KITT vocal + swarm 5 agents + simulation 10 000 attaques + attestation vérifiable.{" "}
               <strong className="text-white">End-to-end. En live. Testable maintenant.</strong>
             </p>
 
