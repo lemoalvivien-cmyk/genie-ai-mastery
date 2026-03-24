@@ -13,7 +13,7 @@ export const ProFooter = React.forwardRef<HTMLElement>(
           {/* Col 1 — Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="Formetoialia" className="h-7 w-auto" />
+              <img src={logoFormetoialia} alt="Formetoialia" className="h-7 w-auto" />
               <span className="text-base font-black tracking-tight" style={{ fontFamily: "'Orbitron', monospace", fontSize: "0.9rem" }}>
                 <span style={{ color: "hsl(var(--primary))" }}>formetoi</span><span style={{ color: "hsl(var(--accent))" }}>alia</span>
               </span>

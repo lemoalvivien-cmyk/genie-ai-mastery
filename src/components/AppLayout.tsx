@@ -92,7 +92,7 @@ export default function AppLayout() {
             onClick={() => navigate("/app/today")}
             className="flex items-center gap-2.5"
           >
-            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto" />
+            <img src={logoFormetoialia} alt="Formetoialia" className="h-8 w-auto" />
             <span className="text-sm font-black tracking-tight leading-tight" style={{ fontFamily: "'Orbitron', monospace" }}>
               <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
             </span>
@@ -193,7 +193,7 @@ export default function AppLayout() {
           style={{ borderBottom: "1px solid #2A2D3A", background: "#13151E" }}
         >
           <button onClick={() => navigate("/app/today")} className="flex items-center gap-2">
-            <img src={logoGenie} alt="Formetoialia" className="h-7 w-auto" />
+            <img src={logoFormetoialia} alt="Formetoialia" className="h-7 w-auto" />
             <span className="text-sm font-black" style={{ fontFamily: "'Orbitron', monospace" }}>
               <span style={{ color: "#5257D8" }}>formetoi</span><span style={{ color: "#FE2C40" }}>alia</span>
             </span>

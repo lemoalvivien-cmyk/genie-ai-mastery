@@ -395,7 +395,7 @@ export default function Pricing() {
           }}
         >
           <Link to="/" className="flex items-center gap-2.5">
-            <img src={logoGenie} alt="Formetoialia" className="h-8 w-auto"
+            <img src={logoFormetoialia} alt="Formetoialia" className="h-8 w-auto"
               style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" }} />
           </Link>
           <nav className="flex items-center gap-3">

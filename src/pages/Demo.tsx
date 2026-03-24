@@ -501,7 +501,7 @@ export default function Demo() {
         {/* ── NAV ── */}
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0A0F1C]/80 backdrop-blur-xl border-b border-white/5">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoGenie} alt="Formetoialia" className="w-7 h-7 object-contain" />
+            <img src={logoFormetoialia} alt="Formetoialia" className="w-7 h-7 object-contain" />
             <span className="font-black text-white text-lg tracking-tight">formetoialia</span>
             <span className="text-xs text-cyan-400 font-mono bg-cyan-400/10 px-2 py-0.5 rounded-full border border-cyan-400/20">DÉMO</span>
           </Link>
@@ -801,7 +801,7 @@ export default function Demo() {
         <footer className="border-t border-white/5 py-8 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
             <div className="flex items-center gap-2">
-              <img src={logoGenie} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
+              <img src={logoFormetoialia} alt="Formetoialia" className="w-5 h-5 object-contain opacity-50" />
               <span>© 2026 Formetoialia — Lien public :</span>
               <a href="/demo" className="text-cyan-400/60 hover:text-cyan-400 font-mono">formetoialia.com/demo</a>
             </div>
