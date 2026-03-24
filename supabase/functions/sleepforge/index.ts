@@ -14,16 +14,12 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const CRON_SECRET  = Deno.env.get("CRON_SECRET") ?? "";
 const LOVABLE_KEY  = Deno.env.get("LOVABLE_API_KEY") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SK  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const CORS = {
-  "Access-Control-Allow-Origin":  "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
-};
 
 // ── LLM call ──────────────────────────────────────────────────────────────────
 async function callLLM(prompt: string, maxTokens = 600): Promise<string> {
@@ -113,12 +109,13 @@ Réponds UNIQUEMENT en JSON:
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // Auth: X-CRON-SECRET or Bearer CRON_SECRET
   const secret = req.headers.get("x-cron-secret") ?? req.headers.get("authorization")?.replace("Bearer ", "");
   if (CRON_SECRET && secret !== CRON_SECRET) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: CORS });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SK);
