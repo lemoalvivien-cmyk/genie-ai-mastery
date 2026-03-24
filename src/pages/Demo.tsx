@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
 /* ─── Types ─── */
 interface DemoChapter {

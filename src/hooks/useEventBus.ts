@@ -1,10 +1,10 @@
 /**
- * GENIE OS — Internal Event Bus
+ * Formetoialia — Internal Event Bus
  * Lightweight pub/sub for cross-module communication.
  * Events are dispatched as native CustomEvents on window.
  */
 
-export type GenieOSEventType =
+export type FTIEventType =
   | "agent_created"
   | "agent_started"
   | "agent_completed"
@@ -23,12 +23,18 @@ export type GenieOSEventType =
   | "credit_spent"
   | "credit_earned";
 
-export interface GenieOSEvent<T = unknown> {
-  type: GenieOSEventType;
+/** @deprecated Use FTIEventType */
+export type GenieOSEventType = FTIEventType;
+
+export interface FTIEvent<T = unknown> {
+  type: FTIEventType;
   payload: T;
   timestamp: number;
   source?: string;
 }
+
+/** @deprecated Use FTIEvent */
+export type GenieOSEvent<T = unknown> = FTIEvent<T>;
 
 const PREFIX = "fti:";
 

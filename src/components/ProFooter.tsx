@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Lock, Globe, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 
 export const ProFooter = React.forwardRef<HTMLElement>(

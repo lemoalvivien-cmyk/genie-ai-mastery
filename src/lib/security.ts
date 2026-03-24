@@ -60,7 +60,7 @@ export function formatBlockedTime(ms: number): string {
 
 // ── Session activity tracking (unchanged) ────────────────────────────────────
 const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000;
-const LAST_ACTIVITY_KEY = "genie_ia_last_activity";
+const LAST_ACTIVITY_KEY = "fti_last_activity";
 
 export function updateActivity(): void {
   try { sessionStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now())); } catch (_e) { /* */ }

@@ -38,7 +38,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { productSchema, organizationSchema } from "@/lib/seo";
 import { ProFooter } from "@/components/ProFooter";
-import logoGenie from "@/assets/logo-genie.png";
+import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
 /* ─── Prix unique fixe : 59€ TTC/mois ──────────────────────── */
 
