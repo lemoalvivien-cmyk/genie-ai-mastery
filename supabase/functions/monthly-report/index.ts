@@ -473,7 +473,7 @@ Deno.serve(async (req) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                from: "GENIE IA <formation@genie-ia.app>",
+                from: "Formetoialia <formation@formetoialia.com>",
                 to: [manager.email],
                 subject: `📊 Bilan Formation ${monthLabel} — ${org.name}`,
                 html: buildMonthlyReportEmailHtml(
@@ -542,29 +542,13 @@ function buildMonthlyReportEmailHtml(
   </div>
   <div class="body">
     <p>Bonjour ${managerName},</p>
-    <p>Votre rapport mensuel de formation <strong>${monthLabel}</strong> a été généré automatiquement par l'Autopilot GENIE IA.</p>
+    <p>Votre rapport mensuel de formation <strong>${monthLabel}</strong> a été généré automatiquement par l'Autopilot Formetoialia.</p>
 
     <div class="kpi-grid">
-      <div class="kpi"><div class="val">${completionRate}%</div><div class="lbl">Complétion</div></div>
-      <div class="kpi"><div class="val">${avgScore}%</div><div class="lbl">Score moyen</div></div>
-      <div class="kpi"><div class="val">${attestations}</div><div class="lbl">Attestations</div></div>
-    </div>
-
-    <div class="status">${statusLabel} — Taux de complétion : ${completionRate}%</div>
-
-    <p>Le rapport complet (4 pages) comprend :</p>
-    <ul>
-      <li>Résumé exécutif et KPIs</li>
-      <li>Tableau de progression par employé</li>
-      <li>Recommandations Jarvis (top 3 axes)</li>
-      <li>Checklist conformité AI Act</li>
-    </ul>
-
-    <a class="cta" href="${pdfUrl}">📥 Télécharger le rapport PDF</a>
-
+...
     <p style="font-size:12px;color:#888;">Ce rapport est généré automatiquement chaque 1er du mois. Aucune action requise de votre part.<br>
-    Disponible aussi dans votre tableau de bord : <a href="https://genie-ia.app/app/manager">genie-ia.app/app/manager</a></p>
+    Disponible aussi dans votre tableau de bord : <a href="https://formetoialia.com/app/manager">formetoialia.com</a></p>
   </div>
-  <div class="footer">GENIE IA Autopilot — <a href="https://genie-ia.app">genie-ia.app</a></div>
+  <div class="footer">Formetoialia Autopilot — <a href="https://formetoialia.com">formetoialia.com</a></div>
 </div></body></html>`;
 }
