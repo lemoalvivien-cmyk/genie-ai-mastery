@@ -50,7 +50,7 @@ export const ProFooter = React.forwardRef<HTMLElement>(
               {[
                 { to: "/pricing", label: "Tarifs" },
                 { to: "/app/modules", label: "Modules" },
-                { to: "/app/chat", label: "Copilote Genie" },
+                { to: "/app/chat", label: "Copilote IA" },
                 { to: "/app/today", label: "Missions quotidiennes" },
                 { to: "/guides", label: "Guides gratuits" },
                 { to: "/app/cyberpath", label: "CyberPath 48h" },

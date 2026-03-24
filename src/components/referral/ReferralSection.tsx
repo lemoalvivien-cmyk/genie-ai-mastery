@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
-// Deterministic code: GENIE-[4 chars from userId]
+// Deterministic code: FTI-[4 chars from userId]
 function generateReferralCode(userId: string): string {
   const hex = userId.replace(/-/g, "").slice(0, 4).toUpperCase();
   return `GENIE-${hex}`;
@@ -31,7 +31,7 @@ export default function ReferralSection() {
   const [copied, setCopied] = useState(false);
   const { track } = useAnalytics();
 
-  const myCode = userId ? generateReferralCode(userId) : "GENIE-XXXX";
+  const myCode = userId ? generateReferralCode(userId) : "FTI-XXXX";
   const referralLink = `${window.location.origin}/?ref=${myCode}`;
 
   const { data: referrals = [], refetch } = useQuery<Referral[]>({

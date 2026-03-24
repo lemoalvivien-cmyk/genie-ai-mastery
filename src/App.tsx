@@ -257,7 +257,7 @@ const App = () => (
                   element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>}
                 />
 
-                {/* /os/* → redirect to dashboard (GenieOS supprimé) */}
+                {/* /os/* → redirect to dashboard */}
                 <Route path="/os/*" element={<Navigate to="/app/dashboard" replace />} />
 
                 <Route path="*" element={<NotFound />} />

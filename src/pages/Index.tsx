@@ -141,12 +141,12 @@ const COMPARE_ROWS = [
 ];
 
 const FAQ_DATA = [
-  { q: "Qu'est-ce que Formetoialia concrètement ?", a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel (Genie), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie." },
-  { q: "Comment fonctionne le copilote Genie ?", a: "Genie est votre assistant IA personnel. Il guide vos sessions, répond à vos questions, suggère des missions quotidiennes et s'adapte à votre niveau. Disponible en mode texte et vocal." },
+  { q: "Qu'est-ce que Formetoialia concrètement ?", a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel IA (JARVIS), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie." },
+  { q: "Comment fonctionne le copilote IA Formetoialia ?", a: "JARVIS est votre copilote IA personnel. Il guide vos sessions, répond à vos questions, suggère des missions quotidiennes et s'adapte à votre niveau. Disponible en mode texte et vocal." },
   { q: "Les attestations sont-elles reconnues légalement ?", a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas des certifications reconnues par des organismes externes. Leur valeur est celle d'une preuve documentée de formation, utile en conformité interne ou contexte professionnel." },
   { q: "Le plan inclut combien de personnes ?", a: "Un abonnement Pro couvre une organisation jusqu'à 25 membres. Au-delà, contactez-nous pour un devis entreprise." },
   { q: "Puis-je annuler librement ?", a: "Oui. Résiliation depuis votre espace en quelques clics, effective à la fin de la période en cours. Garantie satisfait ou remboursé 30 jours, sans condition." },
-  { q: "Je suis débutant total, c'est fait pour moi ?", a: "Oui. L'onboarding adapte le parcours à votre niveau. Genie vous accompagne dès la première session. Aucune compétence technique requise." },
+  { q: "Je suis débutant total, c'est fait pour moi ?", a: "Oui. L'onboarding adapte le parcours à votre niveau. JARVIS vous accompagne dès la première session. Aucune compétence technique requise." },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -197,7 +197,7 @@ export default function Index() {
     <>
       <Helmet>
         <title>Formetoialia — La formation qui apprend plus vite que vous.</title>
-        <meta name="description" content="Formetoialia — Plateforme IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote Genie, attestations vérifiables. Disponible 24/7 — 59€ TTC/mois." />
+        <meta name="description" content="Formetoialia — Plateforme IA pour professionnels et PME. Modules structurés, quiz adaptatifs, copilote IA, attestations vérifiables. Disponible 24/7 — 59€ TTC/mois." />
         <meta property="og:title" content="Formetoialia — La formation qui apprend plus vite que vous." />
         <meta property="og:description" content="Modules IA, cybersécurité, labs pratiques, attestations vérifiables. Une alternative fluide et disponible 24/7 aux formations classiques." />
         <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />

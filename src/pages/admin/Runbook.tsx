@@ -81,7 +81,7 @@ export default function Runbook() {
               </Link>
             </div>
             <p className="text-muted-foreground text-sm">
-              Document opérationnel GENIE IA · Mis à jour : mars 2026 · Révision mensuelle obligatoire
+              Document opérationnel Formetoialia · Mis à jour : mars 2026 · Révision mensuelle obligatoire
             </p>
             <div className="mt-3 p-3 rounded-xl border border-primary/20 bg-primary/5 text-xs text-muted-foreground">
               <strong className="text-foreground">RTO cible :</strong> 4h · <strong className="text-foreground">RPO cible :</strong> 24h · <strong className="text-foreground">Backup fréquence :</strong> quotidien (Lovable Cloud auto)
@@ -374,7 +374,7 @@ EOF`}
 
           {/* Footer */}
           <div className="border-t border-border pt-6 mt-8 text-xs text-muted-foreground flex items-center justify-between">
-            <span>GENIE IA — Runbook v1.0 — Mars 2026</span>
+            <span>Formetoialia — Runbook v1.0 — Mars 2026</span>
             <div className="flex gap-4">
               <Link to="/admin/ops" className="text-primary hover:underline">OPS Center</Link>
               <Link to="/admin/control-room" className="text-primary hover:underline">Control Room</Link>
