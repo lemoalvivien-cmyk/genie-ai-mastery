@@ -207,7 +207,7 @@ async function runAutoCampaigns(
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "GENIE IA <formation@genie-ia.app>",
+              from: "Formetoialia <formation@formetoialia.com>",
               to: [member.email],
               subject: `[${org.name}] Continuez votre formation IA — 5 minutes suffisent`,
               html: buildReminderEmailHtml(member.full_name ?? "Apprenant", org.name, completionRate),
@@ -298,7 +298,7 @@ async function runAutoAttestations(
         },
         body: JSON.stringify({
           type: "attestation",
-          base_url: "https://genie-ia.app",
+          base_url: "https://formetoialia.com",
           artifact_title: `Attestation automatique — ${new Date().toLocaleDateString("fr-FR")}`,
         }),
       });
@@ -346,7 +346,7 @@ async function runAutoAttestations(
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    from: "GENIE IA <formation@genie-ia.app>",
+                    from: "Formetoialia <formation@formetoialia.com>",
                     to: [manager.email],
                     subject: `✅ Attestation auto-générée — ${profile.full_name ?? "Apprenant"}`,
                     html: buildAttestationEmailHtml(
@@ -395,10 +395,10 @@ function buildReminderEmailHtml(learnerName: string, orgName: string, completion
     <p>Votre organisation <strong>${orgName}</strong> a activé le rappel automatique de formation. Le taux de complétion de l'équipe est actuellement de :</p>
     <div class="stat"><div class="num">${pct}%</div><div>Taux de complétion équipe</div></div>
     <p>Quelques minutes suffisent pour progresser. Connectez-vous dès maintenant à votre espace de formation.</p>
-    <a class="cta" href="https://genie-ia.app/app/modules">Continuer ma formation →</a>
-    <p style="font-size:13px;color:#666;">Cet email a été envoyé automatiquement par le système d'Autopilot Formation de GENIE IA.</p>
+    <a class="cta" href="https://formetoialia.com/app/modules">Continuer ma formation →</a>
+    <p style="font-size:13px;color:#666;">Cet email a été envoyé automatiquement par le système d'Autopilot Formation de Formetoialia.</p>
   </div>
-  <div class="footer">GENIE IA — Plateforme de formation IA & Cybersécurité — <a href="https://genie-ia.app">genie-ia.app</a></div>
+  <div class="footer">Formetoialia — Plateforme de formation IA & Cybersécurité — <a href="https://formetoialia.com">formetoialia.com</a></div>
 </div></body></html>`;
 }
 
@@ -419,12 +419,12 @@ function buildAttestationEmailHtml(managerName: string, learnerName: string, avg
   <div class="header"><h1>🎓 Attestation générée automatiquement</h1></div>
   <div class="body">
     <p>Bonjour ${managerName},</p>
-    <p><strong>${learnerName}</strong> a validé l'ensemble de ses modules de formation et son attestation a été <strong>générée automatiquement</strong> par l'Autopilot GENIE IA.</p>
+    <p><strong>${learnerName}</strong> a validé l'ensemble de ses modules de formation et son attestation a été <strong>générée automatiquement</strong> par l'Autopilot Formetoialia.</p>
     <div class="badge"><div class="score">${avgScore}%</div><div>Score moyen de formation</div></div>
     <p>Vous pouvez consulter et télécharger l'attestation depuis votre tableau de bord manager.</p>
-    <a class="cta" href="https://genie-ia.app/app/manager">Voir le tableau de bord →</a>
+    <a class="cta" href="https://formetoialia.com/app/manager">Voir le tableau de bord →</a>
     <p style="font-size:13px;color:#666;">Aucune action requise de votre part — l'Autopilot gère tout automatiquement.</p>
   </div>
-  <div class="footer">GENIE IA — Autopilot Formation — <a href="https://genie-ia.app">genie-ia.app</a></div>
+  <div class="footer">Formetoialia — Autopilot Formation — <a href="https://formetoialia.com">formetoialia.com</a></div>
 </div></body></html>`;
 }

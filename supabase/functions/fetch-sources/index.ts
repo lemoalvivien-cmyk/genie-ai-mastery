@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
         console.log(`Fetching: ${source.name} (${source.url})`);
 
         const resp = await fetch(source.url, {
-          headers: { "User-Agent": "GenieMastery/1.0 RSS Reader" },
+          headers: { "User-Agent": "FTI-Formation/1.0 RSS Reader" },
           signal: AbortSignal.timeout(10000),
         });
 

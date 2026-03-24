@@ -65,7 +65,7 @@ async function buildAttestation(params: {
   page.drawRectangle({ x: 0, y: 50, width: 6, height: height - 130, color: INDIGO });
   page.drawRectangle({ x: width - 6, y: 50, width: 6, height: height - 130, color: INDIGO });
 
-  page.drawText("GENIE IA", { x: 40, y: height - 50, size: 22, font: bold, color: WHITE });
+  page.drawText("Formetoialia", { x: 40, y: height - 50, size: 22, font: bold, color: WHITE });
   page.drawText("Plateforme de Formation Professionnelle", { x: 40, y: height - 66, size: 9, font: regular, color: rgb(0.7, 0.75, 0.9) });
 
   const title = "ATTESTATION DE FORMATION";
@@ -73,7 +73,7 @@ async function buildAttestation(params: {
   page.drawLine({ start: { x: 50, y: height - 143 }, end: { x: width - 50, y: height - 143 }, thickness: 1, color: INDIGO });
 
   let y = height - 183;
-  page.drawText("Je soussigné(e), la plateforme GENIE IA, certifie que :", { x: 60, y, size: 11, font: oblique, color: GRAY });
+  page.drawText("Je soussigné(e), la plateforme Formetoialia, certifie que :", { x: 60, y, size: 11, font: oblique, color: GRAY });
 
   y -= 40;
   page.drawRectangle({ x: 50, y: y - 15, width: width - 100, height: 50, color: LIGHT });
@@ -125,7 +125,7 @@ async function buildAttestation(params: {
   }
 
   // Viral footer
-  const footer = "GENIE IA — Plateforme de formation professionnelle en IA & Cybersécurité — genie-ia.app";
+  const footer = "Formetoialia — Plateforme de formation professionnelle en IA & Cybersécurité — formetoialia.com";
   page.drawText(footer, { x: width / 2 - regular.widthOfTextAtSize(footer, 7) / 2, y: 20, size: 7, font: regular, color: rgb(0.7, 0.75, 0.9) });
 
   return pdf.save();
@@ -151,7 +151,7 @@ async function buildRapportConformite(params: {
   page.drawRectangle({ x: 0, y: height - 100, width, height: 100, color: NAVY });
   page.drawRectangle({ x: 0, y: 0, width, height: 40, color: NAVY });
 
-  page.drawText("GENIE IA", { x: 40, y: height - 50, size: 20, font: bold, color: WHITE });
+  page.drawText("Formetoialia", { x: 40, y: height - 50, size: 20, font: bold, color: WHITE });
   page.drawText("Rapport de Conformité Formation", { x: 40, y: height - 72, size: 13, font: bold, color: WHITE });
   page.drawText(params.org_name, { x: 40, y: height - 90, size: 9, font: regular, color: rgb(0.7, 0.75, 0.9) });
 
@@ -201,7 +201,7 @@ async function buildRapportConformite(params: {
   }
 
   // Footer
-  page.drawText("GENIE IA — Ce rapport est confidentiel — genie-ia.app", { x: width / 2 - regular.widthOfTextAtSize("GENIE IA — Ce rapport est confidentiel — genie-ia.app", 7) / 2, y: 18, size: 7, font: regular, color: rgb(0.7, 0.75, 0.9) });
+  page.drawText("Formetoialia — Ce rapport est confidentiel — formetoialia.com", { x: width / 2 - regular.widthOfTextAtSize("Formetoialia — Ce rapport est confidentiel — formetoialia.com", 7) / 2, y: 18, size: 7, font: regular, color: rgb(0.7, 0.75, 0.9) });
 
   return pdf.save();
 }
@@ -413,7 +413,7 @@ Deno.serve(async (req) => {
     }
 
     const orgId = profile.org_id;
-    const BASE_URL = "https://genie-ia.app";
+    const BASE_URL = "https://formetoialia.com";
 
     // ── Load org data ─────────────────────────────────────────────────────────
     const [orgRes, membersRes, attestationsRes, progressRes, auditRes] = await Promise.all([

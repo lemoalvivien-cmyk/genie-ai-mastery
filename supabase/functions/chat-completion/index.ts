@@ -477,7 +477,7 @@ Deno.serve(async (req) => {
         content: "J'étais en train de préparer une réponse détaillée pour vous... mais votre plan gratuit est limité à 2 échanges par jour. Avec le plan Pro, je peux aller beaucoup plus loin. 🚀",
         quota_exceeded: true,
         budget_exceeded: true,
-        model_used: "genie-upsell",
+        model_used: "fti-upsell",
         upgrade_url: "https://formetoialia.com/pricing",
       }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -679,7 +679,7 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
   "steps": [
     {"id": 1, "label": "H+0 : Inventaire", "detail": "Lister tous les outils IA utilisés. Durée: 2h."},
     {"id": 2, "label": "H+4 : Évaluation risques", "detail": "Classer chaque outil : vert/orange/rouge selon les données traitées. Durée: 3h."},
-    {"id": 3, "label": "H+8 : Rédiger la Charte", "detail": "Utiliser le modèle Genie IA. La faire valider par la direction. Durée: 2h."},
+    {"id": 3, "label": "H+8 : Rédiger la Charte", "detail": "Utiliser le copilote IA Formetoialia. La faire valider par la direction. Durée: 2h."},
     {"id": 4, "label": "H+24 : Former l'équipe", "detail": "Envoyer la checklist à chaque collaborateur. Session de 30min. Durée: 1h."},
     {"id": 5, "label": "H+36 : SOP Cyber", "detail": "Documenter les procédures de sécurité. Archiver. Durée: 3h."},
     {"id": 6, "label": "H+48 : Audit final", "detail": "Vérifier que tout est en place. Préparer le rapport. Durée: 2h."}
