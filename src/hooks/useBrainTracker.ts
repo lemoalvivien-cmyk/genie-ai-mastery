@@ -1,5 +1,5 @@
 /**
- * useBrainTracker — stub léger après suppression de GenieOS.
+ * useBrainTracker — stub léger après refonte.
  */
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";

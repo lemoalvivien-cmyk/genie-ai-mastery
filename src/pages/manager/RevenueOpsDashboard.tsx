@@ -238,7 +238,7 @@ function BillingSection({ orgId }: { orgId: string | null }) {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `factures-genie-ia-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+    a.href = url; a.download = `factures-formetoialia-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
     URL.revokeObjectURL(url);
     toast({ title: "✅ Export CSV factures", description: `${invoices.length} facture(s) exportée(s).` });
   };
@@ -930,14 +930,14 @@ export default function RevenueOpsDashboard() {
                 </div>
                 <div className="space-y-2">
                   {[
-                    { label: "Temps réponse", genie: "~800ms",   human: "47s",          ratio: "58×" },
-                    { label: "Taux d'erreur",  genie: "0%",       human: "62%",          ratio: "∞" },
-                    { label: "Disponibilité",  genie: "24/7/365", human: "8h-18h lun-v", ratio: "3×" },
-                    { label: "Coût/session",   genie: "0.002€",   human: "120€",         ratio: "60k×" },
+                    { label: "Temps réponse", jarvis: "~800ms",   human: "47s",          ratio: "58×" },
+                    { label: "Taux d'erreur",  jarvis: "0%",       human: "62%",          ratio: "∞" },
+                    { label: "Disponibilité",  jarvis: "24/7/365", human: "8h-18h lun-v", ratio: "3×" },
+                    { label: "Coût/session",   jarvis: "0.002€",   human: "120€",         ratio: "60k×" },
                   ].map((row) => (
                     <div key={row.label} className="flex items-center gap-2 text-xs">
                       <span className="text-muted-foreground w-28 shrink-0">{row.label}</span>
-                      <span className="text-emerald-400 font-bold w-16">{row.genie}</span>
+                      <span className="text-emerald-400 font-bold w-16">{row.jarvis}</span>
                       <span className="text-muted-foreground/50 line-through w-20 text-[10px]">{row.human}</span>
                       <Badge className="ml-auto text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30">{row.ratio}</Badge>
                     </div>

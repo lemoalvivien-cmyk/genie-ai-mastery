@@ -504,7 +504,7 @@ export default function Chat() {
       }
     }
 
-    // ── PALANTIR MODE: use genie-brain-orchestrator ────────────────────────
+    // ── PALANTIR MODE: use brain-orchestrator ────────────────────────
     if (brainStateRef.current.palantirMode) {
       const loadingPalantirMsg: Message = {
         id: "palantir-loading",
@@ -789,7 +789,7 @@ export default function Chat() {
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-[10px] text-muted-foreground/50">
-                {brainState.palantirMode ? "⚡ Swarm 5 agents · MITRE ATT&CK · Prédiction 24h" : "Genie peut faire des erreurs. Vérifiez les informations importantes."}
+                {brainState.palantirMode ? "⚡ Swarm 5 agents · MITRE ATT&CK · Prédiction 24h" : "JARVIS peut faire des erreurs. Vérifiez les informations importantes."}
               </p>
               <button onClick={handleReset} className="text-[10px] text-muted-foreground/40 hover:text-muted-foreground flex items-center gap-1">
                 <RotateCcw className="w-2.5 h-2.5" /> Reset

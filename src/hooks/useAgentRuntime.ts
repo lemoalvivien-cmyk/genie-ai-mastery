@@ -1,5 +1,5 @@
 /**
- * useAgentRuntime — stub après suppression de GenieOS.
+ * useAgentRuntime — stub après refonte.
  * Fournit les types pour AgentExecutionPanel.tsx.
  */
 

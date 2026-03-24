@@ -100,7 +100,7 @@ export default function ResetPassword() {
               <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                 <Brain className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">GENIE <span className="text-gradient">IA</span></span>
+              <span className="text-xl font-bold">Formetoialia</span>
             </Link>
             <h1 className="text-2xl font-bold">Nouveau mot de passe</h1>
           </div>

@@ -274,7 +274,7 @@ export default function Index() {
               <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#4ade80" }} />
             </motion.div>
 
-            {/* R3F 3D Genie Avatar — morphing icosahedron, plain div wrapper avoids lazy-ref warning */}
+            {/* R3F 3D Avatar — morphing icosahedron */}
             <div
               className="relative mb-8"
               style={{

@@ -263,7 +263,7 @@ export function BrainDashboard() {
                   <div className="text-[10px] text-muted-foreground">{row.label}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-sm font-black text-primary">{row.genie}</div>
+                  <div className="text-sm font-black text-primary">{row.jarvis}</div>
                   <div className="text-[10px] text-muted-foreground/50">vs</div>
                   <div className="text-sm font-medium text-muted-foreground line-through">{row.human}</div>
                 </div>

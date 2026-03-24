@@ -28,7 +28,7 @@ const recentMessages = new Map<string, { hash: string; count: number; firstSeen:
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 export async function hashIp(ip: string): Promise<string> {
-  const enc = new TextEncoder().encode(ip + Deno.env.get("SUPABASE_JWT_SECRET", "genie-shield-salt"));
+  const enc = new TextEncoder().encode(ip + Deno.env.get("SUPABASE_JWT_SECRET", "fti-shield-salt"));
   const buf = await crypto.subtle.digest("SHA-256", enc);
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
 }
