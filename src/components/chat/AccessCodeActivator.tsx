@@ -16,15 +16,10 @@ export default function AccessCodeActivator({ onSuccess, compact = false }: Prop
   const [success, setSuccess] = useState(false);
 
   const formatCode = (val: string) => {
-    // Auto-format: FTI-XXXX-XXXX (aussi compatible anciens codes GENIE-)
+    // Auto-format: FTI-XXXX-XXXX
     const raw = val.toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (raw.startsWith("FTI")) {
       const body = raw.slice(3);
-      if (body.length <= 4) return `FTI-${body}`;
-      return `FTI-${body.slice(0, 4)}-${body.slice(4, 8)}`;
-    }
-    if (raw.startsWith("GENIE")) {
-      const body = raw.slice(5);
       if (body.length <= 4) return `FTI-${body}`;
       return `FTI-${body.slice(0, 4)}-${body.slice(4, 8)}`;
     }

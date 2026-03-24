@@ -3,13 +3,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyCronSecret } from "../_shared/cron-auth.ts";
 
 const ALLOWED_ORIGINS = [
-  "https://genie-ia.app",
-  "https://genie-ai-mastery.lovable.app",
+  "https://formetoialia.com",
+  "https://www.formetoialia.com",
+  "https://genie-ai-mastery.lovable.app", // legacy — backward compat
 ];
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") ?? "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".lovable.app") ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
@@ -31,8 +32,8 @@ async function openrouterCall(params: {
     headers: {
       Authorization: `Bearer ${params.apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://genie-ai-mastery.lovable.app",
-      "X-Title": "GENIE IA Content Forge",
+      "HTTP-Referer": "https://formetoialia.com",
+      "X-Title": "Formetoialia Content Forge",
     },
     body: JSON.stringify({
       model: params.model,
