@@ -374,7 +374,7 @@ export default function Pricing() {
         />
         <meta
           property="og:image"
-          content="https://formetoialia.com/logo-genie.png"
+          content="https://formetoialia.com/logo-formetoialia.png"
         />
         <script type="application/ld+json">
           {JSON.stringify(productSchema())}
