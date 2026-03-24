@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
     // ── 7. Envoyer l'invitation auth via service_role ─────────────────────────
     // AUCUN org_id dans les metadata : handle_new_user résout l'invitation
     // depuis public.org_invitations via l'email — pas depuis raw_user_meta_data.
-    const siteUrl = Deno.env.get("SITE_URL") ?? "https://genie-ai-mastery.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") ?? "https://formetoialia.com";
     const { data: inviteData, error: inviteErr } = await adminClient.auth.admin.inviteUserByEmail(
       email,
       {
