@@ -9,7 +9,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 // Deterministic code: FTI-[4 chars from userId]
 function generateReferralCode(userId: string): string {
   const hex = userId.replace(/-/g, "").slice(0, 4).toUpperCase();
-  return `GENIE-${hex}`;
+  return `FTI-${hex}`;
 }
 
 interface Referral {

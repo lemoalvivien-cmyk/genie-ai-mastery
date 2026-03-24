@@ -16,14 +16,19 @@ export default function AccessCodeActivator({ onSuccess, compact = false }: Prop
   const [success, setSuccess] = useState(false);
 
   const formatCode = (val: string) => {
-    // Auto-format: GENIE-XXXX-XXXX
+    // Auto-format: FTI-XXXX-XXXX (aussi compatible anciens codes GENIE-)
     const raw = val.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (raw.startsWith("FTI")) {
+      const body = raw.slice(3);
+      if (body.length <= 4) return `FTI-${body}`;
+      return `FTI-${body.slice(0, 4)}-${body.slice(4, 8)}`;
+    }
     if (raw.startsWith("GENIE")) {
       const body = raw.slice(5);
-      if (body.length <= 4) return `GENIE-${body}`;
-      return `GENIE-${body.slice(0, 4)}-${body.slice(4, 8)}`;
+      if (body.length <= 4) return `FTI-${body}`;
+      return `FTI-${body.slice(0, 4)}-${body.slice(4, 8)}`;
     }
-    return raw.slice(0, 14);
+    return raw.slice(0, 12);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,8 +84,8 @@ export default function AccessCodeActivator({ onSuccess, compact = false }: Prop
           type="text"
           value={code}
           onChange={(e) => setCode(formatCode(e.target.value))}
-          placeholder="GENIE-XXXX-XXXX"
-          maxLength={14}
+          placeholder="FTI-XXXX-XXXX"
+          maxLength={12}
           className="flex-1 px-3 py-2 rounded-xl bg-secondary/60 border border-border text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all"
           disabled={loading}
           autoComplete="off"
