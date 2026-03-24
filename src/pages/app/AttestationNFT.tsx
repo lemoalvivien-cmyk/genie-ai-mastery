@@ -72,7 +72,7 @@ export default function AttestationNFT() {
 
   // ── Load existing attestation ─────────────────────────────────────────────
   const { data: existing, refetch } = useQuery({
-    queryKey: ["attestation-nft", userId],
+    queryKey: ["attestation-cert", userId],
     enabled: !!userId,
     queryFn: async () => {
       const { data } = await supabase
@@ -88,7 +88,7 @@ export default function AttestationNFT() {
 
   // ── Load completed modules ─────────────────────────────────────────────────
   const { data: progress } = useQuery({
-    queryKey: ["progress-for-nft", userId],
+    queryKey: ["progress-for-cert", userId],
     enabled: !!userId,
     queryFn: async () => {
       const { data } = await supabase
@@ -109,7 +109,7 @@ export default function AttestationNFT() {
   const rarity = getRarity(avgScore, completedCount);
   const canMint = completedCount >= 3 && avgScore >= 60;
 
-  // ── Mint NFT attestation ──────────────────────────────────────────────────
+  // ── Générer attestation ──────────────────────────────────────────────────
   const mintAttestation = useCallback(async () => {
     if (!userId || !canMint) return;
     setMinting(true);
@@ -131,7 +131,7 @@ export default function AttestationNFT() {
       // Cryptographic hash
       const signatureHash = await sha256(payload);
 
-      // NFT metadata
+      // Cert metadata
       const metadata: CertMetadata = {
         name: `Formetoialia Cyber Certification — ${rarity.tier}`,
         description: `Certification cryptographique signée et vérifiable délivrée par Formetoialia. ${completedCount} modules cyber complétés, score moyen ${avgScore}/100. Vérifiable publiquement.`,
