@@ -1,6 +1,6 @@
 /**
- * Formetoialia — Landing Page v11 — Système d'exécution IA quotidien
- * "Formetoialia transforme l'IA en résultats concrets, chaque jour."
+ * Formetoialia — Homepage v12 — Machine de conversion
+ * "Arrêtez les formations IA qui finissent en oubli."
  */
 
 import React, { useState, useCallback, useEffect } from "react";
@@ -11,8 +11,8 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, Shield, Sparkles, Users, Zap,
   FileCheck, BarChart3, ChevronDown, CheckCircle,
-  Target, MessageSquare, TrendingUp, Clock, Star,
-  Bolt, Play,
+  Target, MessageSquare, TrendingUp, Clock, Play,
+  AlertCircle, Repeat, HelpCircle, BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
@@ -22,16 +22,16 @@ import {
   organizationSchema, faqSchema,
 } from "@/lib/seo";
 
-/* ─── Fade-in ─── */
+/* ── Helpers ─────────────────────────────────────────────────── */
 function FadeIn({ children, delay = 0, className = "" }: {
   children: React.ReactNode; delay?: number; className?: string;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -39,133 +39,83 @@ function FadeIn({ children, delay = 0, className = "" }: {
   );
 }
 
-/* ─── Section ─── */
-function Section({ children, className = "", id = "", style }: {
-  children: React.ReactNode; className?: string; id?: string; style?: React.CSSProperties;
+function Sec({ children, id = "", className = "", style }: {
+  children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties;
 }) {
   return (
-    <section id={id} className={`py-20 px-4 sm:px-6 ${className}`} style={style}>
+    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style}>
       {children}
     </section>
   );
 }
 
-/* ─── CTA Button ─── */
-function CTAButton({
-  children, onClick, href, variant = "primary", className = "", size = "default",
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  href?: string;
-  variant?: "primary" | "outline";
-  className?: string;
-  size?: "default" | "lg";
-}) {
-  const base = `inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`;
-  const sizeClass = size === "lg" ? "px-8 py-4 text-base" : "px-6 py-3 text-sm";
-  const variantClass = variant === "primary"
-    ? "bg-accent text-accent-foreground shadow-[0_0_20px_hsl(var(--accent)/0.35)] hover:opacity-90"
-    : "border border-primary text-primary hover:bg-primary/10";
-  const cls = `${base} ${sizeClass} ${variantClass} ${className}`;
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold mb-5 border border-primary/20 text-primary"
+      style={{ background: "hsl(var(--primary)/0.07)" }}
+    >
+      {children}
+    </div>
+  );
+}
 
+function CTAPrimary({ onClick, href, children }: {
+  onClick?: () => void; href?: string; children: React.ReactNode;
+}) {
+  const cls = "inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+  const style = {
+    background: "hsl(var(--accent))",
+    color: "hsl(var(--accent-foreground))",
+    boxShadow: "0 0 22px hsl(var(--accent)/0.3)",
+  };
+  if (href) return <Link to={href} className={cls} style={style}>{children}</Link>;
+  return <button onClick={onClick} className={cls} style={style}>{children}</button>;
+}
+
+function CTASecondary({ onClick, href, children }: {
+  onClick?: () => void; href?: string; children: React.ReactNode;
+}) {
+  const cls = "inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] border border-primary/40 text-primary hover:bg-primary/8 focus:outline-none";
   if (href) return <Link to={href} className={cls}>{children}</Link>;
   return <button onClick={onClick} className={cls}>{children}</button>;
 }
 
-/* ─── Données ─── */
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: Target,
-    title: "Diagnostic en 3 minutes",
-    desc: "À l'inscription, un questionnaire adaptatif calibre votre niveau réel. Votre plan d'exécution se construit automatiquement.",
-  },
-  {
-    step: "02",
-    icon: MessageSquare,
-    title: "Un playbook actionnable par jour",
-    desc: "Chaque jour, votre copilote IA vous assigne une action ciblée : prompt à rédiger, menace à détecter, compétence à ancrer. 10 à 15 minutes.",
-  },
-  {
-    step: "03",
-    icon: FileCheck,
-    title: "Résultat mesuré, preuve générée",
-    desc: "Après chaque exécution, l'IA évalue, corrige et mesure votre progression. Les jalons complétés génèrent une attestation PDF vérifiable.",
-  },
-];
-
-const USE_CASES = [
-  {
-    icon: "🏢",
-    who: "Dirigeants & RH",
-    problem: "Comment rendre mes équipes opérationnelles sur l'IA sans y passer des mois ?",
-    answer: "Cockpit de suivi en temps réel, attestations vérifiables, rapport de conformité exportable. Jusqu'à 25 membres sur un seul abonnement.",
-  },
-  {
-    icon: "💼",
-    who: "Commerciaux & Marketing",
-    problem: "Comment utiliser l'IA pour générer des résultats concrets au quotidien ?",
-    answer: "Des playbooks métier calés sur vos usages : prompts de prospection, analyse de leads, production de contenus. Pratique, pas théorique.",
-  },
-  {
-    icon: "🔒",
-    who: "Fonctions support & IT",
-    problem: "Comment renforcer la vigilance cyber de l'équipe efficacement ?",
-    answer: "Simulations de phishing interactives, mises en pratique cyber, scénarios réels. L'exécution guidée s'adapte à ceux qui n'ont pas le temps.",
-  },
-];
-
-const WHAT_YOU_GET = [
-  { icon: MessageSquare, title: "Copilote IA KITT", desc: "500 échanges/jour pour débloquer un concept, préparer une action, challenger vos décisions. Adapté à votre niveau." },
-  { icon: Target, title: "Playbooks métier", desc: "IA Pro, IA Perso, Cybersécurité — parcours séquencés avec mises en pratique, jalons et résultats mesurables." },
-  { icon: Bolt, title: "Labs d'exécution", desc: "Phishing Lab, Prompt Lab, Cyber Lab. Des environnements de mise en situation, pas des vidéos passives." },
-  { icon: FileCheck, title: "Attestations vérifiables", desc: "PDF signé + QR code public. Preuve documentée de compétence, utile en conformité interne." },
-  { icon: BarChart3, title: "Cockpit manager", desc: "Suivi de progression individuel et collectif, identification des lacunes, rapports par équipe." },
-  { icon: Zap, title: "Action du jour", desc: "Chaque matin, une exécution ciblée adaptée à votre niveau et votre domaine. 10-15 min." },
-];
-
-const COMPARE_ROWS = [
-  { feature: "Disponibilité", classic: "Horaires de bureau", fti: "24h/24, 7j/7" },
-  { feature: "Coût / organisation", classic: "Devis sur demande", fti: "59€ TTC/mois tout compris" },
-  { feature: "Simulation phishing", classic: "Rare, souvent théorique", fti: "Labs interactifs intégrés" },
-  { feature: "Attestation vérifiable", classic: "Variable selon prestataire", fti: "PDF signé + QR code natif" },
-  { feature: "Cockpit manager en temps réel", classic: "Non disponible", fti: "Inclus nativement" },
-  { feature: "Adaptation au niveau individuel", classic: "Non disponible", fti: "Parcours adaptatif intégré" },
-  { feature: "RGPD · données hébergées UE", classic: "À vérifier", fti: "Inclus par défaut" },
-];
-
+/* ── FAQ ─────────────────────────────────────────────────────── */
 const FAQ_DATA = [
   {
-    q: "C'est pour qui exactement ?",
-    a: "Pour les PME et équipes (commerciaux, RH, marketing, fonctions support) qui veulent opérationnaliser l'IA dans leur vrai travail quotidien, sans dépendre d'un intervenant externe. Zéro compétence technique requise.",
+    q: "Est-ce juste un chat IA de plus ?",
+    a: "Non. ChatGPT vous donne des réponses. Formetoialia vous donne un système : une mission concrète chaque jour, un playbook structuré, une progression mesurable et une preuve de résultat. C'est la différence entre une réponse isolée et une habitude d'exécution.",
   },
   {
-    q: "Comment fonctionne le copilote KITT ?",
-    a: "KITT est votre assistant IA intégré. Il guide vos sessions, répond à vos questions sur vos playbooks en cours, assigne des actions et s'adapte à votre niveau. Disponible en mode texte.",
+    q: "Est-ce utile si je débute avec l'IA ?",
+    a: "C'est précisément fait pour ça. L'onboarding calibre votre niveau en 3 minutes. KITT vous guide dès la première session. Zéro compétence technique requise — juste la volonté de commencer.",
   },
   {
-    q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications d'organismes externes. Leur valeur est celle d'une preuve documentée de maîtrise, utile en conformité interne ou contexte professionnel.",
+    q: "Pourquoi payer si des IA gratuites existent ?",
+    a: "Les IA gratuites répondent. Formetoialia exécute. La valeur n'est pas dans l'accès à l'IA — elle est dans le système qui vous force à l'utiliser quotidiennement pour obtenir des résultats mesurables. Page blanche éliminée. Progression visible. Résultats exportables.",
   },
   {
-    q: "Le plan couvre combien de personnes ?",
-    a: "Un abonnement Pro couvre une organisation jusqu'à 25 membres. Au-delà, contactez-nous pour un devis entreprise.",
+    q: "C'est adapté aux équipes ?",
+    a: "Oui. Le plan Pro couvre jusqu'à 25 membres sous un seul abonnement. Le cockpit manager permet au responsable de suivre la progression individuelle, d'identifier les lacunes et d'exporter des rapports.",
   },
   {
-    q: "Y a-t-il un essai gratuit ?",
-    a: "Oui. Inscription gratuite sans carte bancaire. Plan Découverte disponible en permanence. Le plan Pro inclut 14 jours d'essai.",
+    q: "En combien de temps j'obtiens une première valeur ?",
+    a: "Moins de 5 minutes après l'inscription. Votre première mission est assignée immédiatement. Vous l'exécutez, KITT l'évalue. Vous avez votre premier résultat concret avant la fin de la journée.",
   },
   {
-    q: "Puis-je annuler librement ?",
-    a: "Oui, depuis votre espace en 2 clics, effective à la fin de la période en cours. Garantie satisfait ou remboursé 30 jours, sans condition.",
+    q: "Y a-t-il un engagement ?",
+    a: "Aucun. L'essai de 14 jours est sans carte bancaire. L'abonnement se résilie en 2 clics, effectif à la fin de la période. Garantie satisfait ou remboursé 30 jours.",
   },
 ];
 
-/* ─── FAQ Accordion ─── */
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-xl overflow-hidden border border-border" style={{ background: "hsl(var(--card))" }}>
+    <div
+      className="rounded-xl overflow-hidden border border-border"
+      style={{ background: "hsl(var(--card))" }}
+    >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-start justify-between gap-4 px-5 py-4 text-left"
@@ -177,14 +127,17 @@ function FAQItem({ q, a }: { q: string; a: string }) {
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
-      <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: open ? "400px" : "0px" }}>
+      <div
+        className="overflow-hidden transition-all duration-200"
+        style={{ maxHeight: open ? "400px" : "0px" }}
+      >
         <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">{a}</p>
       </div>
     </div>
   );
 }
 
-/* ─── Main ─── */
+/* ── Main ────────────────────────────────────────────────────── */
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -207,10 +160,10 @@ export default function Index() {
   return (
     <>
       <Helmet>
-        <title>Formetoialia — Le système d'exécution IA de votre équipe</title>
-        <meta name="description" content="Formetoialia transforme l'IA en résultats concrets chaque jour : playbooks métier, copilote IA, cockpit manager, attestations vérifiables. 59€ TTC/mois pour 25 membres." />
-        <meta property="og:title" content="Formetoialia — Système d'exécution IA quotidien pour équipes" />
-        <meta property="og:description" content="Playbooks métier, copilote IA KITT, labs d'exécution, attestations vérifiables, cockpit manager. 59€ TTC/mois." />
+        <title>Formetoialia — Système d'exécution IA quotidien pour équipes</title>
+        <meta name="description" content="Arrêtez les formations IA qui finissent en oubli. Formetoialia transforme l'IA en résultats concrets : missions guidées, playbooks métier, cockpit manager. 59€/mois — 25 membres." />
+        <meta property="og:title" content="Formetoialia — Système d'exécution IA quotidien" />
+        <meta property="og:description" content="Missions concrètes, playbooks prêts à l'emploi, copilote KITT, cockpit manager. 59€ TTC/mois pour toute l'équipe." />
         <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://formetoialia.com/" />
@@ -222,9 +175,11 @@ export default function Index() {
 
       <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
 
-        {/* ── NAVBAR ── */}
-        <header className="sticky top-0 z-50 border-b border-border/50 px-4 sm:px-8 h-14 flex items-center justify-between"
-          style={{ background: "hsl(var(--background) / 0.95)", backdropFilter: "blur(16px)" }}>
+        {/* ══ NAVBAR ══════════════════════════════════════════════ */}
+        <header
+          className="sticky top-0 z-50 border-b border-border/40 px-4 sm:px-8 h-14 flex items-center justify-between"
+          style={{ background: "hsl(var(--background)/0.96)", backdropFilter: "blur(16px)" }}
+        >
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2.5">
               <img src={logoFormetoialia} alt="Formetoialia" className="h-7 w-auto" />
@@ -239,9 +194,13 @@ export default function Index() {
                 { label: "Prix", href: "/pricing" },
                 { label: "Démo", href: "/demo" },
               ].map((item) => (
-                <a key={item.label} href={item.href}
+                <a
+                  key={item.label}
+                  href={item.href}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
-                >{item.label}</a>
+                >
+                  {item.label}
+                </a>
               ))}
             </nav>
           </div>
@@ -251,92 +210,101 @@ export default function Index() {
             ) : (
               <>
                 <Link to="/login" className="hidden sm:block text-xs text-muted-foreground hover:text-foreground transition-colors">Connexion</Link>
-                <CTAButton onClick={handleCTA} size="default">
+                <CTAPrimary onClick={handleCTA}>
                   <Sparkles className="w-3.5 h-3.5" />
-                  Essai gratuit
-                </CTAButton>
+                  Essayer gratuitement
+                </CTAPrimary>
               </>
             )}
           </div>
         </header>
 
-        {/* ══════════════════════════════════════════
-            SECTION 1 — HERO
-        ══════════════════════════════════════════ */}
-        <section className="relative flex flex-col items-center justify-center min-h-[92vh] px-4 sm:px-6 pt-12 pb-16 text-center overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse 70% 50% at 50% 20%, hsl(var(--primary)/0.08) 0%, transparent 70%)" }} />
-          <div className="absolute inset-0 pointer-events-none opacity-[0.02]"
-            style={{ backgroundImage: "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        {/* ══ 1. HERO ═════════════════════════════════════════════ */}
+        <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 sm:px-6 pt-10 pb-16 text-center overflow-hidden">
+          {/* Ambient glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse 65% 55% at 50% 15%, hsl(var(--primary)/0.09) 0%, transparent 70%)" }}
+          />
+          {/* Subtle grid */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.025]"
+            style={{
+              backgroundImage: "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
+              backgroundSize: "56px 56px",
+            }}
+          />
 
           <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-            {/* Trust badge */}
+            {/* Trust pill */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 border border-primary/20"
-              style={{ background: "hsl(var(--primary)/0.08)" }}
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.45 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 border border-primary/20"
+              style={{ background: "hsl(var(--primary)/0.07)" }}
             >
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-semibold text-primary">RGPD · Données hébergées en UE · Essai gratuit 14 jours</span>
+              <span className="text-xs font-semibold text-primary">RGPD · Hébergé en UE · Essai 14 jours sans carte</span>
             </motion.div>
 
             {/* H1 */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2rem,5.5vw,4rem)] font-black leading-[1.1] tracking-tight mb-6"
+              initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6"
             >
-              <span className="block text-foreground">Votre équipe exécute avec l'IA</span>
-              <span className="block text-foreground">concrètement,</span>
-              <span className="block" style={{ color: "hsl(var(--primary))" }}>chaque jour.</span>
+              <span className="block text-foreground">Arrêtez les formations IA</span>
+              <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
             </motion.h1>
 
-            {/* Sous-headline */}
+            {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.55 }}
               className="text-base sm:text-lg text-muted-foreground max-w-2xl mb-10 leading-relaxed"
             >
-              Formetoialia est un <strong className="text-foreground">système d'exécution IA quotidien</strong> : playbooks métier, copilote IA, résultats mesurables et cockpit manager.
-              <span className="block mt-2 text-foreground/70 text-sm">Pour PME, équipes commerciales, RH, marketing et fonctions support.</span>
+              Formetoialia transforme l'IA en résultats concrets grâce à des{" "}
+              <strong className="text-foreground">missions guidées</strong>,
+              des <strong className="text-foreground">playbooks prêts à l'emploi</strong>{" "}
+              et un <strong className="text-foreground">suivi de progression mesurable</strong>.
             </motion.p>
 
             {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, duration: 0.5 }}
-              className="flex flex-col sm:flex-row gap-3 mb-6"
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58, duration: 0.45 }}
+              className="flex flex-col sm:flex-row gap-3 mb-5"
             >
-              <CTAButton onClick={handleCTA} size="lg">
-                <Sparkles className="w-5 h-5" />
-                Démarrer gratuitement
+              <CTAPrimary onClick={handleCTA}>
+                <Sparkles className="w-4 h-4" />
+                Essayer gratuitement
                 <ArrowRight className="w-4 h-4" />
-              </CTAButton>
-              <CTAButton href="/demo" variant="outline" size="lg">
+              </CTAPrimary>
+              <CTASecondary href="/demo">
                 <Play className="w-4 h-4" />
-                Voir la démo produit
-              </CTAButton>
+                Voir une mission en direct
+              </CTASecondary>
             </motion.div>
 
+            {/* Micro-proof */}
             <motion.p
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="text-xs text-muted-foreground/60"
+              transition={{ delay: 0.72 }}
+              className="text-xs text-muted-foreground/60 mb-14"
             >
-              Sans carte bancaire · 14 jours d'essai inclus · 59€ TTC/mois pour toute l'équipe
+              1 mission par jour &nbsp;·&nbsp; 1 résultat concret &nbsp;·&nbsp; 0 page blanche
             </motion.p>
 
             {/* Stats */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.95, duration: 0.5 }}
-              className="flex flex-wrap justify-center gap-8 mt-14"
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.88, duration: 0.4 }}
+              className="flex flex-wrap justify-center gap-8 sm:gap-12"
             >
               {[
-                { value: "25", label: "membres par abonnement" },
-                { value: "59€", label: "TTC/mois" },
                 { value: "< 5 min", label: "première victoire" },
+                { value: "25", label: "membres inclus" },
+                { value: "59€", label: "TTC/mois tout compris" },
                 { value: "24/7", label: "disponible" },
               ].map((s) => (
                 <div key={s.label} className="flex flex-col items-center gap-1">
@@ -347,49 +315,190 @@ export default function Index() {
             </motion.div>
           </div>
 
+          {/* Scroll hint */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            transition={{ delay: 1.4 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
           >
             <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-              <ChevronDown className="w-4 h-4 text-muted-foreground/30" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground/25" />
             </motion.div>
           </motion.div>
         </section>
 
-        {/* ══════════════════════════════════════════
-            SECTION 2 — COMMENT ÇA MARCHE
-        ══════════════════════════════════════════ */}
-        <Section id="how" className="max-w-5xl mx-auto">
-          <FadeIn className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-primary/20 text-primary"
-              style={{ background: "hsl(var(--primary)/0.07)" }}>
-              <Zap className="w-3 h-3" /> Comment ça marche
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black mb-3 text-foreground">
-              Opérationnel sur l'IA<br />
-              <span className="text-primary">en moins de 5 minutes</span>
+        {/* ══ 2. PROBLÈME ═════════════════════════════════════════ */}
+        <Sec className="max-w-5xl mx-auto">
+          <FadeIn className="text-center mb-12">
+            <Chip><AlertCircle className="w-3 h-3" /> Le vrai problème</Chip>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
+              Le vrai problème n'est pas<br />
+              <span className="text-primary">l'accès à l'IA. C'est son usage.</span>
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-              Pas de cours magistral. Pas de vidéo de 3 heures. Un playbook par jour, exécuté, évalué par l'IA.
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+              La plupart des équipes ont déjà accès à ChatGPT. Mais en pratique, rien ne change.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                icon: BookOpen,
+                title: "Trop de théorie",
+                desc: "Des vidéos, des slides, des PDF. Personne n'est plus opérationnel à la fin.",
+              },
+              {
+                icon: HelpCircle,
+                title: "Trop de page blanche",
+                desc: "On sait que l'IA est utile. On ne sait pas par où commencer ni quoi produire.",
+              },
+              {
+                icon: Repeat,
+                title: "Trop de bricolage",
+                desc: "Chacun fait sa sauce. Pas de méthode partagée, pas de progression collective.",
+              },
+              {
+                icon: BarChart3,
+                title: "Zéro résultat mesurable",
+                desc: "Impossible de prouver que les équipes progressent. Aucun reporting, aucune trace.",
+              },
+            ].map((card, i) => (
+              <FadeIn key={card.title} delay={i * 0.08}>
+                <div
+                  className="p-5 rounded-2xl border border-border h-full"
+                  style={{ background: "hsl(var(--card))" }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: "hsl(var(--destructive)/0.1)" }}
+                  >
+                    <card.icon className="w-4 h-4 text-destructive" />
+                  </div>
+                  <h3 className="font-bold text-sm text-foreground mb-2">{card.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{card.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </Sec>
+
+        {/* ══ 3. PROMESSE ═════════════════════════════════════════ */}
+        <Sec
+          className="max-w-5xl mx-auto"
+          style={{ paddingTop: 0 }}
+        >
+          <FadeIn className="text-center mb-12">
+            <Chip><Zap className="w-3 h-3" /> La promesse</Chip>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
+              Avec Formetoialia, l'IA cesse d'être un gadget.
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Elle devient <strong className="text-foreground">une habitude de production</strong>.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[
+              {
+                number: "01",
+                icon: Target,
+                title: "Mission concrète",
+                desc: "Chaque jour, une exécution assignée par KITT. Pas un cours — une tâche réelle sur votre vrai travail.",
+                accent: "hsl(var(--primary))",
+              },
+              {
+                number: "02",
+                icon: CheckCircle,
+                title: "Résultat exploitable",
+                desc: "À la fin de chaque mission, vous avez un livrable : email rédigé, document analysé, présentation préparée.",
+                accent: "hsl(var(--accent))",
+              },
+              {
+                number: "03",
+                icon: TrendingUp,
+                title: "Progression visible",
+                desc: "XP, jalons, attestations, cockpit manager. Chaque effort est mesuré et documenté.",
+                accent: "hsl(142 71% 45%)",
+              },
+            ].map((card, i) => (
+              <FadeIn key={card.title} delay={i * 0.1}>
+                <div
+                  className="relative p-6 rounded-2xl border border-border h-full overflow-hidden"
+                  style={{ background: "hsl(var(--card))" }}
+                >
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5"
+                    style={{ background: card.accent }}
+                  />
+                  <span className="text-xs font-black text-muted-foreground/30 font-mono block mb-4">{card.number}</span>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: `${card.accent}18` }}
+                  >
+                    <card.icon className="w-5 h-5" style={{ color: card.accent }} />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">{card.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </Sec>
+
+        {/* ══ 4. COMMENT ÇA MARCHE ════════════════════════════════ */}
+        <Sec
+          id="how"
+          className="max-w-4xl mx-auto"
+          style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+        >
+          <FadeIn className="text-center mb-14">
+            <Chip><Zap className="w-3 h-3" /> Comment ça marche</Chip>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-3">
+              En 3 étapes.{" "}
+              <span className="text-primary">Pas en 3 semaines.</span>
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+              Pas de cours magistral. Pas de vidéo de 3h. Une exécution guidée, évaluée par l'IA.
             </p>
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {HOW_IT_WORKS.map((step, i) => (
-              <FadeIn key={step.step} delay={i * 0.1}>
-                <div className="relative p-6 rounded-2xl border border-border h-full"
-                  style={{ background: "hsl(var(--card))" }}>
+            {[
+              {
+                step: "01",
+                icon: Target,
+                title: "Choisir un objectif",
+                desc: "En 3 minutes, un diagnostic calibre votre niveau. Votre plan d'exécution est construit automatiquement.",
+              },
+              {
+                step: "02",
+                icon: MessageSquare,
+                title: "Être guidé pas à pas",
+                desc: "KITT assigne une mission ciblée. Vous l'exécutez. L'IA évalue, corrige, adapte la suite.",
+              },
+              {
+                step: "03",
+                icon: FileCheck,
+                title: "Obtenir un vrai résultat",
+                desc: "Un livrable exploitable à chaque session. Une attestation à chaque jalon complété.",
+              },
+            ].map((s, i) => (
+              <FadeIn key={s.step} delay={i * 0.1}>
+                <div
+                  className="relative p-6 rounded-2xl border border-border h-full"
+                  style={{ background: "hsl(var(--card))" }}
+                >
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-black text-primary/50 font-mono">{step.step}</span>
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                      style={{ background: "hsl(var(--primary)/0.1)" }}>
-                      <step.icon className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-black text-primary/40 font-mono">{s.step}</span>
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center"
+                      style={{ background: "hsl(var(--primary)/0.1)" }}
+                    >
+                      <s.icon className="w-4 h-4 text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-bold text-sm text-foreground mb-2">{step.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                  <h3 className="font-bold text-sm text-foreground mb-2">{s.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
                   {i < 2 && (
                     <ArrowRight className="absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-border hidden sm:block" />
                   )}
@@ -397,255 +506,439 @@ export default function Index() {
               </FadeIn>
             ))}
           </div>
-        </Section>
+        </Sec>
 
-        {/* ══════════════════════════════════════════
-            SECTION 3 — CAS D'USAGE MÉTIERS
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
-          <FadeIn className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-primary/20 text-primary"
-              style={{ background: "hsl(var(--primary)/0.07)" }}>
-              <Users className="w-3 h-3" /> Pour qui
+        {/* ══ 5. EMERGENCY MODE ═══════════════════════════════════ */}
+        <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }}>
+          <FadeIn>
+            <div
+              className="rounded-2xl p-7 sm:p-10 border border-accent/30"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)/0.05) 100%)",
+                boxShadow: "0 0 30px hsl(var(--accent)/0.07)",
+              }}
+            >
+              <div className="text-center mb-8">
+                <Chip><Zap className="w-3 h-3 text-accent" />Besoin immédiat</Chip>
+                <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+                  Besoin d'un résultat maintenant ?
+                </h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  KITT peut vous aider en moins de 5 minutes sur vos vraies tâches.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { emoji: "✉️", title: "Rédiger un mail difficile", desc: "Refus, relance, escalade — KITT vous guide phrase par phrase." },
+                  { emoji: "📄", title: "Analyser un document", desc: "Résumé, points clés, risques, actions prioritaires en secondes." },
+                  { emoji: "🎯", title: "Préparer une présentation", desc: "Structure, arguments, slides — du brouillon au pitch final." },
+                ].map((item, i) => (
+                  <FadeIn key={item.title} delay={i * 0.08}>
+                    <div
+                      className="p-4 rounded-xl border border-border cursor-pointer hover:border-primary/40 transition-all group"
+                      style={{ background: "hsl(var(--background)/0.5)" }}
+                      onClick={handleCTA}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <span className="text-2xl mb-3 block">{item.emoji}</span>
+                      <p className="text-sm font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{item.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </FadeIn>
+                ))}
+              </div>
+              <div className="text-center mt-7">
+                <CTAPrimary onClick={handleCTA}>
+                  <Sparkles className="w-4 h-4" />
+                  Essayer maintenant — c'est gratuit
+                </CTAPrimary>
+              </div>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-              Fait pour votre métier,<br />
-              <span className="text-primary">pas pour les ingénieurs.</span>
-            </h2>
           </FadeIn>
+        </Sec>
 
-          <div className="space-y-4">
-            {USE_CASES.map((uc, i) => (
-              <FadeIn key={uc.who} delay={i * 0.1}>
-                <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr_1fr] gap-4 sm:gap-6 p-5 rounded-2xl border border-border items-start"
-                  style={{ background: "hsl(var(--card))" }}>
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{uc.icon}</span>
-                    <span className="text-sm font-bold text-foreground whitespace-nowrap">{uc.who}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Le défi</p>
-                    <p className="text-sm text-foreground/80 italic">"{uc.problem}"</p>
-                  </div>
-                  <div className="sm:border-l sm:border-border sm:pl-6">
-                    <p className="text-xs font-semibold text-primary mb-1 uppercase tracking-wide">La réponse</p>
-                    <p className="text-sm text-foreground/80">{uc.answer}</p>
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </Section>
-
-        {/* ══════════════════════════════════════════
-            SECTION 4 — CE QUE VOUS OBTENEZ
-        ══════════════════════════════════════════ */}
-        <Section id="playbooks" className="max-w-6xl mx-auto"
-          style={{ paddingTop: 0, borderTop: "1px solid hsl(var(--border)/0.4)" }}>
+        {/* ══ 6. PLAYBOOKS ════════════════════════════════════════ */}
+        <Sec
+          id="playbooks"
+          className="max-w-6xl mx-auto"
+          style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+        >
           <FadeIn className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-primary/20 text-primary"
-              style={{ background: "hsl(var(--primary)/0.07)" }}>
-              <CheckCircle className="w-3 h-3" /> Ce que vous obtenez
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-              Tout ce qu'il faut pour exécuter,<br />
-              <span className="text-primary">rien de superflu.</span>
+            <Chip><BookOpen className="w-3 h-3" /> Playbooks</Chip>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-3">
+              Des playbooks prêts à l'emploi
             </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+              Pas des templates vides. Des exécutions guidées, étape par étape, sur vos vraies tâches métier.
+            </p>
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {WHAT_YOU_GET.map((item, i) => (
-              <FadeIn key={item.title} delay={i * 0.07}>
-                <div className="p-5 rounded-2xl border border-border h-full"
-                  style={{ background: "hsl(var(--card))" }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-4"
-                    style={{ background: "hsl(var(--primary)/0.1)" }}>
-                    <item.icon className="w-4 h-4 text-primary" />
+            {[
+              {
+                icon: MessageSquare,
+                tag: "Communication",
+                title: "Prompts de prospection",
+                desc: "Rédigez des emails de prospection, des relances et des propositions commerciales en 5 minutes.",
+              },
+              {
+                icon: FileCheck,
+                tag: "Cybersécurité",
+                title: "Détection d'attaques phishing",
+                desc: "Reconnaître les tentatives de manipulation, les faux emails et les liens suspects.",
+              },
+              {
+                icon: Zap,
+                tag: "Productivité",
+                title: "Automatisation de tâches répétitives",
+                desc: "Identifiez et déléguer à l'IA ce qui vous fait perdre du temps chaque semaine.",
+              },
+              {
+                icon: BarChart3,
+                tag: "Management",
+                title: "Rapports de performance",
+                desc: "Générez des synthèses d'équipe, des compte-rendus et des plans d'action structurés.",
+              },
+              {
+                icon: Target,
+                tag: "Décision",
+                title: "Analyse de documents complexes",
+                desc: "Contrats, rapports, comptes-rendus — extrayez l'essentiel en secondes.",
+              },
+              {
+                icon: TrendingUp,
+                tag: "Croissance",
+                title: "Stratégie de contenu",
+                desc: "Posts LinkedIn, newsletters, pages web — produisez du contenu cohérent sans blocage.",
+              },
+            ].map((pb, i) => (
+              <FadeIn key={pb.title} delay={i * 0.06}>
+                <div
+                  className="p-5 rounded-2xl border border-border h-full hover:border-primary/30 transition-all cursor-pointer group"
+                  style={{ background: "hsl(var(--card))" }}
+                  onClick={handleCTA}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center"
+                      style={{ background: "hsl(var(--primary)/0.1)" }}
+                    >
+                      <pb.icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20 text-primary"
+                      style={{ background: "hsl(var(--primary)/0.06)" }}
+                    >
+                      {pb.tag}
+                    </span>
                   </div>
-                  <h3 className="font-bold text-sm text-foreground mb-2">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-sm text-foreground mb-2 group-hover:text-primary transition-colors">{pb.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{pb.desc}</p>
                 </div>
               </FadeIn>
             ))}
           </div>
-        </Section>
 
-        {/* ══════════════════════════════════════════
-            SECTION 5 — COMPARAISON
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-4xl mx-auto" style={{ paddingTop: 0 }}>
+          <FadeIn className="text-center mt-8">
+            <CTASecondary onClick={handleCTA}>
+              Voir tous les playbooks <ArrowRight className="w-4 h-4" />
+            </CTASecondary>
+          </FadeIn>
+        </Sec>
+
+        {/* ══ 7. COCKPIT MANAGER ══════════════════════════════════ */}
+        <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <FadeIn>
+              <Chip><Users className="w-3 h-3" /> Pour les responsables</Chip>
+              <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
+                Le tableau de bord que les formations classiques
+                <span className="text-primary"> n'ont jamais su offrir.</span>
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 leading-relaxed">
+                Voyez en temps réel qui progresse, qui bloque, qui a besoin de renfort.
+                Exportez des rapports. Prouvez le ROI de votre déploiement IA.
+              </p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  "Progression individuelle de chaque membre",
+                  "Lacunes identifiées par domaine",
+                  "Attestations vérifiables exportables",
+                  "Rapport d'équipe automatisé",
+                  "Jusqu'à 25 membres inclus",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground/80">
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <CTAPrimary onClick={handleCTA}>
+                Découvrir le cockpit
+              </CTAPrimary>
+            </FadeIn>
+
+            <FadeIn delay={0.15}>
+              <div
+                className="rounded-2xl border border-border overflow-hidden"
+                style={{ background: "hsl(var(--card))" }}
+              >
+                {/* Fake cockpit header */}
+                <div
+                  className="px-4 py-3 border-b border-border flex items-center justify-between"
+                  style={{ background: "hsl(var(--background)/0.5)" }}
+                >
+                  <span className="text-xs font-bold text-foreground">Cockpit équipe</span>
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded-full border font-semibold text-emerald-400 border-emerald-400/30"
+                    style={{ background: "hsl(142 71% 45% / 0.08)" }}
+                  >
+                    En direct
+                  </span>
+                </div>
+                <div className="p-4 space-y-3">
+                  {[
+                    { name: "Marie R.", progress: 78, tag: "IA Pro", status: "Actif" },
+                    { name: "Thomas B.", progress: 45, tag: "Cybersécurité", status: "Actif" },
+                    { name: "Sophie L.", progress: 92, tag: "IA Perso", status: "Complété" },
+                    { name: "David M.", progress: 12, tag: "IA Pro", status: "À relancer" },
+                  ].map((member) => (
+                    <div
+                      key={member.name}
+                      className="flex items-center gap-3 p-3 rounded-xl"
+                      style={{ background: "hsl(var(--secondary)/0.4)" }}
+                    >
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                        style={{ background: "hsl(var(--primary)/0.2)", color: "hsl(var(--primary))" }}
+                      >
+                        {member.name.split(" ").map(n => n[0]).join("")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-foreground truncate">{member.name}</span>
+                          <span className="text-[10px] text-muted-foreground shrink-0 ml-2">{member.progress}%</span>
+                        </div>
+                        <div className="h-1 rounded-full overflow-hidden" style={{ background: "hsl(var(--border))" }}>
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${member.progress}%`,
+                              background: member.progress > 70
+                                ? "hsl(142 71% 45%)"
+                                : member.progress > 30
+                                  ? "hsl(var(--primary))"
+                                  : "hsl(var(--accent))",
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-full border font-medium shrink-0"
+                        style={{
+                          borderColor: member.status === "Complété"
+                            ? "hsl(142 71% 45% / 0.3)"
+                            : member.status === "À relancer"
+                              ? "hsl(var(--accent)/0.3)"
+                              : "hsl(var(--primary)/0.3)",
+                          color: member.status === "Complété"
+                            ? "hsl(142 71% 45%)"
+                            : member.status === "À relancer"
+                              ? "hsl(var(--accent))"
+                              : "hsl(var(--primary))",
+                          background: "transparent",
+                        }}
+                      >
+                        {member.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="px-4 py-3 border-t border-border flex items-center justify-between"
+                  style={{ background: "hsl(var(--background)/0.3)" }}
+                >
+                  <span className="text-xs text-muted-foreground">4 membres actifs · 1 à relancer</span>
+                  <span className="text-xs font-semibold text-primary cursor-pointer hover:underline">Exporter →</span>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </Sec>
+
+        {/* ══ 8. COMPARATIF ═══════════════════════════════════════ */}
+        <Sec
+          className="max-w-4xl mx-auto"
+          style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+        >
           <FadeIn className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-primary/20 text-primary"
-              style={{ background: "hsl(var(--primary)/0.07)" }}>
-              <TrendingUp className="w-3 h-3" /> Comparaison honnête
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-              Prestataires classiques vs Formetoialia
+            <Chip><TrendingUp className="w-3 h-3" /> Comparaison honnête</Chip>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-3">
+              Pourquoi payer alors que{" "}
+              <span className="text-primary">ChatGPT existe déjà ?</span>
             </h2>
-            <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
-              Les intervenants humains apportent contexte et nuance. Voici où le numérique structuré fait la différence.
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+              ChatGPT répond. Formetoialia exécute. La différence est dans le système, pas dans l'IA.
             </p>
           </FadeIn>
 
           <FadeIn>
-            <div className="rounded-2xl border border-border overflow-hidden" style={{ background: "hsl(var(--card))" }}>
-              <div className="grid grid-cols-3 px-5 py-3 text-xs font-bold border-b border-border"
-                style={{ background: "hsl(var(--primary)/0.05)" }}>
-                <span className="text-muted-foreground">Critère</span>
-                <span className="text-center text-muted-foreground">Prestataire classique</span>
-                <span className="text-center text-primary">Formetoialia</span>
+            <div
+              className="rounded-2xl border border-border overflow-hidden"
+              style={{ background: "hsl(var(--card))" }}
+            >
+              <div
+                className="grid grid-cols-3 px-5 py-3.5 text-xs font-black border-b border-border"
+                style={{ background: "hsl(var(--primary)/0.04)" }}
+              >
+                <span className="text-muted-foreground" />
+                <span className="text-center text-muted-foreground">ChatGPT seul</span>
+                <span className="text-center" style={{ color: "hsl(var(--primary))" }}>Formetoialia</span>
               </div>
-              {COMPARE_ROWS.map((row) => (
-                <div key={row.feature}
-                  className="grid grid-cols-3 px-5 py-3.5 text-xs border-b border-border/50 last:border-0">
-                  <span className="text-foreground/70">{row.feature}</span>
-                  <span className="text-center text-muted-foreground">{row.classic}</span>
+              {[
+                { feature: "Réponse isolée", classic: "✓ Oui", fti: "Système guidé structuré" },
+                { feature: "Page blanche à remplir", classic: "Toujours", fti: "Mission prête à exécuter" },
+                { feature: "Suivi de progression", classic: "Aucun", fti: "Mesurable & exportable" },
+                { feature: "Usage solo uniquement", classic: "Oui", fti: "Pilotage équipe inclus" },
+                { feature: "Résultat documenté", classic: "Non", fti: "Attestation + rapport" },
+                { feature: "Adapté à mon niveau", classic: "Non", fti: "Parcours adaptatif intégré" },
+              ].map((row, i) => (
+                <div
+                  key={row.feature}
+                  className="grid grid-cols-3 px-5 py-3.5 text-xs border-b border-border/50 last:border-0"
+                  style={{ background: i % 2 === 0 ? "transparent" : "hsl(var(--primary)/0.015)" }}
+                >
+                  <span className="text-foreground/70 font-medium">{row.feature}</span>
+                  <span className="text-center text-muted-foreground/60">{row.classic}</span>
                   <span className="text-center font-semibold text-emerald-400">{row.fti}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground/50 text-center mt-3">
-              * Comparaison indicative. La valeur d'un intervenant humain dépend du contexte.
+            <p className="text-xs text-muted-foreground/40 text-center mt-3">
+              * Comparaison indicative basée sur l'usage standard de ChatGPT sans système d'exécution structuré.
             </p>
           </FadeIn>
-        </Section>
+        </Sec>
 
-        {/* ══════════════════════════════════════════
-            SECTION 6 — PRICING TEASER
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-2xl mx-auto text-center" style={{ paddingTop: 0 }}>
-          <FadeIn>
-            <div className="rounded-2xl p-8 sm:p-10 border-2 border-primary/30"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/0.04) 100%)",
-                boxShadow: "0 0 40px hsl(var(--primary)/0.1)",
-              }}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-5 border border-primary/20 text-primary"
-                style={{ background: "hsl(var(--primary)/0.07)" }}>
-                <Star className="w-3 h-3" /> Plan Pro
-              </div>
-              <div className="flex items-end justify-center gap-2 mb-2">
-                <span className="text-5xl font-black text-accent">59€</span>
-                <span className="text-muted-foreground mb-2">TTC/mois</span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-6">
-                Pour toute l'organisation · jusqu'à 25 membres · tout inclus
-              </p>
-              <ul className="text-sm text-left space-y-2 mb-8 max-w-sm mx-auto">
-                {[
-                  "Playbooks complets IA + Cybersécurité",
-                  "Copilote IA KITT (500 échanges/jour)",
-                  "Labs d'exécution interactifs",
-                  "Attestations vérifiables",
-                  "Cockpit manager",
-                  "Essai 14 jours · 30j remboursé",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="text-foreground/80">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <CTAButton onClick={handleCTA} size="lg">
-                  <Sparkles className="w-4 h-4" />
-                  Démarrer l'essai gratuit
-                </CTAButton>
-                <CTAButton href="/pricing" variant="outline" size="lg">
-                  Voir le détail →
-                </CTAButton>
-              </div>
-              <p className="text-xs text-muted-foreground/60 mt-4">
-                Sans carte bancaire · Résiliation libre · Paiement Stripe sécurisé
-              </p>
-            </div>
-          </FadeIn>
-        </Section>
-
-        {/* ══════════════════════════════════════════
-            SECTION 7 — APERÇU PRODUIT
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
+        {/* ══ 9. PRICING TEASER ═══════════════════════════════════ */}
+        <Sec className="max-w-3xl mx-auto" id="pricing">
           <FadeIn className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-primary/20 text-primary"
-              style={{ background: "hsl(var(--primary)/0.07)" }}>
-              <Clock className="w-3 h-3" /> Dans le cockpit
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-              Ce que vous pilotez au quotidien
+            <Chip>Prix</Chip>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-3">
+              Commencez gratuitement.<br />
+              <span className="text-primary">Passez à l'exécution complète quand vous êtes prêt.</span>
             </h2>
           </FadeIn>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                title: "Action du jour",
-                content: "KITT vous assigne un playbook en 10 minutes. Vous l'exécutez, il évalue et mesure votre progression.",
-                badge: "Exécution",
-                badgeColor: "text-emerald-400 border-emerald-400/30 bg-emerald-400/10",
-                lines: [
-                  "🎯 Playbook : Rédiger un prompt de prospection",
-                  "⏱ Durée estimée : 12 min",
-                  "📈 XP disponible : +80 pts",
-                  "🔁 Évaluation IA immédiate",
-                ],
-              },
-              {
-                title: "Copilote KITT",
-                content: "Posez vos questions à tout moment. KITT s'adapte à votre niveau et votre playbook en cours.",
-                badge: "Chat",
-                badgeColor: "text-primary border-primary/30 bg-primary/10",
-                lines: [
-                  "💬 Comment rédiger un prompt efficace ?",
-                  "🤖 KITT : Voici 3 techniques adaptées à...",
-                  "📌 Enregistré dans votre bibliothèque",
-                  "✅ 127 échanges ce mois",
-                ],
-              },
-              {
-                title: "Attestation vérifiable",
-                content: "À chaque jalon complété, un PDF signé est généré. Vérifiable en ligne via QR code.",
-                badge: "Attestation",
-                badgeColor: "text-accent border-accent/30 bg-accent/10",
-                lines: [
-                  "📄 Playbook IA Pro — Complété",
-                  "🔐 Signature numérique : ✓",
-                  "📱 QR code vérification : actif",
-                  "📥 PDF exportable",
-                ],
-              },
-            ].map((card, i) => (
-              <FadeIn key={card.title} delay={i * 0.1}>
-                <div className="rounded-2xl border border-border overflow-hidden h-full"
-                  style={{ background: "hsl(var(--card))" }}>
-                  <div className="px-4 py-3 border-b border-border flex items-center justify-between"
-                    style={{ background: "hsl(var(--background)/0.5)" }}>
-                    <span className="text-xs font-bold text-foreground">{card.title}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${card.badgeColor}`}>
-                      {card.badge}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{card.content}</p>
-                    <div className="space-y-2">
-                      {card.lines.map((line) => (
-                        <div key={line} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-foreground/70"
-                          style={{ background: "hsl(var(--secondary)/0.5)" }}>
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+            {/* Gratuit */}
+            <FadeIn>
+              <div
+                className="rounded-2xl p-6 border border-border h-full flex flex-col"
+                style={{ background: "hsl(var(--card))" }}
+              >
+                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Gratuit</p>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-4xl font-black text-foreground">0€</span>
+                  <span className="text-muted-foreground text-sm mb-1.5">/mois</span>
                 </div>
-              </FadeIn>
-            ))}
-          </div>
-        </Section>
+                <p className="text-xs text-muted-foreground mb-5">Pour explorer sans engagement.</p>
+                <ul className="space-y-2.5 text-sm flex-1 mb-6">
+                  {[
+                    "Copilote KITT — 2 échanges/jour",
+                    "Accès aux playbooks publics",
+                    "Découverte des labs",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="text-foreground/80">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/register"
+                  className="block w-full text-center py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-primary/10 border border-primary/40 text-primary"
+                >
+                  Commencer gratuitement
+                </Link>
+              </div>
+            </FadeIn>
 
-        {/* ══════════════════════════════════════════
-            SECTION 8 — FAQ
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-2xl mx-auto" style={{ paddingTop: 0 }}>
+            {/* Pro */}
+            <FadeIn delay={0.1}>
+              <div
+                className="relative rounded-2xl p-6 border-2 border-primary h-full flex flex-col"
+                style={{
+                  background: "hsl(var(--card))",
+                  boxShadow: "0 0 30px hsl(var(--primary)/0.1)",
+                }}
+              >
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span
+                    className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-black"
+                    style={{ background: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}
+                  >
+                    RECOMMANDÉ
+                  </span>
+                </div>
+                <p className="text-xs font-black uppercase tracking-widest text-primary mb-3 mt-2">Pro</p>
+                <div className="flex items-end gap-1 mb-1">
+                  <span className="text-4xl font-black text-accent">59€</span>
+                  <span className="text-muted-foreground text-sm mb-1.5">TTC/mois</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-5">Jusqu'à 25 membres · 14 jours d'essai</p>
+                <ul className="space-y-2 text-sm flex-1 mb-6">
+                  {[
+                    "Missions illimitées",
+                    "Playbooks complets",
+                    "Copilote KITT illimité",
+                    "Cockpit manager",
+                    "Bibliothèque d'équipe",
+                    "Attestations vérifiables",
+                    "Reporting & exports",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="text-foreground/90">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={handleCTA}
+                  className="w-full py-3 rounded-xl font-black text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{
+                    background: "hsl(var(--accent))",
+                    color: "hsl(var(--accent-foreground))",
+                    boxShadow: "0 0 16px hsl(var(--accent)/0.3)",
+                  }}
+                >
+                  <Zap className="w-4 h-4" />
+                  Démarrer l'essai 14 jours →
+                </button>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Sans carte bancaire · Résiliation libre
+                </p>
+              </div>
+            </FadeIn>
+          </div>
+
+          <FadeIn>
+            <div className="text-center">
+              <Link to="/pricing" className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors">
+                Voir le détail complet des plans →
+              </Link>
+            </div>
+          </FadeIn>
+        </Sec>
+
+        {/* ══ 10. FAQ ══════════════════════════════════════════════ */}
+        <Sec
+          className="max-w-2xl mx-auto"
+          style={{ paddingTop: 0 }}
+        >
           <FadeIn className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-foreground">Questions fréquentes</h2>
           </FadeIn>
@@ -654,38 +947,60 @@ export default function Index() {
               <FAQItem key={item.q} q={item.q} a={item.a} />
             ))}
           </div>
-        </Section>
+        </Sec>
 
-        {/* ══════════════════════════════════════════
-            SECTION 9 — CTA FINAL
-        ══════════════════════════════════════════ */}
-        <Section className="max-w-2xl mx-auto text-center" style={{ paddingTop: 0, paddingBottom: "5rem" }}>
+        {/* ══ 11. CTA FINAL ════════════════════════════════════════ */}
+        <Sec
+          className="max-w-2xl mx-auto text-center"
+          style={{ paddingBottom: "5rem" }}
+        >
           <FadeIn>
-            <div className="rounded-2xl p-8 sm:p-10 border border-primary/20"
-              style={{ background: "hsl(var(--card))" }}>
-              <Shield className="w-10 h-10 text-primary mx-auto mb-5" />
+            <div
+              className="rounded-2xl p-9 sm:p-12 border border-primary/20"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/0.04) 100%)",
+                boxShadow: "0 0 40px hsl(var(--primary)/0.08)",
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                style={{ background: "hsl(var(--primary)/0.1)" }}
+              >
+                <Zap className="w-6 h-6 text-primary" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-3">
-                Vos équipes méritent<br />un système, pas un PDF.
+                Arrêtez d'apprendre l'IA.<br />
+                <span className="text-primary">Commencez à l'utiliser vraiment.</span>
               </h2>
-              <p className="text-muted-foreground text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-                Démarrez gratuitement. Première action en moins de 5 minutes. Résultats mesurables dès la première semaine.
+              <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto leading-relaxed">
+                Première mission en moins de 5 minutes. Résultats mesurables dès la première semaine. Sans carte bancaire.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-                <CTAButton onClick={handleCTA} size="lg">
+                <CTAPrimary onClick={handleCTA}>
                   <Sparkles className="w-5 h-5" />
-                  Commencer gratuitement
+                  Créer mon accès gratuit
                   <ArrowRight className="w-4 h-4" />
-                </CTAButton>
-                <CTAButton href="/demo" variant="outline" size="lg">
+                </CTAPrimary>
+                <CTASecondary href="/demo">
                   Voir la démo d'abord
-                </CTAButton>
+                </CTASecondary>
               </div>
-              <p className="text-xs text-muted-foreground/50">
-                Sans carte bancaire · RGPD · Hébergement UE · 30j remboursé
-              </p>
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+                {[
+                  "Sans carte bancaire",
+                  "RGPD · Hébergement UE",
+                  "30j remboursé",
+                  "Résiliation libre",
+                ].map((t) => (
+                  <span key={t} className="text-xs text-muted-foreground/50 flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
           </FadeIn>
-        </Section>
+        </Sec>
 
         <ProFooter />
       </div>
