@@ -111,6 +111,39 @@ export default function Dashboard() {
       <div className="min-h-full page-enter" style={{ background: "#13151E" }}>
         <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
+          {/* ── Billing warning banner ── */}
+          {sub?.billingWarning && (
+            <div
+              className="rounded-xl px-4 py-3 text-sm flex items-start gap-3"
+              style={{
+                background: sub.status === "past_due" || sub.status === "action_required"
+                  ? "hsl(var(--destructive) / 0.1)"
+                  : sub.status === "cancelling"
+                  ? "hsl(var(--accent) / 0.1)"
+                  : "hsl(var(--primary) / 0.08)",
+                border: `1px solid ${
+                  sub.status === "past_due" || sub.status === "action_required"
+                    ? "hsl(var(--destructive) / 0.4)"
+                    : sub.status === "cancelling"
+                    ? "hsl(var(--accent) / 0.35)"
+                    : "hsl(var(--primary) / 0.25)"
+                }`,
+                color: "hsl(var(--foreground))",
+              }}
+              role="alert"
+            >
+              <span className="leading-relaxed flex-1">{sub.billingWarning}</span>
+              {(sub.status === "past_due" || sub.status === "action_required" || sub.status === "cancelling") && (
+                <a
+                  href="/app/settings"
+                  className="shrink-0 text-xs font-semibold underline underline-offset-2 opacity-80 hover:opacity-100"
+                >
+                  Gérer →
+                </a>
+              )}
+            </div>
+          )}
+
           {/* ── 1. Header ── */}
           <div className="flex items-center justify-between animate-slide-up">
             <div>
