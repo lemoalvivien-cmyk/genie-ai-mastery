@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { CsvImportDialog } from "@/components/manager/CsvImportDialog";
 import { useAuditTrail } from "@/hooks/useAuditTrail";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -833,6 +834,7 @@ export default function ManagerDashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { logEvent } = useAuditTrail();
+  const { track } = useAnalytics();
   const [exportingDossier, setExportingDossier] = useState(false);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
 
@@ -953,6 +955,10 @@ export default function ManagerDashboard() {
   }, [profile?.org_id, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Track manager_report_viewed once on mount (exempt from consent — business critical)
+  useEffect(() => { track("manager_report_viewed"); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!profile?.org_id) return;
     const interval = setInterval(loadData, 15_000);

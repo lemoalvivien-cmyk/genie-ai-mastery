@@ -14,12 +14,21 @@ import { useAuthStore } from "@/stores/authStore";
 
 // Events qui peuvent passer sans consentement analytics explicite
 // (légitimement nécessaires à la sécurité et au service)
+// RGPD : seuls les events critiques au tunnel de conversion sont exemptés.
+// Toute extension de cette liste doit être justifiée et documentée.
 const CONSENT_EXEMPT_EVENTS = new Set<EventName>([
+  // Auth & registration
   "login",
   "signup",
   "signup_completed",
   "register_started",
+  "register_completed",          // signup form submit → email confirmation
+  // Onboarding critique
+  "onboarding_started",
+  "onboarding_completed",
+  // Billing lifecycle (critiques pour la facturation, exemptés CNIL)
   "checkout_started",
+  "trial_started",
   "subscription_activated",
   "payment_success",
   "payment_failed",
@@ -33,6 +42,7 @@ export type EventName =
   | "pricing_viewed"
   // ── Auth & Acquisition ───────────────────────────────────────────────────
   | "register_started"          // user opens /register
+  | "register_completed"        // signup form submitted successfully
   | "signup_started"
   | "signup_completed"          // email confirmed
   | "signup"                    // form submit
