@@ -618,8 +618,8 @@ export default function Index() {
               {
                 icon: Target,
                 tag: "Décision",
-                title: "Analyse de documents complexes",
-                desc: "Contrats, rapports, comptes-rendus — extrayez l'essentiel en secondes.",
+                title: "Prise de décision assistée",
+                desc: "Comparez vos options, cadrez vos arbitrages — structurez votre réflexion en 5 minutes.",
               },
               {
                 icon: TrendingUp,

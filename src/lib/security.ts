@@ -19,7 +19,7 @@ export interface RateLimitResult {
 
 /**
  * Check if this email is currently rate-limited (server-side).
- * Falls back to `{ allowed: true }` on network error (fail-open).
+ * FAIL-CLOSED : tout échec réseau ou HTTP error → accès refusé par défaut.
  */
 export async function checkServerRateLimit(email: string): Promise<RateLimitResult> {
   try {
@@ -29,7 +29,11 @@ export async function checkServerRateLimit(email: string): Promise<RateLimitResu
       body: JSON.stringify({ email, success: false }),
       signal: AbortSignal.timeout(3000), // 3s max — never block UX
     });
-    if (!res.ok) return { allowed: true, attempts: 0, remaining_ms: 0 };
+    // Fail-closed: HTTP error from the service → deny access
+    if (!res.ok) {
+      console.error("[rate-limit] Service HTTP error", res.status, "— fail-closed actif");
+      return { allowed: false, attempts: 0, remaining_ms: 5000, blocked_until: null };
+    }
     return await res.json() as RateLimitResult;
   } catch (_e) {
     // Réseau/timeout indisponible — FAIL-CLOSED.
