@@ -42,6 +42,7 @@ const OpsCenter       = lazy(() => import("./pages/admin/OpsCenter"));
 const Runbook           = lazy(() => import("./pages/admin/Runbook"));
 const GrowthDashboard   = lazy(() => import("./pages/admin/GrowthDashboard"));
 const AdminOperations   = lazy(() => import("./pages/admin/GodMode"));
+const GoLiveChecklist   = lazy(() => import("./pages/admin/GoLiveChecklist"));
 
 // ── Other protected ──────────────────────────────────────────────
 const ManagerDashboard          = lazy(() => import("./pages/manager/ManagerDashboard"));
