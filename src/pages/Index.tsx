@@ -261,10 +261,14 @@ export default function Index() {
               <span className="text-xs font-semibold text-primary">RGPD · Hébergé en UE · Essai 14 jours sans carte</span>
             </motion.div>
 
-          <span className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6">
-            <span className="block text-foreground">Arrêtez les formations IA</span>
-            <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
-          </span>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.55 }}
+            className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6"
+          >
+            <span className="block text-foreground">Votre équipe utilise l'IA.</span>
+            <span className="block" style={{ color: "hsl(var(--primary))" }}>Mais obtient-elle des résultats ?</span>
+          </motion.h1>
 
             {/* Subtitle */}
             <motion.p
@@ -272,10 +276,9 @@ export default function Index() {
               transition={{ delay: 0.45, duration: 0.55 }}
               className="text-base sm:text-lg text-muted-foreground max-w-2xl mb-10 leading-relaxed"
             >
-              Formetoialia transforme l'IA en résultats concrets grâce à des{" "}
-              <strong className="text-foreground">missions guidées</strong>,
-              des <strong className="text-foreground">playbooks prêts à l'emploi</strong>{" "}
-              et un <strong className="text-foreground">suivi de progression mesurable</strong>.
+              Formetoialia est la plateforme qui transforme l'IA en résultats concrets,{" "}
+              <strong className="text-foreground">chaque jour</strong>, pour les équipes non techniques.{" "}
+              Missions guidées, playbooks métier, cockpit manager.
             </motion.p>
 
             {/* Micro-preuve secondaire */}
