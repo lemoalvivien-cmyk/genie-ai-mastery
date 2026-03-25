@@ -7,6 +7,9 @@
  * - payment_method_collection: "if_required" → carte non obligatoire pendant l'essai
  * - end_behavior.missing_payment_method: "cancel" → pas de conversion silencieuse
  */
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "npm:stripe@18.5.0";
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: unknown) =>
