@@ -680,22 +680,35 @@ export default function Today() {
             </div>
           )}
 
-          {/* ═══ Emergency Mode ═══ */}
+          {/* ═══ Emergency Mode — toujours visible ═══ */}
           {(phase === "already_done" || phase === "card") && (
-            <div className="pt-2">
-              {!showEmergency ? (
+            <div className="pt-1">
+              <div
+                className="rounded-2xl border border-amber-500/30 bg-amber-500/5 overflow-hidden"
+                style={{ boxShadow: "0 0 16px hsl(38 92% 50% / 0.06)" }}
+              >
                 <button
-                  onClick={() => setShowEmergency(true)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
+                  onClick={() => setShowEmergency(!showEmergency)}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left"
                 >
-                  <Zap className="w-4 h-4 text-amber-400" />
-                  Besoin d'un résultat <span className="font-semibold text-foreground mx-1">maintenant</span> ?
+                  <div className="flex items-center gap-2.5">
+                    <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold text-foreground leading-tight">Besoin d'un résultat maintenant ?</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Email, présentation, compte-rendu — livrable en 3 min</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0"
+                    style={{ background: "hsl(38 92% 50% / 0.15)", color: "hsl(38 92% 60%)" }}>
+                    {showEmergency ? "Fermer" : "Lancer →"}
+                  </span>
                 </button>
-              ) : (
-                <div className="rounded-2xl border border-border/50 p-4 bg-card/60">
-                  <EmergencyMode onClose={() => setShowEmergency(false)} />
-                </div>
-              )}
+                {showEmergency && (
+                  <div className="border-t border-amber-500/20 p-4">
+                    <EmergencyMode onClose={() => setShowEmergency(false)} />
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
