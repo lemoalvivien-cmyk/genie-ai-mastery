@@ -128,7 +128,7 @@ export function PlaybookCard({ module, progress, meta, onPrefetch }: Props) {
           <div className="space-y-1">
             {meta.steps.slice(0, 3).map((step, i) => (
               <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
+                <span className="w-4 h-4 rounded-full bg-primary/10 text-[10px] text-primary flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
                   {i + 1}
                 </span>
                 <span className="line-clamp-1">{step}</span>
@@ -158,7 +158,7 @@ export function PlaybookCard({ module, progress, meta, onPrefetch }: Props) {
           <div>
             <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary/60 transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-all duration-500 opacity-60"
                 style={{ width: `${progress?.score ?? 10}%` }}
               />
             </div>
