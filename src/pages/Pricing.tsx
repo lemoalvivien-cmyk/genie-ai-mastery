@@ -118,19 +118,19 @@ const PRO_SECTIONS: {
 const FAQ = [
   {
     q: "Qu'est-ce que Formetoialia concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel IA (JARVIS), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    a: "Un système d'exécution IA quotidien. Il combine un copilote IA (KITT), des playbooks structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté résultats.",
   },
   {
-    q: "JARVIS, c'est quoi exactement ?",
-    a: "JARVIS est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "KITT, c'est quoi exactement ?",
+    a: "KITT est votre copilote IA intégré. Il guide vos sessions, répond à vos questions sur vos playbooks en cours, assigne des exécutions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
-    q: "Que contiennent les labs ?",
-    a: "Trois labs pratiques : détection de phishing (Phishing Lab), prompting avancé (Prompt Lab) et hygiène numérique (Cyber Lab). Ce sont des environnements interactifs, pas des vidéos.",
+    q: "Que contiennent les labs d'exécution ?",
+    a: "Trois labs pratiques : simulation de phishing (Phishing Lab), prompting avancé (Prompt Lab) et hygiène numérique (Cyber Lab). Ce sont des environnements de mise en situation, pas des vidéos passives.",
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
+    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de maîtrise, utile dans un contexte professionnel ou de conformité interne.",
   },
   {
     q: "Le plan inclut combien de personnes ?",
@@ -146,7 +146,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. JARVIS vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding calibre le parcours à votre niveau. KITT vous accompagne dès la première session. Zéro compétence technique requise.",
   },
 ];
 
