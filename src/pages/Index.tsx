@@ -39,11 +39,11 @@ function FadeIn({ children, delay = 0, className = "" }: {
   );
 }
 
-function Sec({ children, id = "", className = "" }: {
-  children: React.ReactNode; id?: string; className?: string;
+function Sec({ children, id = "", className = "", style }: {
+  children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties;
 }) {
   return (
-    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`}>
+    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style}>
       {children}
     </section>
   );
