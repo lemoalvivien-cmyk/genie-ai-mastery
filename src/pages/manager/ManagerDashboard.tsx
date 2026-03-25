@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { CsvImportDialog } from "@/components/manager/CsvImportDialog";
 import { useAuditTrail } from "@/hooks/useAuditTrail";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
