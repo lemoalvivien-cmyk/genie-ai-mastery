@@ -69,7 +69,7 @@ export default function AppLayout() {
       badge: currentStreak > 0 ? String(currentStreak) : null,
     },
     { to: "/app/chat", icon: MessageCircle, label: "Chat", dot: false, badge: null },
-    { to: "/app/jarvis", icon: Bot, label: "KITT", dot: false, badge: null },
+    { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null },
     { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
   ];
