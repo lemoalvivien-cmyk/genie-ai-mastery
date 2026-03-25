@@ -275,71 +275,24 @@ function ReflexeMission({ content, onComplete }: { content: Record<string, unkno
   );
 }
 
-// ── Paywall intelligent ────────────────────────────────────────────────────────
-function SmartPaywall() {
-  const TEASERS = [
-    { icon: "🎯", title: "Mission du jour adaptée", desc: "Chaque jour, une action calibrée à votre niveau. 5 minutes. Un résultat concret." },
-    { icon: "🔥", title: "Streak et XP", desc: "Suivez votre progression jour après jour. Le cerveau retient mieux ce qu'il pratique régulièrement." },
-    { icon: "📄", title: "Attestation de compétence", desc: "Après chaque module complété, générez votre preuve PDF à partager." },
-    { icon: "🤖", title: "Feedback IA personnalisé", desc: "Après chaque action, l'IA analyse votre réponse et vous donne un retour utile." },
-  ];
-
+// ── Upgrade soft post-mission (non-subscribers) ───────────────────────────────
+function SoftUpgradeCard() {
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Aperçu flou de la mission — donne envie */}
-      <div className="relative rounded-2xl overflow-hidden border border-primary/20">
-        <div className="p-6 space-y-4 blur-sm select-none pointer-events-none opacity-60">
-          <div className="flex gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-400 font-semibold">🛡️ Cybersécurité</span>
-            <span className="text-xs px-2.5 py-1 rounded-full border bg-muted/40 border-border/40 text-muted-foreground">⚡ Quiz Flash</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Reconnaître un email de phishing en 3 secondes</h2>
-            <p className="text-sm text-muted-foreground mt-1">Votre réflexe vaut mieux qu'un long discours. Test sur une vraie situation.</p>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>⏱ ~3 min</span><span>✨ +30 XP</span>
-          </div>
-          <div className="w-full h-12 rounded-xl bg-primary/30" />
-        </div>
-        {/* Overlay CTA */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-[2px] p-6">
-          <div className="w-12 h-12 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center mb-3">
-            <Star className="w-6 h-6 text-primary" />
-          </div>
-          <h3 className="text-lg font-black text-foreground text-center mb-1">Mission Pro débloquée à 59€/mois</h3>
-          <p className="text-sm text-muted-foreground text-center mb-5 max-w-xs">
-            5 minutes par jour, un vrai progrès mesurable. Annulable à tout moment.
+    <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 space-y-3">
+      <div className="flex items-start gap-3">
+        <Trophy className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-black text-foreground">Passez à l'exécution complète</p>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+            Missions illimitées · Feedback IA · Playbooks métier · Attestations PDF · Cockpit équipe
           </p>
-          <Button asChild size="lg" className="w-full max-w-xs font-black shadow-glow gap-2">
-            <Link to="/pricing">
-              <Zap className="w-4 h-4" />
-              Débloquer les missions →
-            </Link>
-          </Button>
         </div>
       </div>
-
-      {/* Ce que vous obtenez */}
-      <div className="space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
-          Ce que vous débloquez
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {TEASERS.map((t, i) => (
-            <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl bg-card/60 border border-border/40">
-              <span className="text-xl shrink-0">{t.icon}</span>
-              <div>
-                <p className="text-sm font-semibold text-foreground leading-tight">{t.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{t.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Button asChild variant="outline" className="w-full">
-        <Link to="/app/modules">Voir les modules gratuits →</Link>
+      <Button asChild size="sm" className="w-full font-black gradient-primary shadow-glow gap-2">
+        <Link to="/pricing">
+          <Zap className="w-3.5 h-3.5" />
+          Débloquer — 59€/mois · 14j d'essai gratuit
+        </Link>
       </Button>
     </div>
   );
