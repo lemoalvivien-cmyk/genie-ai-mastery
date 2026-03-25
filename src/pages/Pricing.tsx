@@ -90,7 +90,7 @@ const FAQ_DATA = [
   },
   {
     q: "Est-ce utile si je débute avec l'IA ?",
-    a: "C'est précisément fait pour les débutants. L'onboarding calibre votre niveau en 3 minutes. KITT vous guide dès la première session. Zéro compétence technique requise.",
+    a: "C'est précisément fait pour les débutants. L'onboarding calibre votre profil en 2 étapes. KITT vous guide dès la première session. Zéro compétence technique requise.",
   },
   {
     q: "Pourquoi payer si des IA gratuites existent ?",
