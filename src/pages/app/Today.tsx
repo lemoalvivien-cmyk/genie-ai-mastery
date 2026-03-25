@@ -32,6 +32,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
 import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
@@ -368,6 +369,7 @@ export default function Today() {
   const { data: subscriptionData } = useSubscription();
   const isSubscribed = subscriptionData?.isActive ?? false;
   const navigate = useNavigate();
+  const { track } = useAnalytics();
 
   const [mission, setMission] = useState<Mission | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -378,6 +380,7 @@ export default function Today() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const startTime = useRef<number>(Date.now());
   const [userProduction, setUserProduction] = useState<string>("");
+  const firstMissionTracked = useRef(false);
 
   // ── Fetch mission ──────────────────────────────────────────────────────────
   const fetchMission = useCallback(async () => {
@@ -441,6 +444,13 @@ export default function Today() {
   const handleStart = () => {
     startTime.current = Date.now();
     setPhase("playing");
+    // Track first_mission_started only once per user lifecycle
+    const isFirst = !firstMissionTracked.current && (streak?.current_streak ?? 0) === 0;
+    if (isFirst) {
+      firstMissionTracked.current = true;
+      track("first_mission_started", { mission_id: mission?.id, domain: mission?.domain });
+    }
+    track("mission_started", { mission_id: mission?.id, domain: mission?.domain, mission_type: mission?.mission_type });
   };
 
   // ── Feedback Ghost Trainer post-mission ───────────────────────────────────
@@ -474,13 +484,12 @@ export default function Today() {
     const prevLongest = streak?.longest_streak ?? 0;
     await completeMission(mission.id, mission.xp, missionScore, timeSpent);
 
-    // Analytics
-    supabase.from("analytics_events").insert({
-      actor_user_id: session?.user?.id ?? null,
-      org_id: profile?.org_id ?? null,
-      event_name: "mission_completed",
-      properties: { mission_id: mission.id, domain: mission.domain, mission_type: mission.mission_type, score: missionScore, xp: mission.xp, time_spent_seconds: timeSpent },
-    }).then(() => {});
+    // Track mission completed + first mission if applicable
+    const isFirstEver = (streak?.current_streak ?? 0) === 0;
+    track("mission_completed", { mission_id: mission.id, domain: mission.domain, mission_type: mission.mission_type, score: missionScore, xp: mission.xp, time_spent_seconds: timeSpent });
+    if (isFirstEver) {
+      track("first_mission_completed", { mission_id: mission.id, domain: mission.domain });
+    }
 
     const newStreak = (streak?.current_streak ?? 0) + 1;
     if (newStreak > prevLongest) setIsNewRecord(true);
@@ -488,7 +497,7 @@ export default function Today() {
 
     // Feedback IA en background
     fetchAIFeedback(mission, missionScore);
-  }, [mission, streak, completeMission, session, profile, fetchAIFeedback]);
+  }, [mission, streak, completeMission, session, profile, fetchAIFeedback, track]);
 
   // ── Rendu ──────────────────────────────────────────────────────────────────
   const domainMeta = mission ? (DOMAIN_LABELS[mission.domain] ?? { label: mission.domain, color: "text-muted-foreground", bg: "bg-muted/40", border: "border-border" }) : null;
@@ -500,6 +509,16 @@ export default function Today() {
       </div>
     );
   }
+
+  // Track paywall view once (after loading is resolved)
+  const paywallTracked = useRef(false);
+  useEffect(() => {
+    if (!isSubscribed && !streakLoading && !paywallTracked.current) {
+      paywallTracked.current = true;
+      track("paywall_viewed", { source: "today" });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed, streakLoading]);
 
   if (!isSubscribed) {
     return (

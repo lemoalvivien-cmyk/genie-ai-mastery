@@ -3,7 +3,8 @@
  * Route: / — Funnel public clair, zéro jargon, zéro faux claims
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -193,6 +194,17 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Track landing view once on mount (anonymous — no user required)
+  useEffect(() => {
+    supabase.from("analytics_events").insert({
+      actor_user_id: null,
+      org_id: null,
+      event_name: "landing_viewed",
+      properties: { ts: new Date().toISOString(), url: window.location.pathname },
+    }).then(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCTA = useCallback(() => {
     if (isAuthenticated) navigate("/app/dashboard");

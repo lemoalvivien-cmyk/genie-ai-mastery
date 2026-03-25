@@ -8,26 +8,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 
 export type EventName =
-  // Navigation
+  // ── Navigation (public funnel) ───────────────────────────────────────────
   | "page_view"
-  // Acquisition
+  | "landing_viewed"
+  | "demo_viewed"
   | "pricing_viewed"
-  | "checkout_started"
-  | "checkout_success"
-  // Auth & onboarding
-  | "signup"
+  // ── Auth & Acquisition ───────────────────────────────────────────────────
+  | "signup_started"       // focus on signup form
+  | "signup_completed"     // successful account creation
+  | "signup"               // legacy alias
   | "login"
-  | "onboarding_done"
-  | "onboarding_step_done"
   | "access_code_redeemed"
   | "referral_applied"
   | "referral_shared"
   | "email_captured"
-  // Activation
-  | "first_mission_done"
+  // ── Activation / Onboarding ──────────────────────────────────────────────
+  | "onboarding_completed"
+  | "onboarding_done"      // legacy alias
+  | "onboarding_step_done"
+  | "onboarding_quiz_done"
+  // ── First actions (critical activation events) ───────────────────────────
+  | "first_mission_started"
+  | "first_mission_completed"
+  | "first_mission_done"   // legacy alias
   | "first_module_opened"
   | "first_chat_sent"
-  // Engagement
+  // ── Engagement ──────────────────────────────────────────────────────────
   | "chat_sent"
   | "module_opened"
   | "module_completed"
@@ -39,23 +45,34 @@ export type EventName =
   | "pdf_generated"
   | "voice_used"
   | "mission_completed"
+  | "mission_started"
   | "quota_hit"
-  // Paywall / Conversion
-  | "paywall_shown"
+  | "artifact_saved"
+  // ── Paywall / Conversion ─────────────────────────────────────────────────
+  | "paywall_viewed"
+  | "paywall_shown"        // legacy alias
   | "paywall_clicked"
-  // Monetisation / Retention
-  | "invoice_failed"
+  | "upgrade_clicked"
+  | "checkout_started"
+  | "checkout_success"
+  // ── Trial & Billing ──────────────────────────────────────────────────────
+  | "trial_started"
+  | "payment_success"
+  | "payment_failed"
+  | "invoice_failed"       // legacy alias
+  | "portal_opened"
   | "churn"
   | "subscription_cancelled"
   | "subscription_reactivated"
-  // Feature usage
+  // ── Support ──────────────────────────────────────────────────────────────
+  | "support_opened"
+  | "support_contact_clicked"
+  // ── Feature usage ────────────────────────────────────────────────────────
   | "jarvis_used"
   | "panic_button_used"
   | "phishing_lab_started"
   | "attestation_verified"
-  | "onboarding_quiz_done"
-  | "onboarding_pdf_generated"
-  | "onboarding_completed";
+  | "onboarding_pdf_generated";
 
 interface EventPayload {
   actor_user_id: string | null;
