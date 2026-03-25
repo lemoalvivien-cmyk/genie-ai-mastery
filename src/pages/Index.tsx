@@ -870,7 +870,7 @@ export default function Index() {
                 <p className="text-xs text-muted-foreground mb-5">Pour explorer sans engagement.</p>
                 <ul className="space-y-2.5 text-sm flex-1 mb-6">
                   {[
-                    "Copilote KITT — 2 échanges/jour",
+                    "Assistance KITT — 2 échanges/jour",
                     "Accès aux playbooks publics",
                     "1 mission guidée par jour",
                   ].map((f) => (
