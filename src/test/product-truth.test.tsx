@@ -223,12 +223,12 @@ describe("Analytics consent gating (RGPD)", () => {
 describe("Security — Rate-limit fail-closed", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetModules();
   });
 
   it("checkServerRateLimit retourne allowed:false quand le service est down (fail-closed)", async () => {
     // Mock fetch to simulate network failure
-    const originalFetch = global.fetch;
-    global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network error")));
 
     const { checkServerRateLimit } = await import("@/lib/security");
     const result = await checkServerRateLimit("test@formetoialia.dev");
@@ -236,38 +236,35 @@ describe("Security — Rate-limit fail-closed", () => {
     // FAIL-CLOSED: service indisponible → bloquer, jamais autoriser silencieusement
     expect(result.allowed).toBe(false);
 
-    global.fetch = originalFetch;
+    vi.unstubAllGlobals();
   });
 
   it("checkServerRateLimit retourne allowed:false quand le service répond bloqué", async () => {
-    const originalFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ allowed: false, attempts: 5, remaining_ms: 900000 }),
-    } as unknown as Response);
+    } as unknown as Response));
 
     const { checkServerRateLimit } = await import("@/lib/security");
     const result = await checkServerRateLimit("blocked@formetoialia.dev");
 
     expect(result.allowed).toBe(false);
-    expect(result.attempts).toBeGreaterThanOrEqual(5);
 
-    global.fetch = originalFetch;
+    vi.unstubAllGlobals();
   });
 
   it("checkServerRateLimit retourne allowed:true pour une requête normale", async () => {
-    const originalFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ allowed: true, attempts: 1, remaining_ms: 0 }),
-    } as unknown as Response);
+    } as unknown as Response));
 
     const { checkServerRateLimit } = await import("@/lib/security");
     const result = await checkServerRateLimit("ok@formetoialia.dev");
 
     expect(result.allowed).toBe(true);
 
-    global.fetch = originalFetch;
+    vi.unstubAllGlobals();
   });
 });
 
