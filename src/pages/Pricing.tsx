@@ -90,7 +90,7 @@ const FAQ_DATA = [
   },
   {
     q: "Est-ce utile si je débute avec l'IA ?",
-    a: "C'est précisément fait pour les débutants. L'onboarding calibre votre niveau en 3 minutes. KITT vous guide dès la première session. Zéro compétence technique requise.",
+    a: "C'est précisément fait pour les débutants. L'onboarding calibre votre profil en 2 étapes. KITT vous guide dès la première session. Zéro compétence technique requise.",
   },
   {
     q: "Pourquoi payer si des IA gratuites existent ?",
@@ -256,8 +256,8 @@ export default function Pricing() {
           <div className="text-center mb-14">
             <Chip>Un seul plan. Tout inclus.</Chip>
             <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
-              Savoir qui utilise l'IA dans votre équipe —<br />
-              <span style={{ color: "hsl(var(--primary))" }}>et ce que ça leur rapporte vraiment.</span>
+              Transformez votre équipe en utilisateurs IA actifs —<br />
+              <span style={{ color: "hsl(var(--primary))" }}>avec des résultats mesurables dès la première semaine.</span>
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
               Missions quotidiennes guidées, playbooks métier complets, cockpit manager temps réel, attestations vérifiables.
@@ -376,7 +376,7 @@ export default function Pricing() {
                 Démarrer l'essai 14 jours →
               </button>
               <p className="text-xs text-muted-foreground text-center mt-2.5">
-                Aucune carte requise · Résiliation en 2 clics · 30j remboursé
+                Aucune carte requise · Résiliation en 2 clics · Accès jusqu'à la fin de la période
               </p>
             </div>
           </div>
@@ -672,8 +672,8 @@ export default function Pricing() {
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3 text-foreground">
-              Arrêtez d'apprendre l'IA.<br />
-              <span style={{ color: "hsl(var(--primary))" }}>Commencez à l'utiliser vraiment.</span>
+              Premier résultat en moins de 5 minutes.<br />
+              <span style={{ color: "hsl(var(--primary))" }}>14 jours pour en être sûr.</span>
             </h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-7 leading-relaxed">
               14 jours pour tester. Aucune carte requise. Résiliation libre.

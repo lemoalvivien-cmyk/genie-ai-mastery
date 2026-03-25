@@ -84,28 +84,28 @@ const CTASecondary = React.forwardRef<HTMLElement, {
 /* ── FAQ ─────────────────────────────────────────────────────── */
 const FAQ_DATA = [
   {
-    q: "Est-ce juste un chat IA de plus ?",
-    a: "Non. ChatGPT vous donne des réponses. Formetoialia vous donne un système : une mission concrète chaque jour, un playbook structuré, une progression mesurable et une preuve de résultat. C'est la différence entre une réponse isolée et une habitude d'exécution.",
+    q: "C'est quoi concrètement la différence avec ChatGPT ?",
+    a: "ChatGPT vous donne une réponse à une question. Formetoialia vous donne une mission structurée sur votre vrai travail, un playbook qui guide l'exécution étape par étape, et une progression mesurable. Vous ne partez jamais d'une page blanche — vous exécutez.",
   },
   {
-    q: "Est-ce utile si je débute avec l'IA ?",
-    a: "C'est précisément fait pour ça. L'onboarding calibre votre niveau en 3 minutes. KITT vous guide dès la première session. Zéro compétence technique requise — juste la volonté de commencer.",
+    q: "Pour qui c'est fait ?",
+    a: "Pour les équipes non techniques qui veulent utiliser l'IA au quotidien sans bricoler. Pas besoin de maîtriser le prompting. L'onboarding calibre votre niveau en 2 étapes. KITT vous guide dès la première session.",
   },
   {
     q: "Pourquoi payer si des IA gratuites existent ?",
-    a: "Les IA gratuites répondent. Formetoialia exécute. La valeur n'est pas dans l'accès à l'IA — elle est dans le système qui vous force à l'utiliser quotidiennement pour obtenir des résultats mesurables. Page blanche éliminée. Progression visible. Résultats exportables.",
+    a: "Les IA gratuites répondent. Formetoialia exécute. La valeur est dans le système : mission ciblée, playbook structuré, résultat documenté, progression visible. Vous obtenez un livrable réel — pas une réponse de chatbot.",
   },
   {
     q: "C'est adapté aux équipes ?",
-    a: "Oui. Le plan Pro couvre jusqu'à 25 membres sous un seul abonnement. Le cockpit manager permet au responsable de suivre la progression individuelle, d'identifier les lacunes et d'exporter des rapports.",
+    a: "Oui. Un seul plan Pro couvre jusqu'à 25 membres. Le cockpit manager permet de suivre qui progresse, qui stagne, et d'exporter des rapports de rentabilité. C'est fait pour que le manager puisse prouver la valeur, pas juste la ressentir.",
   },
   {
     q: "En combien de temps j'obtiens une première valeur ?",
-    a: "Moins de 5 minutes après l'inscription. Votre première mission est assignée immédiatement. Vous l'exécutez, KITT l'évalue. Vous avez votre premier résultat concret avant la fin de la journée.",
+    a: "Moins de 5 minutes après l'inscription. Votre première mission est assignée immédiatement, adaptée à votre profil. Vous l'exécutez, KITT évalue. Vous avez un livrable concret avant la fin de la journée.",
   },
   {
     q: "Y a-t-il un engagement ?",
-    a: "Aucun. L'essai de 14 jours ne demande pas de carte bancaire. L'abonnement se résilie en 2 clics depuis votre espace, effectif à la fin de la période payée.",
+    a: "Aucun. L'essai 14 jours est sans carte bancaire. L'abonnement se résilie en 2 clics depuis votre espace, effectif à la fin de la période payée. Vous gardez l'accès jusqu'au dernier jour.",
   },
 ];
 
@@ -261,10 +261,14 @@ export default function Index() {
               <span className="text-xs font-semibold text-primary">RGPD · Hébergé en UE · Essai 14 jours sans carte</span>
             </motion.div>
 
-          <span className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6">
-            <span className="block text-foreground">Arrêtez les formations IA</span>
-            <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
-          </span>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.55 }}
+            className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6"
+          >
+            <span className="block text-foreground">Votre équipe utilise l'IA.</span>
+            <span className="block" style={{ color: "hsl(var(--primary))" }}>Mais obtient-elle des résultats ?</span>
+          </motion.h1>
 
             {/* Subtitle */}
             <motion.p
@@ -272,10 +276,9 @@ export default function Index() {
               transition={{ delay: 0.45, duration: 0.55 }}
               className="text-base sm:text-lg text-muted-foreground max-w-2xl mb-10 leading-relaxed"
             >
-              Formetoialia transforme l'IA en résultats concrets grâce à des{" "}
-              <strong className="text-foreground">missions guidées</strong>,
-              des <strong className="text-foreground">playbooks prêts à l'emploi</strong>{" "}
-              et un <strong className="text-foreground">suivi de progression mesurable</strong>.
+              Formetoialia est la plateforme qui transforme l'IA en résultats concrets,{" "}
+              <strong className="text-foreground">chaque jour</strong>, pour les équipes non techniques.{" "}
+              Missions guidées, playbooks métier, cockpit manager.
             </motion.p>
 
             {/* Micro-preuve secondaire */}
@@ -287,8 +290,8 @@ export default function Index() {
               className="flex flex-col sm:flex-row gap-3 mb-5"
             >
               <CTAPrimary onClick={handleCTA}>
-                <Sparkles className="w-4 h-4" />
-                Essayer gratuitement
+                <Zap className="w-4 h-4" />
+                Démarrer — 14 jours gratuits
                 <ArrowRight className="w-4 h-4" />
               </CTAPrimary>
               <CTASecondary href="/demo">
@@ -313,10 +316,10 @@ export default function Index() {
               className="flex flex-wrap justify-center gap-8 sm:gap-12"
             >
               {[
-                { value: "< 5 min", label: "première victoire" },
+                { value: "< 5 min", label: "premier résultat" },
                 { value: "25", label: "membres inclus" },
-                { value: "59€", label: "TTC/mois tout compris" },
-                { value: "24/7", label: "disponible" },
+                { value: "59€", label: "/mois tout compris" },
+                { value: "14j", label: "essai sans carte" },
               ].map((s) => (
                 <div key={s.label} className="flex flex-col items-center gap-1">
                   <span className="text-2xl font-black text-primary">{s.value}</span>
@@ -596,9 +599,9 @@ export default function Index() {
               },
               {
                 icon: FileCheck,
-                tag: "Cybersécurité",
-                title: "Détection d'attaques phishing",
-                desc: "Reconnaître les tentatives de manipulation, les faux emails et les liens suspects.",
+                tag: "Analyse",
+                title: "Analyse de documents complexes",
+                desc: "Contrats, rapports, comptes-rendus — extrayez l'essentiel en secondes.",
               },
               {
                 icon: Zap,
@@ -991,20 +994,20 @@ export default function Index() {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-3">
-                Arrêtez d'apprendre l'IA.<br />
-                <span className="text-primary">Commencez à l'utiliser vraiment.</span>
+                Prêt à obtenir votre premier résultat ?<br />
+                <span className="text-primary">Ça prend moins de 5 minutes.</span>
               </h2>
               <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto leading-relaxed">
-                Première mission en moins de 5 minutes. Résultats mesurables dès la première semaine. Sans carte bancaire.
+                Première mission assignée à l'inscription. Premier livrable avant la fin de la journée. 14 jours d'essai, sans carte bancaire.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
                 <CTAPrimary onClick={handleCTA}>
-                  <Sparkles className="w-5 h-5" />
-                  Créer mon accès gratuit
+                  <Zap className="w-4 h-4" />
+                  Démarrer — 14 jours gratuits
                   <ArrowRight className="w-4 h-4" />
                 </CTAPrimary>
-                <CTASecondary href="/demo">
-                  Voir la démo d'abord
+                <CTASecondary href="/pricing">
+                  Voir les plans
                 </CTASecondary>
               </div>
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
