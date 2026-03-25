@@ -443,28 +443,21 @@ export default function Today() {
     setPhase("playing");
   };
 
-  // ── Feedback IA post-mission ───────────────────────────────────────────────
+  // ── Feedback Ghost Trainer post-mission ───────────────────────────────────
   const fetchAIFeedback = useCallback(async (m: Mission, missionScore?: number) => {
     if (!session?.user?.id) return;
     setFeedbackLoading(true);
     try {
-      const contextMsg = missionScore !== undefined
-        ? `L'utilisateur vient de compléter la mission "${m.title}" (domaine: ${m.domain}, type: ${m.mission_type}) avec un score de ${missionScore}/100.`
-        : `L'utilisateur vient de compléter l'action "${m.title}" (domaine: ${m.domain}).`;
-
-      const { data } = await supabase.functions.invoke("chat-completion", {
+      const { data } = await supabase.functions.invoke("ghost-trainer-feedback", {
         body: {
-          messages: [
-            {
-              role: "user",
-              content: `${contextMsg} En 2-3 phrases maximum, donne un feedback encourageant, un conseil pratique immédiatement applicable, et indique ce que cela va changer concrètement dans son travail. Sois direct, concret, utile. Pas de jargon. Tutoie l'utilisateur.`,
-            },
-          ],
-          mode: "standard",
-          session_id: `today_feedback_${session.user.id}_${Date.now()}`,
+          user_input: `Mission complétée : "${m.title}". Score : ${missionScore ?? "non mesuré"}/100. Type : ${m.mission_type}. Domaine : ${m.domain}.`,
+          mission_title: m.title,
+          mission_type: m.mission_type,
+          score: missionScore,
+          context: `Professionnel, domaine: ${m.domain}`,
         },
       });
-      if (data?.content) setAiFeedback(data.content);
+      if (data?.feedback) setGhostFeedback(data.feedback as GhostFeedback);
     } catch {
       // Feedback optionnel — ne pas bloquer la page
     } finally {
