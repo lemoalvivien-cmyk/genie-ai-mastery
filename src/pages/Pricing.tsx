@@ -672,8 +672,8 @@ export default function Pricing() {
               <Zap className="w-5 h-5 text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3 text-foreground">
-              Arrêtez d'apprendre l'IA.<br />
-              <span style={{ color: "hsl(var(--primary))" }}>Commencez à l'utiliser vraiment.</span>
+              Premier résultat en moins de 5 minutes.<br />
+              <span style={{ color: "hsl(var(--primary))" }}>14 jours pour en être sûr.</span>
             </h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-7 leading-relaxed">
               14 jours pour tester. Aucune carte requise. Résiliation libre.
