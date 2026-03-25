@@ -370,7 +370,7 @@ export default function Pricing() {
         />
         <meta
           property="og:description"
-          content="Autonomie IA, cybersécurité, vibe coding. Essai 14 jours gratuit. Jusqu'à 25 membres."
+          content="Modules IA et cybersécurité, labs pratiques, copilote IA, attestations vérifiables. Essai 14 jours. Jusqu'à 25 membres."
         />
         <meta
           property="og:image"
@@ -405,6 +405,23 @@ export default function Pricing() {
         </header>
 
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-14 sm:py-20">
+
+          {/* ── Hero Pricing ─────────────────────────────────── */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-5 border border-primary/20 text-primary"
+              style={{ background: "hsl(var(--primary)/0.07)" }}>
+              Un seul plan. Tout inclus.
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
+              Formez toute votre équipe à l'IA<br />
+              <span className="text-primary">pour 59€ TTC par mois</span>
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Modules, labs pratiques, copilote IA, attestations vérifiables, dashboard manager — jusqu'à 25 membres.
+              Aucun coût caché. Aucun tier. Un prix, tout dedans.
+            </p>
+          </div>
+
           {/* ── Plans ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7 items-start mb-12">
 
