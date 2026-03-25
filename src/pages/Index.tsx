@@ -141,28 +141,12 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { track } = useAnalytics();
 
   useEffect(() => {
-    // landing_viewed : event exempté de consentement car non-identifiant
-    // (actor_user_id=null, pas de cookie traceur).
-    // On utilise le SDK analytics pour avoir le batch + fallback log.
-    import("@/hooks/useAnalytics").then(({ useAnalytics: _noop }) => {
-      // Insertion directe minimaliste — aucune donnée personnelle
-      try {
-        import("@/integrations/supabase/client").then(({ supabase: sb }) => {
-          sb.from("analytics_events").insert({
-            actor_user_id: null,
-            org_id: null,
-            event_name: "landing_viewed",
-            properties: { ts: new Date().toISOString(), url: window.location.pathname },
-          }).then(({ error }) => {
-            if (error) console.warn("[analytics] landing_viewed:", error.message);
-          });
-        });
-      } catch (err) {
-        console.warn("[analytics] landing_viewed failed:", err);
-      }
-    });
+    // landing_viewed : exempté de consentement (actor_user_id=null, aucune donnée perso)
+    // Passe par la couche analytics unifiée (batch + consentement géré dans useAnalytics)
+    track("landing_viewed");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

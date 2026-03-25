@@ -403,8 +403,8 @@ export default function ManagerOnboarding() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="w-6 h-6 text-primary" />
-            <span className="text-lg font-bold text-foreground tracking-tight">GÉNIE IA</span>
-            <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30">ENTERPRISE</Badge>
+            <span className="text-lg font-bold text-foreground tracking-tight">Formetoialia</span>
+            <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30">MANAGER</Badge>
           </div>
           {/* Progress bar */}
           <div className="flex items-center gap-1 justify-center mb-2">
