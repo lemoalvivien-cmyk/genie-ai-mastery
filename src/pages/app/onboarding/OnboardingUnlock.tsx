@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
 const PRO_PERKS = [
-  "Chat IA illimité (500 msg/jour)",
-  "Jarvis — coach IA vocal personnalisé",
+  "Copilote KITT — 500 échanges/jour",
+  "Playbooks complets et missions illimitées",
   "Attestations PDF vérifiables",
-  "Missions quotidiennes + streaks",
+  "Streaks et progression mesurable",
   "25 sièges équipe inclus",
   "Sans engagement — résiliation en 2 clics",
 ];
@@ -93,7 +93,7 @@ export default function OnboardingUnlock() {
             </Button>
 
             <p className="text-xs text-muted-foreground text-center mt-3">
-              Aucune facturation pendant 14 jours. Annulation sans conditions.
+              14 jours d'essai gratuit — aucune facturation immédiate. Annulation sans conditions.
             </p>
           </div>
 

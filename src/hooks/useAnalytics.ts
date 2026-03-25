@@ -2,10 +2,28 @@
  * Analytics SDK — batch + debounce
  * Flushes up to 10 events every 3s or on page unload.
  * Zero-blocking: never throws, never awaits in the hot path.
+ *
+ * RGPD — Consentement :
+ * Les events non-essentiels ne sont envoyés QUE si le consentement analytics
+ * a été accordé. Seuls les events "nécessaires" (login, signup, checkout)
+ * peuvent passer sans consentement.
  */
 import { useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
+
+// Events qui peuvent passer sans consentement analytics explicite
+// (légitimement nécessaires à la sécurité et au service)
+const CONSENT_EXEMPT_EVENTS = new Set<EventName>([
+  "login",
+  "signup",
+  "signup_completed",
+  "register_started",
+  "checkout_started",
+  "subscription_activated",
+  "payment_success",
+  "payment_failed",
+]);
 
 export type EventName =
   // ── Navigation (public funnel) ───────────────────────────────────────────
@@ -107,9 +125,26 @@ async function flushQueue(): Promise<void> {
   const batch = queue.splice(0, BATCH_SIZE);
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await supabase.from("analytics_events").insert(batch as any);
+    const { error } = await supabase.from("analytics_events").insert(batch as any);
+    if (error) {
+      // Log structuré pour visibilité admin — jamais silencieux sur erreur DB
+      console.warn("[analytics] flush error:", error.message, { count: batch.length });
+    }
+  } catch (err) {
+    // Erreur réseau — log mais ne bloque jamais l'UI
+    console.warn("[analytics] network error on flush:", err);
+  }
+}
+
+// Lecture du consentement analytics depuis localStorage (RGPD)
+function hasAnalyticsConsent(): boolean {
+  try {
+    const raw = localStorage.getItem("formetoialia_cookie_consent");
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { analytics?: boolean };
+    return parsed.analytics === true;
   } catch {
-    // Silently discard — never block the UI
+    return false;
   }
 }
 
@@ -143,6 +178,13 @@ export function useAnalytics() {
 
   const track = useCallback(
     (event: EventName, properties: Record<string, unknown> = {}) => {
+      // ── Consentement RGPD ─────────────────────────────────────────────────
+      // Si l'event n'est pas exempté ET que le consentement analytics n'est
+      // pas accordé → on abandonne silencieusement (conformité CNIL).
+      if (!CONSENT_EXEMPT_EVENTS.has(event) && !hasAnalyticsConsent()) {
+        return;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       queue.push({
         actor_user_id: userIdRef.current,

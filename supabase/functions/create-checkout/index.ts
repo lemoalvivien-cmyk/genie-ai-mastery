@@ -1,6 +1,12 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "npm:stripe@18.5.0";
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+/**
+ * create-checkout — Crée une session Stripe Checkout
+ *
+ * Billing de vérité :
+ * - 59€ TTC/mois
+ * - Essai 14 jours
+ * - payment_method_collection: "if_required" → carte non obligatoire pendant l'essai
+ * - end_behavior.missing_payment_method: "cancel" → pas de conversion silencieuse
+ */
 import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: unknown) =>
@@ -109,12 +115,20 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://formetoialia.com";
 
+    // ── Billing de vérité ──────────────────────────────────────────────────
+    // payment_method_collection: "if_required" → pas de carte pendant l'essai
+    // end_behavior.missing_payment_method: "cancel" → l'essai expire proprement
+    // si aucune CB n'est saisie — jamais de conversion silencieuse.
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [{ price: priceId, quantity: seats }],
       mode: "subscription",
+      payment_method_collection: "if_required",
       subscription_data: {
         trial_period_days: 14,
+        trial_settings: {
+          end_behavior: { missing_payment_method: "cancel" },
+        },
         metadata: { user_id: user.id, org_id: orgId ?? "", seats: String(seats), referral_code: referralCode ?? "" },
       },
       automatic_tax: { enabled: true },

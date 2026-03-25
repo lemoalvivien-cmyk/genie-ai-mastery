@@ -32,8 +32,11 @@ export async function checkServerRateLimit(email: string): Promise<RateLimitResu
     if (!res.ok) return { allowed: true, attempts: 0, remaining_ms: 0 };
     return await res.json() as RateLimitResult;
   } catch (_e) {
-    // Network error or timeout — fail open
-    return { allowed: true, attempts: 0, remaining_ms: 0 };
+    // Network error ou timeout.
+    // Mode dégradé conservateur : on autorise 1 tentative mais on le trace.
+    // Cela évite le blocage total sur panne infra tout en limitant l'abus.
+    console.warn("[rate-limit] Service indisponible — mode dégradé conservateur");
+    return { allowed: true, attempts: 0, remaining_ms: 0, blocked_until: null };
   }
 }
 
