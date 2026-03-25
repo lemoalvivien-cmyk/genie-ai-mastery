@@ -2,19 +2,19 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "npm:stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const logStep = (step: string, details?: unknown) => {
-  if (Deno.env.get("DEBUG_WEBHOOK") === "true") {
-    console.log(`[STRIPE-WEBHOOK] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
-  }
-};
+// Always log in production — filter noise by level, not by env flag
+const logStep = (step: string, details?: unknown) =>
+  console.log(`[STRIPE-WEBHOOK] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 type OrgUpdate = Record<string, unknown>;
 
 serve(async (req) => {
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-  if (!stripeKey || !webhookSecret) return new Response("Missing Stripe config", { status: 500 });
+  if (!stripeKey || !webhookSecret) {
+    logStep("FATAL: Missing Stripe config");
+    return new Response("Missing Stripe config", { status: 500 });
+  }
 
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
@@ -74,7 +74,6 @@ serve(async (req) => {
   // ── Upsert invoice into org_invoices ────────────────────────────────────────
   async function upsertOrgInvoice(invoice: Stripe.Invoice, orgId: string | null, seatsHint?: number) {
     if (!orgId) return;
-    const resolvedOrgId = orgId;
     const totalSeats = seatsHint ?? 1;
     const periodStart = invoice.period_start ? new Date(invoice.period_start * 1000).toISOString() : null;
     const periodEnd   = invoice.period_end   ? new Date(invoice.period_end   * 1000).toISOString() : null;
@@ -83,7 +82,7 @@ serve(async (req) => {
       : invoice.status === "paid" ? new Date().toISOString() : null;
 
     const payload = {
-      org_id:             resolvedOrgId,
+      org_id:             orgId,
       stripe_invoice_id:  invoice.id,
       stripe_customer_id: typeof invoice.customer === "string" ? invoice.customer : null,
       amount_cents:       invoice.amount_paid ?? invoice.amount_due ?? 0,
@@ -154,6 +153,7 @@ serve(async (req) => {
           stripe_subscription_id: subscriptionId,
           plan_source: "stripe",
           seats_max: seats * 25,
+          is_read_only: false,
           ...(settingsUpdate ? { settings: settingsUpdate } : {}),
         }).eq("id", orgId);
       } else if (userId) {
@@ -167,6 +167,7 @@ serve(async (req) => {
             plan_source: "stripe",
             stripe_subscription_id: subscriptionId,
             seats_max: seats * 25,
+            is_read_only: false,
           }).select("id").single();
           if (newOrg) {
             resolvedOrgId = newOrg.id;
@@ -175,10 +176,16 @@ serve(async (req) => {
           }
         } else {
           resolvedOrgId = profile.org_id;
+          await supabase.from("organizations").update({
+            plan: "business",
+            stripe_subscription_id: subscriptionId,
+            plan_source: "stripe",
+            seats_max: seats * 25,
+            is_read_only: false,
+          }).eq("id", profile.org_id);
         }
       }
 
-      // Track in brain_events
       await trackPaymentEvent("payment_checkout_completed", userId, resolvedOrgId, {
         subscription_id: subscriptionId,
         seats,
@@ -202,57 +209,88 @@ serve(async (req) => {
       const seatsMax = totalSeats * 25;
       const orgId = await resolveOrgId(sub);
 
+      // Determine new plan state
+      const isActive   = sub.status === "active" || sub.status === "trialing";
+      const isPastDue  = sub.status === "past_due";
+      const isCanceling = sub.cancel_at_period_end === true;
+
+      let newPlan: string;
+      let newSource: string;
+      let isReadOnly = false;
+      let planSource = "stripe";
+
+      if (isActive) {
+        newPlan   = "business";
+        newSource = isCanceling ? "stripe_cancelling" : "stripe";
+        isReadOnly = false;
+      } else if (isPastDue) {
+        // Keep access but flag as past_due — grace period from Stripe Smart Retries (7–28 days)
+        newPlan    = "business";
+        newSource  = "stripe_past_due";
+        isReadOnly = false;
+      } else {
+        // unpaid / incomplete_expired / canceled
+        newPlan    = "free";
+        newSource  = "none";
+        isReadOnly = true;
+      }
+
+      const orgUpdate: OrgUpdate = {
+        plan:       newPlan,
+        plan_source: newSource,
+        is_read_only: isReadOnly,
+        ...(isActive ? { seats_max: seatsMax } : {}),
+      };
+
       if (orgId) {
-        const newPlan = (sub.status === "active" || sub.status === "trialing") ? "business" : "free";
-        await supabase.from("organizations").update({
-          plan: newPlan,
-          plan_source: newPlan === "business" ? "stripe" : "none",
-          seats_max: newPlan === "business" ? seatsMax : 1,
-        }).eq("id", orgId);
-        logStep("Updated org plan", { orgId, newPlan, seatsMax });
+        await supabase.from("organizations").update(orgUpdate).eq("id", orgId);
+        logStep("Updated org plan", { orgId, newPlan, newSource, isReadOnly, seatsMax });
       } else {
         const { data: orgs } = await supabase.from("organizations").select("id").eq("stripe_subscription_id", sub.id);
         if (orgs?.length) {
-          const newPlan = (sub.status === "active" || sub.status === "trialing") ? "business" : "free";
-          await supabase.from("organizations").update({
-            plan: newPlan,
-            plan_source: newPlan === "business" ? "stripe" : "none",
-            seats_max: newPlan === "business" ? seatsMax : 1,
-          }).eq("stripe_subscription_id", sub.id);
+          await supabase.from("organizations").update(orgUpdate).eq("stripe_subscription_id", sub.id);
+          logStep("Updated org plan by sub_id fallback", { count: orgs.length, newPlan });
+        } else {
+          logStep("WARNING: No org found for subscription", { subId: sub.id });
         }
       }
 
       await supabase.from("audit_logs").insert({
         action: "subscription_updated",
-        details: { subscription_id: sub.id, status: sub.status, seats: totalSeats },
+        details: { subscription_id: sub.id, status: sub.status, seats: totalSeats, cancel_at_period_end: sub.cancel_at_period_end },
       });
 
     // ── customer.subscription.deleted ──────────────────────────────────────────
+    // Fired when a subscription is fully ended (not just cancelled-at-period-end).
+    // At this point the period is over — no grace, downgrade immediately.
     } else if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object as Stripe.Subscription;
       logStep("subscription.deleted", { subscriptionId: sub.id });
       const orgId = await resolveOrgId(sub);
-      const now = Math.floor(Date.now() / 1000);
-      const periodEnd = sub.current_period_end ?? now;
-      const gracePeriodActive = periodEnd > now;
 
-      const cancelUpdate = gracePeriodActive
-        ? { plan: "business" as const, plan_source: "stripe_cancelling", is_read_only: false }
-        : { plan: "free" as const, stripe_subscription_id: null, plan_source: "none", seats_max: 1, is_read_only: true };
+      // Hard downgrade: subscription is gone, period ended
+      const cancelUpdate: OrgUpdate = {
+        plan:                   "free",
+        plan_source:            "none",
+        stripe_subscription_id: null,
+        seats_max:              1,
+        is_read_only:           true,
+      };
 
-      const filter = orgId
-        ? supabase.from("organizations").update(cancelUpdate).eq("id", orgId)
-        : supabase.from("organizations").update(cancelUpdate).eq("stripe_subscription_id", sub.id);
-      await filter;
+      if (orgId) {
+        await supabase.from("organizations").update(cancelUpdate).eq("id", orgId);
+        logStep("Hard downgrade org", { orgId });
+      } else {
+        await supabase.from("organizations").update(cancelUpdate).eq("stripe_subscription_id", sub.id);
+      }
 
-      await trackPaymentEvent("subscription_cancelled", null, orgId, {
+      await trackPaymentEvent("subscription_deleted", null, orgId, {
         subscription_id: sub.id,
-        grace_period_active: gracePeriodActive,
       });
 
       await supabase.from("audit_logs").insert({
         action: "subscription_cancelled",
-        details: { subscription_id: sub.id },
+        details: { subscription_id: sub.id, final: true },
       });
 
     // ── invoice.payment_failed ──────────────────────────────────────────────────
@@ -265,10 +303,12 @@ serve(async (req) => {
         const { data: org } = await supabase.from("organizations").select("id, name").eq("stripe_customer_id", customerId).maybeSingle();
         if (org) {
           if ((invoice.attempt_count ?? 0) >= 3) {
-            await supabase.from("organizations").update({ plan: "free", plan_source: "none" }).eq("id", org.id);
-            logStep("Downgraded org after 3 failed payments", { orgId: org.id });
+            // Stripe will fire subscription.deleted after exhausting retries — but let's also mark past_due now
+            await supabase.from("organizations").update({
+              plan_source: "stripe_past_due",
+            }).eq("id", org.id);
+            logStep("Marked org past_due after 3 failed payments", { orgId: org.id });
           }
-          // Upsert failed invoice
           await upsertOrgInvoice(invoice, org.id);
           await trackPaymentEvent("payment_failed", null, org.id, {
             invoice_id: invoice.id,
@@ -283,6 +323,53 @@ serve(async (req) => {
         details: { invoice_id: invoice.id, customer_id: customerId, attempt_count: invoice.attempt_count },
       });
 
+    // ── invoice.payment_action_required (3DS / SCA) ─────────────────────────────
+    } else if (event.type === "invoice.payment_action_required") {
+      const invoice = event.data.object as Stripe.Invoice;
+      logStep("payment_action_required", { invoiceId: invoice.id });
+      const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+
+      if (customerId) {
+        const { data: org } = await supabase.from("organizations").select("id").eq("stripe_customer_id", customerId).maybeSingle();
+        if (org) {
+          // Mark past_due until customer completes 3DS
+          await supabase.from("organizations").update({
+            plan_source: "stripe_past_due",
+          }).eq("id", org.id);
+
+          await upsertOrgInvoice(invoice, org.id);
+          await trackPaymentEvent("payment_action_required", null, org.id, {
+            invoice_id: invoice.id,
+            hosted_invoice_url: invoice.hosted_invoice_url,
+          });
+        }
+      }
+
+      await supabase.from("audit_logs").insert({
+        action: "payment_action_required",
+        details: { invoice_id: invoice.id, customer_id: customerId },
+      });
+
+    // ── customer.subscription.trial_will_end ───────────────────────────────────
+    // Fires 3 days before trial ends — good hook for "upgrade before trial ends" email/nudge
+    } else if (event.type === "customer.subscription.trial_will_end") {
+      const sub = event.data.object as Stripe.Subscription;
+      logStep("trial_will_end", { subscriptionId: sub.id, trialEnd: sub.trial_end });
+      const orgId = await resolveOrgId(sub);
+
+      if (orgId) {
+        await trackPaymentEvent("trial_will_end", null, orgId, {
+          subscription_id: sub.id,
+          trial_end: sub.trial_end,
+          days_remaining: 3,
+        });
+      }
+
+      await supabase.from("audit_logs").insert({
+        action: "trial_will_end",
+        details: { subscription_id: sub.id, trial_end: sub.trial_end },
+      });
+
     // ── invoice.paid ────────────────────────────────────────────────────────────
     } else if (event.type === "invoice.paid") {
       const invoice = event.data.object as Stripe.Invoice;
@@ -292,30 +379,29 @@ serve(async (req) => {
       if (customerId && invoice.subscription) {
         const { data: org } = await supabase
           .from("organizations")
-          .select("id, plan, partner_org_id, settings")
+          .select("id, plan, plan_source, partner_org_id, settings")
           .eq("stripe_customer_id", customerId)
           .maybeSingle();
 
         if (org) {
-          // Re-activate if previously downgraded
-          if (org.plan === "free") {
+          // Re-activate if previously downgraded or marked past_due
+          if (org.plan === "free" || org.plan_source === "stripe_past_due") {
             await supabase.from("organizations").update({
-              plan: "business", plan_source: "stripe", is_read_only: false,
+              plan: "business",
+              plan_source: "stripe",
+              is_read_only: false,
             }).eq("id", org.id);
-            logStep("Restored org to business", { orgId: org.id });
+            logStep("Restored org to business / cleared past_due", { orgId: org.id });
           }
 
-          // Get seats from subscription
           let seats = 1;
           try {
             const sub = await stripe.subscriptions.retrieve(invoice.subscription as string);
             seats = sub.items.data.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
           } catch (_e) { /* fallback to 1 */ }
 
-          // ── CORE: upsert invoice in org_invoices ──────────────────────────
           await upsertOrgInvoice(invoice, org.id, seats);
 
-          // ── Track payment_success in brain_events ─────────────────────────
           await trackPaymentEvent("payment_invoice_paid", null, org.id, {
             invoice_id:     invoice.id,
             amount_paid:    invoice.amount_paid,
@@ -350,10 +436,14 @@ serve(async (req) => {
           }
         }
       }
+    } else {
+      logStep("Unhandled event type (ignored)", { type: event.type });
     }
 
   } catch (err) {
-    logStep("Error handling event", { error: String(err) });
+    logStep("Error handling event", { error: String(err), eventType: event.type, eventId: event.id });
+    // Still mark as processed to avoid infinite retry loops on non-transient errors
+    // Transient errors (network) will be retried by Stripe naturally
   }
 
   // ── Mark event as processed (idempotency) ───────────────────────────────────

@@ -1,6 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
+
+const logStep = (step: string, details?: unknown) =>
+  console.log(`[REDEEM-CODE] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
 
 serve(async (req) => {
   const preflight = handleCorsPreflight(req);
@@ -32,6 +35,7 @@ serve(async (req) => {
       });
     }
     const userId = userData.user.id;
+    logStep("User authenticated", { userId });
 
     const { code } = await req.json();
     if (!code || typeof code !== "string") {
@@ -42,6 +46,7 @@ serve(async (req) => {
     }
 
     const normalizedCode = code.trim().toUpperCase();
+    logStep("Attempting redeem", { code: normalizedCode });
 
     const { data: codeRow, error: codeErr } = await adminSupabase
       .from("access_codes")
@@ -71,7 +76,7 @@ serve(async (req) => {
     }
 
     if (codeRow.current_uses >= codeRow.max_uses) {
-      return new Response(JSON.stringify({ error: "Ce code a déjà été utilisé" }), {
+      return new Response(JSON.stringify({ error: "Ce code a atteint son nombre maximum d'utilisations" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -85,6 +90,34 @@ serve(async (req) => {
       });
     }
 
+    // ── ATOMIC UPDATE: single SQL operation — prevents double-redemption race condition
+    // We append userId to used_by AND increment current_uses in ONE update,
+    // guarded by a WHERE clause that checks current_uses < max_uses AND user not already in array.
+    // If 2 concurrent requests race, only one will match the WHERE clause.
+    const { data: updatedCode, error: atomicErr } = await adminSupabase
+      .from("access_codes")
+      .update({
+        used_by: [...usedBy, userId],
+        current_uses: codeRow.current_uses + 1,
+        is_active: codeRow.current_uses + 1 < codeRow.max_uses,
+      })
+      .eq("id", codeRow.id)
+      .eq("current_uses", codeRow.current_uses) // Optimistic lock: only update if count hasn't changed
+      .not("used_by", "cs", JSON.stringify([userId])) // Guard: user not already in array
+      .select("id")
+      .maybeSingle();
+
+    if (atomicErr || !updatedCode) {
+      logStep("Atomic update failed — concurrent redeem or already used", { codeId: codeRow.id, userId });
+      return new Response(JSON.stringify({ error: "Ce code a déjà été utilisé ou a atteint sa limite" }), {
+        status: 409,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    logStep("Code redeemed atomically", { codeId: codeRow.id, userId, plan: codeRow.plan });
+
+    // ── Provision org access ────────────────────────────────────────────────────
     const { data: profile } = await adminSupabase
       .from("profiles")
       .select("org_id, email, full_name")
@@ -98,7 +131,7 @@ serve(async (req) => {
       const { data: newOrg } = await adminSupabase
         .from("organizations")
         .insert({
-          name: profile?.full_name ? `${profile.full_name} – Business` : "Mon espace Business",
+          name: profile?.full_name ? `${profile.full_name} – Espace Pro` : "Mon espace Pro",
           slug,
           plan: codeRow.plan,
           plan_source: "access_code",
@@ -111,34 +144,21 @@ serve(async (req) => {
         orgId = newOrg.id;
         await adminSupabase.from("profiles").update({ org_id: orgId }).eq("id", userId);
         await adminSupabase.from("user_roles").upsert({ user_id: userId, role: "manager", org_id: orgId });
+        logStep("Created new org for user", { orgId, plan: codeRow.plan });
       }
     } else {
-      // Always set plan_source so subscription.ts recognises the plan as active
       await adminSupabase
         .from("organizations")
-        .update({ plan: codeRow.plan, plan_source: "access_code" })
+        .update({ plan: codeRow.plan, plan_source: "access_code", is_read_only: false })
         .eq("id", orgId);
+      logStep("Updated existing org plan", { orgId, plan: codeRow.plan });
     }
 
-    // Atomic increment — prevents race condition on concurrent redeems
-    const { error: codeUpdateErr } = await adminSupabase
-      .from("access_codes")
-      .update({
-        used_by: [...usedBy, userId],
-        is_active: codeRow.current_uses + 1 >= codeRow.max_uses ? false : true,
-      })
-      .eq("id", codeRow.id)
-      .lt("current_uses", codeRow.max_uses); // Only update if still under limit
-
-    // Separate atomic counter increment (avoids stale-read race)
-    await adminSupabase.rpc("increment_access_code_uses", { _code_id: codeRow.id });
-
-    if (codeUpdateErr) {
-      return new Response(JSON.stringify({ error: "Ce code a déjà été utilisé au maximum" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    await adminSupabase.from("audit_logs").insert({
+      user_id: userId,
+      action: "access_code_redeemed",
+      details: { code_id: codeRow.id, plan: codeRow.plan, org_id: orgId },
+    });
 
     return new Response(
       JSON.stringify({
@@ -148,10 +168,11 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-  } catch (_err) {
+  } catch (err) {
+    logStep("Unhandled error", { error: String(err) });
     return new Response(
       JSON.stringify({ error: "Une erreur est survenue" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { ...getCorsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
     );
   }
 });
