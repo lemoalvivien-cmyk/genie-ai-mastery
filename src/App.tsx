@@ -218,6 +218,10 @@ const App = () => (
                   element={<ProtectedRoute requireRole="admin"><Runbook /></ProtectedRoute>}
                 />
                 <Route
+                  path="/admin/go-live"
+                  element={<ProtectedRoute requireRole="admin"><GoLiveChecklist /></ProtectedRoute>}
+                />
+                <Route
                   path="/admin/*"
                   element={
                     <ProtectedRoute requireRole="admin">
