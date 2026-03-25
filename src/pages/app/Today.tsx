@@ -484,13 +484,12 @@ export default function Today() {
     const prevLongest = streak?.longest_streak ?? 0;
     await completeMission(mission.id, mission.xp, missionScore, timeSpent);
 
-    // Analytics
-    supabase.from("analytics_events").insert({
-      actor_user_id: session?.user?.id ?? null,
-      org_id: profile?.org_id ?? null,
-      event_name: "mission_completed",
-      properties: { mission_id: mission.id, domain: mission.domain, mission_type: mission.mission_type, score: missionScore, xp: mission.xp, time_spent_seconds: timeSpent },
-    }).then(() => {});
+    // Track mission completed + first mission if applicable
+    const isFirstEver = (streak?.current_streak ?? 0) === 0;
+    track("mission_completed", { mission_id: mission.id, domain: mission.domain, mission_type: mission.mission_type, score: missionScore, xp: mission.xp, time_spent_seconds: timeSpent });
+    if (isFirstEver) {
+      track("first_mission_completed", { mission_id: mission.id, domain: mission.domain });
+    }
 
     const newStreak = (streak?.current_streak ?? 0) + 1;
     if (newStreak > prevLongest) setIsNewRecord(true);
@@ -498,7 +497,7 @@ export default function Today() {
 
     // Feedback IA en background
     fetchAIFeedback(mission, missionScore);
-  }, [mission, streak, completeMission, session, profile, fetchAIFeedback]);
+  }, [mission, streak, completeMission, session, profile, fetchAIFeedback, track]);
 
   // ── Rendu ──────────────────────────────────────────────────────────────────
   const domainMeta = mission ? (DOMAIN_LABELS[mission.domain] ?? { label: mission.domain, color: "text-muted-foreground", bg: "bg-muted/40", border: "border-border" }) : null;
