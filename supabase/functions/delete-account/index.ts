@@ -17,6 +17,11 @@ const ALLOWED_ORIGINS = [
   "https://www.formetoialia.com",
 ];
 
+const ALLOWED_ORIGINS = [
+  "https://formetoialia.com",
+  "https://www.formetoialia.com",
+];
+
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
