@@ -23,6 +23,7 @@ export const BUSINESS_CATEGORIES = [
   { id: "productivite", label: "Productivité", icon: "zap" },
   { id: "analyse", label: "Analyse", icon: "bar-chart-2" },
   { id: "presentation", label: "Présentation", icon: "layout" },
+  { id: "support", label: "Support", icon: "headphones" },
   { id: "direction", label: "Direction", icon: "briefcase" },
 ] as const;
 
@@ -217,6 +218,22 @@ export const DEMO_PLAYBOOKS: PlaybookMeta[] = [
       "Identifiez la tâche la plus impactante",
       "Bloquez du temps en matinée pour le focus",
       "Organisez le reste par énergie et urgence",
+    ],
+  },
+  {
+    slug: "repondre-ticket-support",
+    category: "support",
+    problem: "Un utilisateur a un problème urgent et attend une réponse claire et rapide",
+    result: "Réponse support professionnelle qui résout et rassure",
+    deliverable: "Réponse ticket structurée",
+    deliverable_type: "email",
+    difficulty: "rapide",
+    estimated_minutes: 5,
+    steps: [
+      "Décrivez le ticket et le problème signalé",
+      "Identifiez la solution ou l'escalade nécessaire",
+      "Générez une réponse empathique et claire",
+      "Ajoutez les étapes de résolution",
     ],
   },
   {
