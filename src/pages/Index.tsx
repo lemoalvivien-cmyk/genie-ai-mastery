@@ -247,15 +247,10 @@ export default function Index() {
               <span className="text-xs font-semibold text-primary">RGPD · Hébergé en UE · Essai 14 jours sans carte</span>
             </motion.div>
 
-            {/* H1 */}
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6"
-            >
-              <span className="block text-foreground">Arrêtez les formations IA</span>
-              <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
-            </motion.h1>
+          <span className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6">
+            <span className="block text-foreground">Transformez votre équipe</span>
+            <span className="block" style={{ color: "hsl(var(--primary))" }}>avec l'IA, dès demain.</span>
+          </span>
 
             {/* Subtitle */}
             <motion.p
