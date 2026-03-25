@@ -653,22 +653,32 @@ export default function Index() {
         <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <FadeIn>
-              <Chip><Users className="w-3 h-3" /> Pour les responsables</Chip>
+              <Chip><Users className="w-3 h-3" /> Pour les dirigeants & managers</Chip>
               <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
-                Le tableau de bord que les formations classiques
-                <span className="text-primary"> n'ont jamais su offrir.</span>
+                59€/mois pour 25 membres.{" "}
+                <span className="text-primary">Rentable dès la première semaine.</span>
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6 leading-relaxed">
-                Voyez en temps réel qui progresse, qui bloque, qui a besoin de renfort.
-                Exportez des rapports. Prouvez le ROI de votre déploiement IA.
+              <p className="text-sm sm:text-base text-muted-foreground mb-5 leading-relaxed">
+                Vous ne payez pas pour former votre équipe à l'IA.
+                Vous payez pour la <strong className="text-foreground">rendre opérationnelle</strong>,
+                mesurer l'adoption, et prouver la valeur en temps réel.
               </p>
-              <ul className="space-y-3 mb-8">
+              <div
+                className="rounded-xl border border-primary/20 px-4 py-3 mb-5 text-sm"
+                style={{ background: "hsl(var(--primary)/0.05)" }}
+              >
+                <span className="font-bold text-foreground">Calcul simple :</span>
+                <span className="text-muted-foreground ml-1">
+                  10 membres · 2 missions/sem. = ~13h éco./mois. À 50€/h = <span className="text-primary font-bold">650€ de valeur pour 59€.</span>
+                </span>
+              </div>
+              <ul className="space-y-2.5 mb-7">
                 {[
-                  "Progression individuelle de chaque membre",
-                  "Lacunes identifiées par domaine",
-                  "Attestations vérifiables exportables",
-                  "Rapport d'équipe automatisé",
-                  "Jusqu'à 25 membres inclus",
+                  "Score d'adoption équipe en temps réel",
+                  "Signaux d'inactivité et relances automatiques",
+                  "Heures économisées estimées par membre",
+                  "Rapport mensuel exportable en 1 clic",
+                  "Jusqu'à 25 membres inclus dans le plan",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground/80">
                     <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -677,7 +687,7 @@ export default function Index() {
                 ))}
               </ul>
               <CTAPrimary onClick={handleCTA}>
-                Découvrir le cockpit
+                Découvrir le cockpit manager
               </CTAPrimary>
             </FadeIn>
 
