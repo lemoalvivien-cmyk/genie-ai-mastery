@@ -404,13 +404,13 @@ export default function Pricing() {
               style={{ background: "hsl(var(--primary)/0.07)" }}>
               Un seul plan. Tout inclus.
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
-              Formez toute votre équipe à l'IA<br />
+          <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
+              Rendez toute votre équipe opérationnelle sur l'IA<br />
               <span className="text-primary">pour 59€ TTC par mois</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              Modules, labs pratiques, copilote IA, attestations vérifiables, dashboard manager — jusqu'à 25 membres.
-              Aucun coût caché. Aucun tier. Un prix, tout dedans.
+              Playbooks, labs d'exécution, copilote KITT, attestations vérifiables, cockpit manager — jusqu'à 25 membres.
+              Aucun coût caché. Un prix fixe, tout inclus.
             </p>
           </div>
 

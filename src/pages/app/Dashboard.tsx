@@ -348,7 +348,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── 6. Derniers modules ── */}
+          {/* ── 6. Derniers playbooks ── */}
           {isDashboardLoading ? (
             <div className="animate-slide-up space-y-2">
               <Skeleton className="h-4 w-32" />
