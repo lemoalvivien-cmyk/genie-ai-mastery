@@ -73,7 +73,7 @@ export function faqSchema() {
         name: "Qu'est-ce que Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Formetoialia est un système d'exécution IA quotidien. Il combine des missions guidées, des playbooks métier prêts à l'emploi (IA Pro, IA Perso, Cybersécurité), un copilote conversationnel KITT, et un cockpit manager pour piloter l'adoption IA de toute l'équipe.",
+          text: "Formetoialia est un système d'exécution IA quotidien. Il combine des missions guidées, des playbooks métier prêts à l'emploi, un copilote conversationnel KITT, et un cockpit manager pour piloter l'adoption IA de toute l'équipe.",
         },
       },
       {
