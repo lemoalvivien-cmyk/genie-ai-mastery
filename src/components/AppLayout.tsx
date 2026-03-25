@@ -41,10 +41,9 @@ export default function AppLayout() {
       dot: !missionDone,
       showProBadge: false,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Copilote KITT", dot: false, badge: null, showProBadge: false },
     { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null, showProBadge: false },
     { to: "/app/library", icon: Library, label: "Bibliothèque", dot: false, badge: null, showProBadge: false },
-    { to: "/app/agent-jobs", icon: Briefcase, label: "Agents IA", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/chat", icon: MessageCircle, label: "Assistance KITT", dot: false, badge: null, showProBadge: false },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
 
@@ -68,9 +67,9 @@ export default function AppLayout() {
       dot: !missionDone,
       badge: currentStreak > 0 ? String(currentStreak) : null,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
-    { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
     { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null },
+    { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
+    { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
     { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
   ];
 

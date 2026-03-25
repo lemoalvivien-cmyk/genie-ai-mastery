@@ -77,8 +77,8 @@ const FREE_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-  { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées par KITT", "Playbooks complets : IA Pro, IA Perso, Cybersécurité", "Exécutions guidées adaptatives"] },
-  { group: "Agir", icon: Zap, items: ["Mises en situation interactives : Phishing, Prompt, Cyber", "Copilote KITT — 500 échanges/jour"] },
+  { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées", "Playbooks métier complets", "Exécutions guidées adaptatives"] },
+  { group: "Agir", icon: Zap, items: ["Assistance KITT — 500 échanges/jour", "Livrables téléchargeables à chaque session"] },
   { group: "Prouver", icon: FileCheck, items: ["Attestations PDF à signature numérique", "QR code de vérification publique", "Historique exportable"] },
   { group: "Piloter", icon: BarChart3, items: ["Cockpit manager — jusqu'à 25 membres", "Suivi progression individuel & collectif", "Bibliothèque d'équipe partagée", "Rapports automatisés"] },
 ];
