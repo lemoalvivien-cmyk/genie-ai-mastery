@@ -556,9 +556,9 @@ export default function Pricing() {
           >
             <Shield className="w-7 h-7 shrink-0 mt-0.5" style={{ color: "hsl(142 71% 45%)" }} />
             <div>
-              <p className="font-bold text-foreground text-sm">Satisfait ou remboursé — 30 jours, sans condition.</p>
+              <p className="font-bold text-foreground text-sm">Essai 14 jours sans carte · Résiliation en 2 clics · Accès garanti jusqu'à la fin de la période payée.</p>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Paiement Stripe · PCI-DSS · Données hébergées en Europe · RGPD conforme · Résiliation en 2 clics
+                Paiement Stripe · PCI-DSS · Données hébergées en Europe · RGPD conforme
               </p>
             </div>
           </div>

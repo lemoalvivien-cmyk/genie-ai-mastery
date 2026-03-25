@@ -60,9 +60,9 @@ function Chip({ children }: { children: React.ReactNode }) {
   );
 }
 
-function CTAPrimary({ onClick, href, children }: {
+const CTAPrimary = React.forwardRef<HTMLElement, {
   onClick?: () => void; href?: string; children: React.ReactNode;
-}) {
+}>(function CTAPrimary({ onClick, href, children }, _ref) {
   const cls = "inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary";
   const style = {
     background: "hsl(var(--accent))",
@@ -71,15 +71,15 @@ function CTAPrimary({ onClick, href, children }: {
   };
   if (href) return <Link to={href} className={cls} style={style}>{children}</Link>;
   return <button onClick={onClick} className={cls} style={style}>{children}</button>;
-}
+});
 
-function CTASecondary({ onClick, href, children }: {
+const CTASecondary = React.forwardRef<HTMLElement, {
   onClick?: () => void; href?: string; children: React.ReactNode;
-}) {
+}>(function CTASecondary({ onClick, href, children }, _ref) {
   const cls = "inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] border border-primary/40 text-primary hover:bg-primary/8 focus:outline-none";
   if (href) return <Link to={href} className={cls}>{children}</Link>;
   return <button onClick={onClick} className={cls}>{children}</button>;
-}
+});
 
 /* ── FAQ ─────────────────────────────────────────────────────── */
 const FAQ_DATA = [
@@ -177,7 +177,7 @@ export default function Index() {
         <title>Formetoialia — Système d'exécution IA quotidien pour équipes</title>
         <meta name="description" content="Arrêtez les formations IA qui finissent en oubli. Formetoialia transforme l'IA en résultats concrets : missions guidées, playbooks métier, cockpit manager. 59€/mois — 25 membres." />
         <meta property="og:title" content="Formetoialia — Système d'exécution IA quotidien" />
-        <meta property="og:description" content="Missions concrètes, playbooks prêts à l'emploi, copilote KITT, cockpit manager. 59€ TTC/mois pour toute l'équipe." />
+        <meta property="og:description" content="Missions quotidiennes guidées, playbooks métier, cockpit manager. 59€ TTC/mois — jusqu'à 25 membres." />
         <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://formetoialia.com/" />
