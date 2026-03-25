@@ -340,7 +340,7 @@ export default function Chat() {
     ? `⚡ MODE PALANTIR ACTIVÉ ${firstName ? `— Bonjour ${firstName}` : ""}. Swarm de 5 agents IA opérationnel. Posez votre question pour déclencher l'analyse.`
     : firstName
     ? `Salut ${firstName} ! Qu'est-ce qu'on fait aujourd'hui ?`
-    : `Salut ! Je suis Jarvis, ton copilote Formetoialia. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
+    : `Salut ! Je suis KITT, ton copilote Formetoialia. Pose-moi n'importe quelle question, ou choisis un sujet ci-dessous.`;
 
   const [messages, setMessages] = useState<Message[]>([
     { id: "welcome", role: "assistant", content: welcomeContent },
@@ -789,7 +789,7 @@ export default function Chat() {
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-[10px] text-muted-foreground/50">
-                {brainState.palantirMode ? "⚡ Swarm 5 agents · MITRE ATT&CK · Prédiction 24h" : "JARVIS peut faire des erreurs. Vérifiez les informations importantes."}
+                {brainState.palantirMode ? "⚡ Swarm 5 agents · MITRE ATT&CK · Prédiction 24h" : "KITT peut faire des erreurs. Vérifiez les informations importantes."}
               </p>
               <button onClick={handleReset} className="text-[10px] text-muted-foreground/40 hover:text-muted-foreground flex items-center gap-1">
                 <RotateCcw className="w-2.5 h-2.5" /> Reset

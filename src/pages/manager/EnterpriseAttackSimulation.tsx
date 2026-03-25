@@ -303,7 +303,7 @@ export default function EnterpriseAttackSimulation() {
   return (
     <>
       <Helmet>
-        <title>Enterprise Attack Simulation — Génie IA</title>
+        <title>Simulation d'attaque enterprise — Formetoialia</title>
       </Helmet>
       <div className="min-h-screen bg-background text-foreground p-4 md:p-6">
         <div className="max-w-6xl mx-auto space-y-6">
