@@ -332,7 +332,7 @@ export default function ModuleDetail() {
                     🎓 Attestation de maîtrise
                   </h2>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Toutes les compétences de ce module sont maîtrisées.
+                    Toutes les compétences de ce playbook sont maîtrisées.
                   </p>
                   {generatingAttestation ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -350,6 +350,38 @@ export default function ModuleDetail() {
                   )}
                 </div>
               )}
+
+              {/* Next playbook recommendation (post-completion) */}
+              {progress?.status === "completed" && (() => {
+                const { DEMO_PLAYBOOKS: demoList, getPlaybookMeta: getMeta } = require("@/data/playbooks");
+                const currentMeta = getMeta(mod.slug);
+                const next = demoList.find(
+                  (p: { slug: string; category: string }) =>
+                    p.slug !== mod.slug &&
+                    (currentMeta ? p.category === currentMeta.category : true)
+                );
+                if (!next) return null;
+                return (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-card animate-fade-in">
+                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+                      ✓ Livrable généré — prochain playbook
+                    </p>
+                    <Link
+                      to={`/app/modules/${next.slug}`}
+                      className="group flex items-start gap-3 hover:opacity-90 transition-opacity"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                          {next.deliverable}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{next.problem}</p>
+                        <p className="text-xs text-emerald-400 mt-1 font-medium">→ {next.result}</p>
+                      </div>
+                      <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
+                    </Link>
+                  </div>
+                );
+              })()}
 
               {/* Adversarial Exercise */}
               <AdversarialExerciseWidget
