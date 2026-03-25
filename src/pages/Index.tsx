@@ -105,7 +105,7 @@ const FAQ_DATA = [
   },
   {
     q: "Y a-t-il un engagement ?",
-    a: "Aucun. L'essai de 14 jours est sans carte bancaire. L'abonnement se résilie en 2 clics, effectif à la fin de la période. Garantie satisfait ou remboursé 30 jours.",
+    a: "Aucun. L'essai de 14 jours ne demande pas de carte bancaire. L'abonnement se résilie en 2 clics depuis votre espace, effectif à la fin de la période payée.",
   },
 ];
 

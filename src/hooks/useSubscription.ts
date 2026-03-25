@@ -67,9 +67,9 @@ function getBillingWarning(status: SubscriptionStatus, renewalDate: string | nul
     case "trialing":
       if (renewalDate) {
         const d = new Date(renewalDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
-        return `Votre essai gratuit se termine le ${d}. Aucune action requise — votre carte sera débitée automatiquement.`;
+        return `Votre essai gratuit se termine le ${d}. Pour continuer, ajoutez un moyen de paiement — sinon l'accès Pro expirera automatiquement sans frais.`;
       }
-      return "Votre essai gratuit est en cours.";
+      return "Votre essai gratuit est en cours. Aucun prélèvement sans ajout d'un moyen de paiement.";
     case "cancelling":
       if (renewalDate) {
         const d = new Date(renewalDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });

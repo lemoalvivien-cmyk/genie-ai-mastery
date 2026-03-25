@@ -110,7 +110,7 @@ const FAQ_DATA = [
   },
   {
     q: "Puis-je annuler librement ?",
-    a: "Oui. Résiliation depuis votre espace en 2 clics, effective à la fin de la période en cours. Garantie satisfait ou remboursé 30 jours, sans condition ni justification.",
+    a: "Oui. Résiliation depuis votre espace en 2 clics via le portail Stripe, effective à la fin de la période en cours. Vous conservez votre accès jusqu'à la dernière journée payée.",
   },
 ];
 
@@ -264,7 +264,7 @@ export default function Pricing() {
               <strong className="text-foreground"> Jusqu'à 25 membres. Aucun coût caché.</strong>
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground/70">
-              {["14 jours d'essai sans carte", "Résiliation en 2 clics", "Remboursé 30 jours si insatisfait", "Paiement Stripe sécurisé"].map(t => (
+              {["14 jours d'essai sans carte", "Résiliation en 2 clics", "Accès jusqu'à la fin de la période", "Paiement Stripe sécurisé"].map(t => (
                 <span key={t} className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-400" />{t}</span>
               ))}
             </div>
