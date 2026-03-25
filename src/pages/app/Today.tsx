@@ -21,7 +21,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   ChevronRight, CheckCircle2, Flame, Loader2,
-  Clock, Zap, ArrowRight, Star, RotateCcw,
+  Clock, Zap, ArrowRight, RotateCcw,
   MessageSquare, Trophy, BookOpen, TrendingUp,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -33,6 +33,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
 import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { EmergencyMode } from "@/components/emergency/EmergencyMode";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
