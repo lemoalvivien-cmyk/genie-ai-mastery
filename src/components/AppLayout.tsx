@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase, Library } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, BookOpen, Settings, Users, Flame, Lock, Briefcase, Library, BarChart3 } from "lucide-react";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
@@ -41,11 +41,10 @@ export default function AppLayout() {
       dot: !missionDone,
       showProBadge: false,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
-    { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
-    { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
+    { to: "/app/chat", icon: MessageCircle, label: "Copilote KITT", dot: false, badge: null, showProBadge: false },
+    { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null, showProBadge: false },
     { to: "/app/library", icon: Library, label: "Bibliothèque", dot: false, badge: null, showProBadge: false },
-    { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/agent-jobs", icon: Briefcase, label: "Automatisations", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
 
@@ -53,14 +52,14 @@ export default function AppLayout() {
     desktopNavItems.push({
       to: "/manager",
       icon: Users,
-      label: "Manager",
+      label: "Cockpit équipe",
       dot: false,
       badge: null,
       showProBadge: false,
     });
   }
 
-  // ── Mobile bottom nav: max 5 items, most important ─────────────────────────
+  // ── Mobile bottom nav: max 5 items ─────────────────────────
   const mobileNavItems = [
     {
       to: "/app/today",
@@ -69,9 +68,9 @@ export default function AppLayout() {
       dot: !missionDone,
       badge: currentStreak > 0 ? String(currentStreak) : null,
     },
-    { to: "/app/chat", icon: MessageCircle, label: "Chat", dot: false, badge: null },
+    { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
     { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
-    { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null },
+    { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null },
     { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
   ];
 
@@ -79,7 +78,7 @@ export default function AppLayout() {
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : profile?.email?.[0]?.toUpperCase() ?? "F";
 
-  const planLabel = isPro ? "Pro" : "Free";
+  const planLabel = isPro ? "Pro" : "Découverte";
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#0C1014" }}>
@@ -102,7 +101,7 @@ export default function AppLayout() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" aria-label="Navigation principale">
           {desktopNavItems.map((item) => (
             <NavLink
               key={item.to}
@@ -214,10 +213,11 @@ export default function AppLayout() {
           <Outlet />
         </main>
 
-        {/* ── Mobile bottom nav (5 items max, most critical) ── */}
+        {/* ── Mobile bottom nav ── */}
         <nav
           className="lg:hidden shrink-0 px-2 py-1.5 flex items-center justify-around"
           style={{ borderTop: "1px solid #2A2D3A", background: "#13151E" }}
+          aria-label="Navigation mobile"
         >
           {mobileNavItems.map((item) => (
             <NavLink
