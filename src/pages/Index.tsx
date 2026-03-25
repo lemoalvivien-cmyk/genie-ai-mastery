@@ -177,7 +177,7 @@ export default function Index() {
         <title>Formetoialia — Système d'exécution IA quotidien pour équipes</title>
         <meta name="description" content="Arrêtez les formations IA qui finissent en oubli. Formetoialia transforme l'IA en résultats concrets : missions guidées, playbooks métier, cockpit manager. 59€/mois — 25 membres." />
         <meta property="og:title" content="Formetoialia — Système d'exécution IA quotidien" />
-        <meta property="og:description" content="Missions concrètes, playbooks prêts à l'emploi, copilote KITT, cockpit manager. 59€ TTC/mois pour toute l'équipe." />
+        <meta property="og:description" content="Missions quotidiennes guidées, playbooks métier, cockpit manager. 59€ TTC/mois — jusqu'à 25 membres." />
         <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://formetoialia.com/" />
