@@ -955,6 +955,10 @@ export default function ManagerDashboard() {
   }, [profile?.org_id, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Track manager_report_viewed once on mount (exempt from consent — business critical)
+  useEffect(() => { track("manager_report_viewed"); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!profile?.org_id) return;
     const interval = setInterval(loadData, 15_000);
