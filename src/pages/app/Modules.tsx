@@ -40,6 +40,7 @@ const CATEGORY_TO_DOMAIN: Record<string, string> = {
   productivite: "ia_perso",
   analyse: "ia_pro",
   presentation: "ia_pro",
+  support: "ia_pro",
   direction: "ia_pro",
 };
 
