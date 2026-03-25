@@ -89,7 +89,7 @@ export function faqSchema() {
         name: "Combien coûte l'abonnement Formetoialia ?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "L'abonnement Pro est à 59€ TTC/mois par organisation. Il couvre jusqu'à 25 membres, sans engagement. Résiliation en 2 clics, remboursement 30 jours.",
+          text: "L'abonnement Pro est à 59€ TTC/mois par organisation. Il couvre jusqu'à 25 membres. Essai 14 jours sans carte bancaire. Résiliation en 2 clics, accès jusqu'à la fin de la période payée.",
         },
       },
       {
