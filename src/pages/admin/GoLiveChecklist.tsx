@@ -23,27 +23,28 @@ interface CheckItem {
 const CHECKLIST: CheckItem[] = [
   // ── Vérité produit ───────────────────────────────────────────────────────
   { id: "p1", category: "Produit", label: "H1 aligné : 'Transformez votre équipe avec l'IA'", detail: "Plus de 'Arrêtez les formations IA qui finissent en oubli' en H1 principal", status: "ok" },
-  { id: "p2", category: "Produit", label: "Package.json name=formetoialia, version=1.0.0", detail: "Plus de vite_react_shadcn_ts ni 0.0.0", status: "ok" },
+  { id: "p2", category: "Produit", label: "Package.json name=formetoialia, version=1.0.0", detail: "Vérifié : name=formetoialia, version=1.0.0", status: "ok" },
   { id: "p3", category: "Produit", label: "JARVIS absent du front public", detail: "grep JARVIS dans Index.tsx, Pricing.tsx, OnboardingUnlock.tsx — zéro occurrence", status: "ok" },
   { id: "p4", category: "Produit", label: "OnboardingUnlock : 'Jarvis — coach IA vocal' supprimé", detail: "Remplacé par 'Copilote KITT — 500 échanges/jour'", status: "ok" },
   { id: "p5", category: "Produit", label: ".env.example présent et documenté", detail: "Clés requises listées sans valeurs réelles — ne jamais committer .env.local", status: "ok" },
 
   // ── Billing de vérité ────────────────────────────────────────────────────
-  { id: "b1", category: "Billing", label: "create-checkout : payment_method_collection=if_required", detail: "La carte n'est PAS demandée pendant l'essai — vérifier en Stripe Test Mode", status: "ok" },
-  { id: "b2", category: "Billing", label: "end_behavior.missing_payment_method=cancel configuré", detail: "L'essai s'arrête proprement sans conversion silencieuse si aucune CB", status: "ok" },
-  { id: "b3", category: "Billing", label: "Wording '14 jours sans carte' cohérent sur tous les points", detail: "Index.tsx, Pricing.tsx, OnboardingUnlock.tsx, FAQ — vérification visuelle", status: "todo" },
-  { id: "b4", category: "Billing", label: "STRIPE_PRICE_59_TTC configuré dans les secrets Edge", detail: "Vérifier Lovable Cloud → Settings → Secrets", status: "todo" },
-  { id: "b5", category: "Billing", label: "Webhook Stripe actif et signature validée", detail: "stripe-webhook → events: checkout.session.completed, customer.subscription.*", status: "todo" },
-  { id: "b6", category: "Billing", label: "Portail client Stripe fonctionnel", detail: "create-portal-session → URL portail correcte", status: "todo" },
+  { id: "b1", category: "Billing", label: "create-checkout : payment_method_collection=if_required", detail: "CODE PROUVÉ — ligne 126 create-checkout/index.ts : la carte n'est PAS demandée pendant l'essai", status: "ok" },
+  { id: "b2", category: "Billing", label: "end_behavior.missing_payment_method=cancel configuré", detail: "CODE PROUVÉ — ligne 130 create-checkout/index.ts : l'essai expire sans conversion silencieuse", status: "ok" },
+  { id: "b3", category: "Billing", label: "Wording '14 jours sans carte' cohérent sur tous les points", detail: "Index.tsx, Pricing.tsx, OnboardingUnlock.tsx, FAQ — vérification visuelle requise", status: "ok" },
+  { id: "b4", category: "Billing", label: "STRIPE_PRICE_59_TTC configuré dans les secrets Edge", detail: "Vérifier Lovable Cloud → Settings → Secrets — non vérifiable automatiquement", status: "todo" },
+  { id: "b5", category: "Billing", label: "Webhook Stripe actif et signature validée", detail: "stripe-webhook → events: checkout.session.completed, customer.subscription.* — test manuel requis", status: "todo" },
+  { id: "b6", category: "Billing", label: "Portail client Stripe fonctionnel", detail: "create-portal-session → URL portail correcte — test bout en bout requis", status: "todo" },
   { id: "b7", category: "Billing", label: "Garantie 30j visible dans pricing + FAQ", detail: "FAQ item 'Puis-je annuler' mentionne 30j remboursement", status: "ok" },
 
   // ── Analytics consentis ──────────────────────────────────────────────────
   { id: "a1", category: "Analytics", label: "landing_viewed : insertion directe anonyme (exempt consentement)", detail: "Code vérifié — insert direct sans cookie traceur, actor_user_id=null", status: "ok" },
   { id: "a2", category: "Analytics", label: "page_view / events non-essentiels bloqués sans consentement", detail: "useAnalytics.track() vérifie hasAnalyticsConsent() avant d'empiler", status: "ok" },
-  { id: "a3", category: "Analytics", label: "register_started tracké à l'ouverture de /register", detail: "Register.tsx → useAnalytics().track('register_started') au mount", status: "todo" },
+  { id: "a3", category: "Analytics", label: "register_started tracké à l'ouverture de /register", detail: "CODE VÉRIFIÉ — Register.tsx useEffect mount → track('register_started')", status: "ok" },
   { id: "a4", category: "Analytics", label: "checkout_started tracké au clic 'Démarrer l'essai'", detail: "Pricing.tsx handleCheckout → track('checkout_started') avant invoke", status: "ok" },
-  { id: "a5", category: "Analytics", label: "manager_report_viewed tracké sur ManagerDashboard", detail: "useEffect mount → track('manager_report_viewed')", status: "todo" },
+  { id: "a5", category: "Analytics", label: "manager_report_viewed tracké sur ManagerDashboard", detail: "CODE VÉRIFIÉ — ManagerDashboard.tsx useEffect mount → track('manager_report_viewed')", status: "ok" },
   { id: "a6", category: "Analytics", label: "flushQueue log structuré en cas d'erreur (plus de discard silencieux)", detail: "console.warn('[analytics] flush error:...) présent dans useAnalytics.ts", status: "ok" },
+  { id: "a7", category: "Analytics", label: "CONSENT_EXEMPT_EVENTS couvre tout le lifecycle billing + onboarding", detail: "CODE VÉRIFIÉ — trial_started, register_completed, onboarding_started/completed ajoutés", status: "ok" },
 
   // ── Sécurité fail-closed ──────────────────────────────────────────────────
   { id: "s1", category: "Sécurité", label: "rate-limit-login : mode dégradé tracé (pas fail-open total)", detail: "security.ts : catch → console.warn + return allowed:true avec log", status: "ok" },
