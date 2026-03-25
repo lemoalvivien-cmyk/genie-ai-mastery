@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase, Library } from "lucide-react";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
@@ -30,7 +30,7 @@ export default function AppLayout() {
 
   const isChat = location.pathname === "/app/chat" || location.pathname === "/app/jarvis";
 
-  // Add library link + update nav
+  // ── Desktop sidebar nav ─────────────────────────────────────────────────────
   const desktopNavItems = [
     {
       to: "/app/today",
