@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, BookOpen, Settings, Users, Flame, Lock, Library, BarChart3 } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, BookOpen, Settings, Users, Flame, Lock, Library } from "lucide-react";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
@@ -58,20 +58,34 @@ export default function AppLayout() {
     });
   }
 
-  // ── Mobile bottom nav: max 5 items ─────────────────────────
-  const mobileNavItems = [
-    {
-      to: "/app/today",
-      icon: Calendar,
-      label: "Aujourd'hui",
-      dot: !missionDone,
-      badge: currentStreak > 0 ? String(currentStreak) : null,
-    },
-    { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null },
-    { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
-    { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
-    { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
-  ];
+  // ── Mobile bottom nav: max 5 items (cockpit remplace biblio si manager) ─────
+  const mobileNavItems = isManager
+    ? [
+        {
+          to: "/app/today",
+          icon: Calendar,
+          label: "Aujourd'hui",
+          dot: !missionDone,
+          badge: currentStreak > 0 ? String(currentStreak) : null,
+        },
+        { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null },
+        { to: "/manager", icon: Users, label: "Cockpit", dot: false, badge: null },
+        { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
+        { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
+      ]
+    : [
+        {
+          to: "/app/today",
+          icon: Calendar,
+          label: "Aujourd'hui",
+          dot: !missionDone,
+          badge: currentStreak > 0 ? String(currentStreak) : null,
+        },
+        { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null },
+        { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
+        { to: "/app/chat", icon: MessageCircle, label: "KITT", dot: false, badge: null },
+        { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
+      ];
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)

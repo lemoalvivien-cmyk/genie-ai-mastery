@@ -1011,8 +1011,8 @@ export default function Index() {
                 {[
                   "Sans carte bancaire",
                   "RGPD · Hébergement UE",
-                  "30j remboursé",
                   "Résiliation libre",
+                  "Accès jusqu'à la fin de la période",
                 ].map((t) => (
                   <span key={t} className="text-xs text-muted-foreground/50 flex items-center gap-1">
                     <Shield className="w-3 h-3" />
