@@ -510,13 +510,15 @@ export default function Today() {
     );
   }
 
-  // Track paywall view once
+  // Track paywall view once (after loading is resolved)
+  const paywallTracked = useRef(false);
   useEffect(() => {
-    if (!isSubscribed && phase !== "loading") {
+    if (!isSubscribed && !streakLoading && !paywallTracked.current) {
+      paywallTracked.current = true;
       track("paywall_viewed", { source: "today" });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed]);
+  }, [isSubscribed, streakLoading]);
 
   if (!isSubscribed) {
     return (
