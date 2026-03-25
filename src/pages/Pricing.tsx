@@ -101,8 +101,8 @@ const FAQ_DATA = [
     a: "Oui. Un seul abonnement Pro couvre jusqu'à 25 membres. Le cockpit manager permet de suivre la progression individuelle, d'identifier les lacunes et d'exporter des rapports.",
   },
   {
-    q: "Que contiennent les labs d'exécution ?",
-    a: "Trois environnements pratiques : Phishing Lab (simulation et détection), Prompt Lab (prompting avancé), Cyber Lab (hygiène numérique). Pas de vidéos passives — des mises en situation réelles.",
+    q: "Que contient l'offre Pro en pratique ?",
+    a: "Trois dimensions : Exécuter (missions illimitées, playbooks complets IA Pro, IA Perso, Cybersécurité), Agir (mises en situation interactives : phishing, prompting avancé, hygiène numérique), Prouver (attestations PDF à QR code). Pas de vidéos passives — uniquement des exécutions guidées.",
   },
   {
     q: "Les attestations sont-elles reconnues officiellement ?",
