@@ -1,15 +1,7 @@
 /**
  * Pricing — Formetoialia
- *
- * Promesse alignée avec la landing :
- * Devenir autonome avec l'IA, la cybersécurité et le vibe coding,
- * grâce à JARVIS, des modules, des labs, des attestations et un pilotage équipe.
- *
- * Règles :
- * - Zéro faux sentiment d'urgence
- * - Zéro KPI inventé
- * - Données illustratives clairement signalées
- * - Pricing réel conservé (35€ launch / 59€ standard / 25 sièges)
+ * Système d'exécution IA quotidien — Un plan. Tout inclus.
+ * 59€ TTC/mois — 25 membres — playbooks + KITT + labs + attestations + cockpit
  */
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
@@ -63,16 +55,16 @@ function ScanLine() {
   );
 }
 
-/* ─── Données plan — LIBRE ───────────────────────────────────── */
+/* ─── Données plan — DÉCOUVERTE ─────────────────────────────── */
 const FREE_ITEMS: { label: string; included: boolean; note?: string }[] = [
-  { label: "Chat KITT — 2 messages/jour", included: true },
-  { label: "Accès aux modules publics", included: true },
+  { label: "Copilote KITT — 2 échanges/jour", included: true },
+  { label: "Accès aux playbooks publics", included: true },
   { label: "Découverte des labs (lecture seule)", included: true },
   { label: "Création de compte & profil", included: true },
-  { label: "Missions quotidiennes", included: false },
-  { label: "Labs interactifs (Phishing, Prompt, Cyber)", included: false },
+  { label: "Exécution guidée quotidienne", included: false },
+  { label: "Labs d'exécution (Phishing, Prompt, Cyber)", included: false },
   { label: "Attestations PDF vérifiables", included: false },
-  { label: "Dashboard équipe & pilotage manager", included: false },
+  { label: "Cockpit équipe & pilotage manager", included: false },
   { label: "Support prioritaire", included: false },
 ];
 
