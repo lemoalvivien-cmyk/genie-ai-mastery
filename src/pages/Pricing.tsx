@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   Check, X, Loader2, Shield, ChevronDown, Zap,
-  BookOpen, FlaskConical, FileCheck, Users, BarChart3,
+  BookOpen, FileCheck, Users, BarChart3,
   MessageSquare, Lock, ArrowRight, CheckCircle, TrendingUp,
   Timer, Euro, Activity, Award, Lightbulb, Rocket,
 } from "lucide-react";
@@ -66,10 +66,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 const FREE_FEATURES = [
   { label: "Copilote KITT — 2 échanges/jour", included: true },
   { label: "Accès aux playbooks publics", included: true },
-  { label: "Découverte des labs (lecture seule)", included: true },
+  { label: "1 mission guidée par jour", included: true },
   { label: "Missions illimitées", included: false },
   { label: "Playbooks complets", included: false },
-  { label: "Labs d'exécution interactifs", included: false },
+  { label: "Exécutions guidées interactives", included: false },
   { label: "Attestations PDF vérifiables", included: false },
   { label: "Cockpit équipe & manager", included: false },
   { label: "Bibliothèque d'équipe", included: false },
@@ -78,7 +78,7 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées par KITT", "Playbooks complets : IA Pro, IA Perso, Cybersécurité", "Exécutions guidées adaptatives"] },
-  { group: "Agir", icon: FlaskConical, items: ["Labs interactifs : Phishing, Prompt, Cyber", "Copilote KITT — 500 échanges/jour"] },
+  { group: "Agir", icon: Zap, items: ["Mises en situation interactives : Phishing, Prompt, Cyber", "Copilote KITT — 500 échanges/jour"] },
   { group: "Prouver", icon: FileCheck, items: ["Attestations PDF à signature numérique", "QR code de vérification publique", "Historique exportable"] },
   { group: "Piloter", icon: BarChart3, items: ["Cockpit manager — jusqu'à 25 membres", "Suivi progression individuel & collectif", "Bibliothèque d'équipe partagée", "Rapports automatisés"] },
 ];
