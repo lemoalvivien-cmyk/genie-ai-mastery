@@ -324,6 +324,7 @@ export default function Today() {
   const isSubscribed = subscriptionData?.isActive ?? false;
   const navigate = useNavigate();
   const { track } = useAnalytics();
+  const [showEmergency, setShowEmergency] = useState(false);
 
   const [mission, setMission] = useState<Mission | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -335,6 +336,16 @@ export default function Today() {
   const startTime = useRef<number>(Date.now());
   const [userProduction, setUserProduction] = useState<string>("");
   const firstMissionTracked = useRef(false);
+  const todayOpenedTracked = useRef(false);
+
+  // Track today_opened once per session
+  useEffect(() => {
+    if (!todayOpenedTracked.current) {
+      todayOpenedTracked.current = true;
+      track("today_opened", { is_subscribed: isSubscribed });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Fetch mission ──────────────────────────────────────────────────────────
   const fetchMission = useCallback(async () => {
