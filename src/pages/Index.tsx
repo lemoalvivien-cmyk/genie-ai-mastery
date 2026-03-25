@@ -39,11 +39,11 @@ function FadeIn({ children, delay = 0, className = "" }: {
 }
 
 /* ─── Section wrapper ─── */
-function Section({ children, className = "", id = "" }: {
-  children: React.ReactNode; className?: string; id?: string;
+function Section({ children, className = "", id = "", style }: {
+  children: React.ReactNode; className?: string; id?: string; style?: React.CSSProperties;
 }) {
   return (
-    <section id={id} className={`py-20 px-4 sm:px-6 ${className}`}>
+    <section id={id} className={`py-20 px-4 sm:px-6 ${className}`} style={style}>
       {children}
     </section>
   );
