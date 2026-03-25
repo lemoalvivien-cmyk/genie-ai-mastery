@@ -1,101 +1,28 @@
 /*
-  Lovable / Cloudflare Pages security headers
+  Formetoialia — Security headers
+  Enforced CSP (violations blocked + reported)
   Applies to all routes on the deployed app.
 
   CSP Strategy:
-  - Phase 2 (CURRENT): Content-Security-Policy — ENFORCED
-    → Violations are blocked AND reported to /admin/control-room
-    → unsafe-eval removed (DOMPurify v3+, recharts, react-query, zustand
-      all confirmed eval-free in production builds)
-    → report-uri kept for continuous monitoring
-
-  Supabase project: xpzvbsfrwnabnwwfsnnc
-  Report endpoint:  https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/csp-report
-*/
-
-/*
-  ─── CSP directives breakdown ───────────────────────────────────────────────
-
-  default-src 'self'
-    → All resources default to same-origin only
-
-  script-src 'self' 'unsafe-inline'
-    → 'unsafe-inline' required for React inline event handlers
-    → 'unsafe-eval' REMOVED — no production dependency requires it
-    → cdn.gpteng.co: Lovable platform preview script
-
-  style-src 'self' 'unsafe-inline'
-    → Tailwind/shadcn inject inline styles at runtime
-
-  font-src 'self' data: https://fonts.gstatic.com
-    → data: URIs for base64-embedded fonts
-
-  img-src 'self' data: blob: https:
-    → blob: for canvas captures, avatars, PDF previews
-    → https: for og:image, org logos in storage
-
-  connect-src
-    → *.supabase.co  : REST, Auth, Storage, Realtime, Edge Functions
-    → wss://*.supabase.co : Realtime websocket
-    → openrouter.ai  : AI completions
-    → api.dashscope.aliyuncs.com : DashScope CosyVoice TTS
-    → storage.googleapis.com : uploaded assets
-    → fonts.googleapis.com / fonts.gstatic.com : Google Fonts
-
-  media-src 'self' blob:
-    → blob: for Web Speech API TTS + KITT visualizer voice engine
-
-  worker-src blob:
-    → Web Speech API creates a worker in some browsers
-
-  frame-ancestors 'none'
-    → Prevents clickjacking (belt-and-suspenders with X-Frame-Options)
-
-  report-uri
-    → All violations stored in csp_reports table
-    → Visible in /admin/control-room
-*/
-
-/*
-  NOTE: Lovable Cloud deployments use _headers for Cloudflare Pages/CDN headers.
-  HSTS is only effective via HTTP response headers, not meta tags.
+  - unsafe-eval removed (DOMPurify v3+, recharts, react-query, zustand all eval-free)
+  - report-uri active for continuous monitoring
+  - frame-ancestors 'none' — prevents clickjacking
 */
 
 https://genie-ai-mastery.lovable.app/*
-  # ── Phase 2: Enforced CSP (violations blocked + reported) ──────────────────
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://api.dashscope.aliyuncs.com https://storage.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.qrserver.com https://ingest.sentry.io; media-src 'self' blob:; worker-src blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/csp-report
-
-  # ── Security hardening headers ───────────────────────────────────────────────
-  # HSTS: force HTTPS for 1 year, include subdomains, preload-ready
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-
-  # Prevent MIME-type sniffing attacks
   X-Content-Type-Options: nosniff
-
-  # Clickjacking protection (belt-and-suspenders with CSP frame-ancestors 'none')
   X-Frame-Options: DENY
-
-  # Referrer: send origin only on cross-origin requests (no path leakage)
   Referrer-Policy: strict-origin-when-cross-origin
-
-  # Permissions Policy: lock down powerful APIs to minimum needed
-  # microphone=(self)  → Web Speech API + KITT voice
-  # speaker-selection=(self) → TTS playback
-  # Everything else denied
   Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), camera=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), speaker-selection=(self), usb=(), xr-spatial-tracking=()
-
-  # Prevent cross-origin info leakage via performance timing
   Cross-Origin-Embedder-Policy: unsafe-none
   Cross-Origin-Opener-Policy: same-origin-allow-popups
   Cross-Origin-Resource-Policy: cross-origin
-
-  # Cache control for HTML pages (always revalidate)
   Cache-Control: no-store
 
 https://formetoialia.com/*
-  # ── Enforced CSP ─────────────────────────────────────────────────────────────
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://api.dashscope.aliyuncs.com https://storage.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.qrserver.com https://ingest.sentry.io; media-src 'self' blob:; worker-src blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri https://xpzvbsfrwnabnwwfsnnc.supabase.co/functions/v1/csp-report
-
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY

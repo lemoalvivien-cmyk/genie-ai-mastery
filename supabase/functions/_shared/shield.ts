@@ -6,24 +6,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 export const SHIELD_CONFIG = {
-  demo: { maxRequests: 1, windowHours: 24 },      // 1 PDF/IP/24h
-  verify: { maxRequests: 20, windowHours: 1 },     // 20 verif/IP/h anti-scrape (SOC2 hardened)
-  chat: { maxRequests: 40, windowHours: 1 },       // 40/IP/h for chat (SOC2 hardened)
-  pdf: { maxRequests: 10, windowHours: 1 },        // 10 PDF/IP/h
-  default: { maxRequests: 100, windowHours: 1 },   // Default global limit
+  demo:    { maxRequests: 1,   windowHours: 24 },
+  verify:  { maxRequests: 20,  windowHours: 1  },
+  chat:    { maxRequests: 40,  windowHours: 1  },
+  pdf:     { maxRequests: 10,  windowHours: 1  },
+  default: { maxRequests: 100, windowHours: 1  },
 } as const;
 
 // ─── Spam/loop patterns for chat ─────────────────────────────────────────────
 const SPAM_PATTERNS = [
-  /(.{10,})\1{3,}/,                          // repeated blocks
-  /^(.)\1{30,}$/,                            // single char spam
-  /(?:[\w\s]{1,20}\s?){50,}/,               // too many tokens (>50 words of garbage)
+  /(.{10,})\1{3,}/,
+  /^(.)\1{30,}$/,
+  /(?:[\w\s]{1,20}\s?){50,}/,
 ];
 
-const LOOP_DETECTION_WINDOW_MS = 10_000; // 10s
-const LOOP_DETECTION_THRESHOLD = 5;       // 5 identical-ish msgs in 10s
+const LOOP_DETECTION_WINDOW_MS = 10_000;
+const LOOP_DETECTION_THRESHOLD = 5;
 
-// In-memory per-worker loop detector (resets on cold start — OK for our scale)
+// In-memory per-worker loop detector (resets on cold start)
 const recentMessages = new Map<string, { hash: string; count: number; firstSeen: number }>();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -67,11 +67,7 @@ export function makeRequestId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Log a completed request (fire-and-forget) */
-export function logRequest(
-  ctx: LogContext,
-  statusCode: number,
-): void {
+export function logRequest(ctx: LogContext, statusCode: number): void {
   const latencyMs = Date.now() - ctx.startMs;
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -88,7 +84,6 @@ export function logRequest(
   }).then(() => {}).catch(() => {});
 }
 
-/** Log an edge exception (fire-and-forget, dedup by stack_hash) */
 export async function logEdgeError(
   ctx: LogContext,
   statusCode: number,
@@ -119,6 +114,10 @@ export async function logEdgeError(
 }
 
 // ─── IP rate limit check (via DB function) ───────────────────────────────────
+/**
+ * FAIL-CLOSED: on DB error, denies the request and logs a warning.
+ * Prevents bypass of rate-limits during infrastructure incidents.
+ */
 export async function checkIpRateLimit(
   ipHash: string,
   endpoint: string,
@@ -131,15 +130,25 @@ export async function checkIpRateLimit(
     { auth: { persistSession: false } },
   );
 
-  const { data, error } = await admin.rpc("check_ip_rate_limit", {
-    _ip_hash: ipHash,
-    _endpoint: endpoint,
-    _max_requests: maxRequests,
-    _window_hours: windowHours,
-  });
+  try {
+    const { data, error } = await admin.rpc("check_ip_rate_limit", {
+      _ip_hash: ipHash,
+      _endpoint: endpoint,
+      _max_requests: maxRequests,
+      _window_hours: windowHours,
+    });
 
-  if (error) return { allowed: true }; // fail open — don't block real users on DB errors
-  return { allowed: data?.allowed ?? true, reason: data?.reason };
+    if (error) {
+      // Fail-closed: DB error → deny + log (never silently allow)
+      console.error(`[shield] rate-limit DB error on ${endpoint}: ${error.message}`);
+      return { allowed: false, reason: "rate_limit_service_error" };
+    }
+
+    return { allowed: data?.allowed ?? false, reason: data?.reason };
+  } catch (e) {
+    console.error(`[shield] rate-limit network error on ${endpoint}:`, e);
+    return { allowed: false, reason: "rate_limit_unavailable" };
+  }
 }
 
 // ─── User abuse score check ───────────────────────────────────────────────────
@@ -176,7 +185,6 @@ export function recordAbuse(
     { auth: { persistSession: false } },
   );
 
-  // Fire-and-forget — never await this in the hot path
   admin.rpc("record_abuse", {
     _user_id: userId,
     _ip_hash: ipHash,
@@ -191,12 +199,10 @@ export async function detectChatAbuse(
   userId: string,
   lastMessage: string,
 ): Promise<{ suspicious: boolean; reason?: string }> {
-  // Pattern spam check
   if (SPAM_PATTERNS.some(p => p.test(lastMessage))) {
     return { suspicious: true, reason: "spam_pattern" };
   }
 
-  // Loop detection (in-memory per worker)
   const msgHash = await hashText(lastMessage);
   const now = Date.now();
   const key = `${userId}:${msgHash}`;
@@ -212,7 +218,6 @@ export async function detectChatAbuse(
       recentMessages.set(key, { hash: msgHash, count: 1, firstSeen: now });
     }
   } else {
-    // Clean old entries periodically (simple GC)
     if (recentMessages.size > 500) {
       const cutoff = now - LOOP_DETECTION_WINDOW_MS * 2;
       for (const [k, v] of recentMessages.entries()) {
