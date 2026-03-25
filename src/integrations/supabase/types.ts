@@ -1091,9 +1091,11 @@ export type Database = {
       }
       artifacts: {
         Row: {
+          content: string | null
           created_at: string
           file_path: string | null
           id: string
+          metadata: Json | null
           org_id: string | null
           session_id: string | null
           signed_url: string | null
@@ -1102,9 +1104,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          content?: string | null
           created_at?: string
           file_path?: string | null
           id?: string
+          metadata?: Json | null
           org_id?: string | null
           session_id?: string | null
           signed_url?: string | null
@@ -1113,9 +1117,11 @@ export type Database = {
           user_id: string
         }
         Update: {
+          content?: string | null
           created_at?: string
           file_path?: string | null
           id?: string
+          metadata?: Json | null
           org_id?: string | null
           session_id?: string | null
           signed_url?: string | null
