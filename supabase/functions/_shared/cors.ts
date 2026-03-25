@@ -1,5 +1,5 @@
 /**
- * _shared/cors.ts — Palantir-grade CORS middleware
+ * _shared/cors.ts — CORS middleware
  *
  * Single source of truth for ALL edge functions.
  * Supports formetoialia.com + all Lovable preview/sandbox URLs.
@@ -15,8 +15,7 @@ const ALLOWED_ORIGINS = [
   "https://www.formetoialia.com",
   "https://app.formetoialia.com",
   "https://admin.formetoialia.com",
-  "https://genie-ai-mastery.lovable.app", // legacy URL — kept for backward compat
-  "https://genie-ia.app",               // old domain — kept for backward compat
+  "https://genie-ai-mastery.lovable.app",
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
@@ -43,7 +42,6 @@ const CORS_HEADERS_BASE = {
 function resolveOrigin(originOrReq: string | null | Request): string | null {
   if (originOrReq === null) return null;
   if (typeof originOrReq === "string") return originOrReq;
-  // It's a Request object (legacy usage)
   return (originOrReq as Request).headers.get("origin");
 }
 
@@ -65,7 +63,7 @@ export function getCorsHeaders(
     );
 
   if (!isAllowed && origin) {
-    console.warn(`[CORS BLOCK] Origin rejetée : ${origin}`);
+    console.warn(`[CORS BLOCK] Origin rejected`);
   }
 
   return {

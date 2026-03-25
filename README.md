@@ -2,13 +2,8 @@
 
 ## Package Manager officiel : **Bun**
 
-```json
-"packageManager": "bun@1.2.0"
-```
-
 Ce projet utilise **Bun** comme gestionnaire de paquets et moteur d'exécution.  
-Le lockfile de référence est `bun.lockb`.  
-`package-lock.json` est un artefact read-only généré automatiquement — **ne pas utiliser `npm ci`**.
+Le lockfile de référence est `bun.lockb`.
 
 **Commandes officielles :**
 
@@ -19,68 +14,74 @@ bun install
 # Lancer le serveur de développement
 bun run dev
 
-# Exécuter les tests
+# Exécuter les tests unitaires
 bun run test
-# ou directement :
-npx vitest run
-```
 
-> ⚠️ `npm ci` n'est **pas** la commande officielle sur ce projet.  
-> Utilise `bun install` pour une installation reproductible à partir de `bun.lockb`.
+# Lancer les tests e2e (nécessite un navigateur Playwright installé)
+bun run test:simulation
+```
 
 ---
 
-## Technologies
+## Stack
 
 - Vite + React 18 + TypeScript
 - Tailwind CSS + shadcn/ui
-- Supabase (auth, DB, Edge Functions) — via Lovable Cloud
+- Lovable Cloud (auth, DB, Edge Functions, Secrets)
 - Bun (runtime + package manager officiel)
 
 ---
 
-## Clone propre
+## Développement local
 
 ```bash
 # 1. Cloner le repo
 git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+cd formetoialia
 
-# 2. Installer les dépendances (frozen lockfile = bun.lockb)
+# 2. Copier le fichier d'exemple et renseigner les valeurs locales
+cp .env.example .env.local
+
+# 3. Installer les dépendances
 bun install
 
-# 3. Démarrer le serveur de dev
+# 4. Démarrer le serveur de dev
 bun run dev
-
-# 4. Lancer les tests unitaires
-bun run test
 ```
+
+> ⚠️ Ne jamais committer `.env.local`, `.env.development` ou `.env.production`.  
+> Les secrets (Stripe, OpenRouter, Resend) sont gérés exclusivement via **Lovable Cloud → Settings → Secrets**.
 
 ---
 
-## Résultat tests (vérifié le 08/03/2026)
+## Tests
 
+```bash
+# Tests unitaires
+bun run test
+
+# Tests e2e (Playwright)
+bun run test:simulation
+
+# Tests de charge (k6 — voir tests/load/README.md)
+bun run test:load:smoke
 ```
- RUN  v3.2.4
-
- ✓ src/test/example.test.ts (1 test) 4ms
- ✓ src/test/openclaw.test.ts (31 tests | 3 skipped) 14ms
-
- Test Files  2 passed (2)
-      Tests  29 passed | 3 skipped (32)
-   Start at  14:22:05
-   Duration  2.65s
-```
-
-Les 3 tests `skipped` = `INTEGRATION_PENDING` — documentent le flux e2e sans runtime réel branché.
 
 ---
 
 ## Déploiement
 
-Ouvre [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) → Share → Publish.
+Ouvre [Lovable](https://lovable.dev) → Share → Publish.
 
 ## Domaine personnalisé
 
-Project → Settings → Domains → Connect Domain.  
-[Documentation](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Project → Settings → Domains → Connect Domain.
+
+---
+
+## Sécurité
+
+- Toutes les clés privées (Stripe, AI, Resend) sont stockées dans Lovable Cloud Secrets.
+- Les clés publiques (`VITE_SUPABASE_*`) sont committées — c'est intentionnel et sûr.
+- Le RLS est activé sur toutes les tables.
+- Les Edge Functions critiques utilisent `getUser()` (vérification réseau) — jamais `getClaims()` seul.
