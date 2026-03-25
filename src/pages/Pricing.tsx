@@ -1,15 +1,7 @@
 /**
  * Pricing — Formetoialia
- *
- * Promesse alignée avec la landing :
- * Devenir autonome avec l'IA, la cybersécurité et le vibe coding,
- * grâce à JARVIS, des modules, des labs, des attestations et un pilotage équipe.
- *
- * Règles :
- * - Zéro faux sentiment d'urgence
- * - Zéro KPI inventé
- * - Données illustratives clairement signalées
- * - Pricing réel conservé (35€ launch / 59€ standard / 25 sièges)
+ * Système d'exécution IA quotidien — Un plan. Tout inclus.
+ * 59€ TTC/mois — 25 membres — playbooks + KITT + labs + attestations + cockpit
  */
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
@@ -63,16 +55,16 @@ function ScanLine() {
   );
 }
 
-/* ─── Données plan — LIBRE ───────────────────────────────────── */
+/* ─── Données plan — DÉCOUVERTE ─────────────────────────────── */
 const FREE_ITEMS: { label: string; included: boolean; note?: string }[] = [
-  { label: "Chat KITT — 2 messages/jour", included: true },
-  { label: "Accès aux modules publics", included: true },
+  { label: "Copilote KITT — 2 échanges/jour", included: true },
+  { label: "Accès aux playbooks publics", included: true },
   { label: "Découverte des labs (lecture seule)", included: true },
   { label: "Création de compte & profil", included: true },
-  { label: "Missions quotidiennes", included: false },
-  { label: "Labs interactifs (Phishing, Prompt, Cyber)", included: false },
+  { label: "Exécution guidée quotidienne", included: false },
+  { label: "Labs d'exécution (Phishing, Prompt, Cyber)", included: false },
   { label: "Attestations PDF vérifiables", included: false },
-  { label: "Dashboard équipe & pilotage manager", included: false },
+  { label: "Cockpit équipe & pilotage manager", included: false },
   { label: "Support prioritaire", included: false },
 ];
 
@@ -83,22 +75,22 @@ const PRO_SECTIONS: {
   items: string[];
 }[] = [
   {
-    heading: "Apprendre",
+    heading: "Exécuter",
     icon: BookOpen,
     items: [
-      "Modules complets : IA Pro, IA Perso, Cybersécurité",
-      "Missions quotidiennes guidées par KITT",
-      "Quiz adaptatifs et suivi de progression",
+      "Playbooks complets : IA Pro, IA Perso, Cybersécurité",
+      "Exécution guidée quotidienne par KITT",
+      "Mises en pratique adaptatives et suivi de progression",
     ],
   },
   {
     heading: "Agir",
     icon: FlaskConical,
     items: [
-      "Lab Phishing — détection et simulation",
+      "Lab Phishing — simulation et détection",
       "Prompt Lab — prompting avancé et évaluation",
       "Cyber Lab — hygiène numérique pratique",
-      "Chat KITT illimité (500 messages/jour)",
+      "Copilote KITT illimité (500 échanges/jour)",
     ],
   },
   {
@@ -114,9 +106,9 @@ const PRO_SECTIONS: {
     heading: "Piloter",
     icon: BarChart3,
     items: [
-      "Dashboard manager — suivi équipe jusqu'à 25 membres",
+      "Cockpit manager — suivi équipe jusqu'à 25 membres",
       "Vue d'ensemble des progressions et lacunes",
-      "Rapports automatisés (fonctionnalité en cours de déploiement)",
+      "Rapports automatisés (en cours de déploiement)",
       "Gestion des sièges et invitation des membres",
     ],
   },
@@ -126,19 +118,19 @@ const PRO_SECTIONS: {
 const FAQ = [
   {
     q: "Qu'est-ce que Formetoialia concrètement ?",
-    a: "Un système guidé de montée en compétence IA. Il combine un copilote conversationnel IA (JARVIS), des modules structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté autonomie.",
+    a: "Un système d'exécution IA quotidien. Il combine un copilote IA (KITT), des playbooks structurés, des labs pratiques et des attestations vérifiables. Ce n'est pas un chatbot généraliste, c'est un parcours orienté résultats.",
   },
   {
-    q: "JARVIS, c'est quoi exactement ?",
-    a: "JARVIS est le copilote IA intégré à la plateforme. Il guide vos sessions, répond à vos questions sur vos modules en cours, suggère des missions et s'adapte à votre niveau déclaré lors de l'onboarding.",
+    q: "KITT, c'est quoi exactement ?",
+    a: "KITT est votre copilote IA intégré. Il guide vos sessions, répond à vos questions sur vos playbooks en cours, assigne des exécutions et s'adapte à votre niveau déclaré lors de l'onboarding.",
   },
   {
-    q: "Que contiennent les labs ?",
-    a: "Trois labs pratiques : détection de phishing (Phishing Lab), prompting avancé (Prompt Lab) et hygiène numérique (Cyber Lab). Ce sont des environnements interactifs, pas des vidéos.",
+    q: "Que contiennent les labs d'exécution ?",
+    a: "Trois labs pratiques : simulation de phishing (Phishing Lab), prompting avancé (Prompt Lab) et hygiène numérique (Cyber Lab). Ce sont des environnements de mise en situation, pas des vidéos passives.",
   },
   {
     q: "Les attestations sont-elles reconnues légalement ?",
-    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de formation, utile dans un contexte professionnel ou de conformité interne.",
+    a: "Les attestations Formetoialia sont des preuves internes de compétences, vérifiables via QR code. Elles ne sont pas équivalentes à des certifications reconnues par des organismes externes (ANSSI, etc.). Leur valeur est celle d'une preuve documentée de maîtrise, utile dans un contexte professionnel ou de conformité interne.",
   },
   {
     q: "Le plan inclut combien de personnes ?",
@@ -154,7 +146,7 @@ const FAQ = [
   },
   {
     q: "Je suis débutant total, c'est fait pour moi ?",
-    a: "Oui. L'onboarding adapte le parcours à votre niveau. JARVIS vous accompagne dès la première session. Vous n'avez pas besoin de savoir programmer.",
+    a: "Oui. L'onboarding calibre le parcours à votre niveau. KITT vous accompagne dès la première session. Zéro compétence technique requise.",
   },
 ];
 
@@ -358,10 +350,10 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
+        <title>Prix — Formetoialia · Système d'exécution IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote IA, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
+          content="Formetoialia Pro — 59€ TTC/mois — playbooks, labs d'exécution, copilote KITT, attestations vérifiables et cockpit manager jusqu'à 25 membres. 14 jours d'essai."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
@@ -412,13 +404,13 @@ export default function Pricing() {
               style={{ background: "hsl(var(--primary)/0.07)" }}>
               Un seul plan. Tout inclus.
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
-              Formez toute votre équipe à l'IA<br />
+          <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
+              Rendez toute votre équipe opérationnelle sur l'IA<br />
               <span className="text-primary">pour 59€ TTC par mois</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              Modules, labs pratiques, copilote IA, attestations vérifiables, dashboard manager — jusqu'à 25 membres.
-              Aucun coût caché. Aucun tier. Un prix, tout dedans.
+              Playbooks, labs d'exécution, copilote KITT, attestations vérifiables, cockpit manager — jusqu'à 25 membres.
+              Aucun coût caché. Un prix fixe, tout inclus.
             </p>
           </div>
 
@@ -599,7 +591,7 @@ export default function Pricing() {
                   </p>
                 </div>
                 <h2 className="text-lg font-black text-foreground mb-2">
-                  Vous déployez sur toute une organisation ?
+                  Vous déployez à grande échelle ?
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Pilotage centralisé, gestion de groupes, rapports
@@ -649,45 +641,44 @@ export default function Pricing() {
               Ce que vous débloquez avec Pro
             </h2>
             <p className="text-sm text-muted-foreground text-center mb-8 max-w-lg mx-auto">
-              Pas un abonnement à un outil. Un accès à un système de progression
-              structuré.
+              Pas un abonnement à un outil. Un système d'exécution IA structuré, prêt à l'emploi.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 {
                   icon: BookOpen,
-                  title: "Modules complets",
-                  desc: "IA Pro, IA Perso, Cybersécurité — des parcours séquencés avec quiz, missions et jalons clairs.",
+                  title: "Playbooks complets",
+                  desc: "IA Pro, IA Perso, Cybersécurité — des parcours séquencés avec mises en pratique, jalons et résultats clairs.",
                   color: "hsl(var(--primary))",
                 },
                 {
                   icon: MessageSquare,
                   title: "KITT — votre copilote",
-                  desc: "500 messages/jour pour poser des questions sur vos modules, débloquer un concept ou préparer une action.",
+                  desc: "500 échanges/jour pour débloquer un concept, préparer une exécution ou challenger vos décisions.",
                   color: "hsl(var(--accent))",
                 },
                 {
                   icon: FlaskConical,
-                  title: "Labs interactifs",
-                  desc: "Phishing Lab, Prompt Lab, Cyber Lab — des environnements de mise en pratique, pas des vidéos.",
+                  title: "Labs d'exécution",
+                  desc: "Phishing Lab, Prompt Lab, Cyber Lab — des environnements de mise en situation, pas des vidéos passives.",
                   color: "hsl(142 71% 45%)",
                 },
                 {
                   icon: FileCheck,
                   title: "Attestations vérifiables",
-                  desc: "PDF signé + QR code public. Une preuve documentée de votre progression, utile dans un contexte pro ou de conformité interne.",
+                  desc: "PDF signé + QR code public. Une preuve documentée de maîtrise, utile en conformité interne ou contexte pro.",
                   color: "hsl(var(--primary))",
                 },
                 {
                   icon: BarChart3,
-                  title: "Dashboard manager",
+                  title: "Cockpit manager",
                   desc: "Jusqu'à 25 membres. Suivi de progression individuel et collectif, identification des lacunes par domaine.",
                   color: "hsl(var(--accent))",
                 },
                 {
                   icon: Award,
-                  title: "Missions quotidiennes",
-                  desc: "KITT propose chaque jour une action concrète adaptée à votre niveau et à votre domaine en cours.",
+                  title: "Action quotidienne",
+                  desc: "KITT assigne chaque jour une exécution ciblée adaptée à votre niveau et votre domaine en cours.",
                   color: "hsl(142 71% 45%)",
                 },
               ].map((card) => (
@@ -840,12 +831,12 @@ export default function Pricing() {
               <KittDot />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3">
-              Prêt à passer de spectateur à opérateur IA ?
+              Prêt à exécuter avec l'IA, pas juste en parler ?
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto mb-6 leading-relaxed">
               14 jours pour tester. Aucune carte requise. Résiliation libre.
               <br />
-              Votre autonomie commence maintenant.
+              Votre équipe opérationnelle commence maintenant.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

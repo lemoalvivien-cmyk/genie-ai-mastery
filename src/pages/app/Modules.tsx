@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { BookOpen, Search, Loader2, ChevronDown, Code2, Lock } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { BookOpen, Search, Loader2, Code2 } from "lucide-react";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { ModuleCard } from "@/components/modules/ModuleCard";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -12,7 +11,7 @@ const DOMAINS = [
   { id: "", label: "Tous" },
   { id: "ia_pro", label: "IA Pro" },
   { id: "ia_perso", label: "IA Perso" },
-  { id: "cyber", label: "Cyber" },
+  { id: "cyber", label: "Cybersécurité" },
   { id: "vibe_coding", label: "Vibe Coding", icon: Code2 },
 ];
 
@@ -63,8 +62,8 @@ export default function Modules() {
   return (
     <>
       <Helmet>
-        <title>Modules — Formetoialia</title>
-        <meta name="description" content="Explorez tous les modules de formation IA et cybersécurité." />
+        <title>Playbooks — Formetoialia</title>
+        <meta name="description" content="Explorez tous les playbooks d'exécution IA et cybersécurité." />
       </Helmet>
 
       <div className="min-h-full page-enter" style={{ background: "#0C1014" }}>
@@ -77,15 +76,15 @@ export default function Modules() {
                 className="text-2xl font-bold bg-clip-text text-transparent"
                 style={{ backgroundImage: "linear-gradient(90deg, #5257D8, #FE2C40)" }}
               >
-                Votre formation
+                Vos playbooks
               </h1>
             </div>
-            <p className="text-muted-foreground text-sm">Choisissez votre prochain module d'apprentissage</p>
+            <p className="text-muted-foreground text-sm">Choisissez votre prochaine exécution guidée</p>
           </div>
 
           {/* Filters */}
           <div className="mb-6 space-y-3">
-            {/* Domain toggle buttons */}
+            {/* Domain toggle */}
             <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrer par domaine">
               {DOMAINS.map((d) => {
                 const isActive = domain === d.id;
@@ -131,15 +130,14 @@ export default function Modules() {
 
             {/* Level + search row */}
             <div className="flex flex-col sm:flex-row gap-2">
-              {/* Search */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
                 <input
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Rechercher un module..."
-                  aria-label="Rechercher un module"
+                  placeholder="Rechercher un playbook..."
+                  aria-label="Rechercher un playbook"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none transition-all"
                   style={{
                     background: "#1A1D2E",
@@ -148,7 +146,6 @@ export default function Modules() {
                   }}
                 />
               </div>
-              {/* Level toggle */}
               <div className="flex gap-1.5">
                 {LEVELS.map((l) => (
                   <button
@@ -171,7 +168,7 @@ export default function Modules() {
           {/* Count */}
           {!isLoading && (
             <p className="text-xs text-muted-foreground mb-4" aria-live="polite">
-              {filtered.length} module{filtered.length !== 1 ? "s" : ""} trouvé{filtered.length !== 1 ? "s" : ""}
+              {filtered.length} playbook{filtered.length !== 1 ? "s" : ""} trouvé{filtered.length !== 1 ? "s" : ""}
             </p>
           )}
 
@@ -189,7 +186,7 @@ export default function Modules() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">Aucun module trouvé avec ces filtres.</p>
+              <p className="text-muted-foreground">Aucun playbook trouvé avec ces filtres.</p>
             </div>
           ) : (
             <>

@@ -90,8 +90,8 @@ export default function Dashboard() {
 
   const metrics = [
     { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
-    { label: "Modules", value: stats?.completedModules ?? 0, icon: BookOpen, color: "text-cyan-400" },
-    { label: "Quiz réussis", value: stats?.quizPassed ?? 0, icon: CheckCircle, color: "text-emerald-400" },
+    { label: "Playbooks", value: stats?.completedModules ?? 0, icon: BookOpen, color: "text-cyan-400" },
+    { label: "Validations", value: stats?.quizPassed ?? 0, icon: CheckCircle, color: "text-emerald-400" },
     { label: "Série", value: currentStreak, icon: Flame, color: "text-[hsl(var(--accent))]" },
   ];
 
@@ -348,7 +348,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── 6. Derniers modules ── */}
+          {/* ── 6. Derniers playbooks ── */}
           {isDashboardLoading ? (
             <div className="animate-slide-up space-y-2">
               <Skeleton className="h-4 w-32" />
@@ -405,13 +405,13 @@ export default function Dashboard() {
                 Aucune progression pour l'instant
               </p>
               <p className="text-xs text-muted-foreground mt-1 mb-3">
-                Commencez votre premier module pour suivre votre avancement ici.
+                Commencez votre premier playbook pour suivre votre progression ici.
               </p>
               <Link
                 to="/app/modules"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
               >
-                Explorer les modules <ChevronRight className="w-3.5 h-3.5" />
+                Explorer les playbooks <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
@@ -441,10 +441,10 @@ export default function Dashboard() {
                       Défi Exclusif
                     </p>
                     <p className="text-sm font-bold" style={{ color: "#E8E9F0" }}>
-                      CyberPath 48h — Zéro formateur humain
+                      CyberPath 48h — Exécution cyber guidée
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Formation cyber complète guidée par l'IA. +700 XP.
+                      Playbook cyber complet guidé par l'IA. +700 XP.
                     </p>
                   </div>
                 </div>
