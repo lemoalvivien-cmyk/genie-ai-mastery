@@ -520,7 +520,7 @@ export default function Demo() {
               </Link>
             </div>
             <p className="text-xs text-muted-foreground/60">
-              ✓ Sans carte · ✓ RGPD · ✓ Données UE · ✓ 30j remboursé
+              ✓ Sans carte · ✓ RGPD · ✓ Données UE · ✓ Résiliation en 2 clics
             </p>
           </div>
         </section>

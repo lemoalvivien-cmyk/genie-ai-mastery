@@ -22,29 +22,24 @@ import {
 interface OrgForm { name: string; slug: string; }
 interface PlanInfo { id: string; name: string; price: number; seats: number; features: string[]; badge?: string; }
 
+// Offre unique : 59€ TTC/mois par organisation (jusqu'à 25 membres)
+// Pour > 25 membres : contacter l'équipe pour un devis personnalisé
 const PLANS: PlanInfo[] = [
   {
-    id: "starter",
-    name: "Starter",
+    id: "pro",
+    name: "Pro",
     price: 59,
-    seats: 10,
-    features: ["Formetoialia Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
-  },
-  {
-    id: "business",
-    name: "Business",
-    price: 49,
-    seats: 50,
-    badge: "POPULAIRE",
-    features: ["Tout Starter", "Mode Palantir", "Attack Simulation", "Analytics avancés", "Support prioritaire"],
+    seats: 25,
+    badge: "RECOMMANDÉ",
+    features: ["Missions illimitées", "Playbooks métier complets", "Cockpit manager", "Attestations PDF", "KITT — 500 échanges/jour"],
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    price: 39,
-    seats: 200,
-    badge: "BEST VALUE",
-    features: ["Tout Business", "SSO / SAML", "Contrat sur-mesure", "SLA 99,9%", "Onboarding dédié", "Revue mensuelle"],
+    price: 0,
+    seats: 999,
+    badge: "SUR DEVIS",
+    features: ["Tout Pro", "> 25 membres", "SSO / SAML", "SLA dédié", "Onboarding accompagné", "Contrat sur-mesure"],
   },
 ];
 
@@ -132,8 +127,8 @@ function StepPlan({ selectedPlan, setSelectedPlan, seats, setSeats, onNext, onBa
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-2">
           <Star className="w-3.5 h-3.5" /> ÉTAPE 2 / 4
         </div>
-        <h2 className="text-2xl font-bold text-foreground">Choisissez votre plan</h2>
-        <p className="text-muted-foreground text-sm">Tarification par siège. Annulez à tout moment.</p>
+        <h2 className="text-2xl font-bold text-foreground">Votre offre</h2>
+        <p className="text-muted-foreground text-sm">Un plan unique. Tout inclus. Résiliable à tout moment.</p>
       </div>
 
       <div className="space-y-3">
@@ -162,7 +157,9 @@ function StepPlan({ selectedPlan, setSelectedPlan, seats, setSeats, onNext, onBa
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-foreground">{plan.name}</span>
-                    <span className="text-xs text-muted-foreground">jusqu'à {plan.seats} utilisateurs</span>
+                    {plan.seats < 999 && (
+                      <span className="text-xs text-muted-foreground">jusqu'à {plan.seats} membres</span>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {plan.features.slice(0, 3).map((f) => (
@@ -172,31 +169,23 @@ function StepPlan({ selectedPlan, setSelectedPlan, seats, setSeats, onNext, onBa
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <span className="text-lg font-bold text-foreground">{plan.price}€</span>
-                <span className="text-xs text-muted-foreground">/user/mois</span>
+                {plan.price > 0 ? (
+                  <>
+                    <span className="text-lg font-bold text-foreground">{plan.price}€</span>
+                    <span className="text-xs text-muted-foreground">/mois</span>
+                  </>
+                ) : (
+                  <span className="text-sm font-bold text-primary">Devis</span>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm font-medium text-foreground">Nombre de sièges initial</Label>
-        <div className="flex items-center gap-3">
-          <Input
-            type="number"
-            min={1}
-            max={1000}
-            value={seats}
-            onChange={(e) => setSeats(Math.max(1, parseInt(e.target.value) || 1))}
-            className="bg-card border-border h-10 w-24 text-center font-mono"
-          />
-          <span className="text-sm text-muted-foreground">
-            = <span className="text-foreground font-semibold">
-              {(seats * (PLANS.find(p => p.id === selectedPlan)?.price ?? 59)).toLocaleString("fr-FR")}€/mois
-            </span>
-          </span>
-        </div>
+      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">59€ TTC/mois · par organisation</span> — jusqu'à 25 membres inclus.
+        Aucun coût caché. Essai 14 jours sans carte.
       </div>
 
       <div className="flex gap-3">
@@ -408,8 +397,8 @@ export default function ManagerOnboarding() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="w-6 h-6 text-primary" />
-            <span className="text-lg font-bold text-foreground tracking-tight">GÉNIE IA</span>
-            <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30">ENTERPRISE</Badge>
+            <span className="text-lg font-bold text-foreground tracking-tight">Formetoialia</span>
+            <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30">MANAGER</Badge>
           </div>
           {/* Progress bar */}
           <div className="flex items-center gap-1 justify-center mb-2">
