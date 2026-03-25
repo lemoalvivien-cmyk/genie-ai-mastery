@@ -370,7 +370,7 @@ export default function Pricing() {
         />
         <meta
           property="og:description"
-          content="Autonomie IA, cybersécurité, vibe coding. Essai 14 jours gratuit. Jusqu'à 25 membres."
+          content="Modules IA et cybersécurité, labs pratiques, copilote IA, attestations vérifiables. Essai 14 jours. Jusqu'à 25 membres."
         />
         <meta
           property="og:image"
