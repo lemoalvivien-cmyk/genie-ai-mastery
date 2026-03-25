@@ -262,8 +262,8 @@ export default function Index() {
             </motion.div>
 
           <span className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6">
-            <span className="block text-foreground">Transformez votre équipe</span>
-            <span className="block" style={{ color: "hsl(var(--primary))" }}>avec l'IA, dès demain.</span>
+            <span className="block text-foreground">Arrêtez les formations IA</span>
+            <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
           </span>
 
             {/* Subtitle */}
@@ -277,6 +277,8 @@ export default function Index() {
               des <strong className="text-foreground">playbooks prêts à l'emploi</strong>{" "}
               et un <strong className="text-foreground">suivi de progression mesurable</strong>.
             </motion.p>
+
+            {/* Micro-preuve secondaire */}
 
             {/* CTAs */}
             <motion.div
@@ -476,19 +478,19 @@ export default function Index() {
               {
                 step: "01",
                 icon: Target,
-                title: "Choisir un objectif",
+                title: "Choisissez votre objectif",
                 desc: "En 3 minutes, un diagnostic calibre votre niveau. Votre plan d'exécution est construit automatiquement.",
               },
               {
                 step: "02",
                 icon: MessageSquare,
-                title: "Être guidé pas à pas",
+                title: "Laissez Formetoialia vous guider",
                 desc: "KITT assigne une mission ciblée. Vous l'exécutez. L'IA évalue, corrige, adapte la suite.",
               },
               {
                 step: "03",
                 icon: FileCheck,
-                title: "Obtenir un vrai résultat",
+                title: "Obtenez un vrai résultat",
                 desc: "Un livrable exploitable à chaque session. Une attestation à chaque jalon complété.",
               },
             ].map((s, i) => (
@@ -664,8 +666,8 @@ export default function Index() {
             <FadeIn>
               <Chip><Users className="w-3 h-3" /> Pour les dirigeants & managers</Chip>
               <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
-                59€/mois pour 25 membres.{" "}
-                <span className="text-primary">Rentable dès la première semaine.</span>
+                Le tableau de bord que les{" "}
+                <span className="text-primary">formations classiques n'ont jamais su offrir.</span>
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mb-5 leading-relaxed">
                 Vous ne payez pas pour former votre équipe à l'IA.

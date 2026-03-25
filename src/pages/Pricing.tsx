@@ -395,10 +395,10 @@ export default function Pricing() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               {[
                 {
-                  label: "Formation externe",
+                  label: "Prestataire externe",
                   price: "500–2000€",
                   detail: "par session, par groupe",
-                  note: "Aucun suivi post-formation. Résultats non mesurables.",
+                  note: "Aucun suivi post-session. Résultats non mesurables.",
                   highlight: false,
                 },
                 {
