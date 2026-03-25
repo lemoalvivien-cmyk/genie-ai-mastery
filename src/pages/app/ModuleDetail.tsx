@@ -157,7 +157,7 @@ export default function ModuleDetail() {
         <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate("/app/modules")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ChevronLeft className="w-4 h-4" /> Modules
+              <ChevronLeft className="w-4 h-4" /> Playbooks
             </button>
           </div>
           <Link to="/" className="flex items-center gap-2">
@@ -377,6 +377,26 @@ export default function ModuleDetail() {
                   </ul>
                 </div>
               )}
+
+              {/* KITT contextual assistant */}
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-card">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <Brain className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h2 className="font-semibold text-sm">Aide KITT sur ce playbook</h2>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Besoin d'aide pour reformuler, adapter le ton ou améliorer votre résultat ?
+                </p>
+                <a
+                  href={`/app/chat?context=${encodeURIComponent(`playbook:${mod.slug}:${mod.title}`)}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/30 text-primary text-sm font-semibold hover:bg-primary/10 transition-all"
+                >
+                  <Brain className="w-4 h-4" />
+                  Demander à KITT
+                </a>
+              </div>
             </aside>
           </div>
         </main>
