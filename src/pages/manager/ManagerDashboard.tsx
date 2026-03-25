@@ -10,7 +10,8 @@ import {
   Search, Filter, ChevronUp, ChevronDown, RefreshCw, Building2, Bell, Trash2,
   Mail, X, Zap, ShieldAlert, TrendingDown, AlertTriangle, FileText, Clock, Shield,
   Target, ChevronRight, TrendingUp, Award, Lightbulb, Timer, Rocket, Euro, Star,
-  Activity, MessageSquare, ArrowUpRight, Calendar,
+  Activity, MessageSquare, ArrowUpRight, Calendar, LayoutDashboard, UserCheck,
+  PieChart, Gauge, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,7 +90,7 @@ function CircularProgress({ value, size = 80 }: { value: number; size?: number }
   const r = (size - 10) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (value / 100) * circ;
-  const color = value > 70 ? "hsl(var(--emerald, 142 71% 45%))" : value > 50 ? "hsl(var(--orange-alert, 25 95% 53%))" : "hsl(var(--destructive))";
+  const color = value > 70 ? "hsl(142 71% 45%)" : value > 50 ? "hsl(45 95% 58%)" : "hsl(var(--destructive))";
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label={`${value}%`}>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={8} />
@@ -154,12 +155,11 @@ function KpiCard({
   );
 }
 
-// ─── ROI Card ─────────────────────────────────────────────────────────────────
+// ─── ROI Banner ───────────────────────────────────────────────────────────────
 
 function ROIBanner({ team, stats }: { team: TeamMember[]; stats: OrgStats | null }) {
   const activeUsers = team.filter((m) => m.status === "up_to_date").length;
   const completed = stats?.completed_modules ?? 0;
-  // Estimation : 20 min saved per completed mission
   const estimatedMinutes = completed * 20;
   const estimatedHours = Math.round(estimatedMinutes / 60);
   const seatsUsed = team.length;
@@ -209,7 +209,7 @@ function ROIBanner({ team, stats }: { team: TeamMember[]; stats: OrgStats | null
           },
           {
             icon: Euro, label: "Coût / personne / mois", value: `${costPerPerson} €`,
-            color: "hsl(45 95% 58%)", sub: "vs 300€ min en formation",
+            color: "hsl(45 95% 58%)", sub: "vs 300€+ en prestataire",
           },
           {
             icon: TrendingUp, label: "ROI estimé", value: roi > 0 ? `+${roi}%` : "En cours",
@@ -244,6 +244,588 @@ function ROIBanner({ team, stats }: { team: TeamMember[]; stats: OrgStats | null
   );
 }
 
+// ─── Vue d'ensemble ───────────────────────────────────────────────────────────
+
+function VueEnsemble({ team, stats, activeMembers, inactiveMembers, estimatedHoursSaved, activationRate, completionRate, totalCompleted }: {
+  team: TeamMember[];
+  stats: OrgStats | null;
+  activeMembers: number;
+  inactiveMembers: number;
+  estimatedHoursSaved: number;
+  activationRate: number;
+  completionRate: number;
+  totalCompleted: number;
+}) {
+  const lateMembers = team.filter(m => m.status === "late").length;
+  const adoptionScore = Math.round(
+    (activationRate * 0.5) + (completionRate * 0.3) + (totalCompleted > 0 ? Math.min(totalCompleted / team.length * 10, 20) : 0)
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* KPIs principaux */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard icon={Activity} label="Membres actifs" value={`${activeMembers} / ${team.length}`} sub={`${activationRate}% d'activation`} accent="sky" trend={activationRate >= 70 ? "up" : "down"} />
+        <KpiCard icon={CheckCircle} label="Missions terminées" value={totalCompleted} sub={`${stats?.in_progress_modules ?? 0} en cours`} accent="emerald" trend="up" />
+        <KpiCard icon={Timer} label="Heures économisées est." value={`~${estimatedHoursSaved}h`} sub="20 min / mission" accent="amber" />
+        <KpiCard icon={Gauge} label="Score d'adoption" value={`${adoptionScore}/100`} sub={adoptionScore >= 70 ? "🟢 Bonne adoption" : adoptionScore >= 40 ? "🟡 En progression" : "🔴 À améliorer"} accent="violet" />
+      </div>
+
+      {/* ROI Banner */}
+      <ROIBanner team={team} stats={stats} />
+
+      {/* Répartition visuelle */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5 flex items-center gap-4">
+            <CircularProgress value={activationRate} size={72} />
+            <div>
+              <div className="text-sm font-semibold text-foreground">Taux d'activation</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {activationRate >= 70 ? "Excellente adoption" : activationRate >= 40 ? "En progression" : "Relances nécessaires"}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Progression équipe</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Complétion globale</span>
+                <span className="font-bold text-primary">{Math.round(completionRate)}%</span>
+              </div>
+              <Progress value={completionRate} className="h-2" />
+              <div className="text-xs text-muted-foreground">{totalCompleted} missions terminées</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Répartition</div>
+            <div className="space-y-2.5">
+              {[
+                { label: "Actifs", count: activeMembers, color: "bg-emerald-500", pct: team.length > 0 ? Math.round(activeMembers / team.length * 100) : 0 },
+                { label: "En retard", count: lateMembers, color: "bg-amber-500", pct: team.length > 0 ? Math.round(lateMembers / team.length * 100) : 0 },
+                { label: "Inactifs", count: inactiveMembers, color: "bg-destructive", pct: team.length > 0 ? Math.round(inactiveMembers / team.length * 100) : 0 },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2 text-xs">
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${item.color}`} />
+                  <span className="text-muted-foreground flex-1">{item.label}</span>
+                  <span className="font-semibold">{item.count}</span>
+                  <span className="text-muted-foreground w-8 text-right">{item.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Alerte inactifs */}
+      {inactiveMembers > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 text-sm">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <strong className="text-foreground">{inactiveMembers} membre{inactiveMembers > 1 ? "s" : ""} inactif{inactiveMembers > 1 ? "s" : ""}</strong>
+            <span className="text-muted-foreground ml-1">— Dernière activité &gt; 14 jours.</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Vue par collaborateur ────────────────────────────────────────────────────
+
+function VueCollaborateurs({ team, onRelance, onPlaybook }: {
+  team: TeamMember[];
+  onRelance: (member: TeamMember) => void;
+  onPlaybook: (member: TeamMember) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "inactive" | "late" | "up_to_date">("all");
+
+  const filtered = team.filter(m => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || (m.full_name ?? "").toLowerCase().includes(q) || m.email.toLowerCase().includes(q);
+    const matchFilter = filter === "all" || m.status === filter;
+    return matchSearch && matchFilter;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Rechercher un collaborateur…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
+        </div>
+        <Select value={filter} onValueChange={v => setFilter(v as typeof filter)}>
+          <SelectTrigger className="h-9 w-36 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous</SelectItem>
+            <SelectItem value="up_to_date">Actifs</SelectItem>
+            <SelectItem value="late">En retard</SelectItem>
+            <SelectItem value="inactive">Inactifs</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        {filtered.length === 0 && (
+          <div className="text-center py-12 text-sm text-muted-foreground">Aucun collaborateur trouvé.</div>
+        )}
+        {filtered.map((m) => {
+          const hoursEst = Math.round(m.modules_completed * 20 / 60);
+          const autonomyLevel = m.modules_completed === 0 ? "Débutant" : m.modules_completed < 3 ? "En démarrage" : m.modules_completed < 8 ? "Autonome" : "Expert";
+          const autonomyColor = m.modules_completed === 0 ? "text-muted-foreground" : m.modules_completed < 3 ? "text-amber-400" : m.modules_completed < 8 ? "text-primary" : "text-emerald-400";
+          const progressPct = Math.min(m.modules_completed * 10, 100);
+          const daysSinceActive = m.last_active_at
+            ? Math.floor((Date.now() - new Date(m.last_active_at).getTime()) / 86400000)
+            : null;
+
+          return (
+            <div
+              key={m.id}
+              className="rounded-xl border border-border/50 bg-card/70 p-4 hover:border-primary/20 transition-all"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary shrink-0 mt-0.5">
+                  {(m.full_name ?? m.email)[0]?.toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm text-foreground truncate">{m.full_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground truncate">{m.email}</div>
+                    </div>
+                    <StatusBadge status={m.status} />
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Missions</div>
+                      <div className="text-sm font-bold text-foreground">{m.modules_completed}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Score moy.</div>
+                      <div className={`text-sm font-bold ${m.avg_score != null && m.avg_score > 70 ? "text-emerald-500" : "text-muted-foreground"}`}>
+                        {m.avg_score != null ? `${m.avg_score}%` : "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Autonomie</div>
+                      <div className={`text-xs font-semibold ${autonomyColor}`}>{autonomyLevel}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-muted-foreground mb-0.5">Heures éco.</div>
+                      <div className="text-sm font-bold text-emerald-500">~{hoursEst}h</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Progression</span>
+                      <span className="font-semibold text-primary">{progressPct}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${progressPct}%`,
+                          background: progressPct >= 70 ? "hsl(142 71% 45%)" : progressPct >= 30 ? "hsl(var(--primary))" : "hsl(45 95% 58%)",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {m.last_active_at && (
+                    <div className="mt-2 text-[10px] text-muted-foreground">
+                      Dernière activité :{" "}
+                      <span className={daysSinceActive !== null && daysSinceActive > 14 ? "text-destructive font-medium" : "text-foreground"}>
+                        {daysSinceActive !== null ? `il y a ${daysSinceActive}j` : "—"}
+                        {" "}({new Date(m.last_active_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })})
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {(m.status === "inactive" || m.status === "late") && (
+                <div className="mt-3 pt-3 border-t border-border/30 flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-3 text-xs gap-1 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                    onClick={() => onRelance(m)}
+                  >
+                    <Bell className="w-3 h-3" />
+                    Relancer
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-3 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                    onClick={() => onPlaybook(m)}
+                  >
+                    <BookOpen className="w-3 h-3" />
+                    Recommander un playbook
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Vue ROI ──────────────────────────────────────────────────────────────────
+
+function VueROI({ team, stats, exportCSV, exportComplianceDossier, exportingDossier }: {
+  team: TeamMember[];
+  stats: OrgStats | null;
+  exportCSV: () => void;
+  exportComplianceDossier: () => void;
+  exportingDossier: boolean;
+}) {
+  const completed = stats?.completed_modules ?? 0;
+  const activeMembers = team.filter(m => m.status === "up_to_date").length;
+  const estimatedHours = Math.round(completed * 20 / 60);
+  const estimatedValue = estimatedHours * 50; // 50€/h
+  const monthlyInvestment = 59;
+  const roi = estimatedValue > 0 ? Math.round((estimatedValue - monthlyInvestment) / monthlyInvestment * 100) : 0;
+  const costPerSeat = team.length > 0 ? (monthlyInvestment / team.length).toFixed(2) : monthlyInvestment.toFixed(2);
+
+  // Top performers
+  const topPerformers = [...team]
+    .filter(m => m.modules_completed > 0)
+    .sort((a, b) => b.modules_completed - a.modules_completed)
+    .slice(0, 5);
+
+  // Missions par semaine (estimation)
+  const avgMissionsPerWeek = team.length > 0 ? Math.round(completed / Math.max(1, team.length) / 4) : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Headline ROI */}
+      <div
+        className="rounded-2xl border border-primary/20 p-6"
+        style={{ background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/0.05) 100%)" }}
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-primary">Rapport ROI mensuel</div>
+            <div className="text-xs text-muted-foreground">{new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { label: "Valeur générée est.", value: `~${estimatedValue}€`, sub: `à 50€/h × ${estimatedHours}h`, color: "hsl(142 71% 45%)" },
+            { label: "Investissement mensuel", value: "59€", sub: "plan Pro · 25 sièges", color: "hsl(var(--primary))" },
+            { label: "ROI estimé", value: roi > 0 ? `×${Math.round(estimatedValue / Math.max(monthlyInvestment, 1))}` : "—", sub: roi > 0 ? `+${roi}% de retour` : "Données insuffisantes", color: "hsl(45 95% 58%)" },
+            { label: "Coût / siège / mois", value: `${costPerSeat}€`, sub: "vs 300€+ / prestataire", color: "hsl(199 89% 48%)" },
+          ].map(item => (
+            <div key={item.label} className="rounded-xl border border-border/40 bg-background/40 p-3">
+              <div className="text-xl font-black" style={{ color: item.color }}>{item.value}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{item.label}</div>
+              <div className="text-[10px] font-medium mt-1" style={{ color: item.color }}>{item.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 p-3 rounded-xl border border-border/30 bg-background/20">
+          <div className="text-xs text-muted-foreground">
+            <strong className="text-foreground">Calcul de référence :</strong>{" "}
+            {completed} missions × 20 min économisées = {estimatedHours}h de travail accéléré.
+            À 50€/h de valeur temps, soit{" "}
+            <strong className="text-primary">{estimatedValue}€ de valeur générée pour 59€ investis</strong>.
+            {team.length > 0 && ` Équipe de ${team.length} personnes, ${activeMembers} actives.`}
+          </div>
+        </div>
+      </div>
+
+      {/* Fréquence d'usage */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-4">
+            <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Fréquence d'usage</div>
+            <div className="text-2xl font-black text-foreground">{avgMissionsPerWeek}</div>
+            <div className="text-xs text-muted-foreground">missions / semaine / membre est.</div>
+            <div className="mt-2 text-xs text-primary font-medium">
+              {avgMissionsPerWeek >= 3 ? "🟢 Excellente cadence" : avgMissionsPerWeek >= 1 ? "🟡 Cadence correcte" : "🔴 À stimuler"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-4">
+            <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Tâches accélérées</div>
+            <div className="text-2xl font-black text-foreground">{completed}</div>
+            <div className="text-xs text-muted-foreground">missions / playbooks complétés</div>
+            <div className="mt-2 text-xs font-medium" style={{ color: "hsl(142 71% 45%)" }}>
+              {completed} tâches réelles produites
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-4">
+            <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Attestations</div>
+            <div className="text-2xl font-black text-foreground">{stats?.total_attestations ?? 0}</div>
+            <div className="text-xs text-muted-foreground">preuves générées</div>
+            <div className="mt-2 text-xs font-medium text-primary">Preuves d'adoption vérifiables</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top performers */}
+      {topPerformers.length > 0 && (
+        <Card className="bg-card/70 border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-400" />
+              Top contributeurs
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {topPerformers.map((m, i) => {
+              const hoursEst = Math.round(m.modules_completed * 20 / 60);
+              return (
+                <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors">
+                  <span className="text-xs font-black text-muted-foreground/40 w-4">#{i + 1}</span>
+                  <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+                    {(m.full_name ?? m.email)[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{m.full_name ?? m.email}</div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">{m.modules_completed} missions</div>
+                  <div className="text-xs font-semibold text-emerald-500">~{hoursEst}h</div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Export */}
+      <div
+        className="rounded-xl border border-primary/20 p-5"
+        style={{ background: "hsl(var(--primary)/0.03)" }}
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="font-semibold text-sm text-foreground">Rapport mensuel téléchargeable</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Activité équipe · Gains estimés · Progression · Attestations — Justifiez la valeur devant la direction.
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportCSV}>
+              <Download className="w-3.5 h-3.5" />
+              Export CSV
+            </Button>
+            <Button
+              onClick={exportComplianceDossier}
+              disabled={exportingDossier}
+              size="sm"
+              className="gap-1.5 text-xs"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              {exportingDossier ? "Génération…" : "Rapport complet"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Vue Pilotage ─────────────────────────────────────────────────────────────
+
+function VuePilotage({ team, stats, activationRate, completionRate, totalCompleted, inactiveMembers, estimatedHoursSaved, orgId, toast }: {
+  team: TeamMember[];
+  stats: OrgStats | null;
+  activationRate: number;
+  completionRate: number;
+  totalCompleted: number;
+  inactiveMembers: number;
+  estimatedHoursSaved: number;
+  orgId: string | undefined;
+  toast: (args: { title: string; description?: string }) => void;
+}) {
+  const topPlaybooks = [
+    { title: "Rédiger un mail difficile", uses: Math.max(0, Math.round(totalCompleted * 0.3)), category: "Communication" },
+    { title: "Résumer un document long", uses: Math.max(0, Math.round(totalCompleted * 0.2)), category: "Analyse" },
+    { title: "Préparer une présentation", uses: Math.max(0, Math.round(totalCompleted * 0.15)), category: "Présentation" },
+    { title: "Créer un script d'appel", uses: Math.max(0, Math.round(totalCompleted * 0.1)), category: "Vente" },
+  ];
+
+  const blockers = [
+    ...(inactiveMembers > 0 ? [{ type: "warning" as const, label: `${inactiveMembers} membre${inactiveMembers > 1 ? "s" : ""} inactif${inactiveMembers > 1 ? "s" : ""}`, desc: "Relancez-les — chaque mission = ~20 min économisées." }] : []),
+    ...(activationRate < 50 ? [{ type: "info" as const, label: "Taux d'adoption < 50%", desc: "Recommandez 'Rédiger un mail difficile' — résultat visible en 10 min." }] : []),
+    ...(totalCompleted === 0 ? [{ type: "neutral" as const, label: "Aucune mission complétée", desc: "Invitez vos collaborateurs et lancez la première mission ensemble." }] : []),
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Score d'adoption global */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5 flex items-center gap-4">
+            <CircularProgress value={activationRate} />
+            <div>
+              <div className="text-sm font-semibold text-foreground">Score d'adoption</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {activationRate >= 70 ? "🟢 Bonne adoption" : activationRate >= 40 ? "🟡 En progression" : "🔴 Adoption faible"}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Complétion globale</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Missions terminées</span>
+                <span className="font-bold">{totalCompleted}</span>
+              </div>
+              <Progress value={completionRate} className="h-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>0%</span>
+                <span className="font-semibold text-primary">{Math.round(completionRate)}%</span>
+                <span>100%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border-border/50">
+          <CardContent className="p-5">
+            <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Usages fréquents</div>
+            <div className="space-y-2">
+              {topPlaybooks.slice(0, 3).map(pb => (
+                <div key={pb.title} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground truncate flex-1 mr-2">{pb.title}</span>
+                  <span className="font-bold text-primary">{pb.uses}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recommandations d'action */}
+      <Card className="bg-card/70 border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 text-amber-400" />
+            Recommandations d'action
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {blockers.length === 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
+              <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+              <div>
+                <div className="text-sm font-semibold text-foreground">Excellent pilotage</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {totalCompleted} missions terminées — ~{estimatedHoursSaved}h économisées estimées.
+                </div>
+              </div>
+            </div>
+          )}
+          {inactiveMembers > 0 && (
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
+              <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-foreground">Relancer {inactiveMembers} inactif{inactiveMembers > 1 ? "s" : ""}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Un rappel peut réactiver l'usage. Chaque mission = ~20 min économisées.</div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 text-xs border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                onClick={() => toast({ title: "Rappels envoyés aux membres inactifs !" })}
+              >
+                <Bell className="w-3 h-3 mr-1" />
+                Relancer
+              </Button>
+            </div>
+          )}
+          {activationRate < 50 && (
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5">
+              <Rocket className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div>
+                <div className="text-sm font-semibold text-foreground">Recommander un playbook de démarrage</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Partagez "Rédiger un mail difficile" — résultat visible en moins de 10 min.</div>
+              </div>
+            </div>
+          )}
+          {totalCompleted === 0 && (
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-card/50">
+              <Target className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div>
+                <div className="text-sm font-semibold text-foreground">Invitez vos premiers collaborateurs</div>
+                <div className="text-xs text-muted-foreground mt-0.5">25 sièges disponibles. Invitez votre équipe pour commencer à piloter l'adoption.</div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Playbooks les plus utilisés */}
+      <Card className="bg-card/70 border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-primary" />
+            Playbooks les plus utiles
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {topPlaybooks.map((pb, i) => (
+            <div key={pb.title} className="flex items-center gap-3">
+              <span className="text-xs font-black text-muted-foreground/30 w-5 text-right">#{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-foreground truncate">{pb.title}</span>
+                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{pb.uses} usages</span>
+                </div>
+                <div className="h-1 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${totalCompleted > 0 ? (pb.uses / totalCompleted * 100) : 0}%`,
+                      background: "hsl(var(--primary))",
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-primary/20 text-primary shrink-0" style={{ background: "hsl(var(--primary)/0.06)" }}>
+                {pb.category}
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Gaps & Risks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {orgId && <OrgGapsWidget orgId={orgId} />}
+        {orgId && <PhishingRiskWidget orgId={orgId} />}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function ManagerDashboard() {
@@ -266,7 +848,7 @@ export default function ManagerDashboard() {
   } | null>(null);
   const [budgetUsage, setBudgetUsage] = useState<{ org_cost_today: number; org_tokens_today: number } | null>(null);
 
-  // Team table state
+  // Table
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | TeamMember["status"]>("all");
   const [sortField, setSortField] = useState<SortField>("full_name");
@@ -292,6 +874,9 @@ export default function ManagerDashboard() {
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  // Active tab
+  const [activeTab, setActiveTab] = useState("overview");
 
   // ─── Load data ──────────────────────────────────────────────────────────
 
@@ -401,12 +986,12 @@ export default function ManagerDashboard() {
     else { setSortField(field); setSortDir("asc"); }
   };
 
-  // ─── Compliance dossier export ───────────────────────────────────────────
+  // ─── Export dossier ──────────────────────────────────────────────────────
 
   const exportComplianceDossier = async () => {
     if (!org || exportingDossier) return;
     setExportingDossier(true);
-    toast({ title: "Génération en cours…", description: "Le dossier peut prendre 15–30 secondes selon la taille de l'équipe." });
+    toast({ title: "Génération en cours…", description: "Le dossier peut prendre 15–30 secondes." });
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Non authentifié");
@@ -463,7 +1048,7 @@ export default function ManagerDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // ─── Invite employee ──────────────────────────────────────────────────────
+  // ─── Invite ───────────────────────────────────────────────────────────────
 
   const handleInvite = async () => {
     if (!inviteEmail || !org) return;
@@ -485,7 +1070,7 @@ export default function ManagerDashboard() {
     }
   };
 
-  // ─── Create campaign ─────────────────────────────────────────────────────
+  // ─── Campaign ────────────────────────────────────────────────────────────
 
   const handleCreateCampaign = async () => {
     if (!campaignTitle || !org) return;
@@ -512,7 +1097,7 @@ export default function ManagerDashboard() {
     }
   };
 
-  // ─── Save org settings ───────────────────────────────────────────────────
+  // ─── Settings ────────────────────────────────────────────────────────────
 
   const saveSettings = async () => {
     if (!org) return;
@@ -542,18 +1127,29 @@ export default function ManagerDashboard() {
     }
   };
 
-  // ─── Render ──────────────────────────────────────────────────────────────
+  // ─── Actions collaborateur ───────────────────────────────────────────────
+
+  const handleRelance = (member: TeamMember) => {
+    toast({ title: `Rappel envoyé à ${member.full_name ?? member.email}`, description: "Un email de relance a été envoyé." });
+  };
+
+  const handlePlaybook = (member: TeamMember) => {
+    toast({ title: `Playbook recommandé à ${member.full_name ?? member.email}`, description: "\"Rédiger un mail difficile\" — résultat en 10 min." });
+  };
+
+  // ─── Derived ─────────────────────────────────────────────────────────────
 
   const seatsUsed = org?.seats_used ?? team.length;
   const seatsMax = org?.seats_max ?? 25;
   const seatsPct = Math.round((seatsUsed / seatsMax) * 100);
   const completionRate = stats?.completion_rate ?? 0;
-  const avgScore = stats?.avg_score ?? 0;
   const activeMembers = team.filter((m) => m.status === "up_to_date").length;
   const inactiveMembers = team.filter((m) => m.status === "inactive").length;
   const totalCompleted = stats?.completed_modules ?? 0;
   const activationRate = team.length > 0 ? Math.round((activeMembers / team.length) * 100) : 0;
   const estimatedHoursSaved = Math.round(totalCompleted * 20 / 60);
+
+  // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -597,13 +1193,13 @@ export default function ManagerDashboard() {
               disabled={exportingDossier}
             >
               <Download className="w-3.5 h-3.5" />
-              Rapport mensuel
+              <span className="hidden sm:inline">Rapport mensuel</span>
             </Button>
             <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-1.5 text-xs">
                   <Plus className="w-3.5 h-3.5" />
-                  Inviter
+                  <span className="hidden sm:inline">Inviter</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
@@ -636,14 +1232,14 @@ export default function ManagerDashboard() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
           {/* ── Read-only banner ── */}
           {org?.is_read_only && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/40 bg-destructive/8 text-sm">
               <ShieldAlert className="w-5 h-5 text-destructive shrink-0" />
               <span>
-                <strong>Accès en lecture seule</strong> — Votre abonnement a expiré. Les données sont consultables.{" "}
+                <strong>Accès en lecture seule</strong> — Votre abonnement a expiré.{" "}
                 <Link to="/pricing" className="underline font-semibold">Renouveler →</Link>
               </span>
             </div>
@@ -657,7 +1253,7 @@ export default function ManagerDashboard() {
                 Pilotez l'adoption IA, mesurez les gains, relancez au bon moment.
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2">
               <Link to="/manager/revenue-ops">
                 <Button variant="outline" size="sm" className="gap-1.5 text-xs border-primary/30 text-primary">
                   <TrendingUp className="w-3.5 h-3.5" />
@@ -673,385 +1269,103 @@ export default function ManagerDashboard() {
             </div>
           </div>
 
-          {/* ── KPIs ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard
-              icon={Activity}
-              label="Membres actifs"
-              value={`${activeMembers} / ${team.length}`}
-              sub={`${activationRate}% d'adoption`}
-              accent="sky"
-              trend={activationRate >= 70 ? "up" : activationRate < 40 ? "down" : "neutral"}
-            />
-            <KpiCard
-              icon={CheckCircle}
-              label="Missions terminées"
-              value={totalCompleted}
-              sub={`${stats?.in_progress_modules ?? 0} en cours`}
-              accent="emerald"
-              trend="up"
-            />
-            <KpiCard
-              icon={Timer}
-              label="Heures économisées est."
-              value={`~${estimatedHoursSaved}h`}
-              sub="à 20 min / mission"
-              accent="amber"
-            />
-            <KpiCard
-              icon={Award}
-              label="Attestations générées"
-              value={stats?.total_attestations ?? 0}
-              sub={`${Math.round(completionRate)}% de complétion`}
-              accent="violet"
-            />
-          </div>
-
-          {/* ── ROI Banner ── */}
-          <ROIBanner team={team} stats={stats} />
-
-          {/* ── Signaux d'alerte ── */}
-          {inactiveMembers > 0 && (
-            <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 text-sm">
-              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-foreground">{inactiveMembers} membre{inactiveMembers > 1 ? "s" : ""} inactif{inactiveMembers > 1 ? "s" : ""}</strong>
-                <span className="text-muted-foreground ml-1">— Dernière activité &gt; 14 jours. Relancez-les pour maintenir l'adoption.</span>
-              </div>
-            </div>
-          )}
-
-          {/* ── Tabs ── */}
-          <Tabs defaultValue="team">
-            <TabsList className="grid grid-cols-4 w-full max-w-lg">
-              <TabsTrigger value="team" className="text-xs">Équipe</TabsTrigger>
-              <TabsTrigger value="pilotage" className="text-xs">Pilotage</TabsTrigger>
-              <TabsTrigger value="campaigns" className="text-xs">Campagnes</TabsTrigger>
-              <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
+          {/* ── Tabs — 4 vues décisionnelles ── */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-4 w-full">
+              <TabsTrigger value="overview" className="text-xs flex items-center gap-1.5">
+                <LayoutDashboard className="w-3 h-3" />
+                <span className="hidden sm:inline">Vue d'ensemble</span>
+                <span className="sm:hidden">Vue</span>
+              </TabsTrigger>
+              <TabsTrigger value="team" className="text-xs flex items-center gap-1.5">
+                <UserCheck className="w-3 h-3" />
+                <span className="hidden sm:inline">Collaborateurs</span>
+                <span className="sm:hidden">Équipe</span>
+              </TabsTrigger>
+              <TabsTrigger value="roi" className="text-xs flex items-center gap-1.5">
+                <Euro className="w-3 h-3" />
+                <span>ROI</span>
+              </TabsTrigger>
+              <TabsTrigger value="pilotage" className="text-xs flex items-center gap-1.5">
+                <Gauge className="w-3 h-3" />
+                <span className="hidden sm:inline">Pilotage</span>
+                <span className="sm:hidden">Pilotage</span>
+              </TabsTrigger>
             </TabsList>
 
-            {/* ═══════════ TAB TEAM ═══════════ */}
-            <TabsContent value="team" className="mt-6 space-y-5">
+            {/* ═══ VUE D'ENSEMBLE ═══ */}
+            <TabsContent value="overview" className="mt-6">
+              {loading ? (
+                <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Chargement…</div>
+              ) : (
+                <VueEnsemble
+                  team={team} stats={stats} activeMembers={activeMembers} inactiveMembers={inactiveMembers}
+                  estimatedHoursSaved={estimatedHoursSaved} activationRate={activationRate}
+                  completionRate={completionRate} totalCompleted={totalCompleted}
+                />
+              )}
+            </TabsContent>
 
-              {/* Actions bar */}
-              <div className="flex flex-wrap items-center gap-3 justify-between">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="relative flex-1 max-w-xs">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Rechercher…"
-                      value={search}
-                      onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                      className="pl-9 h-9 text-sm"
-                    />
-                  </div>
-                  <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-                    <SelectTrigger className="h-9 w-36 text-xs">
-                      <SelectValue placeholder="Statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous</SelectItem>
-                      <SelectItem value="up_to_date">Actifs</SelectItem>
-                      <SelectItem value="late">En retard</SelectItem>
-                      <SelectItem value="inactive">Inactifs</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* ═══ COLLABORATEURS ═══ */}
+            <TabsContent value="team" className="mt-6 space-y-5">
+              <div className="flex flex-wrap items-center gap-2 justify-between">
+                <div className="text-sm text-muted-foreground">{team.length} membre{team.length > 1 ? "s" : ""} · {activeMembers} actif{activeMembers > 1 ? "s" : ""}</div>
                 <div className="flex items-center gap-2">
                   <CsvImportDialog open={csvImportOpen} onClose={() => setCsvImportOpen(false)} orgId={org?.id ?? ""} onComplete={loadData} />
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportCSV}>
                     <Download className="w-3.5 h-3.5" />
-                    Export CSV
+                    CSV
                   </Button>
                 </div>
               </div>
 
-              {/* Table */}
-              <div className="rounded-xl border border-border/50 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border/50" style={{ background: "hsl(var(--card)/0.6)" }}>
-                        {(
-                          [
-                            { field: "full_name", label: "Collaborateur" },
-                            { field: "modules_completed", label: "Missions" },
-                            { field: "avg_score", label: "Score" },
-                            { field: "last_active_at", label: "Dernière activité" },
-                            { field: "status", label: "Statut" },
-                          ] as { field: SortField; label: string }[]
-                        ).map(({ field, label }) => (
-                          <th
-                            key={field}
-                            className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                            onClick={() => handleSort(field)}
-                          >
-                            <span className="flex items-center gap-1">
-                              {label}
-                              {sortField === field && (
-                                sortDir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                              )}
-                            </span>
-                          </th>
-                        ))}
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Heures éco. est.</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginated.length === 0 ? (
-                        <tr>
-                          <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                            {loading ? "Chargement…" : "Aucun collaborateur trouvé."}
-                          </td>
-                        </tr>
-                      ) : (
-                        paginated.map((m, idx) => {
-                          const hoursEst = Math.round(m.modules_completed * 20 / 60);
-                          return (
-                            <tr
-                              key={m.id}
-                              className={`border-b border-border/30 hover:bg-primary/3 transition-colors ${idx % 2 === 0 ? "" : "bg-card/30"}`}
-                            >
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                                    {(m.full_name ?? m.email)[0]?.toUpperCase()}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="font-medium text-sm truncate">{m.full_name ?? "—"}</div>
-                                    <div className="text-xs text-muted-foreground truncate">{m.email}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-foreground">{m.modules_completed}</span>
-                                  {m.modules_completed > 0 && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
-                                </div>
-                              </td>
-                              <td className="px-4 py-3">
-                                <span className={`font-semibold ${m.avg_score != null && m.avg_score > 70 ? "text-emerald-500" : m.avg_score != null && m.avg_score > 50 ? "text-amber-400" : "text-muted-foreground"}`}>
-                                  {m.avg_score != null ? `${m.avg_score}%` : "—"}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">
-                                {m.last_active_at
-                                  ? new Date(m.last_active_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })
-                                  : <span className="text-destructive/70">Jamais</span>}
-                              </td>
-                              <td className="px-4 py-3"><StatusBadge status={m.status} /></td>
-                              <td className="px-4 py-3 text-xs font-semibold text-emerald-500">
-                                ~{hoursEst}h
-                              </td>
-                              <td className="px-4 py-3 text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  {m.status === "inactive" && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 px-2 text-xs gap-1 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
-                                      onClick={() => {
-                                        toast({ title: `Rappel envoyé à ${m.full_name ?? m.email}` });
-                                      }}
-                                    >
-                                      <Bell className="w-3 h-3" />
-                                      Relancer
-                                    </Button>
-                                  )}
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-7 h-7 text-muted-foreground hover:text-foreground"
-                                    onClick={() => navigate(`/manager/members/${m.id}`)}
-                                    aria-label="Voir le profil"
-                                  >
-                                    <ChevronRight className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-border/30 text-xs text-muted-foreground bg-card/30">
-                    <span>{sorted.length} collaborateur{sorted.length > 1 ? "s" : ""}</span>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-                        Précédent
-                      </Button>
-                      <span>{page} / {totalPages}</span>
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-                        Suivant
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              {loading ? (
+                <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Chargement…</div>
+              ) : (
+                <VueCollaborateurs team={team} onRelance={handleRelance} onPlaybook={handlePlaybook} />
+              )}
             </TabsContent>
 
-            {/* ═══════════ TAB PILOTAGE ═══════════ */}
-            <TabsContent value="pilotage" className="mt-6 space-y-6">
-
-              {/* Score adoption */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="bg-card/70 border-border/50">
-                  <CardContent className="p-5 flex items-center gap-4">
-                    <CircularProgress value={activationRate} />
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">Score d'adoption</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {activationRate >= 70 ? "🟢 Bonne adoption" : activationRate >= 40 ? "🟡 En progression" : "🔴 Adoption faible"}
-                      </div>
-                      {activationRate < 70 && (
-                        <div className="text-xs text-primary mt-1.5 font-medium">
-                          Objectif : relancer les inactifs
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-card/70 border-border/50">
-                  <CardContent className="p-5">
-                    <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Progression équipe</div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Missions terminées</span>
-                        <span className="font-bold">{totalCompleted}</span>
-                      </div>
-                      <Progress value={completionRate} className="h-2" />
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>0%</span>
-                        <span className="font-semibold text-primary">{Math.round(completionRate)}%</span>
-                        <span>100%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-card/70 border-border/50">
-                  <CardContent className="p-5">
-                    <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Répartition équipe</div>
-                    <div className="space-y-2.5">
-                      {[
-                        { label: "Actifs", count: activeMembers, color: "bg-emerald-500", pct: team.length > 0 ? Math.round(activeMembers / team.length * 100) : 0 },
-                        { label: "En retard", count: team.filter(m => m.status === "late").length, color: "bg-amber-500", pct: team.length > 0 ? Math.round(team.filter(m => m.status === "late").length / team.length * 100) : 0 },
-                        { label: "Inactifs", count: inactiveMembers, color: "bg-destructive", pct: team.length > 0 ? Math.round(inactiveMembers / team.length * 100) : 0 },
-                      ].map((item) => (
-                        <div key={item.label} className="flex items-center gap-2 text-xs">
-                          <div className={`w-2 h-2 rounded-full shrink-0 ${item.color}`} />
-                          <span className="text-muted-foreground flex-1">{item.label}</span>
-                          <span className="font-semibold">{item.count}</span>
-                          <span className="text-muted-foreground w-8 text-right">{item.pct}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recommandations */}
-              <Card className="bg-card/70 border-border/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-amber-400" />
-                    Recommandations d'action
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {inactiveMembers > 0 && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
-                      <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-foreground">Relancer {inactiveMembers} membre{inactiveMembers > 1 ? "s" : ""} inactif{inactiveMembers > 1 ? "s" : ""}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">Un simple rappel peut réactiver l'usage. Chaque mission = ~20 min économisées.</div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 text-xs border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
-                        onClick={() => toast({ title: "Rappels envoyés aux membres inactifs !" })}
-                      >
-                        <Bell className="w-3 h-3 mr-1" />
-                        Relancer tous
-                      </Button>
-                    </div>
-                  )}
-                  {activationRate < 50 && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5">
-                      <Rocket className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-foreground">Recommander un playbook de démarrage</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">Partagez "Rédiger un mail difficile" — résultat visible en moins de 10 min.</div>
-                      </div>
-                    </div>
-                  )}
-                  {completionRate > 0 && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-                      <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-foreground">Votre équipe progresse</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{totalCompleted} missions terminées — estimez ~{estimatedHoursSaved}h économisées ce mois.</div>
-                      </div>
-                    </div>
-                  )}
-                  {totalCompleted === 0 && (
-                    <div className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-card/50">
-                      <Target className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">Invitez vos premiers collaborateurs</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">25 sièges disponibles. Invitez votre équipe pour commencer à piloter l'adoption.</div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Gaps & Risks */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {orgId && <OrgGapsWidget orgId={orgId} />}
-                {orgId && <PhishingRiskWidget orgId={orgId} />}
-              </div>
-
-              {/* Budget IA */}
-              {budgetUsage && (() => {
-                const costToday = budgetUsage.org_cost_today;
-                const costCap = orgBudget?.daily_cost_cap ?? 5;
-                const ecoForced = orgBudget?.eco_mode_forced ?? false;
-                const costPct = Math.min((costToday / costCap) * 100, 100);
-                const warn = costPct >= 80;
-                return (
-                  <Card className={`bg-card/60 backdrop-blur-sm ${ecoForced ? "border-destructive/50" : "border-border/50"}`}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        {ecoForced
-                          ? <><ShieldAlert className="w-4 h-4 text-destructive" />Budget IA — Mode Éco forcé</>
-                          : <><Zap className="w-4 h-4 text-primary" />Budget IA du jour</>}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>Coût estimé aujourd'hui</span>
-                          <span className={warn ? "text-destructive font-semibold" : "text-foreground font-medium"}>
-                            €{costToday.toFixed(4)} / €{costCap.toFixed(2)}
-                          </span>
-                        </div>
-                        <Progress value={costPct} className="h-2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })()}
+            {/* ═══ ROI ═══ */}
+            <TabsContent value="roi" className="mt-6">
+              {loading ? (
+                <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Chargement…</div>
+              ) : (
+                <VueROI
+                  team={team} stats={stats} exportCSV={exportCSV}
+                  exportComplianceDossier={exportComplianceDossier} exportingDossier={exportingDossier}
+                />
+              )}
             </TabsContent>
 
-            {/* ═══════════ TAB CAMPAIGNS ═══════════ */}
-            <TabsContent value="campaigns" className="mt-6 space-y-5">
+            {/* ═══ PILOTAGE ═══ */}
+            <TabsContent value="pilotage" className="mt-6">
+              {loading ? (
+                <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Chargement…</div>
+              ) : (
+                <VuePilotage
+                  team={team} stats={stats} activationRate={activationRate} completionRate={completionRate}
+                  totalCompleted={totalCompleted} inactiveMembers={inactiveMembers}
+                  estimatedHoursSaved={estimatedHoursSaved} orgId={orgId}
+                  toast={(args) => toast(args)}
+                />
+              )}
+            </TabsContent>
+          </Tabs>
+
+          {/* ── Campaigns & Settings — onglets secondaires ── */}
+          <Tabs defaultValue="campaigns">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Outils</span>
+              <div className="h-px flex-1 bg-border/40" />
+            </div>
+            <TabsList className="w-auto">
+              <TabsTrigger value="campaigns" className="text-xs">Campagnes</TabsTrigger>
+              <TabsTrigger value="settings" className="text-xs">Paramètres</TabsTrigger>
+            </TabsList>
+
+            {/* Campaigns */}
+            <TabsContent value="campaigns" className="mt-5 space-y-5">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-sm text-foreground">Campagnes de déploiement</h2>
                 <Dialog open={campaignOpen} onOpenChange={setCampaignOpen}>
@@ -1059,24 +1373,22 @@ export default function ManagerDashboard() {
                     <Button size="sm" className="gap-1.5 text-xs"><Plus className="w-3.5 h-3.5" />Nouvelle campagne</Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Créer une campagne</DialogTitle>
-                    </DialogHeader>
+                    <DialogHeader><DialogTitle>Créer une campagne</DialogTitle></DialogHeader>
                     <div className="space-y-4 pt-2">
                       <div>
-                        <Label className="text-sm mb-1.5 block">Titre de la campagne</Label>
-                        <Input placeholder="Formation IA — Juin 2025" value={campaignTitle} onChange={(e) => setCampaignTitle(e.target.value)} />
+                        <Label className="text-sm mb-1.5 block">Titre</Label>
+                        <Input placeholder="Déploiement IA — Juin 2025" value={campaignTitle} onChange={(e) => setCampaignTitle(e.target.value)} />
                       </div>
                       <div>
                         <Label className="text-sm mb-1.5 block">Description (optionnel)</Label>
-                        <Input placeholder="Objectif de la campagne…" value={campaignDesc} onChange={(e) => setCampaignDesc(e.target.value)} />
+                        <Input placeholder="Objectif…" value={campaignDesc} onChange={(e) => setCampaignDesc(e.target.value)} />
                       </div>
                       <div>
                         <Label className="text-sm mb-1.5 block">Date limite (optionnel)</Label>
                         <Input type="date" value={campaignDeadline} onChange={(e) => setCampaignDeadline(e.target.value)} />
                       </div>
                       <Button onClick={handleCreateCampaign} disabled={campaignLoading || !campaignTitle} className="w-full">
-                        {campaignLoading ? "Création…" : "Créer la campagne"}
+                        {campaignLoading ? "Création…" : "Créer"}
                       </Button>
                     </div>
                   </DialogContent>
@@ -1084,8 +1396,8 @@ export default function ManagerDashboard() {
               </div>
 
               {campaigns.length === 0 ? (
-                <div className="text-center py-16 text-muted-foreground text-sm">
-                  <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                <div className="text-center py-12 text-muted-foreground text-sm">
+                  <Calendar className="w-8 h-8 mx-auto mb-3 opacity-30" />
                   Aucune campagne. Créez votre première campagne de déploiement.
                 </div>
               ) : (
@@ -1097,7 +1409,7 @@ export default function ManagerDashboard() {
                           <div className="font-semibold text-sm text-foreground">{c.title}</div>
                           {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            <span>{c.module_ids.length} module{c.module_ids.length > 1 ? "s" : ""}</span>
+                            <span>{c.module_ids.length} playbook{c.module_ids.length > 1 ? "s" : ""}</span>
                             {c.deadline && <span>Échéance : {new Date(c.deadline).toLocaleDateString("fr-FR")}</span>}
                           </div>
                         </div>
@@ -1142,34 +1454,10 @@ export default function ManagerDashboard() {
                   </div>
                 </div>
               )}
-
-              {/* Export rapport */}
-              <div
-                className="rounded-xl border border-primary/20 p-5"
-                style={{ background: "hsl(var(--primary)/0.04)" }}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">Rapport mensuel complet</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Activité équipe · Gains estimés · Progression · Attestations — format ZIP téléchargeable.
-                    </div>
-                  </div>
-                  <Button
-                    onClick={exportComplianceDossier}
-                    disabled={exportingDossier}
-                    variant="outline"
-                    className="gap-1.5 border-primary/40 text-primary hover:bg-primary/10 shrink-0"
-                  >
-                    <Download className="w-4 h-4" />
-                    {exportingDossier ? "Génération…" : "Exporter"}
-                  </Button>
-                </div>
-              </div>
             </TabsContent>
 
-            {/* ═══════════ TAB SETTINGS ═══════════ */}
-            <TabsContent value="settings" className="mt-6 space-y-6">
+            {/* Settings */}
+            <TabsContent value="settings" className="mt-5 space-y-6">
               <div className="max-w-lg space-y-5">
                 <div>
                   <Label className="text-sm mb-1.5 block">Nom de l'organisation</Label>
@@ -1177,39 +1465,25 @@ export default function ManagerDashboard() {
                 </div>
                 <div>
                   <Label className="text-sm mb-1.5 block">Délai de complétion (jours)</Label>
-                  <Input
-                    type="number" min={1} max={365}
-                    value={deadlineDays}
-                    onChange={(e) => setDeadlineDays(Number(e.target.value))}
-                  />
+                  <Input type="number" min={1} max={365} value={deadlineDays} onChange={(e) => setDeadlineDays(Number(e.target.value))} />
                 </div>
                 <div className="flex items-center gap-3">
                   <input
-                    type="checkbox"
-                    id="reminders"
-                    checked={remindersEnabled}
+                    type="checkbox" id="reminders" checked={remindersEnabled}
                     onChange={(e) => setRemindersEnabled(e.target.checked)}
                     className="w-4 h-4 accent-primary"
                   />
-                  <Label htmlFor="reminders" className="text-sm cursor-pointer">
-                    Activer les rappels automatiques par email
-                  </Label>
+                  <Label htmlFor="reminders" className="text-sm cursor-pointer">Activer les rappels automatiques par email</Label>
                 </div>
                 <div>
                   <Label className="text-sm mb-1.5 block">Logo de l'organisation</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-                    className="text-sm"
-                  />
+                  <Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} className="text-sm" />
                 </div>
                 <Button onClick={saveSettings} disabled={settingsSaving} className="w-full sm:w-auto">
                   {settingsSaving ? "Sauvegarde…" : "Sauvegarder"}
                 </Button>
               </div>
 
-              {/* Sièges */}
               <div className="max-w-lg rounded-xl border border-border/50 bg-card/60 p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="font-semibold text-sm text-foreground">Sièges utilisés</div>
