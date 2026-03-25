@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, BookOpen, Settings, Users, Flame, Lock, Briefcase, Library, BarChart3 } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, BookOpen, Settings, Users, Flame, Lock, Library, BarChart3 } from "lucide-react";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";

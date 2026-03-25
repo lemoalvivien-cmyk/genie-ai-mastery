@@ -64,11 +64,11 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 /* ── Data ────────────────────────────────────────────────────── */
 const FREE_FEATURES = [
-  { label: "Copilote KITT — 2 échanges/jour", included: true },
+  { label: "Assistance KITT — 2 échanges/jour", included: true },
   { label: "Accès aux playbooks publics", included: true },
   { label: "1 mission guidée par jour", included: true },
   { label: "Missions illimitées", included: false },
-  { label: "Playbooks complets", included: false },
+  { label: "Playbooks métier complets", included: false },
   { label: "Exécutions guidées interactives", included: false },
   { label: "Attestations PDF vérifiables", included: false },
   { label: "Cockpit équipe & manager", included: false },

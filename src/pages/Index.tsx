@@ -915,8 +915,8 @@ export default function Index() {
                 <ul className="space-y-2 text-sm flex-1 mb-6">
                   {[
                     "Missions illimitées",
-                    "Playbooks complets",
-                    "Copilote KITT illimité",
+                    "Playbooks métier complets",
+                    "Assistance KITT illimitée",
                     "Cockpit manager",
                     "Bibliothèque d'équipe",
                     "Attestations vérifiables",
