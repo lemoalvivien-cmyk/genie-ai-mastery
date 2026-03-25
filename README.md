@@ -1,4 +1,4 @@
-# GENIE IA — OpenClaw Phase 1 → Phase 2
+# Formetoialia — Système d'exécution IA quotidien
 
 ## Package Manager officiel : **Bun**
 
@@ -73,15 +73,6 @@ bun run test
 ```
 
 Les 3 tests `skipped` = `INTEGRATION_PENDING` — documentent le flux e2e sans runtime réel branché.
-
----
-
-## OpenClaw Phase 2
-
-Voir [docs/openclaw-dev-setup.md](docs/openclaw-dev-setup.md) pour :
-- Enregistrer un runtime (DEV_ONLY_OPENCLAW_RUNTIME ou réel)
-- Configurer `OPENCLAW_API_TOKEN` et `OPENCLAW_WEBHOOK_SECRET`
-- Lancer le flux complet create → dispatch → sync → résultat
 
 ---
 
