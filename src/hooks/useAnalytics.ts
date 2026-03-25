@@ -2,10 +2,28 @@
  * Analytics SDK — batch + debounce
  * Flushes up to 10 events every 3s or on page unload.
  * Zero-blocking: never throws, never awaits in the hot path.
+ *
+ * RGPD — Consentement :
+ * Les events non-essentiels ne sont envoyés QUE si le consentement analytics
+ * a été accordé. Seuls les events "nécessaires" (login, signup, checkout)
+ * peuvent passer sans consentement.
  */
 import { useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
+
+// Events qui peuvent passer sans consentement analytics explicite
+// (légitimement nécessaires à la sécurité et au service)
+const CONSENT_EXEMPT_EVENTS = new Set<EventName>([
+  "login",
+  "signup",
+  "signup_completed",
+  "register_started",
+  "checkout_started",
+  "subscription_activated",
+  "payment_success",
+  "payment_failed",
+]);
 
 export type EventName =
   // ── Navigation (public funnel) ───────────────────────────────────────────
