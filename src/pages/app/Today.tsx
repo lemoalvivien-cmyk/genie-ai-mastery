@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStreak } from "@/hooks/useStreak";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
+import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
@@ -373,9 +374,10 @@ export default function Today() {
   const [earnedXP, setEarnedXP] = useState(0);
   const [score, setScore] = useState<number | undefined>(undefined);
   const [isNewRecord, setIsNewRecord] = useState(false);
-  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
+  const [ghostFeedback, setGhostFeedback] = useState<GhostFeedback | null>(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const startTime = useRef<number>(Date.now());
+  const [userProduction, setUserProduction] = useState<string>("");
 
   // ── Fetch mission ──────────────────────────────────────────────────────────
   const fetchMission = useCallback(async () => {
