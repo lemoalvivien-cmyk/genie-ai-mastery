@@ -368,6 +368,7 @@ export default function Today() {
   const { data: subscriptionData } = useSubscription();
   const isSubscribed = subscriptionData?.isActive ?? false;
   const navigate = useNavigate();
+  const { track } = useAnalytics();
 
   const [mission, setMission] = useState<Mission | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -378,6 +379,7 @@ export default function Today() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const startTime = useRef<number>(Date.now());
   const [userProduction, setUserProduction] = useState<string>("");
+  const firstMissionTracked = useRef(false);
 
   // ── Fetch mission ──────────────────────────────────────────────────────────
   const fetchMission = useCallback(async () => {
