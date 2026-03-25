@@ -1,6 +1,12 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "npm:stripe@18.5.0";
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+/**
+ * create-checkout — Crée une session Stripe Checkout
+ *
+ * Billing de vérité :
+ * - 59€ TTC/mois
+ * - Essai 14 jours
+ * - payment_method_collection: "if_required" → carte non obligatoire pendant l'essai
+ * - end_behavior.missing_payment_method: "cancel" → pas de conversion silencieuse
+ */
 import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: unknown) =>

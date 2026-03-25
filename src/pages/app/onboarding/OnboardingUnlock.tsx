@@ -93,7 +93,7 @@ export default function OnboardingUnlock() {
             </Button>
 
             <p className="text-xs text-muted-foreground text-center mt-3">
-              Aucune facturation pendant 14 jours. Annulation sans conditions.
+              14 jours d'essai gratuit — aucune facturation immédiate. Annulation sans conditions.
             </p>
           </div>
 
