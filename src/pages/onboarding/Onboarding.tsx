@@ -1,13 +1,24 @@
+/**
+ * Onboarding express — 3 étapes, ~60 secondes
+ * Étape 1 : Persona (qui êtes-vous)
+ * Étape 2 : Niveau
+ * Étape 3 : Objectif prioritaire
+ * 
+ * EmailStep supprimé : l'email est déjà connu via auth.users.
+ * Confetti supprimé : bloquait la redirection 1.8s pour rien.
+ * Redirection intelligente par profil :
+ *   - dirigeant non-invité → org form → /manager/onboarding
+ *   - tous les autres → /app/first-victory
+ */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Building2, Users, Sparkles, CreditCard, ShieldCheck } from "lucide-react";
+import { Loader2, Building2, Users, CreditCard, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
 import { LevelStep } from "./LevelStep";
 import { InterestStep } from "./InterestStep";
-import { EmailStep } from "./EmailStep";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
@@ -17,15 +28,10 @@ export type OnboardingData = {
   interests: string[];
 };
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 
-// ── Detect B2B invite context ──────────────────────────────────────────────
-// isInvited est déterminé par le profil serveur (org_id déjà propagé par
-// handle_new_user via la table org_invitations — pas via metadata brut).
-// On ne lit plus user.user_metadata.org_id comme source de vérité.
 function useInviteContext() {
   const profile = useAuthStore((s) => s.profile);
-  // Si le profil a déjà un org_id côté serveur, l'utilisateur est un invité B2B
   const isInvited = !!profile?.org_id;
   const orgId: string | null = profile?.org_id ?? null;
   return { isInvited, orgId };
@@ -44,12 +50,11 @@ export default function Onboarding() {
   const [orgSize, setOrgSize] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
 
+  // Progress = current step out of 3 visible steps
   const progressPct = ((step - 1) / TOTAL_STEPS) * 100;
 
   const handlePersona = (persona: string) => {
-    // Un collaborateur invité ne peut PAS créer une org — persona forcé à salarie
     const resolvedPersona = (isInvited && persona === "dirigeant") ? "salarie" : persona;
     setData((d) => ({ ...d, persona: resolvedPersona }));
     track("onboarding_step_done", { step: "persona", value: resolvedPersona, is_invited: isInvited });
@@ -64,31 +69,20 @@ export default function Onboarding() {
 
   const handleInterests = (interests: string[]) => {
     track("onboarding_step_done", { step: "interests", count: interests.length });
+    const finalData = { ...data, interests } as OnboardingData;
 
     // Dirigeant non-invité → formulaire org
-    if (data.persona === "dirigeant" && !isInvited) {
-      setData((d) => ({ ...d, interests }));
+    if (finalData.persona === "dirigeant" && !isInvited) {
+      setData(finalData);
       setShowOrgForm(true);
       return;
     }
 
-    setData((d) => ({ ...d, interests }));
-    setStep(4);
-  };
-
-  const handleEmailStep = async (email: string | null) => {
-    if (email) {
-      try {
-        await supabase.from("email_leads").insert({ email, source: "onboarding" });
-      } catch {
-        // non-blocking
-      }
-    }
-    await saveOnboarding(data as OnboardingData);
+    setData(finalData);
+    saveOnboarding(finalData);
   };
 
   // ── Org submit — passe par l'edge function create-org-bootstrap ────────────
-  // Plus d'écriture directe dans user_roles depuis le client.
   const handleOrgSubmit = async () => {
     if (!orgName.trim()) return;
     setSaving(true);
@@ -102,9 +96,6 @@ export default function Onboarding() {
         "-" +
         Date.now();
 
-      // ── Appel serveur sécurisé — create-org-bootstrap ──────────────────
-      // La RPC create_org_and_assign_manager attribue le rôle manager
-      // côté serveur via SECURITY DEFINER. Aucun write client dans user_roles.
       const { data: bootstrapResult, error: bootstrapErr } = await supabase.functions.invoke(
         "create-org-bootstrap",
         { body: { name: orgName.trim(), slug, seats_max: orgSizeNum } },
@@ -115,8 +106,6 @@ export default function Onboarding() {
 
       const newOrgId: string = bootstrapResult.org_id;
 
-      // Mettre à jour le profil utilisateur (persona, level, onboarding flags)
-      // org_id et role sont déjà écrits par la RPC côté serveur
       await supabase.from("profiles").update({
         persona: data.persona as never,
         level: ({ debutant: 1, intermediaire: 3, avance: 5 } as Record<string, number>)[data.level ?? "debutant"] ?? 1,
@@ -127,15 +116,14 @@ export default function Onboarding() {
       await fetchProfile(user.id);
       track("onboarding_done", { persona: data.persona, has_org: true, org_id: newOrgId });
 
-      // Redirection vers paiement ou dashboard
+      // Dirigeant → checkout ou manager onboarding
       const seatsNeeded = Math.max(1, Math.ceil(orgSizeNum / 25));
       const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke(
         "create-checkout",
         { body: { seats: seatsNeeded } },
       );
       if (checkoutErr || !checkoutData?.url) {
-        setShowConfetti(true);
-        setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
+        navigate("/manager/onboarding", { replace: true });
         return;
       }
       window.location.href = checkoutData.url;
@@ -147,7 +135,6 @@ export default function Onboarding() {
   };
 
   // ── saveOnboarding — flux collaborateur invité ou utilisateur individuel ──
-  // Ne crée JAMAIS d'org, n'écrit JAMAIS dans user_roles.
   const saveOnboarding = async (finalData: OnboardingData) => {
     if (!user) return;
     setSaving(true);
@@ -156,8 +143,6 @@ export default function Onboarding() {
     try {
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
-      // Pour un invité B2B, org_id est déjà propagé par handle_new_user
-      // via la table org_invitations. On ne l'écrase pas.
       const profileUpdate: Record<string, unknown> = {
         persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
@@ -174,11 +159,10 @@ export default function Onboarding() {
         is_invited: isInvited,
       });
 
-      setShowConfetti(true);
-      setTimeout(() => navigate("/app/dashboard", { replace: true }), 1800);
+      // Redirection directe — pas de confetti bloquant
+      navigate("/app/first-victory", { replace: true });
     } catch {
       setError("Une erreur est survenue. Réessayez.");
-    } finally {
       setSaving(false);
     }
   };
@@ -188,31 +172,6 @@ export default function Onboarding() {
       <Helmet>
         <title>Bienvenue – Formetoialia</title>
       </Helmet>
-
-      {/* Confetti */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className={`absolute w-2 h-2 rounded-sm animate-bounce ${["bg-primary","bg-accent","bg-yellow-400","bg-emerald-400","bg-pink-400"][i % 5]}`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-${Math.random() * 10}%`,
-                animationDelay: `${Math.random() * 1.5}s`,
-                animationDuration: `${0.8 + Math.random() * 1.5}s`,
-              }}
-            />
-          ))}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="glass rounded-3xl px-10 py-8 text-center animate-slide-up">
-              <Sparkles className="w-12 h-12 mx-auto mb-3" style={{ color: "hsl(var(--accent))" }} />
-              <p className="text-2xl font-black text-foreground">Votre Génie est prêt !</p>
-              <p className="text-muted-foreground mt-1">Redirection en cours…</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="min-h-screen bg-background flex flex-col">
         {/* Top bar with progress */}
@@ -228,7 +187,7 @@ export default function Onboarding() {
               )}
               {!showOrgForm && (
                 <span className="text-xs text-muted-foreground">
-                  Étape {Math.min(step, TOTAL_STEPS)} / {TOTAL_STEPS}
+                  {step} / {TOTAL_STEPS}
                 </span>
               )}
             </div>
@@ -250,7 +209,7 @@ export default function Onboarding() {
         {/* Card */}
         <div className="flex-1 flex items-start justify-center px-4 py-8">
           <div className="w-full max-w-2xl">
-            {showConfetti ? null : !showOrgForm ? (
+            {!showOrgForm ? (
               <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
                 {step === 1 && <PersonaStep onSelect={handlePersona} isInvited={isInvited} />}
                 {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
@@ -258,13 +217,6 @@ export default function Onboarding() {
                   <InterestStep
                     onFinish={handleInterests}
                     onBack={() => setStep(2)}
-                    saving={saving}
-                  />
-                )}
-                {step === 4 && (
-                  <EmailStep
-                    onFinish={handleEmailStep}
-                    onBack={() => setStep(3)}
                     saving={saving}
                   />
                 )}
@@ -277,7 +229,7 @@ export default function Onboarding() {
                   <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
                     <Building2 className="w-7 h-7 text-primary-foreground" />
                   </div>
-                  <h2 className="text-xl font-bold">Créez votre espace entreprise</h2>
+                  <h2 className="text-xl font-bold">Créez votre espace équipe</h2>
                   <p className="text-sm text-muted-foreground mt-1">Formez votre équipe depuis un dashboard dédié</p>
                 </div>
 
@@ -301,7 +253,7 @@ export default function Onboarding() {
                   </div>
 
                   <div>
-                    <label htmlFor="org-size" className="block text-sm font-medium mb-1.5">Nombre d'employés</label>
+                    <label htmlFor="org-size" className="block text-sm font-medium mb-1.5">Nombre de collaborateurs</label>
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <select
