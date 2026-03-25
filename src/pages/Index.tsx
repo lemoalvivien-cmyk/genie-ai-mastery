@@ -290,8 +290,8 @@ export default function Index() {
               className="flex flex-col sm:flex-row gap-3 mb-5"
             >
               <CTAPrimary onClick={handleCTA}>
-                <Sparkles className="w-4 h-4" />
-                Essayer gratuitement
+                <Zap className="w-4 h-4" />
+                Démarrer — 14 jours gratuits
                 <ArrowRight className="w-4 h-4" />
               </CTAPrimary>
               <CTASecondary href="/demo">
@@ -316,10 +316,10 @@ export default function Index() {
               className="flex flex-wrap justify-center gap-8 sm:gap-12"
             >
               {[
-                { value: "< 5 min", label: "première victoire" },
+                { value: "< 5 min", label: "premier résultat" },
                 { value: "25", label: "membres inclus" },
-                { value: "59€", label: "TTC/mois tout compris" },
-                { value: "24/7", label: "disponible" },
+                { value: "59€", label: "/mois tout compris" },
+                { value: "14j", label: "essai sans carte" },
               ].map((s) => (
                 <div key={s.label} className="flex flex-col items-center gap-1">
                   <span className="text-2xl font-black text-primary">{s.value}</span>
@@ -599,9 +599,9 @@ export default function Index() {
               },
               {
                 icon: FileCheck,
-                tag: "Cybersécurité",
-                title: "Détection d'attaques phishing",
-                desc: "Reconnaître les tentatives de manipulation, les faux emails et les liens suspects.",
+                tag: "Analyse",
+                title: "Analyse de documents complexes",
+                desc: "Contrats, rapports, comptes-rendus — extrayez l'essentiel en secondes.",
               },
               {
                 icon: Zap,

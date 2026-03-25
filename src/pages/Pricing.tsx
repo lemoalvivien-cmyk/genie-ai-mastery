@@ -376,7 +376,7 @@ export default function Pricing() {
                 Démarrer l'essai 14 jours →
               </button>
               <p className="text-xs text-muted-foreground text-center mt-2.5">
-                Aucune carte requise · Résiliation en 2 clics · 30j remboursé
+                Aucune carte requise · Résiliation en 2 clics · Accès jusqu'à la fin de la période
               </p>
             </div>
           </div>
