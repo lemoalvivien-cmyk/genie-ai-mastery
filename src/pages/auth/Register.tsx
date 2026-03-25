@@ -31,6 +31,12 @@ export default function Register() {
   const { track } = useAnalytics();
   const [showPassword, setShowPassword] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+
+  // Track register_started once on mount
+  useEffect(() => {
+    track("register_started");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [magicEmail, setMagicEmail] = useState("");
   const [magicLoading, setMagicLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
