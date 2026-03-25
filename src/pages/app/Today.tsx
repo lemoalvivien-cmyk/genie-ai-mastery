@@ -674,15 +674,25 @@ export default function Today() {
                 </p>
               </div>
 
-              {/* Upsell discret (non-subscribés via missions offertes) */}
-              {!isSubscribed && (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center justify-between gap-3">
-                  <p className="text-xs text-muted-foreground leading-snug">
-                    <span className="font-semibold text-foreground">Passez Pro</span> — missions illimitées, feedback IA, attestations PDF.
-                  </p>
-                  <Button asChild size="sm" variant="outline" className="shrink-0 text-xs font-semibold border-primary/40 text-primary hover:bg-primary/10">
-                    <Link to="/pricing"><Trophy className="w-3 h-3 mr-1" />59€/mois</Link>
-                  </Button>
+              {/* Upgrade soft post-mission */}
+              {!isSubscribed && <SoftUpgradeCard />}
+            </div>
+          )}
+
+          {/* ═══ Emergency Mode ═══ */}
+          {(phase === "already_done" || phase === "card") && (
+            <div className="pt-2">
+              {!showEmergency ? (
+                <button
+                  onClick={() => setShowEmergency(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
+                >
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  Besoin d'un résultat <span className="font-semibold text-foreground mx-1">maintenant</span> ?
+                </button>
+              ) : (
+                <div className="rounded-2xl border border-border/50 p-4 bg-card/60">
+                  <EmergencyMode onClose={() => setShowEmergency(false)} />
                 </div>
               )}
             </div>
