@@ -155,6 +155,7 @@ const App = () => (
                   <Route path="modules/:slug" element={<ModuleDetail />} />
                   <Route path="chat"          element={<Chat />} />
                   <Route path="settings"      element={<Settings />} />
+                  <Route path="library"       element={<LibraryPage />} />
                   <Route
                     path="today"
                     element={<ProtectedRoute requirePro><Today /></ProtectedRoute>}
