@@ -102,7 +102,7 @@ const FAQ_DATA = [
   },
   {
     q: "Que contient l'offre Pro en pratique ?",
-    a: "Trois dimensions : Exécuter (missions illimitées, playbooks complets IA Pro, IA Perso, Cybersécurité), Agir (mises en situation interactives : phishing, prompting avancé, hygiène numérique), Prouver (attestations PDF à QR code). Pas de vidéos passives — uniquement des exécutions guidées.",
+    a: "Trois dimensions : Exécuter (missions illimitées, playbooks métier complets, exécutions guidées adaptatives sur votre vrai travail), Agir (KITT — 500 échanges/jour, livrables téléchargeables à chaque session), Prouver (attestations PDF à signature numérique, QR code de vérification, historique exportable). Pas de vidéos passives.",
   },
   {
     q: "Les attestations sont-elles reconnues officiellement ?",
