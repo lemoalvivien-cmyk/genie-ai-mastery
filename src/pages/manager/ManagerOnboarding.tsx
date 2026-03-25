@@ -362,8 +362,8 @@ export default function ManagerOnboarding() {
 
   const [step, setStep] = useState(0);
   const [orgForm, setOrgForm] = useState<OrgForm>({ name: "", slug: "" });
-  const [selectedPlan, setSelectedPlan] = useState("business");
-  const [seats, setSeats] = useState(50);
+  const [selectedPlan, setSelectedPlan] = useState("pro");
+  const [seats, setSeats] = useState(25);
   const [createdOrgId, setCreatedOrgId] = useState("");
   const [createdOrgName, setCreatedOrgName] = useState("");
   const [creating, setCreating] = useState(false);
