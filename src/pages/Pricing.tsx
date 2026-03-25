@@ -591,7 +591,7 @@ export default function Pricing() {
                   </p>
                 </div>
                 <h2 className="text-lg font-black text-foreground mb-2">
-                  Vous déployez sur toute une organisation ?
+                  Vous déployez à grande échelle ?
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Pilotage centralisé, gestion de groupes, rapports
@@ -641,8 +641,7 @@ export default function Pricing() {
               Ce que vous débloquez avec Pro
             </h2>
             <p className="text-sm text-muted-foreground text-center mb-8 max-w-lg mx-auto">
-              Pas un abonnement à un outil. Un accès à un système de progression
-              structuré.
+              Pas un abonnement à un outil. Un système d'exécution IA structuré, prêt à l'emploi.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
