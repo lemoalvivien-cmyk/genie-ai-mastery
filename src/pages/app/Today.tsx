@@ -498,6 +498,14 @@ export default function Today() {
           {/* ── Bande 7 jours ── */}
           <WeekStrip last7Days={last7Days} />
 
+          {/* ═══ FREE USER BANNER ═══ */}
+          {!isSubscribed && phase !== "done" && (
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-primary/20 bg-primary/5 text-xs text-muted-foreground">
+              <Zap className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span><span className="font-semibold text-foreground">Accès gratuit</span> — 1 mission par jour incluse. Passez Pro pour les missions illimitées.</span>
+            </div>
+          )}
+
           {/* ═══ PHASE : DÉJÀ FAITE ═══ */}
           {phase === "already_done" && (
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/8 p-8 text-center space-y-4 animate-fade-in">
