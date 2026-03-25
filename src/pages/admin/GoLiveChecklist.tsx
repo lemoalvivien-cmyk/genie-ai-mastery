@@ -71,10 +71,10 @@ const CATEGORIES = [...new Set(CHECKLIST.map((c) => c.category))];
 
 export default function GoLiveChecklist() {
   const { isAdmin } = useAuth();
-  if (!isAdmin) return <Navigate to="/app/dashboard" replace />;
-
   const [items, setItems] = useState<CheckItem[]>(CHECKLIST);
   const [filter, setFilter] = useState<string>("Tous");
+
+  if (!isAdmin) return <Navigate to="/app/dashboard" replace />;
 
   const toggle = (id: string) => {
     setItems((prev) =>
