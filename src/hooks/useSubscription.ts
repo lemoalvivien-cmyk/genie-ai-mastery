@@ -42,7 +42,7 @@ const FREE_PLAN: SubscriptionInfo = {
   canAccessVibeCoding: false,
   canAccessManager: false,
   canGetAttestation: false,
-  canUseDailyMissions: false,
+  canUseDailyMissions: true,  // gratuit = 1 mission/jour — découverte autorisée
   isLaunchPrice: false,
   renewalDate: null,
   isTrialing: false,
