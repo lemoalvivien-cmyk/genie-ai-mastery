@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { BookOpen, Search, Loader2, Zap, TrendingUp, Users, BarChart2, Layout, Briefcase, Grid, Mail } from "lucide-react";
+import { BookOpen, Search, Loader2, Zap, TrendingUp, Users, BarChart2, Layout, Briefcase, Grid, Mail, Headphones } from "lucide-react";
 import { useModules, useUserProgress } from "@/hooks/useModules";
 import { PlaybookCard } from "@/components/modules/PlaybookCard";
 import { ModuleCard } from "@/components/modules/ModuleCard";
@@ -21,6 +21,7 @@ const CATEGORY_ICONS: Record<string, React.FC<{ className?: string }>> = {
   productivite: Zap,
   analyse: BarChart2,
   presentation: Layout,
+  support: Headphones,
   direction: Briefcase,
 };
 
