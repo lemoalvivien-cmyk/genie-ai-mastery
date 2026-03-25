@@ -14,23 +14,27 @@ export type EventName =
   | "demo_viewed"
   | "pricing_viewed"
   // ── Auth & Acquisition ───────────────────────────────────────────────────
-  | "signup_started"       // focus on signup form
-  | "signup_completed"     // successful account creation
-  | "signup"               // legacy alias
+  | "signup_started"
+  | "signup_completed"
+  | "signup"
   | "login"
   | "access_code_redeemed"
   | "referral_applied"
   | "referral_shared"
   | "email_captured"
   // ── Activation / Onboarding ──────────────────────────────────────────────
+  | "onboarding_started"       // NEW — user lands on onboarding
   | "onboarding_completed"
-  | "onboarding_done"      // legacy alias
+  | "onboarding_done"
   | "onboarding_step_done"
   | "onboarding_quiz_done"
   // ── First actions (critical activation events) ───────────────────────────
+  | "today_opened"             // NEW — user opens /app/today
+  | "first_victory_completed"  // NEW — user completes first victory
+  | "emergency_mode_used"      // NEW — user triggers emergency mode
   | "first_mission_started"
   | "first_mission_completed"
-  | "first_mission_done"   // legacy alias
+  | "first_mission_done"
   | "first_module_opened"
   | "first_chat_sent"
   // ── Engagement ──────────────────────────────────────────────────────────
@@ -50,7 +54,7 @@ export type EventName =
   | "artifact_saved"
   // ── Paywall / Conversion ─────────────────────────────────────────────────
   | "paywall_viewed"
-  | "paywall_shown"        // legacy alias
+  | "paywall_shown"
   | "paywall_clicked"
   | "upgrade_clicked"
   | "checkout_started"
@@ -59,7 +63,7 @@ export type EventName =
   | "trial_started"
   | "payment_success"
   | "payment_failed"
-  | "invoice_failed"       // legacy alias
+  | "invoice_failed"
   | "portal_opened"
   | "churn"
   | "subscription_cancelled"
@@ -94,7 +98,6 @@ async function flushQueue(): Promise<void> {
   if (queue.length === 0) return;
   const batch = queue.splice(0, BATCH_SIZE);
   try {
-    // Cast through any to satisfy strict Json type — properties are always plain objects
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.from("analytics_events").insert(batch as any);
   } catch {
