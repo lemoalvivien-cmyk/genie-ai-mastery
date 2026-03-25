@@ -43,7 +43,7 @@ const RISK_CONFIG: Record<RiskLevel, {
     color: "text-yellow-400",
     bg: "hsl(45 93% 47% / 0.12)",
     border: "hsl(45 93% 47% / 0.4)",
-    message: "Quelques angles morts détectés. JARVIS va cibler exactement ces vulnérabilités.",
+    message: "Quelques angles morts détectés. Formetoialia va cibler exactement ces vulnérabilités.",
   },
   eleve: {
     icon: <ShieldX className="w-10 h-10" />,
