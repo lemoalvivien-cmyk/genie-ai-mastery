@@ -256,8 +256,8 @@ export default function Pricing() {
           <div className="text-center mb-14">
             <Chip>Un seul plan. Tout inclus.</Chip>
             <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
-              Savoir qui utilise l'IA dans votre équipe —<br />
-              <span style={{ color: "hsl(var(--primary))" }}>et ce que ça leur rapporte vraiment.</span>
+              Transformez votre équipe en utilisateurs IA actifs —<br />
+              <span style={{ color: "hsl(var(--primary))" }}>avec des résultats mesurables dès la première semaine.</span>
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
               Missions quotidiennes guidées, playbooks métier complets, cockpit manager temps réel, attestations vérifiables.
