@@ -8,6 +8,7 @@ import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 import { useSubscription } from "@/hooks/useSubscription";
 import { JarvisNudgeProvider } from "@/components/jarvis/JarvisNudge";
 import { JarvisOverlay } from "@/components/jarvis/JarvisOverlay";
+import SupportWidget from "@/components/support/SupportWidget";
 
 function LegalLinks() {
   return <LegalFooterLinks className="flex-col items-start gap-y-1" />;

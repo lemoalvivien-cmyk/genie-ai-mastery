@@ -510,6 +510,14 @@ export default function Today() {
     );
   }
 
+  // Track paywall view once
+  useEffect(() => {
+    if (!isSubscribed && phase !== "loading") {
+      track("paywall_viewed", { source: "today" });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubscribed, phase]);
+
   if (!isSubscribed) {
     return (
       <>
