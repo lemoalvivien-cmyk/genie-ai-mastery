@@ -159,7 +159,7 @@ const App = () => (
                   <Route path="library"       element={<LibraryPage />} />
                   <Route
                     path="today"
-                    element={<ProtectedRoute requirePro><Today /></ProtectedRoute>}
+                    element={<Today />}
                   />
                   {/* /app/jarvis → redirect to chat (same copilot, single entry point) */}
                   <Route

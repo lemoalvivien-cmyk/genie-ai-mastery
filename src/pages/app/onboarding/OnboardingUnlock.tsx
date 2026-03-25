@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
 const PRO_PERKS = [
-  "Copilote KITT — 500 échanges/jour",
+  "Copilote IA — 500 échanges/jour",
   "Playbooks complets et missions illimitées",
   "Attestations PDF vérifiables",
   "Streaks et progression mesurable",
