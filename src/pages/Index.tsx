@@ -194,22 +194,15 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { track } = (await import("@/hooks/useAnalytics").catch(() => ({ track: () => {} })) as any);
 
-  // Track landing view once on mount
+  // Track landing view once on mount (anonymous — no user required)
   useEffect(() => {
-    import("@/hooks/useAnalytics").then(({ useAnalytics: _hook }) => {
-      // We use a direct supabase insert to avoid hook-in-callback restriction
-      import("@/integrations/supabase/client").then(({ supabase }) => {
-        supabase.from("analytics_events").insert({
-          actor_user_id: null,
-          org_id: null,
-          event_name: "landing_viewed",
-          properties: { ts: new Date().toISOString(), url: window.location.pathname },
-        }).then(() => {});
-      });
-    });
+    supabase.from("analytics_events").insert({
+      actor_user_id: null,
+      org_id: null,
+      event_name: "landing_viewed",
+      properties: { ts: new Date().toISOString(), url: window.location.pathname },
+    }).then(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
