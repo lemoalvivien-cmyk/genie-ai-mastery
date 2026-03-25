@@ -1,5 +1,5 @@
 /**
- * Pricing — Formetoialia v5 — Conversion-first
+ * Pricing — Formetoialia v6 — B2B Conversion-first
  * Un plan. Tout inclus. 59€ TTC/mois.
  */
 import { useState, useEffect, useRef } from "react";
@@ -8,6 +8,7 @@ import {
   Check, X, Loader2, Shield, ChevronDown, Zap,
   BookOpen, FlaskConical, FileCheck, Users, BarChart3,
   MessageSquare, Lock, ArrowRight, CheckCircle, TrendingUp,
+  Timer, Euro, Activity, Award, Lightbulb, Rocket,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
