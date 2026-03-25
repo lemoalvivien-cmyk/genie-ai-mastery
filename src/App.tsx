@@ -161,9 +161,10 @@ const App = () => (
                     path="today"
                     element={<ProtectedRoute requirePro><Today /></ProtectedRoute>}
                   />
+                  {/* /app/jarvis → redirect to chat (same copilot, single entry point) */}
                   <Route
                     path="jarvis"
-                    element={<ProtectedRoute requirePro><Jarvis /></ProtectedRoute>}
+                    element={<Navigate to="/app/chat" replace />}
                   />
                   <Route
                     path="labs/phishing"
@@ -177,7 +178,7 @@ const App = () => (
                     path="labs/prompt"
                     element={<ProtectedRoute requirePro><PromptLab /></ProtectedRoute>}
                   />
-                  {/* ── OpenClaw Agent Jobs ─────────────────────────────── */}
+                  {/* ── Agent Jobs (Agents IA) ──────────────────────────────── */}
                   <Route
                     path="agent-jobs"
                     element={<ProtectedRoute requirePro><AgentJobsPage /></ProtectedRoute>}
@@ -194,9 +195,10 @@ const App = () => (
                     path="cyberpath"
                     element={<ProtectedRoute><CyberPath48h /></ProtectedRoute>}
                   />
+                  {/* /app/attestation-nft → redirect to settings (attestations tab) */}
                   <Route
                     path="attestation-nft"
-                    element={<ProtectedRoute><AttestationNFT /></ProtectedRoute>}
+                    element={<Navigate to="/app/settings" replace />}
                   />
                 </Route>
 
