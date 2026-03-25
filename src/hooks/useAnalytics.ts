@@ -108,7 +108,7 @@ export type EventName =
   | "support_opened"
   | "support_contact_clicked"
   // ── Feature usage ────────────────────────────────────────────────────────
-  | "jarvis_used"
+  | "kitt_activated"
   | "panic_button_used"
   | "phishing_lab_started"
   | "attestation_verified"

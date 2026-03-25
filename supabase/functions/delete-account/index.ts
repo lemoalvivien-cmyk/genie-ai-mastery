@@ -13,8 +13,13 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
-  "https://genie-ia.app",          // legacy domain — keep for backward compat
-  "https://genie-ai-mastery.lovable.app", // legacy Lovable URL — keep for backward compat
+  "https://formetoialia.com",
+  "https://www.formetoialia.com",
+];
+
+const ALLOWED_ORIGINS = [
+  "https://formetoialia.com",
+  "https://www.formetoialia.com",
 ];
 
 function getCorsHeaders(req: Request) {

@@ -11,7 +11,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://formetoialia.com",
   "https://www.formetoialia.com",
-  "https://genie-ai-mastery.lovable.app", // legacy — backward compat
 ];
 
 function getCorsHeaders(req: Request) {

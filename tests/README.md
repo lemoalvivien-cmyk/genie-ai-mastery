@@ -39,8 +39,8 @@ B2C_EMAIL=learner@test.com                      # Compte B2C existant (optionnel
 B2C_PASSWORD=Secure123!
 B2B_EMAIL=manager@test.com                      # Compte B2B existant (optionnel)
 B2B_PASSWORD=Secure123!
-TEST_USER_EMAIL=test@genie-ia.dev               # Legacy tests
-TEST_USER_PASSWORD=test123456!
+TEST_USER_EMAIL=test@formetoialia.dev           # Compte de test e2e
+TEST_USER_PASSWORD=                             # Renseigner localement, ne jamais committer
 ```
 
 ## 🖥️ Profils navigateur

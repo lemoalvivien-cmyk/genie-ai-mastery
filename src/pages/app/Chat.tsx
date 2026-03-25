@@ -669,7 +669,7 @@ export default function Chat() {
                 session_id: sessionId,
                 metadata: { persona: profile?.persona ?? null },
               });
-              track(nextMode ? "jarvis_used" : "chat_sent", { mode: "palantir", action: nextMode ? "activate" : "deactivate" });
+              track(nextMode ? "kitt_activated" : "chat_sent", { mode: "palantir", action: nextMode ? "activate" : "deactivate" });
             }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-all duration-300 ${
               brainState.palantirMode
