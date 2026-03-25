@@ -32,7 +32,7 @@ const LEVEL_TITLES = [
   "Expert", "Vecteur d'Attaque", "Architecte Neural",
   "Chasseur d'Élite", "Maître Formetoialia", "Légende",
   "Titan Cyber", "Omniscient", "Transcendant", "Absolu",
-  "Mythique", "Divin", "JARVIS",
+  "Mythique", "Divin", "Formetoialia Elite",
 ];
 
 interface XPProgressBarProps {

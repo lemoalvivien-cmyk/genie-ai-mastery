@@ -330,7 +330,7 @@ export default function Settings() {
                 <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
                   <p className="text-sm font-bold text-foreground mb-2">Passez à Formetoialia Pro</p>
                   <ul className="space-y-1 mb-4">
-                    {["Voix Jarvis activée", "Attestations vérifiables", "Vibe Coding complet", "Dashboard manager", "500 messages/jour"].map(f => (
+                    {["Assistance KITT illimitée", "Attestations vérifiables", "Playbooks complets", "Cockpit manager", "500 messages/jour"].map(f => (
                       <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
                         <CheckCircle2 className="w-3 h-3 text-primary shrink-0" /> {f}
                       </li>
