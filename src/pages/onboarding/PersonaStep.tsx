@@ -76,7 +76,7 @@ export function PersonaStep({ onSelect, isInvited = false }: Props) {
     <div>
       <h2 className="text-xl font-bold text-center mb-2">Qui êtes-vous ?</h2>
       <p className="text-sm text-muted-foreground text-center mb-6">
-        Votre Génie IA s'adapte à votre profil.
+        Formetoialia adapte votre parcours à votre situation réelle.
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="group" aria-label="Sélection du persona">
         {visiblePersonas.map((p) => {
