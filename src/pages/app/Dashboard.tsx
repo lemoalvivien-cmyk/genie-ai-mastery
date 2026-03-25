@@ -405,13 +405,13 @@ export default function Dashboard() {
                 Aucune progression pour l'instant
               </p>
               <p className="text-xs text-muted-foreground mt-1 mb-3">
-                Commencez votre premier module pour suivre votre avancement ici.
+                Commencez votre premier playbook pour suivre votre progression ici.
               </p>
               <Link
                 to="/app/modules"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
               >
-                Explorer les modules <ChevronRight className="w-3.5 h-3.5" />
+                Explorer les playbooks <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
