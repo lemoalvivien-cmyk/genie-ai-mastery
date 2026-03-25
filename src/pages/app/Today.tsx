@@ -22,7 +22,7 @@ import { Helmet } from "react-helmet-async";
 import {
   ChevronRight, CheckCircle2, Flame, Loader2,
   Clock, Zap, ArrowRight, RotateCcw,
-  MessageSquare, Trophy, BookOpen, TrendingUp,
+  MessageSquare, Trophy, BookOpen, TrendingUp, Share2, UserPlus,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { getLocalDateMinusDays } from "@/lib/dateUtils";
 import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { EmergencyMode } from "@/components/emergency/EmergencyMode";
+import { toast } from "@/components/ui/use-toast";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
