@@ -392,7 +392,7 @@ export default function Pricing() {
                 Comparez avec ce que coûte une heure de formation classique.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               {[
                 {
                   label: "Formation externe",
@@ -435,6 +435,114 @@ export default function Pricing() {
                   </p>
                 </div>
               ))}
+            </div>
+
+            {/* ── Cockpit Manager Proof ── */}
+            <div
+              className="rounded-2xl border border-primary/25 p-6 sm:p-8"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/0.04) 100%)",
+                boxShadow: "0 0 40px hsl(var(--primary)/0.06)",
+              }}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-wider text-primary">Cockpit manager inclus</span>
+                  </div>
+                  <h3 className="text-xl font-black text-foreground mb-2">
+                    Vous ne payez pas pour former.{" "}
+                    <span className="text-primary">Vous payez pour piloter.</span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                    Voyez en temps réel qui utilise l'IA, qui stagne, et ce que ça représente en heures économisées. Exportez un rapport en un clic.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { icon: Activity, label: "Score d'adoption", value: "temps réel" },
+                      { icon: Timer, label: "Heures éco. estimées", value: "auto-calculées" },
+                      { icon: Award, label: "Attestations équipe", value: "exportables" },
+                      { icon: Lightbulb, label: "Recommandations IA", value: "contextuelles" },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center gap-2 p-2.5 rounded-lg bg-background/40 border border-border/40">
+                        <item.icon className="w-4 h-4 text-primary shrink-0" />
+                        <div>
+                          <div className="text-xs font-semibold text-foreground leading-tight">{item.label}</div>
+                          <div className="text-[10px] text-primary font-medium">{item.value}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 text-xs font-medium text-muted-foreground/70 border-t border-border/40 pt-4">
+                    🧮 Avec 10 membres actifs à 2 missions/semaine = ~13h économisées/mois.{" "}
+                    <span className="text-foreground font-semibold">À 50€/h = 650€ de valeur. Pour 59€.</span>
+                  </div>
+                </div>
+
+                {/* Mini cockpit mockup */}
+                <div className="rounded-xl border border-border overflow-hidden text-xs" style={{ background: "hsl(var(--card))" }}>
+                  <div className="px-4 py-2.5 border-b border-border flex items-center justify-between bg-background/40">
+                    <span className="font-bold text-foreground text-xs">Cockpit équipe — ce mois</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 font-semibold">
+                      En direct
+                    </span>
+                  </div>
+                  <div className="p-3 grid grid-cols-3 gap-2 border-b border-border/30">
+                    {[
+                      { label: "Actifs", value: "8/10", color: "text-emerald-500" },
+                      { label: "Missions", value: "47", color: "text-primary" },
+                      { label: "Heures éco.", value: "~16h", color: "text-amber-400" },
+                    ].map((kpi) => (
+                      <div key={kpi.label} className="text-center p-2 rounded-lg bg-background/30">
+                        <div className={`text-base font-black ${kpi.color}`}>{kpi.value}</div>
+                        <div className="text-muted-foreground">{kpi.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-3 space-y-2">
+                    {[
+                      { name: "Marie R.", pct: 78, status: "Actif", statusColor: "text-emerald-500" },
+                      { name: "Thomas B.", pct: 45, status: "Actif", statusColor: "text-emerald-500" },
+                      { name: "Sophie L.", pct: 92, status: "Top", statusColor: "text-amber-400" },
+                      { name: "David M.", pct: 12, status: "À relancer", statusColor: "text-destructive" },
+                    ].map((m) => (
+                      <div key={m.name} className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                          {m.name[0]}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="font-medium text-foreground truncate text-[11px]">{m.name}</span>
+                            <span className={`${m.statusColor} font-semibold text-[10px] shrink-0 ml-1`}>{m.status}</span>
+                          </div>
+                          <div className="h-1 rounded-full bg-border overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${m.pct}%`,
+                                background: m.pct > 70 ? "hsl(142 71% 45%)" : m.pct > 30 ? "hsl(var(--primary))" : "hsl(var(--destructive))",
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground w-7 text-right shrink-0">{m.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-3 py-2 border-t border-border/30 flex items-center justify-between bg-background/20">
+                    <span className="text-muted-foreground text-[10px]">1 membre à relancer · Export dispo</span>
+                    <button
+                      onClick={handleCheckout}
+                      className="text-[10px] font-bold text-primary hover:underline"
+                    >
+                      Activer →
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
