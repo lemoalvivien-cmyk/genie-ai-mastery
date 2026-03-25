@@ -833,6 +833,7 @@ export default function ManagerDashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { logEvent } = useAuditTrail();
+  const { track } = useAnalytics();
   const [exportingDossier, setExportingDossier] = useState(false);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
 

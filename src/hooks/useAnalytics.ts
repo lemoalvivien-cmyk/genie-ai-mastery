@@ -42,6 +42,7 @@ export type EventName =
   | "pricing_viewed"
   // ── Auth & Acquisition ───────────────────────────────────────────────────
   | "register_started"          // user opens /register
+  | "register_completed"        // signup form submitted successfully
   | "signup_started"
   | "signup_completed"          // email confirmed
   | "signup"                    // form submit
