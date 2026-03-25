@@ -1,116 +1,109 @@
+/**
+ * PersonaStep v2 — orienté besoin immédiat, pas identité
+ * 5 options centrées sur ce que l'utilisateur veut FAIRE maintenant
+ */
 import { useState } from "react";
-import { Backpack, Heart, Briefcase, Building2, HeartHandshake, Rocket } from "lucide-react";
+import { Clock, PenLine, FileSearch, LayoutTemplate, Users2 } from "lucide-react";
 
-const personas = [
+const needs = [
   {
-    id: "jeune",
-    icon: Backpack,
-    title: "Jeune",
-    age: "12 – 18 ans",
-    description: "J'apprends et je me protège",
-    color: "from-blue-500/20 to-indigo-500/20",
-    border: "border-blue-500/30",
-  },
-  {
-    id: "parent",
-    icon: HeartHandshake,
-    title: "Parent",
-    age: "Famille",
-    description: "Je protège ma famille",
-    color: "from-pink-500/20 to-rose-500/20",
-    border: "border-pink-500/30",
-  },
-  {
-    id: "salarie",
-    icon: Briefcase,
-    title: "Salarié",
-    age: "En entreprise",
-    description: "Mon entreprise me forme",
+    id: "time",
+    icon: Clock,
+    title: "Gagner du temps",
+    description: "Automatiser des tâches répétitives avec l'IA",
+    persona: "salarie",
     color: "from-amber-500/20 to-orange-500/20",
     border: "border-amber-500/30",
   },
   {
-    id: "dirigeant",
-    icon: Building2,
-    title: "Dirigeant / RH",
-    age: "Management",
-    description: "Je forme mon équipe",
-    color: "from-purple-500/20 to-violet-500/20",
-    border: "border-purple-500/30",
+    id: "write",
+    icon: PenLine,
+    title: "Mieux écrire",
+    description: "Emails, rapports, messages professionnels",
+    persona: "independant",
+    color: "from-blue-500/20 to-indigo-500/20",
+    border: "border-blue-500/30",
   },
   {
-    id: "senior",
-    icon: Heart,
-    title: "Senior",
-    age: "À mon rythme",
-    description: "J'apprends à mon rythme",
-    color: "from-emerald-500/20 to-green-500/20",
+    id: "understand",
+    icon: FileSearch,
+    title: "Comprendre un document",
+    description: "Analyser, résumer, extraire l'essentiel",
+    persona: "salarie",
+    color: "from-emerald-500/20 to-teal-500/20",
     border: "border-emerald-500/30",
   },
   {
-    id: "independant",
-    icon: Rocket,
-    title: "Indépendant",
-    age: "Freelance / Auto",
-    description: "Je me débrouille seul",
-    color: "from-cyan-500/20 to-teal-500/20",
-    border: "border-cyan-500/30",
+    id: "present",
+    icon: LayoutTemplate,
+    title: "Structurer une présentation",
+    description: "Plans, slides, argumentaires convaincants",
+    persona: "independant",
+    color: "from-violet-500/20 to-purple-500/20",
+    border: "border-violet-500/30",
+  },
+  {
+    id: "team",
+    icon: Users2,
+    title: "Aider mon équipe",
+    description: "Déployer l'IA à l'échelle de mon organisation",
+    persona: "dirigeant",
+    color: "from-rose-500/20 to-pink-500/20",
+    border: "border-rose-500/30",
   },
 ];
 
 interface Props {
-  onSelect: (persona: string) => void;
-  /** Masquer l'option "Dirigeant / RH" pour les collaborateurs B2B invités */
+  onSelect: (persona: string, needId: string) => void;
   isInvited?: boolean;
 }
 
 export function PersonaStep({ onSelect, isInvited = false }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
-  // Les collaborateurs invités ne peuvent pas créer d'organisation
-  const visiblePersonas = isInvited
-    ? personas.filter((p) => p.id !== "dirigeant")
-    : personas;
+  const visible = isInvited ? needs.filter(n => n.id !== "team") : needs;
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-center mb-2">Qui êtes-vous ?</h2>
+      <h2 className="text-xl font-black text-center mb-1">
+        Quel est votre besoin principal aujourd'hui ?
+      </h2>
       <p className="text-sm text-muted-foreground text-center mb-6">
-        Formetoialia adapte votre parcours à votre situation réelle.
+        On construit votre première action autour de ça.
       </p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="group" aria-label="Sélection du persona">
-        {visiblePersonas.map((p) => {
-          const Icon = p.icon;
-          const isSelected = selected === p.id;
+      <div className="flex flex-col gap-2.5" role="group" aria-label="Sélection du besoin">
+        {visible.map((n) => {
+          const Icon = n.icon;
+          const isSel = selected === n.id;
           return (
             <button
-              key={p.id}
+              key={n.id}
               type="button"
               onClick={() => {
-                setSelected(p.id);
-                setTimeout(() => onSelect(p.id), 200);
+                setSelected(n.id);
+                setTimeout(() => onSelect(n.persona, n.id), 180);
               }}
-              aria-pressed={isSelected}
-              className={`relative flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 text-center group hover:scale-[1.03] focus-ring ${
-                isSelected
-                  ? "border-primary bg-primary/10 shadow-glow scale-[1.03]"
-                  : `${p.border} bg-gradient-to-br ${p.color} hover:border-primary/50`
+              aria-pressed={isSel}
+              className={`flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 hover:scale-[1.01] focus-ring ${
+                isSel
+                  ? "border-primary bg-primary/10 shadow-glow"
+                  : `${n.border} bg-gradient-to-r ${n.color} hover:border-primary/50`
               }`}
             >
-              {isSelected && (
-                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                  <svg className="w-2.5 h-2.5 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all ${isSel ? "gradient-primary shadow-glow" : "bg-background/60"}`}>
+                <Icon className={`w-5 h-5 ${isSel ? "text-primary-foreground" : "text-foreground"}`} aria-hidden="true" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm text-foreground">{n.title}</div>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{n.description}</p>
+              </div>
+              {isSel && (
+                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                  <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
                   </svg>
                 </div>
               )}
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isSelected ? "gradient-primary shadow-glow" : "bg-background/60 group-hover:bg-primary/10"}`}>
-                <Icon className={`w-6 h-6 ${isSelected ? "text-primary-foreground" : "text-foreground"}`} aria-hidden="true" />
-              </div>
-              <div>
-                <div className="font-semibold text-sm">{p.title}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{p.description}</div>
-              </div>
             </button>
           );
         })}

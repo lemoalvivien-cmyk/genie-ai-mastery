@@ -1,16 +1,14 @@
 /**
- * Onboarding express — 3 étapes, ~60 secondes
- * Étape 1 : Persona (qui êtes-vous)
- * Étape 2 : Niveau
- * Étape 3 : Objectif prioritaire
- * 
+ * Onboarding express — 2 étapes + redirect intelligente
+ *
+ * Étape 1 : Besoin principal (PersonaStep v2 — orienté cas d'usage)
+ * Étape 2 : Niveau (LevelStep v2 — wording action-first)
+ * → Redirect immédiate vers /app/first-victory
+ *
+ * InterestStep supprimé : l'objectif est déduit du besoin choisi.
  * EmailStep supprimé : l'email est déjà connu via auth.users.
- * Confetti supprimé : bloquait la redirection 1.8s pour rien.
- * Redirection intelligente par profil :
- *   - dirigeant non-invité → org form → /manager/onboarding
- *   - tous les autres → /app/first-victory
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Loader2, Building2, Users, CreditCard, ShieldCheck } from "lucide-react";
@@ -18,17 +16,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { PersonaStep } from "./PersonaStep";
 import { LevelStep } from "./LevelStep";
-import { InterestStep } from "./InterestStep";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 
 export type OnboardingData = {
   persona: string;
+  needId: string;
   level: string;
-  interests: string[];
 };
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 2;
 
 function useInviteContext() {
   const profile = useAuthStore((s) => s.profile);
@@ -51,38 +48,38 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Progress = current step out of 3 visible steps
   const progressPct = ((step - 1) / TOTAL_STEPS) * 100;
 
-  const handlePersona = (persona: string) => {
+  // Track onboarding start once
+  useEffect(() => {
+    track("onboarding_started", { is_invited: isInvited });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Étape 1 : Besoin / Persona ──────────────────────────────────────────
+  const handlePersona = (persona: string, needId: string) => {
     const resolvedPersona = (isInvited && persona === "dirigeant") ? "salarie" : persona;
-    setData((d) => ({ ...d, persona: resolvedPersona }));
-    track("onboarding_step_done", { step: "persona", value: resolvedPersona, is_invited: isInvited });
+    setData((d) => ({ ...d, persona: resolvedPersona, needId }));
+    track("onboarding_step_done", { step: "need", value: needId, persona: resolvedPersona, is_invited: isInvited });
     setStep(2);
   };
 
+  // ── Étape 2 : Niveau ───────────────────────────────────────────────────
   const handleLevel = (level: string) => {
-    setData((d) => ({ ...d, level }));
+    const finalData = { ...data, level } as OnboardingData;
+    setData(finalData);
     track("onboarding_step_done", { step: "level", value: level });
-    setStep(3);
-  };
-
-  const handleInterests = (interests: string[]) => {
-    track("onboarding_step_done", { step: "interests", count: interests.length });
-    const finalData = { ...data, interests } as OnboardingData;
 
     // Dirigeant non-invité → formulaire org
     if (finalData.persona === "dirigeant" && !isInvited) {
-      setData(finalData);
       setShowOrgForm(true);
       return;
     }
 
-    setData(finalData);
     saveOnboarding(finalData);
   };
 
-  // ── Org submit — passe par l'edge function create-org-bootstrap ────────────
+  // ── Org submit ────────────────────────────────────────────────────────
   const handleOrgSubmit = async () => {
     if (!orgName.trim()) return;
     setSaving(true);
@@ -114,9 +111,8 @@ export default function Onboarding() {
       }).eq("id", user.id);
 
       await fetchProfile(user.id);
-      track("onboarding_done", { persona: data.persona, has_org: true, org_id: newOrgId });
+      track("onboarding_completed", { persona: data.persona, has_org: true, org_id: newOrgId, need: data.needId });
 
-      // Dirigeant → checkout ou manager onboarding
       const seatsNeeded = Math.max(1, Math.ceil(orgSizeNum / 25));
       const { data: checkoutData, error: checkoutErr } = await supabase.functions.invoke(
         "create-checkout",
@@ -134,7 +130,7 @@ export default function Onboarding() {
     }
   };
 
-  // ── saveOnboarding — flux collaborateur invité ou utilisateur individuel ──
+  // ── saveOnboarding ───────────────────────────────────────────────────
   const saveOnboarding = async (finalData: OnboardingData) => {
     if (!user) return;
     setSaving(true);
@@ -143,23 +139,22 @@ export default function Onboarding() {
     try {
       const levelMap: Record<string, number> = { debutant: 1, intermediaire: 3, avance: 5 };
 
-      const profileUpdate: Record<string, unknown> = {
+      await supabase.from("profiles").update({
         persona: finalData.persona as "dirigeant" | "independant" | "jeune" | "parent" | "salarie" | "senior",
         level: levelMap[finalData.level] ?? 1,
         onboarding_completed: true,
         has_completed_welcome: true,
-      };
+      }).eq("id", user.id);
 
-      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
       await fetchProfile(user.id);
-      track("onboarding_done", {
+      track("onboarding_completed", {
         persona: finalData.persona,
         level: finalData.level,
+        need: finalData.needId,
         has_org: !!orgId,
         is_invited: isInvited,
       });
 
-      // Redirection directe — pas de confetti bloquant
       navigate("/app/first-victory", { replace: true });
     } catch {
       setError("Une erreur est survenue. Réessayez.");
@@ -174,7 +169,7 @@ export default function Onboarding() {
       </Helmet>
 
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Top bar with progress */}
+        {/* Top bar */}
         <div className="px-4 pt-6 pb-2 max-w-2xl mx-auto w-full">
           <div className="flex items-center justify-between mb-3">
             <img src={logoFormetoialia} alt="Formetoialia" className="h-8 w-auto" />
@@ -211,26 +206,30 @@ export default function Onboarding() {
           <div className="w-full max-w-2xl">
             {!showOrgForm ? (
               <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
-                {step === 1 && <PersonaStep onSelect={handlePersona} isInvited={isInvited} />}
-                {step === 2 && <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />}
-                {step === 3 && (
-                  <InterestStep
-                    onFinish={handleInterests}
-                    onBack={() => setStep(2)}
-                    saving={saving}
-                  />
+                {step === 1 && (
+                  <PersonaStep onSelect={handlePersona} isInvited={isInvited} />
+                )}
+                {step === 2 && (
+                  saving ? (
+                    <div className="flex flex-col items-center justify-center py-12 gap-4">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground">Préparation de votre espace…</p>
+                    </div>
+                  ) : (
+                    <LevelStep onSelect={handleLevel} onBack={() => setStep(1)} />
+                  )
                 )}
                 {error && <p role="alert" className="mt-4 text-sm text-destructive text-center">{error}</p>}
               </div>
             ) : (
-              /* Org form — uniquement pour dirigeant non-invité */
+              /* Org form */
               <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in">
                 <div className="text-center mb-6">
                   <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
                     <Building2 className="w-7 h-7 text-primary-foreground" />
                   </div>
                   <h2 className="text-xl font-bold">Créez votre espace équipe</h2>
-                  <p className="text-sm text-muted-foreground mt-1">Formez votre équipe depuis un dashboard dédié</p>
+                  <p className="text-sm text-muted-foreground mt-1">Pilotez l'adoption IA de votre équipe depuis un cockpit dédié</p>
                 </div>
 
                 <div className="space-y-4">
@@ -277,7 +276,7 @@ export default function Onboarding() {
                   <div className="flex items-start gap-2.5 p-3 rounded-xl border border-primary/20 bg-primary/5">
                     <CreditCard className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     <div className="text-xs text-muted-foreground">
-                      <span className="font-semibold text-foreground">Essai gratuit 14 jours</span> — Vous serez redirigé vers le paiement sécurisé pour activer les sièges équipe. Aucune facturation avant la fin de l'essai.
+                      <span className="font-semibold text-foreground">Essai gratuit 14 jours</span> — Aucune facturation avant la fin de l'essai. Annulable à tout moment.
                     </div>
                   </div>
 
