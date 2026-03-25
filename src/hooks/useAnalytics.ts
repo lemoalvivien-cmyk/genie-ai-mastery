@@ -178,6 +178,13 @@ export function useAnalytics() {
 
   const track = useCallback(
     (event: EventName, properties: Record<string, unknown> = {}) => {
+      // ── Consentement RGPD ─────────────────────────────────────────────────
+      // Si l'event n'est pas exempté ET que le consentement analytics n'est
+      // pas accordé → on abandonne silencieusement (conformité CNIL).
+      if (!CONSENT_EXEMPT_EVENTS.has(event) && !hasAnalyticsConsent()) {
+        return;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       queue.push({
         actor_user_id: userIdRef.current,

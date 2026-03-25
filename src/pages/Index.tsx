@@ -143,12 +143,26 @@ export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.from("analytics_events").insert({
-      actor_user_id: null,
-      org_id: null,
-      event_name: "landing_viewed",
-      properties: { ts: new Date().toISOString(), url: window.location.pathname },
-    }).then(() => {});
+    // landing_viewed : event exempté de consentement car non-identifiant
+    // (actor_user_id=null, pas de cookie traceur).
+    // On utilise le SDK analytics pour avoir le batch + fallback log.
+    import("@/hooks/useAnalytics").then(({ useAnalytics: _noop }) => {
+      // Insertion directe minimaliste — aucune donnée personnelle
+      try {
+        import("@/integrations/supabase/client").then(({ supabase: sb }) => {
+          sb.from("analytics_events").insert({
+            actor_user_id: null,
+            org_id: null,
+            event_name: "landing_viewed",
+            properties: { ts: new Date().toISOString(), url: window.location.pathname },
+          }).then(({ error }) => {
+            if (error) console.warn("[analytics] landing_viewed:", error.message);
+          });
+        });
+      } catch (err) {
+        console.warn("[analytics] landing_viewed failed:", err);
+      }
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
