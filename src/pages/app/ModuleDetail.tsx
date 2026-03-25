@@ -354,11 +354,9 @@ export default function ModuleDetail() {
 
               {/* Next playbook recommendation (post-completion) */}
               {progress?.status === "completed" && (() => {
-                const { DEMO_PLAYBOOKS: demoList, getPlaybookMeta: getMeta } = require("@/data/playbooks");
-                const currentMeta = getMeta(mod.slug);
-                const next = demoList.find(
-                  (p: { slug: string; category: string }) =>
-                    p.slug !== mod.slug &&
+                const currentMeta = getPlaybookMetaData(mod.slug);
+                const next = DEMO_PLAYBOOKS.find(
+                  (p) => p.slug !== mod.slug &&
                     (currentMeta ? p.category === currentMeta.category : true)
                 );
                 if (!next) return null;
