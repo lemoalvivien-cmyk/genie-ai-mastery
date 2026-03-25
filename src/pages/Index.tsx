@@ -519,30 +519,30 @@ export default function Index() {
           </div>
         </Sec>
 
-        {/* ══ 5. EMERGENCY MODE ═══════════════════════════════════ */}
+        {/* ══ 5. PLAYBOOKS TEASER (ex Emergency) ═════════════════ */}
         <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }}>
           <FadeIn>
             <div
-              className="rounded-2xl p-7 sm:p-10 border border-accent/30"
+              className="rounded-2xl p-7 sm:p-10 border border-primary/20"
               style={{
-                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)/0.05) 100%)",
-                boxShadow: "0 0 30px hsl(var(--accent)/0.07)",
+                background: "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary)/0.04) 100%)",
+                boxShadow: "0 0 30px hsl(var(--primary)/0.06)",
               }}
             >
               <div className="text-center mb-8">
-                <Chip><Zap className="w-3 h-3 text-accent" />Besoin immédiat</Chip>
+                <Chip><BookOpen className="w-3 h-3" />Résultats immédiats</Chip>
                 <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-                  Besoin d'un résultat maintenant ?
+                  Votre première mission en moins de 5 minutes.
                 </h2>
-                <p className="text-sm text-muted-foreground mt-2">
-                  KITT peut vous aider en moins de 5 minutes sur vos vraies tâches.
+                <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+                  Choisissez un playbook. Exécutez. Obtenez un livrable réel.
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { emoji: "✉️", title: "Rédiger un mail difficile", desc: "Refus, relance, escalade — KITT vous guide phrase par phrase." },
-                  { emoji: "📄", title: "Analyser un document", desc: "Résumé, points clés, risques, actions prioritaires en secondes." },
-                  { emoji: "🎯", title: "Préparer une présentation", desc: "Structure, arguments, slides — du brouillon au pitch final." },
+                  { emoji: "✉️", title: "Rédiger un mail délicat", desc: "Refus, relance, client mécontent — livrable prêt en 5 min." },
+                  { emoji: "📊", title: "Préparer une présentation", desc: "Structure, arguments, slides — du brouillon au pitch final." },
+                  { emoji: "📝", title: "Faire un compte rendu", desc: "Réunion, appel, atelier — synthèse structurée en 3 min." },
                 ].map((item, i) => (
                   <FadeIn key={item.title} delay={i * 0.08}>
                     <div
@@ -562,7 +562,8 @@ export default function Index() {
               <div className="text-center mt-7">
                 <CTAPrimary onClick={handleCTA}>
                   <Sparkles className="w-4 h-4" />
-                  Essayer maintenant — c'est gratuit
+                  Voir tous les playbooks
+                  <ArrowRight className="w-4 h-4" />
                 </CTAPrimary>
               </div>
             </div>
@@ -869,7 +870,7 @@ export default function Index() {
                 <p className="text-xs text-muted-foreground mb-5">Pour explorer sans engagement.</p>
                 <ul className="space-y-2.5 text-sm flex-1 mb-6">
                   {[
-                    "Copilote KITT — 2 échanges/jour",
+                    "Assistance KITT — 2 échanges/jour",
                     "Accès aux playbooks publics",
                     "1 mission guidée par jour",
                   ].map((f) => (
@@ -914,8 +915,8 @@ export default function Index() {
                 <ul className="space-y-2 text-sm flex-1 mb-6">
                   {[
                     "Missions illimitées",
-                    "Playbooks complets",
-                    "Copilote KITT illimité",
+                    "Playbooks métier complets",
+                    "Assistance KITT illimitée",
                     "Cockpit manager",
                     "Bibliothèque d'équipe",
                     "Attestations vérifiables",
