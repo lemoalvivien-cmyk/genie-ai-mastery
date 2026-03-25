@@ -1,6 +1,6 @@
 /**
- * Formetoialia — Homepage v12 — Machine de conversion
- * "Arrêtez les formations IA qui finissent en oubli."
+ * Formetoialia — Homepage — Système d'exécution IA quotidien
+ * "Formetoialia transforme l'IA en résultats concrets, chaque jour."
  */
 
 import React, { useState, useCallback, useEffect } from "react";
@@ -869,7 +869,7 @@ export default function Index() {
                   {[
                     "Copilote KITT — 2 échanges/jour",
                     "Accès aux playbooks publics",
-                    "Découverte des labs",
+                    "1 mission guidée par jour",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2">
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

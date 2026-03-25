@@ -44,7 +44,7 @@ export default function AppLayout() {
     { to: "/app/chat", icon: MessageCircle, label: "Copilote KITT", dot: false, badge: null, showProBadge: false },
     { to: "/app/modules", icon: BookOpen, label: "Playbooks", dot: false, badge: null, showProBadge: false },
     { to: "/app/library", icon: Library, label: "Bibliothèque", dot: false, badge: null, showProBadge: false },
-    { to: "/app/agent-jobs", icon: Briefcase, label: "Automatisations", dot: false, badge: null, showProBadge: !isPro },
+    { to: "/app/agent-jobs", icon: Briefcase, label: "Agents IA", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
 
