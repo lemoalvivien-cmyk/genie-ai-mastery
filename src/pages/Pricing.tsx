@@ -75,22 +75,22 @@ const PRO_SECTIONS: {
   items: string[];
 }[] = [
   {
-    heading: "Apprendre",
+    heading: "Exécuter",
     icon: BookOpen,
     items: [
-      "Modules complets : IA Pro, IA Perso, Cybersécurité",
-      "Missions quotidiennes guidées par KITT",
-      "Quiz adaptatifs et suivi de progression",
+      "Playbooks complets : IA Pro, IA Perso, Cybersécurité",
+      "Exécution guidée quotidienne par KITT",
+      "Mises en pratique adaptatives et suivi de progression",
     ],
   },
   {
     heading: "Agir",
     icon: FlaskConical,
     items: [
-      "Lab Phishing — détection et simulation",
+      "Lab Phishing — simulation et détection",
       "Prompt Lab — prompting avancé et évaluation",
       "Cyber Lab — hygiène numérique pratique",
-      "Chat KITT illimité (500 messages/jour)",
+      "Copilote KITT illimité (500 échanges/jour)",
     ],
   },
   {
@@ -106,9 +106,9 @@ const PRO_SECTIONS: {
     heading: "Piloter",
     icon: BarChart3,
     items: [
-      "Dashboard manager — suivi équipe jusqu'à 25 membres",
+      "Cockpit manager — suivi équipe jusqu'à 25 membres",
       "Vue d'ensemble des progressions et lacunes",
-      "Rapports automatisés (fonctionnalité en cours de déploiement)",
+      "Rapports automatisés (en cours de déploiement)",
       "Gestion des sièges et invitation des membres",
     ],
   },
