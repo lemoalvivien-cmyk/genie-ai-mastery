@@ -107,15 +107,12 @@ export function InterestStep({ onFinish, onBack, saving }: Props) {
         <button
           type="button"
           onClick={() => onFinish(Array.from(selected))}
-          disabled={saving || selected.size === 0}
+          disabled={saving}
           className="flex-1 py-2.5 rounded-xl gradient-primary text-primary-foreground font-bold shadow-glow hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Sauvegarde...</> : "Continuer →"}
         </button>
       </div>
-      {selected.size === 0 && (
-        <p className="text-xs text-muted-foreground text-center mt-2">Sélectionnez au moins un objectif</p>
-      )}
     </div>
   );
 }

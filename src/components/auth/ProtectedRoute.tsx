@@ -3,7 +3,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Loader2 } from "lucide-react";
 
-const WELCOME_EXEMPT_PATHS = ["/app/welcome", "/onboarding", "/login", "/register", "/reset-password"];
+// Ces routes ne doivent PAS déclencher la redirection vers /app/welcome
+// (elles font partie du flux d'activation ou sont des pages auth)
+const WELCOME_EXEMPT_PATHS = [
+  "/app/welcome",
+  "/app/first-victory",
+  "/onboarding",
+  "/login",
+  "/register",
+  "/reset-password",
+];
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

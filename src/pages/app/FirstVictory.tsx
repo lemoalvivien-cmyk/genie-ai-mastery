@@ -1,412 +1,221 @@
 /**
- * Première Victoire en 120 secondes — Parcours gamifié post-inscription
- * 
- * Objectif : Amener le nouvel utilisateur à sa première action IA concrète
- * en moins de 2 minutes, créer le sentiment de "ça marche vraiment".
+ * FirstVictory — Première action concrète en < 2 minutes
+ *
+ * Remplace l'ancienne version multi-étapes avec chrono et confettis.
+ * Objectif : UN seul CTA principal adapté au profil, action immédiate,
+ * feedback IA après l'action.
+ *
+ * Logique :
+ * - Le contenu de la mission s'adapte au persona et au niveau
+ * - 1 seul bouton principal → ouvre le chat avec un prompt pré-rempli
+ * - Bouton secondaire → accès aux modules
+ * - Lien discret → passer au dashboard
+ *
+ * Ce composant sette has_completed_welcome = true au montage
+ * pour garantir qu'il n'y a pas de loop si l'utilisateur revient.
  */
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Zap, ArrowRight, Trophy, Timer } from "lucide-react";
+import { ArrowRight, MessageSquare, BookOpen, CheckCircle2 } from "lucide-react";
 
-type Step = {
-  id: number;
-  emoji: string;
-  title: string;
-  description: string;
-  action: string;
-  duration: number; // secondes estimées
+// ── Mission par persona ────────────────────────────────────────────────────────
+interface PersonaMission {
+  headline: string;
+  subline: string;
+  chatPrompt: string;
+  chatLabel: string;
+  moduleLabel: string;
+  whatYouGet: string[];
+}
+
+const MISSION_BY_PERSONA: Record<string, PersonaMission> = {
+  dirigeant: {
+    headline: "Évaluez le niveau de maturité IA de votre équipe",
+    subline: "Posez cette question à votre assistant IA. Vous aurez un diagnostic en 30 secondes.",
+    chatPrompt: "Je dirige une équipe de 10 personnes. Donne-moi 5 questions pour évaluer leur niveau de maîtrise de l'IA au quotidien, avec les réponses attendues.",
+    chatLabel: "Obtenir mon diagnostic équipe →",
+    moduleLabel: "Voir les modules pour managers",
+    whatYouGet: [
+      "5 questions de diagnostic prêtes à l'emploi",
+      "Les réponses attendues par niveau",
+      "Un plan d'action personnalisé",
+    ],
+  },
+  salarie: {
+    headline: "Rédigez un email difficile en 30 secondes avec l'IA",
+    subline: "Posez cette question à votre assistant. Vous verrez immédiatement ce que l'IA peut faire pour vous.",
+    chatPrompt: "Je dois envoyer un email à mon manager pour refuser poliment une tâche hors de mon périmètre, sans froisser la relation. Rédige-le en 3 versions : ferme, neutre, conciliant.",
+    chatLabel: "Rédiger mon email maintenant →",
+    moduleLabel: "Voir les modules productivité IA",
+    whatYouGet: [
+      "3 versions d'email prêtes à envoyer",
+      "Explication de la méthode",
+      "Modèle réutilisable pour l'avenir",
+    ],
+  },
+  independant: {
+    headline: "Créez votre première proposition commerciale avec l'IA",
+    subline: "Une mission concrète. Un résultat immédiat que vous pouvez réutiliser demain.",
+    chatPrompt: "Je suis consultant indépendant. Aide-moi à rédiger une proposition commerciale percutante en 1 page pour un prospect PME, en incluant : problème identifié, solution proposée, livrables, tarif et garantie.",
+    chatLabel: "Générer ma proposition →",
+    moduleLabel: "Voir les modules pour indépendants",
+    whatYouGet: [
+      "Proposition commerciale complète en 1 page",
+      "Structure réutilisable",
+      "Formulations qui convertissent",
+    ],
+  },
+  parent: {
+    headline: "Expliquez le risque du phishing à votre enfant",
+    subline: "L'IA vous donne les bons mots. Vous faites la conversation ce soir.",
+    chatPrompt: "Comment expliquer simplement à un enfant de 10 ans ce qu'est le phishing et comment ne pas se faire piéger ? Donne-moi un script de conversation de 5 minutes avec des exemples concrets.",
+    chatLabel: "Obtenir le script familial →",
+    moduleLabel: "Voir les modules cybersécurité famille",
+    whatYouGet: [
+      "Script de conversation simple et concret",
+      "Exemples adaptés à l'âge",
+      "Quiz rapide pour vérifier la compréhension",
+    ],
+  },
+  senior: {
+    headline: "Apprenez à détecter un faux email en 2 minutes",
+    subline: "L'IA vous explique simplement. Pas de jargon.",
+    chatPrompt: "Explique-moi comment reconnaître un email frauduleux ou une tentative d'escroquerie, avec des exemples simples et concrets. Donne-moi une liste de 5 points à vérifier avant de cliquer.",
+    chatLabel: "Apprendre à me protéger →",
+    moduleLabel: "Voir les modules sécurité",
+    whatYouGet: [
+      "5 points de contrôle à mémoriser",
+      "Exemples concrets d'emails frauduleux",
+      "Que faire si vous avez cliqué",
+    ],
+  },
+  jeune: {
+    headline: "Créez votre CV avec l'IA en 3 minutes",
+    subline: "Pas besoin d'expérience. L'IA transforme ce que vous savez en atouts.",
+    chatPrompt: "Je suis lycéen/étudiant et je cherche un stage ou un job d'été. Je n'ai pas beaucoup d'expérience mais j'ai des compétences comme [sport, bénévolat, projets personnels]. Aide-moi à rédiger un CV percutant qui met ça en valeur.",
+    chatLabel: "Créer mon CV avec l'IA →",
+    moduleLabel: "Voir les modules pour étudiants",
+    whatYouGet: [
+      "CV structuré et percutant",
+      "Formulations qui valorisent vos atouts",
+      "Lettre de motivation associée",
+    ],
+  },
 };
 
-const STEPS: Step[] = [
-  {
-    id: 1,
-    emoji: "🎯",
-    title: "Pose ta première question à l'IA",
-    description: 'Tape simplement : "Explique-moi ce qu\'est le phishing en 3 points"',
-    action: "Ouvrir le chat IA",
-    duration: 30,
-  },
-  {
-    id: 2,
-    emoji: "⚡",
-    title: "Lance ton premier module",
-    description: "Découvrez le module Cybersécurité en 5 minutes. 3 questions. Un score.",
-    action: "Commencer le module",
-    duration: 45,
-  },
-  {
-    id: 3,
-    emoji: "🏆",
-    title: "Génère ton attestation",
-    description: "Complète le quiz et obtiens ta première preuve de compétence PDF.",
-    action: "Voir mon score",
-    duration: 20,
-  },
-];
+const DEFAULT_MISSION = MISSION_BY_PERSONA["salarie"];
 
 export default function FirstVictory() {
   const { profile, session } = useAuth();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [phase, setPhase] = useState<"ready" | "active" | "done">("ready");
-  const [showConfetti, setShowConfetti] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [welcomed, setWelcomed] = useState(false);
 
-  const firstName = profile?.full_name?.split(" ")[0] ?? "toi";
-  const totalDuration = STEPS.reduce((a, s) => a + s.duration, 0);
-  const progressPercent = Math.min(
-    100,
-    Math.round((completedSteps.length / STEPS.length) * 100)
-  );
+  const persona = profile?.persona ?? "salarie";
+  const firstName = profile?.full_name?.split(" ")[0] ?? null;
+  const mission = MISSION_BY_PERSONA[persona] ?? DEFAULT_MISSION;
 
-  // Timer
+  // Garantit que has_completed_welcome est true au montage
   useEffect(() => {
-    if (phase === "active") {
-      timerRef.current = setInterval(() => {
-        setElapsedSeconds((s) => s + 1);
-      }, 1000);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [phase]);
+    if (!session?.user?.id || welcomed) return;
+    setWelcomed(true);
+    supabase
+      .from("profiles")
+      .update({ has_completed_welcome: true })
+      .eq("id", session.user.id)
+      .then(() => {});
+  }, [session?.user?.id, welcomed]);
 
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${String(sec).padStart(2, "0")}`;
+  const handleChat = () => {
+    const encoded = encodeURIComponent(mission.chatPrompt);
+    navigate(`/app/chat?q=${encoded}`);
   };
 
-  const handleStart = () => {
-    setPhase("active");
-    setCurrentStep(0);
-  };
-
-  const handleStepAction = () => {
-    const step = STEPS[currentStep];
-
-    if (step.id === 1) {
-      // Ouvrir chat avec prompt pré-rempli
-      navigate("/app/chat?q=Explique-moi+ce+qu%27est+le+phishing+en+3+points");
-      return;
-    }
-    if (step.id === 2) {
-      navigate("/app/modules");
-      return;
-    }
-    if (step.id === 3) {
-      navigate("/app/modules");
-      return;
-    }
-  };
-
-  const handleMarkDone = async () => {
-    const newCompleted = [...completedSteps, currentStep];
-    setCompletedSteps(newCompleted);
-
-    if (newCompleted.length === STEPS.length) {
-      // Mission complète
-      if (timerRef.current) clearInterval(timerRef.current);
-      setPhase("done");
-      setShowConfetti(true);
-      // Mark welcome complete
-      if (session?.user?.id) {
-        await supabase
-          .from("profiles")
-          .update({ has_completed_welcome: true })
-          .eq("id", session.user.id);
-      }
-    } else {
-      setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
-    }
+  const handleModules = () => {
+    navigate("/app/modules");
   };
 
   const handleSkip = () => {
-    navigate("/app/dashboard");
+    navigate("/app/dashboard", { replace: true });
   };
 
   return (
     <>
-      <Helmet><title>Première Victoire – Formetoialia</title></Helmet>
-
-      {/* Confetti */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-sm"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: "-10%",
-                background: ["hsl(var(--primary))", "hsl(var(--accent))", "#22C55E", "#F59E0B", "#F97316"][i % 5],
-                animationName: "confettiFall",
-                animationDuration: `${1.5 + Math.random() * 2}s`,
-                animationDelay: `${Math.random() * 1.5}s`,
-                animationFillMode: "forwards",
-                animationTimingFunction: "ease-in",
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      <style>{`
-        @keyframes confettiFall {
-          0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-      `}</style>
+      <Helmet><title>Votre première mission – Formetoialia</title></Helmet>
 
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-lg space-y-8">
 
-          {/* ── Phase: READY ── */}
-          {phase === "ready" && (
-            <div className="text-center space-y-8">
-              <div className="flex flex-col items-center gap-3">
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-                  style={{ background: "hsl(var(--primary) / 0.15)" }}
-                >
-                  🚀
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-foreground">
-                  Première victoire en 120&nbsp;secondes
-                </h1>
-                <p className="text-muted-foreground text-base max-w-sm">
-                  Salut {firstName} ! 3 micro-actions pour vivre ta première expérience IA concrète.
-                  Chrono lancé dès que tu cliques.
-                </p>
+          {/* Header */}
+          <div className="text-center space-y-2">
+            {firstName && (
+              <p className="text-sm text-muted-foreground font-medium">
+                Bienvenue, {firstName} 👋
+              </p>
+            )}
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">
+              {mission.headline}
+            </h1>
+            <p className="text-muted-foreground text-base leading-relaxed max-w-md mx-auto">
+              {mission.subline}
+            </p>
+          </div>
+
+          {/* Ce que vous obtenez */}
+          <div
+            className="rounded-2xl p-5 space-y-3"
+            style={{
+              background: "hsl(var(--card))",
+              border: "1px solid hsl(var(--primary) / 0.25)",
+              boxShadow: "0 0 24px hsl(var(--primary) / 0.06)",
+            }}
+          >
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Ce que vous allez obtenir
+            </p>
+            {mission.whatYouGet.map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span className="text-sm text-foreground leading-snug">{item}</span>
               </div>
+            ))}
+          </div>
 
-              {/* Steps preview */}
-              <div className="space-y-3">
-                {STEPS.map((step, i) => (
-                  <div
-                    key={step.id}
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-left"
-                    style={{
-                      background: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                    }}
-                  >
-                    <span className="text-xl shrink-0">{step.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{step.title}</p>
-                      <p className="text-xs text-muted-foreground">~{step.duration}s</p>
-                    </div>
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full"
-                      style={{
-                        background: "hsl(var(--primary) / 0.1)",
-                        color: "hsl(var(--primary))",
-                      }}
-                    >
-                      Étape {i + 1}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* CTAs */}
+          <div className="space-y-3">
+            <Button
+              onClick={handleChat}
+              size="lg"
+              className="w-full font-black text-base py-5 shadow-glow gap-2"
+            >
+              <MessageSquare className="w-5 h-5" />
+              {mission.chatLabel}
+            </Button>
 
-              <div className="flex flex-col gap-3">
-                <Button
-                  onClick={handleStart}
-                  size="lg"
-                  className="w-full font-black text-base py-5 shadow-glow"
-                  style={{ background: "hsl(var(--accent))" }}
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Lancer le chrono — Go ! 🏁
-                </Button>
-                <button
-                  onClick={handleSkip}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Passer — aller au dashboard
-                </button>
-              </div>
-            </div>
-          )}
+            <Button
+              onClick={handleModules}
+              variant="outline"
+              size="lg"
+              className="w-full font-semibold gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              {mission.moduleLabel}
+            </Button>
+          </div>
 
-          {/* ── Phase: ACTIVE ── */}
-          {phase === "active" && (
-            <div className="space-y-6">
-              {/* Header with timer */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Timer className="w-4 h-4" />
-                  <span className="font-mono text-base font-bold text-foreground">
-                    {formatTime(elapsedSeconds)}
-                  </span>
-                  <span>/ ~{formatTime(totalDuration)}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                  <span>{completedSteps.length}/{STEPS.length} étapes</span>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${progressPercent}%`,
-                    background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
-                  }}
-                />
-              </div>
-
-              {/* Steps */}
-              <div className="space-y-3">
-                {STEPS.map((step, i) => {
-                  const isDone = completedSteps.includes(i);
-                  const isActive = i === currentStep && !isDone;
-                  const isLocked = i > currentStep && !isDone;
-
-                  return (
-                    <div
-                      key={step.id}
-                      className="rounded-2xl p-5 transition-all duration-300"
-                      style={{
-                        background: isDone
-                          ? "hsl(var(--primary) / 0.08)"
-                          : isActive
-                          ? "hsl(var(--card))"
-                          : "hsl(var(--card) / 0.5)",
-                        border: isDone
-                          ? "1px solid hsl(var(--primary) / 0.4)"
-                          : isActive
-                          ? "2px solid hsl(var(--primary))"
-                          : "1px solid hsl(var(--border) / 0.5)",
-                        opacity: isLocked ? 0.4 : 1,
-                        boxShadow: isActive ? "0 0 20px hsl(var(--primary) / 0.15)" : "none",
-                      }}
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="text-2xl shrink-0 mt-0.5">
-                          {isDone ? "✅" : step.emoji}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm font-bold text-foreground">{step.title}</p>
-                            {isDone && (
-                              <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {step.description}
-                          </p>
-                          {isActive && (
-                            <div className="flex flex-col sm:flex-row gap-2 mt-4">
-                              <Button
-                                onClick={handleStepAction}
-                                size="sm"
-                                className="font-semibold"
-                                style={{ background: "hsl(var(--primary))" }}
-                              >
-                                <ArrowRight className="w-3 h-3 mr-1.5" />
-                                {step.action}
-                              </Button>
-                              <Button
-                                onClick={handleMarkDone}
-                                variant="outline"
-                                size="sm"
-                                className="font-semibold"
-                              >
-                                ✓ C'est fait !
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={handleSkip}
-                className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
-              >
-                Continuer plus tard → dashboard
-              </button>
-            </div>
-          )}
-
-          {/* ── Phase: DONE ── */}
-          {phase === "done" && (
-            <div className="text-center space-y-8">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl animate-bounce"
-                  style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--accent) / 0.2))" }}
-                >
-                  🏆
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-black text-foreground mb-2">
-                    Première victoire ! 🎉
-                  </h1>
-                  <p className="text-muted-foreground">
-                    Accompli en{" "}
-                    <span className="font-bold text-primary font-mono">
-                      {formatTime(elapsedSeconds)}
-                    </span>
-                    {elapsedSeconds <= 120 && (
-                      <span className="ml-1 text-accent font-bold">
-                        — record battu ! 🚀
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* Score card */}
-              <div
-                className="rounded-2xl p-6 text-left space-y-3"
-                style={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--primary) / 0.3)",
-                }}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Trophy className="w-5 h-5 text-yellow-500" />
-                  <p className="font-bold text-foreground">Ton score de démarrage</p>
-                </div>
-                {STEPS.map((step) => (
-                  <div key={step.id} className="flex items-center gap-3 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-foreground">{step.title}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <Button
-                  onClick={() => navigate("/app/dashboard")}
-                  size="lg"
-                  className="w-full font-black text-base py-5"
-                  style={{ background: "hsl(var(--accent))" }}
-                >
-                  Découvrir mon dashboard →
-                </Button>
-                <Button
-                  onClick={() => navigate("/app/chat")}
-                  variant="outline"
-                  size="lg"
-                  className="w-full font-semibold"
-                >
-                  💬 Continuer avec l'IA
-                </Button>
-              </div>
-            </div>
-          )}
+          {/* Skip */}
+          <div className="text-center">
+            <button
+              onClick={handleSkip}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+            >
+              Passer — aller au dashboard
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
     </>
