@@ -647,38 +647,38 @@ export default function Pricing() {
               {[
                 {
                   icon: BookOpen,
-                  title: "Modules complets",
-                  desc: "IA Pro, IA Perso, Cybersécurité — des parcours séquencés avec quiz, missions et jalons clairs.",
+                  title: "Playbooks complets",
+                  desc: "IA Pro, IA Perso, Cybersécurité — des parcours séquencés avec mises en pratique, jalons et résultats clairs.",
                   color: "hsl(var(--primary))",
                 },
                 {
                   icon: MessageSquare,
                   title: "KITT — votre copilote",
-                  desc: "500 messages/jour pour poser des questions sur vos modules, débloquer un concept ou préparer une action.",
+                  desc: "500 échanges/jour pour débloquer un concept, préparer une exécution ou challenger vos décisions.",
                   color: "hsl(var(--accent))",
                 },
                 {
                   icon: FlaskConical,
-                  title: "Labs interactifs",
-                  desc: "Phishing Lab, Prompt Lab, Cyber Lab — des environnements de mise en pratique, pas des vidéos.",
+                  title: "Labs d'exécution",
+                  desc: "Phishing Lab, Prompt Lab, Cyber Lab — des environnements de mise en situation, pas des vidéos passives.",
                   color: "hsl(142 71% 45%)",
                 },
                 {
                   icon: FileCheck,
                   title: "Attestations vérifiables",
-                  desc: "PDF signé + QR code public. Une preuve documentée de votre progression, utile dans un contexte pro ou de conformité interne.",
+                  desc: "PDF signé + QR code public. Une preuve documentée de maîtrise, utile en conformité interne ou contexte pro.",
                   color: "hsl(var(--primary))",
                 },
                 {
                   icon: BarChart3,
-                  title: "Dashboard manager",
+                  title: "Cockpit manager",
                   desc: "Jusqu'à 25 membres. Suivi de progression individuel et collectif, identification des lacunes par domaine.",
                   color: "hsl(var(--accent))",
                 },
                 {
                   icon: Award,
-                  title: "Missions quotidiennes",
-                  desc: "KITT propose chaque jour une action concrète adaptée à votre niveau et à votre domaine en cours.",
+                  title: "Action quotidienne",
+                  desc: "KITT assigne chaque jour une exécution ciblée adaptée à votre niveau et votre domaine en cours.",
                   color: "hsl(142 71% 45%)",
                 },
               ].map((card) => (
