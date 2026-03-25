@@ -475,29 +475,6 @@ export default function Today() {
     );
   }
 
-  // Track paywall view once (after loading is resolved)
-  const paywallTracked = useRef(false);
-  useEffect(() => {
-    if (!isSubscribed && !streakLoading && !paywallTracked.current) {
-      paywallTracked.current = true;
-      track("paywall_viewed", { source: "today" });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed, streakLoading]);
-
-  if (!isSubscribed) {
-    return (
-      <>
-        <Helmet><title>Mission du jour – Formetoialia</title></Helmet>
-        <div className="min-h-[calc(100vh-4rem)] py-8 px-4">
-          <div className="max-w-xl mx-auto">
-            <SmartPaywall />
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Helmet><title>Mission du jour – Formetoialia</title></Helmet>
