@@ -26,8 +26,8 @@ export function useSaveArtifact() {
     }
     setIsSaving(true);
     try {
-      const { data, error } = await supabase
-        .from("artifacts")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.from("artifacts") as any)
         .insert({
           user_id: user.id,
           org_id: profile?.org_id ?? null,
