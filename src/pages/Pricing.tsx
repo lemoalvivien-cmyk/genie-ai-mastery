@@ -350,10 +350,10 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>Tarifs Formetoialia — Devenez autonome avec l'IA</title>
+        <title>Prix — Formetoialia · Système d'exécution IA</title>
         <meta
           name="description"
-          content="Formetoialia Pro — 59€ TTC/mois — modules, labs, copilote IA, attestations vérifiables et dashboard équipe jusqu'à 25 membres. 14 jours d'essai inclus."
+          content="Formetoialia Pro — 59€ TTC/mois — playbooks, labs d'exécution, copilote KITT, attestations vérifiables et cockpit manager jusqu'à 25 membres. 14 jours d'essai."
         />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta
@@ -831,12 +831,12 @@ export default function Pricing() {
               <KittDot />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3">
-              Prêt à passer de spectateur à opérateur IA ?
+              Prêt à exécuter avec l'IA, pas juste en parler ?
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto mb-6 leading-relaxed">
               14 jours pour tester. Aucune carte requise. Résiliation libre.
               <br />
-              Votre autonomie commence maintenant.
+              Votre équipe opérationnelle commence maintenant.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
