@@ -441,10 +441,10 @@ export default function Dashboard() {
                       Défi Exclusif
                     </p>
                     <p className="text-sm font-bold" style={{ color: "#E8E9F0" }}>
-                      CyberPath 48h — Zéro formateur humain
+                      CyberPath 48h — Exécution cyber guidée
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Formation cyber complète guidée par l'IA. +700 XP.
+                      Playbook cyber complet guidé par l'IA. +700 XP.
                     </p>
                   </div>
                 </div>
