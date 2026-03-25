@@ -90,8 +90,8 @@ export default function Dashboard() {
 
   const metrics = [
     { label: "XP Total", value: totalXP, icon: Zap, color: "text-[hsl(var(--primary))]" },
-    { label: "Modules", value: stats?.completedModules ?? 0, icon: BookOpen, color: "text-cyan-400" },
-    { label: "Quiz réussis", value: stats?.quizPassed ?? 0, icon: CheckCircle, color: "text-emerald-400" },
+    { label: "Playbooks", value: stats?.completedModules ?? 0, icon: BookOpen, color: "text-cyan-400" },
+    { label: "Validations", value: stats?.quizPassed ?? 0, icon: CheckCircle, color: "text-emerald-400" },
     { label: "Série", value: currentStreak, icon: Flame, color: "text-[hsl(var(--accent))]" },
   ];
 
