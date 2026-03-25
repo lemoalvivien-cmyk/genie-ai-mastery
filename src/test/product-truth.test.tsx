@@ -102,11 +102,11 @@ describe("Homepage (Index)", () => {
     expect(ctas.length).toBeGreaterThan(0);
   });
 
-  it("affiche le prix 59€", async () => {
+  it("affiche le prix 59€ (au moins une occurrence)", async () => {
     const { default: Index } = await import("@/pages/Index");
     render(<MemoryRouter><Index /></MemoryRouter>);
-    // Price appears in stats section
-    expect(screen.getByText("59€")).toBeTruthy();
+    const prices = screen.getAllByText("59€");
+    expect(prices.length).toBeGreaterThan(0);
   });
 
   it("n'affiche pas 'JARVIS' publiquement", async () => {
@@ -132,10 +132,11 @@ describe("Pricing", () => {
     expect(container).toBeTruthy();
   });
 
-  it("affiche '59€ TTC/mois'", async () => {
+  it("affiche '59€' (au moins une occurrence)", async () => {
     const { default: Pricing } = await import("@/pages/Pricing");
     render(<MemoryRouter><Pricing /></MemoryRouter>);
-    expect(screen.getByText(/59€/i)).toBeTruthy();
+    const prices = screen.getAllByText(/59€/i);
+    expect(prices.length).toBeGreaterThan(0);
   });
 
   it("affiche '25 membres'", async () => {
