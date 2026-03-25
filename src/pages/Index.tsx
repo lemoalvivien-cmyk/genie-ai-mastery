@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";

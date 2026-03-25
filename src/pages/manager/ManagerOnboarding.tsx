@@ -22,29 +22,24 @@ import {
 interface OrgForm { name: string; slug: string; }
 interface PlanInfo { id: string; name: string; price: number; seats: number; features: string[]; badge?: string; }
 
+// Offre unique : 59€ TTC/mois par organisation (jusqu'à 25 membres)
+// Pour > 25 membres : contacter l'équipe pour un devis personnalisé
 const PLANS: PlanInfo[] = [
   {
-    id: "starter",
-    name: "Starter",
+    id: "pro",
+    name: "Pro",
     price: 59,
-    seats: 10,
-    features: ["Formetoialia Brain inclus", "Modules IA illimités", "Attestations PDF", "Dashboard manager"],
-  },
-  {
-    id: "business",
-    name: "Business",
-    price: 49,
-    seats: 50,
-    badge: "POPULAIRE",
-    features: ["Tout Starter", "Mode Palantir", "Attack Simulation", "Analytics avancés", "Support prioritaire"],
+    seats: 25,
+    badge: "RECOMMANDÉ",
+    features: ["Missions illimitées", "Playbooks métier complets", "Cockpit manager", "Attestations PDF", "KITT — 500 échanges/jour"],
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    price: 39,
-    seats: 200,
-    badge: "BEST VALUE",
-    features: ["Tout Business", "SSO / SAML", "Contrat sur-mesure", "SLA 99,9%", "Onboarding dédié", "Revue mensuelle"],
+    price: 0,
+    seats: 999,
+    badge: "SUR DEVIS",
+    features: ["Tout Pro", "> 25 membres", "SSO / SAML", "SLA dédié", "Onboarding accompagné", "Contrat sur-mesure"],
   },
 ];
 
