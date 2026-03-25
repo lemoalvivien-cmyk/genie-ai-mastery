@@ -516,7 +516,7 @@ export default function Today() {
       track("paywall_viewed", { source: "today" });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed, phase]);
+  }, [isSubscribed]);
 
   if (!isSubscribed) {
     return (
