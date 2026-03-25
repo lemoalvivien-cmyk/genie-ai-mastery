@@ -12,6 +12,7 @@ import { useUpsertUserSkills } from "@/hooks/useSkills";
 import { supabase } from "@/integrations/supabase/client";
 import { ELI10Button } from "@/components/jarvis/ELI10Button";
 import { useSkillMastery } from "@/hooks/useSkillMastery";
+import { DEMO_PLAYBOOKS, getPlaybookMeta as getPlaybookMetaData } from "@/data/playbooks";
 import { useEffect, useRef } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { AdversarialExerciseWidget } from "@/components/modules/AdversarialExerciseWidget";
@@ -100,8 +101,8 @@ export default function ModuleDetail() {
 
   if (isError || !mod) return (
     <div className="flex min-h-screen items-center justify-center bg-background flex-col gap-4">
-      <p className="text-muted-foreground">Module introuvable.</p>
-      <Link to="/app/modules" className="text-primary hover:underline">← Retour à la bibliothèque</Link>
+      <p className="text-muted-foreground">Playbook introuvable.</p>
+      <Link to="/app/modules" className="text-primary hover:underline">← Retour aux playbooks</Link>
     </div>
   );
 
@@ -278,10 +279,10 @@ export default function ModuleDetail() {
                 </div>
               )}
 
-              {/* Quiz CTA */}
+              {/* Quiz / Validation CTA */}
               {quiz && (
                 <div className="mt-10 p-6 rounded-2xl border border-primary/30 bg-primary/5 text-center">
-                  <h2 className="text-lg font-bold mb-1">Prêt à valider vos connaissances ?</h2>
+                  <h2 className="text-lg font-bold mb-1">Validez votre mise en pratique</h2>
                   <p className="text-sm text-muted-foreground mb-4">
                     {quiz.questions.length} questions · Score requis : {quiz.passing_score}%
                     {quiz.time_limit_seconds && ` · ${quiz.time_limit_seconds / 60} min`}
@@ -290,7 +291,7 @@ export default function ModuleDetail() {
                     onClick={() => { handleStartModule(); setQuizOpen(true); }}
                     className="inline-flex items-center gap-2 px-8 py-3 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 hover:scale-[1.02] transition-all duration-200"
                   >
-                    <PlayCircle className="w-5 h-5" /> Passer le Quiz
+                    <PlayCircle className="w-5 h-5" /> Valider mes acquis
                   </button>
                 </div>
               )}
@@ -332,7 +333,7 @@ export default function ModuleDetail() {
                     🎓 Attestation de maîtrise
                   </h2>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Toutes les compétences de ce module sont maîtrisées.
+                    Toutes les compétences de ce playbook sont maîtrisées.
                   </p>
                   {generatingAttestation ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -350,6 +351,36 @@ export default function ModuleDetail() {
                   )}
                 </div>
               )}
+
+              {/* Next playbook recommendation (post-completion) */}
+              {progress?.status === "completed" && (() => {
+                const currentMeta = getPlaybookMetaData(mod.slug);
+                const next = DEMO_PLAYBOOKS.find(
+                  (p) => p.slug !== mod.slug &&
+                    (currentMeta ? p.category === currentMeta.category : true)
+                );
+                if (!next) return null;
+                return (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-card animate-fade-in">
+                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+                      ✓ Livrable généré — prochain playbook
+                    </p>
+                    <Link
+                      to={`/app/modules/${next.slug}`}
+                      className="group flex items-start gap-3 hover:opacity-90 transition-opacity"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                          {next.deliverable}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{next.problem}</p>
+                        <p className="text-xs text-emerald-400 mt-1 font-medium">→ {next.result}</p>
+                      </div>
+                      <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
+                    </Link>
+                  </div>
+                );
+              })()}
 
               {/* Adversarial Exercise */}
               <AdversarialExerciseWidget
