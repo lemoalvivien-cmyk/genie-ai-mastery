@@ -32,6 +32,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
 import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
