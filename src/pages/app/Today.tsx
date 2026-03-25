@@ -525,7 +525,7 @@ export default function Today() {
                   <Link to="/app/chat"><MessageSquare className="w-4 h-4" />Continuer avec l'assistant IA</Link>
                 </Button>
                 <Button asChild variant="ghost" size="sm" className="w-full text-muted-foreground">
-                  <Link to="/app/modules"><BookOpen className="w-4 h-4 mr-1.5" />Explorer les modules</Link>
+                  <Link to="/app/modules"><BookOpen className="w-4 h-4 mr-1.5" />Explorer les playbooks</Link>
                 </Button>
               </div>
             </div>
@@ -655,7 +655,7 @@ export default function Today() {
                 <Button asChild variant="outline" className="w-full h-11 font-medium gap-2">
                   <Link to="/app/modules">
                     <BookOpen className="w-4 h-4" />
-                    Explorer un module complet
+                    Explorer un playbook complet
                   </Link>
                 </Button>
                 <button

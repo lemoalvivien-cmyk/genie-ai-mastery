@@ -201,7 +201,7 @@ export default function FirstVictory() {
               className="w-full font-semibold gap-2"
             >
               <BookOpen className="w-4 h-4" />
-              Voir la mission du jour
+              Mission du jour →
             </Button>
           </div>
 

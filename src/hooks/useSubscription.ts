@@ -42,7 +42,7 @@ const FREE_PLAN: SubscriptionInfo = {
   canAccessVibeCoding: false,
   canAccessManager: false,
   canGetAttestation: false,
-  canUseDailyMissions: false,
+  canUseDailyMissions: true,  // gratuit = 1 mission/jour — découverte autorisée
   isLaunchPrice: false,
   renewalDate: null,
   isTrialing: false,
@@ -121,7 +121,7 @@ export function useSubscription() {
         canAccessVibeCoding: isPro,
         canAccessManager: isPro,
         canGetAttestation: isPro,
-        canUseDailyMissions: isPro,
+        canUseDailyMissions: true,  // 1 mission/jour pour tous — paywall = intensité, pas découverte
         isLaunchPrice: false,
         renewalDate,
         isTrialing,
