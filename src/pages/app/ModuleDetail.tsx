@@ -100,8 +100,8 @@ export default function ModuleDetail() {
 
   if (isError || !mod) return (
     <div className="flex min-h-screen items-center justify-center bg-background flex-col gap-4">
-      <p className="text-muted-foreground">Module introuvable.</p>
-      <Link to="/app/modules" className="text-primary hover:underline">← Retour à la bibliothèque</Link>
+      <p className="text-muted-foreground">Playbook introuvable.</p>
+      <Link to="/app/modules" className="text-primary hover:underline">← Retour aux playbooks</Link>
     </div>
   );
 
@@ -278,10 +278,10 @@ export default function ModuleDetail() {
                 </div>
               )}
 
-              {/* Quiz CTA */}
+              {/* Quiz / Validation CTA */}
               {quiz && (
                 <div className="mt-10 p-6 rounded-2xl border border-primary/30 bg-primary/5 text-center">
-                  <h2 className="text-lg font-bold mb-1">Prêt à valider vos connaissances ?</h2>
+                  <h2 className="text-lg font-bold mb-1">Validez votre mise en pratique</h2>
                   <p className="text-sm text-muted-foreground mb-4">
                     {quiz.questions.length} questions · Score requis : {quiz.passing_score}%
                     {quiz.time_limit_seconds && ` · ${quiz.time_limit_seconds / 60} min`}
@@ -290,7 +290,7 @@ export default function ModuleDetail() {
                     onClick={() => { handleStartModule(); setQuizOpen(true); }}
                     className="inline-flex items-center gap-2 px-8 py-3 rounded-xl gradient-primary text-primary-foreground font-semibold shadow-glow hover:opacity-90 hover:scale-[1.02] transition-all duration-200"
                   >
-                    <PlayCircle className="w-5 h-5" /> Passer le Quiz
+                    <PlayCircle className="w-5 h-5" /> Valider mes acquis
                   </button>
                 </div>
               )}
