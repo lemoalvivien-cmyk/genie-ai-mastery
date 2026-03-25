@@ -444,6 +444,13 @@ export default function Today() {
   const handleStart = () => {
     startTime.current = Date.now();
     setPhase("playing");
+    // Track first_mission_started only once per user lifecycle
+    const isFirst = !firstMissionTracked.current && (streak?.current_streak ?? 0) === 0;
+    if (isFirst) {
+      firstMissionTracked.current = true;
+      track("first_mission_started", { mission_id: mission?.id, domain: mission?.domain });
+    }
+    track("mission_started", { mission_id: mission?.id, domain: mission?.domain, mission_type: mission?.mission_type });
   };
 
   // ── Feedback Ghost Trainer post-mission ───────────────────────────────────
