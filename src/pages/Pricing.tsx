@@ -208,10 +208,10 @@ export default function Pricing() {
     <>
       <Helmet>
         <title>Prix — Formetoialia · 59€/mois pour toute l'équipe</title>
-        <meta name="description" content="Formetoialia Pro — 59€ TTC/mois. Missions illimitées, playbooks complets, copilote KITT, cockpit manager, attestations vérifiables. 14 jours d'essai sans carte. Jusqu'à 25 membres." />
+        <meta name="description" content="Formetoialia Pro — 59€ TTC/mois. Missions quotidiennes, playbooks métier, cockpit manager temps réel, attestations vérifiables. 14 jours d'essai sans carte. Jusqu'à 25 membres." />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
-        <meta property="og:title" content="Prix Formetoialia — Système d'exécution IA à 59€/mois" />
-        <meta property="og:description" content="Un plan. Tout inclus. 59€ TTC/mois pour 25 membres. 14 jours d'essai sans carte." />
+        <meta property="og:title" content="Prix Formetoialia — Rendez votre équipe opérationnelle sur l'IA" />
+        <meta property="og:description" content="Un plan. Tout inclus. 59€ TTC/mois pour 25 membres. Cockpit manager inclus. 14 jours d'essai sans carte." />
         <meta property="og:image" content="https://formetoialia.com/logo-formetoialia.png" />
         <script type="application/ld+json">{JSON.stringify(productSchema())}</script>
         <script type="application/ld+json">{JSON.stringify(organizationSchema())}</script>
@@ -256,12 +256,12 @@ export default function Pricing() {
           <div className="text-center mb-14">
             <Chip>Un seul plan. Tout inclus.</Chip>
             <h1 className="text-3xl sm:text-5xl font-black text-foreground mb-4 leading-tight">
-              Rendez vos équipes opérationnelles sur l'IA<br />
-              <span style={{ color: "hsl(var(--primary))" }}>pour 59€ TTC par mois.</span>
+              Savoir qui utilise l'IA dans votre équipe —<br />
+              <span style={{ color: "hsl(var(--primary))" }}>et ce que ça leur rapporte vraiment.</span>
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
-              Missions illimitées, playbooks complets, copilote KITT, cockpit manager, attestations vérifiables.
-              <strong className="text-foreground"> Jusqu'à 25 membres. Aucun coût caché.</strong>
+              Missions quotidiennes guidées, playbooks métier complets, cockpit manager temps réel, attestations vérifiables.
+              <strong className="text-foreground"> Jusqu'à 25 membres. 59€ TTC/mois. Aucun coût caché.</strong>
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground/70">
               {["14 jours d'essai sans carte", "Résiliation en 2 clics", "Accès jusqu'à la fin de la période", "Paiement Stripe sécurisé"].map(t => (
