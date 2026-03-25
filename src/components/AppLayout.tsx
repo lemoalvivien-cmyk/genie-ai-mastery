@@ -30,7 +30,7 @@ export default function AppLayout() {
 
   const isChat = location.pathname === "/app/chat" || location.pathname === "/app/jarvis";
 
-  // ── Desktop sidebar nav ─────────────────────────────────────────────────────
+  // Add library link + update nav
   const desktopNavItems = [
     {
       to: "/app/today",
@@ -43,6 +43,7 @@ export default function AppLayout() {
     { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
     { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
+    { to: "/app/library", icon: Library, label: "Bibliothèque", dot: false, badge: null, showProBadge: false },
     { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];

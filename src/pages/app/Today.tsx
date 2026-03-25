@@ -642,29 +642,36 @@ export default function Today() {
                 </div>
               </div>
 
-              {/* Feedback IA */}
-              <div className="rounded-2xl border border-border/50 bg-card/80 p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                    <MessageSquare className="w-3.5 h-3.5 text-primary" />
+              {/* Ghost Trainer Feedback */}
+              {ghostFeedback ? (
+                <GhostTrainerFeedback
+                  feedback={ghostFeedback}
+                  userInput={userProduction}
+                  missionTitle={mission?.title}
+                  onNextChallenge={() => navigate("/app/chat")}
+                />
+              ) : (
+                <div className="rounded-2xl border border-border/50 bg-card/80 p-5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ghost Trainer</p>
                   </div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Votre assistant</p>
+                  {feedbackLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Analyse de votre performance en cours…</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {score === 100
+                        ? "Excellent travail ! Chaque action compte. Continuez à ce rythme demain."
+                        : "Bien joué. L'important, c'est de pratiquer régulièrement. Revenez demain pour consolider."}
+                    </p>
+                  )}
                 </div>
-                {feedbackLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Analyse en cours…</span>
-                  </div>
-                ) : aiFeedback ? (
-                  <p className="text-sm text-foreground leading-relaxed">{aiFeedback}</p>
-                ) : (
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {score === 100
-                      ? "Excellent travail ! Chaque action compte. Continuez à ce rythme demain."
-                      : "Bien joué. L'important, c'est de pratiquer régulièrement. Revenez demain pour consolider."}
-                  </p>
-                )}
-              </div>
+              )}
 
               {/* Prochain pas */}
               <div className="space-y-2.5">
