@@ -262,8 +262,8 @@ export default function Index() {
             </motion.div>
 
           <span className="text-[clamp(2.1rem,5.8vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6">
-            <span className="block text-foreground">Transformez votre équipe</span>
-            <span className="block" style={{ color: "hsl(var(--primary))" }}>avec l'IA, dès demain.</span>
+            <span className="block text-foreground">Arrêtez les formations IA</span>
+            <span className="block" style={{ color: "hsl(var(--primary))" }}>qui finissent en oubli.</span>
           </span>
 
             {/* Subtitle */}
@@ -277,6 +277,8 @@ export default function Index() {
               des <strong className="text-foreground">playbooks prêts à l'emploi</strong>{" "}
               et un <strong className="text-foreground">suivi de progression mesurable</strong>.
             </motion.p>
+
+            {/* Micro-preuve secondaire */}
 
             {/* CTAs */}
             <motion.div
