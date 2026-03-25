@@ -758,7 +758,7 @@ export default function ManagerDashboard() {
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CsvImportDialog open={csvImportOpen} onClose={() => setCsvImportOpen(false)} orgId={org?.id ?? ""} />
+                  <CsvImportDialog open={csvImportOpen} onClose={() => setCsvImportOpen(false)} orgId={org?.id ?? ""} onComplete={loadData} />
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportCSV}>
                     <Download className="w-3.5 h-3.5" />
                     Export CSV
