@@ -14,24 +14,27 @@ export type EventName =
   | "demo_viewed"
   | "pricing_viewed"
   // ── Auth & Acquisition ───────────────────────────────────────────────────
+  | "register_started"          // user opens /register
   | "signup_started"
-  | "signup_completed"
-  | "signup"
+  | "signup_completed"          // email confirmed
+  | "signup"                    // form submit
   | "login"
   | "access_code_redeemed"
   | "referral_applied"
   | "referral_shared"
   | "email_captured"
+  | "share_mission"             // viral — user shares mission result
+  | "invite_colleague"          // viral — user invites colleague
   // ── Activation / Onboarding ──────────────────────────────────────────────
-  | "onboarding_started"       // NEW — user lands on onboarding
+  | "onboarding_started"
+  | "onboarding_step_done"
   | "onboarding_completed"
   | "onboarding_done"
-  | "onboarding_step_done"
   | "onboarding_quiz_done"
   // ── First actions (critical activation events) ───────────────────────────
-  | "today_opened"             // NEW — user opens /app/today
-  | "first_victory_completed"  // NEW — user completes first victory
-  | "emergency_mode_used"      // NEW — user triggers emergency mode
+  | "today_opened"
+  | "first_victory_completed"
+  | "emergency_mode_used"
   | "first_mission_started"
   | "first_mission_completed"
   | "first_mission_done"
@@ -41,6 +44,8 @@ export type EventName =
   | "chat_sent"
   | "module_opened"
   | "module_completed"
+  | "mission_started"
+  | "mission_completed"
   | "quiz_started"
   | "quiz_passed"
   | "quiz_failed"
@@ -48,8 +53,6 @@ export type EventName =
   | "lab_run"
   | "pdf_generated"
   | "voice_used"
-  | "mission_completed"
-  | "mission_started"
   | "quota_hit"
   | "artifact_saved"
   // ── Paywall / Conversion ─────────────────────────────────────────────────
@@ -61,6 +64,7 @@ export type EventName =
   | "checkout_success"
   // ── Trial & Billing ──────────────────────────────────────────────────────
   | "trial_started"
+  | "subscription_activated"    // subscription is active post-payment/trial
   | "payment_success"
   | "payment_failed"
   | "invoice_failed"
@@ -68,6 +72,10 @@ export type EventName =
   | "churn"
   | "subscription_cancelled"
   | "subscription_reactivated"
+  // ── Manager ──────────────────────────────────────────────────────────────
+  | "manager_report_viewed"     // manager opens their cockpit/report
+  | "manager_report_exported"
+  | "manager_colleague_recalled"
   // ── Support ──────────────────────────────────────────────────────────────
   | "support_opened"
   | "support_contact_clicked"
