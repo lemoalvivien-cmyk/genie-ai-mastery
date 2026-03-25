@@ -1,80 +1,68 @@
 /**
- * FirstVictory — Première action concrète en < 2 minutes
+ * FirstVictory v2 — première action concrète en < 2 minutes
  *
- * Remplace l'ancienne version multi-étapes avec chrono et confettis.
- * Objectif : UN seul CTA principal adapté au profil, action immédiate,
- * feedback IA après l'action.
- *
- * Logique :
- * - Le contenu de la mission s'adapte au persona et au niveau
- * - 1 seul bouton principal → ouvre le chat avec un prompt pré-rempli
- * - Bouton secondaire → accès aux modules
- * - Lien discret → passer au dashboard
- *
- * Ce composant sette has_completed_welcome = true au montage
- * pour garantir qu'il n'y a pas de loop si l'utilisateur revient.
+ * Adapté au BESOIN choisi à l'onboarding (needId dans l'URL ou profil persona).
+ * + Emergency Mode intégré pour les cas urgents
+ * + Tracking first_victory_completed
  */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, MessageSquare, BookOpen, CheckCircle2 } from "lucide-react";
+import { ArrowRight, MessageSquare, BookOpen, CheckCircle2, Zap } from "lucide-react";
+import { EmergencyMode } from "@/components/emergency/EmergencyMode";
 
-// ── Mission par persona ────────────────────────────────────────────────────────
+// ── Mission par persona / besoin ─────────────────────────────────────────────
 interface PersonaMission {
   headline: string;
   subline: string;
   chatPrompt: string;
   chatLabel: string;
-  moduleLabel: string;
   whatYouGet: string[];
 }
 
-const MISSION_BY_PERSONA: Record<string, PersonaMission> = {
+const MISSIONS: Record<string, PersonaMission> = {
   dirigeant: {
-    headline: "Évaluez le niveau de maturité IA de votre équipe",
-    subline: "Posez cette question à votre assistant IA. Vous aurez un diagnostic en 30 secondes.",
-    chatPrompt: "Je dirige une équipe de 10 personnes. Donne-moi 5 questions pour évaluer leur niveau de maîtrise de l'IA au quotidien, avec les réponses attendues.",
+    headline: "Évaluez la maturité IA de votre équipe en 3 minutes",
+    subline: "Posez ces questions à votre copilote IA. Vous repartez avec un diagnostic concret.",
+    chatPrompt: "Je dirige une équipe. Donne-moi 5 questions pour évaluer leur niveau de maîtrise de l'IA au quotidien, avec les réponses attendues et un plan d'action.",
     chatLabel: "Obtenir mon diagnostic équipe →",
-    moduleLabel: "Voir les modules pour managers",
     whatYouGet: [
       "5 questions de diagnostic prêtes à l'emploi",
       "Les réponses attendues par niveau",
-      "Un plan d'action personnalisé",
-    ],
-  },
-  salarie: {
-    headline: "Rédigez un email difficile en 30 secondes avec l'IA",
-    subline: "Posez cette question à votre assistant. Vous verrez immédiatement ce que l'IA peut faire pour vous.",
-    chatPrompt: "Je dois envoyer un email à mon manager pour refuser poliment une tâche hors de mon périmètre, sans froisser la relation. Rédige-le en 3 versions : ferme, neutre, conciliant.",
-    chatLabel: "Rédiger mon email maintenant →",
-    moduleLabel: "Voir les modules productivité IA",
-    whatYouGet: [
-      "3 versions d'email prêtes à envoyer",
-      "Explication de la méthode",
-      "Modèle réutilisable pour l'avenir",
+      "Un plan d'action pour les 30 prochains jours",
     ],
   },
   independant: {
-    headline: "Créez votre première proposition commerciale avec l'IA",
-    subline: "Une mission concrète. Un résultat immédiat que vous pouvez réutiliser demain.",
-    chatPrompt: "Je suis consultant indépendant. Aide-moi à rédiger une proposition commerciale percutante en 1 page pour un prospect PME, en incluant : problème identifié, solution proposée, livrables, tarif et garantie.",
+    headline: "Créez une proposition commerciale percutante en 3 minutes",
+    subline: "Une mission concrète. Un résultat que vous pouvez envoyer dès aujourd'hui.",
+    chatPrompt: "Je suis consultant indépendant. Aide-moi à rédiger une proposition commerciale percutante en 1 page pour un prospect PME : problème identifié, solution proposée, livrables, tarif et garantie.",
     chatLabel: "Générer ma proposition →",
-    moduleLabel: "Voir les modules pour indépendants",
     whatYouGet: [
       "Proposition commerciale complète en 1 page",
       "Structure réutilisable",
       "Formulations qui convertissent",
     ],
   },
+  salarie: {
+    headline: "Rédigez un email difficile en 30 secondes",
+    subline: "Votre copilote IA rédige à votre place. Vous choisissez le ton, vous envoyez.",
+    chatPrompt: "Je dois envoyer un email à mon manager pour refuser poliment une tâche hors de mon périmètre. Rédige 3 versions : ferme, neutre, conciliant.",
+    chatLabel: "Rédiger mon email maintenant →",
+    whatYouGet: [
+      "3 versions d'email prêtes à envoyer",
+      "Explication de la méthode",
+      "Modèle réutilisable",
+    ],
+  },
   parent: {
-    headline: "Expliquez le risque du phishing à votre enfant",
-    subline: "L'IA vous donne les bons mots. Vous faites la conversation ce soir.",
-    chatPrompt: "Comment expliquer simplement à un enfant de 10 ans ce qu'est le phishing et comment ne pas se faire piéger ? Donne-moi un script de conversation de 5 minutes avec des exemples concrets.",
+    headline: "Protégez votre famille des arnaques en ligne ce soir",
+    subline: "L'IA vous donne le script de conversation. Vous faites la discussion.",
+    chatPrompt: "Comment expliquer à un enfant de 10 ans ce qu'est le phishing ? Donne-moi un script de conversation de 5 minutes avec des exemples concrets et un quiz de vérification.",
     chatLabel: "Obtenir le script familial →",
-    moduleLabel: "Voir les modules cybersécurité famille",
     whatYouGet: [
       "Script de conversation simple et concret",
       "Exemples adaptés à l'âge",
@@ -83,10 +71,9 @@ const MISSION_BY_PERSONA: Record<string, PersonaMission> = {
   },
   senior: {
     headline: "Apprenez à détecter un faux email en 2 minutes",
-    subline: "L'IA vous explique simplement. Pas de jargon.",
-    chatPrompt: "Explique-moi comment reconnaître un email frauduleux ou une tentative d'escroquerie, avec des exemples simples et concrets. Donne-moi une liste de 5 points à vérifier avant de cliquer.",
+    subline: "L'IA vous explique simplement. Pas de jargon. Pas de technique.",
+    chatPrompt: "Explique-moi comment reconnaître un email frauduleux avec des exemples simples. Donne-moi une liste de 5 points à vérifier avant de cliquer.",
     chatLabel: "Apprendre à me protéger →",
-    moduleLabel: "Voir les modules sécurité",
     whatYouGet: [
       "5 points de contrôle à mémoriser",
       "Exemples concrets d'emails frauduleux",
@@ -95,10 +82,9 @@ const MISSION_BY_PERSONA: Record<string, PersonaMission> = {
   },
   jeune: {
     headline: "Créez votre CV avec l'IA en 3 minutes",
-    subline: "Pas besoin d'expérience. L'IA transforme ce que vous savez en atouts.",
-    chatPrompt: "Je suis lycéen/étudiant et je cherche un stage ou un job d'été. Je n'ai pas beaucoup d'expérience mais j'ai des compétences comme [sport, bénévolat, projets personnels]. Aide-moi à rédiger un CV percutant qui met ça en valeur.",
+    subline: "Pas besoin d'expérience. L'IA transforme ce que vous avez en atouts.",
+    chatPrompt: "Je suis étudiant. Aide-moi à rédiger un CV percutant qui met en valeur mes compétences (sport, bénévolat, projets) même sans expérience professionnelle. Inclus lettre de motivation.",
     chatLabel: "Créer mon CV avec l'IA →",
-    moduleLabel: "Voir les modules pour étudiants",
     whatYouGet: [
       "CV structuré et percutant",
       "Formulations qui valorisent vos atouts",
@@ -107,47 +93,56 @@ const MISSION_BY_PERSONA: Record<string, PersonaMission> = {
   },
 };
 
-const DEFAULT_MISSION = MISSION_BY_PERSONA["salarie"];
+// Mapping needId → mission
+const NEED_TO_MISSION: Record<string, string> = {
+  time: "salarie",
+  write: "independant",
+  understand: "salarie",
+  present: "independant",
+  team: "dirigeant",
+};
+
+const DEFAULT_MISSION = MISSIONS["salarie"];
 
 export default function FirstVictory() {
   const { profile, session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { track } = useAnalytics();
   const [welcomed, setWelcomed] = useState(false);
+  const [showEmergency, setShowEmergency] = useState(false);
 
-  const persona = profile?.persona ?? "salarie";
+  // Resolve mission from need param or persona
+  const needId = searchParams.get("need") ?? null;
+  const missionKey = needId
+    ? (NEED_TO_MISSION[needId] ?? profile?.persona ?? "salarie")
+    : (profile?.persona ?? "salarie");
+  const mission = MISSIONS[missionKey] ?? DEFAULT_MISSION;
   const firstName = profile?.full_name?.split(" ")[0] ?? null;
-  const mission = MISSION_BY_PERSONA[persona] ?? DEFAULT_MISSION;
 
-  // Garantit que has_completed_welcome est true au montage
+  // Mark welcome complete + track
   useEffect(() => {
     if (!session?.user?.id || welcomed) return;
     setWelcomed(true);
+    track("first_victory_completed", { need: needId, persona: profile?.persona });
     supabase
       .from("profiles")
       .update({ has_completed_welcome: true })
       .eq("id", session.user.id)
       .then(() => {});
-  }, [session?.user?.id, welcomed]);
+  }, [session?.user?.id, welcomed, track, needId, profile?.persona]);
 
   const handleChat = () => {
     const encoded = encodeURIComponent(mission.chatPrompt);
     navigate(`/app/chat?q=${encoded}`);
   };
 
-  const handleModules = () => {
-    navigate("/app/modules");
-  };
-
-  const handleSkip = () => {
-    navigate("/app/dashboard", { replace: true });
-  };
-
   return (
     <>
-      <Helmet><title>Votre première mission – Formetoialia</title></Helmet>
+      <Helmet><title>Votre première victoire – Formetoialia</title></Helmet>
 
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-lg space-y-8">
+        <div className="w-full max-w-lg space-y-6">
 
           {/* Header */}
           <div className="text-center space-y-2">
@@ -156,6 +151,10 @@ export default function FirstVictory() {
                 Bienvenue, {firstName} 👋
               </p>
             )}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-1">
+              <Zap className="w-3 h-3" />
+              Première victoire en moins de 3 minutes
+            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">
               {mission.headline}
             </h1>
@@ -196,23 +195,40 @@ export default function FirstVictory() {
             </Button>
 
             <Button
-              onClick={handleModules}
+              onClick={() => navigate("/app/today")}
               variant="outline"
               size="lg"
               className="w-full font-semibold gap-2"
             >
               <BookOpen className="w-4 h-4" />
-              {mission.moduleLabel}
+              Voir la mission du jour
             </Button>
           </div>
+
+          {/* Emergency Mode toggle */}
+          {!showEmergency ? (
+            <div className="pt-2">
+              <button
+                onClick={() => setShowEmergency(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                Besoin d'un résultat <span className="font-semibold text-foreground">maintenant</span> ?
+              </button>
+            </div>
+          ) : (
+            <div className="pt-2 rounded-2xl border border-border/50 p-4 bg-card/60">
+              <EmergencyMode onClose={() => setShowEmergency(false)} />
+            </div>
+          )}
 
           {/* Skip */}
           <div className="text-center">
             <button
-              onClick={handleSkip}
+              onClick={() => navigate("/app/dashboard", { replace: true })}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
             >
-              Passer — aller au dashboard
+              Passer — aller au tableau de bord
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
