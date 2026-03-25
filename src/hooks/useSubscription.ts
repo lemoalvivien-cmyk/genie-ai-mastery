@@ -121,7 +121,7 @@ export function useSubscription() {
         canAccessVibeCoding: isPro,
         canAccessManager: isPro,
         canGetAttestation: isPro,
-        canUseDailyMissions: isPro,
+        canUseDailyMissions: true,  // 1 mission/jour pour tous — paywall = intensité, pas découverte
         isLaunchPrice: false,
         renewalDate,
         isTrialing,
