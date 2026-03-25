@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase } from "lucide-react";
+import { LogOut, Calendar, MessageCircle, Bot, BookOpen, Settings, Users, Flame, Lock, Briefcase, Library } from "lucide-react";
 import logoFormetoialia from "@/assets/logo-formetoialia.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useStreak } from "@/hooks/useStreak";
@@ -43,6 +43,7 @@ export default function AppLayout() {
     { to: "/app/chat", icon: MessageCircle, label: "Chat IA", dot: false, badge: null, showProBadge: false },
     { to: "/app/jarvis", icon: Bot, label: "Mode KITT", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null, showProBadge: false },
+    { to: "/app/library", icon: Library, label: "Bibliothèque", dot: false, badge: null, showProBadge: false },
     { to: "/app/agent-jobs", icon: Briefcase, label: "Agent Jobs", dot: false, badge: null, showProBadge: !isPro },
     { to: "/app/settings", icon: Settings, label: "Paramètres", dot: false, badge: null, showProBadge: false },
   ];
@@ -68,7 +69,7 @@ export default function AppLayout() {
       badge: currentStreak > 0 ? String(currentStreak) : null,
     },
     { to: "/app/chat", icon: MessageCircle, label: "Chat", dot: false, badge: null },
-    { to: "/app/jarvis", icon: Bot, label: "KITT", dot: false, badge: null },
+    { to: "/app/library", icon: Library, label: "Biblio.", dot: false, badge: null },
     { to: "/app/modules", icon: BookOpen, label: "Modules", dot: false, badge: null },
     { to: "/app/settings", icon: Settings, label: "Réglages", dot: false, badge: null },
   ];

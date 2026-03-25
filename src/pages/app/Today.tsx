@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStreak } from "@/hooks/useStreak";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getLocalDateMinusDays } from "@/lib/dateUtils";
+import { GhostTrainerFeedback, type GhostFeedback } from "@/components/feedback/GhostTrainerFeedback";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Mission {
@@ -373,9 +374,10 @@ export default function Today() {
   const [earnedXP, setEarnedXP] = useState(0);
   const [score, setScore] = useState<number | undefined>(undefined);
   const [isNewRecord, setIsNewRecord] = useState(false);
-  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
+  const [ghostFeedback, setGhostFeedback] = useState<GhostFeedback | null>(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const startTime = useRef<number>(Date.now());
+  const [userProduction, setUserProduction] = useState<string>("");
 
   // ── Fetch mission ──────────────────────────────────────────────────────────
   const fetchMission = useCallback(async () => {
@@ -441,28 +443,21 @@ export default function Today() {
     setPhase("playing");
   };
 
-  // ── Feedback IA post-mission ───────────────────────────────────────────────
+  // ── Feedback Ghost Trainer post-mission ───────────────────────────────────
   const fetchAIFeedback = useCallback(async (m: Mission, missionScore?: number) => {
     if (!session?.user?.id) return;
     setFeedbackLoading(true);
     try {
-      const contextMsg = missionScore !== undefined
-        ? `L'utilisateur vient de compléter la mission "${m.title}" (domaine: ${m.domain}, type: ${m.mission_type}) avec un score de ${missionScore}/100.`
-        : `L'utilisateur vient de compléter l'action "${m.title}" (domaine: ${m.domain}).`;
-
-      const { data } = await supabase.functions.invoke("chat-completion", {
+      const { data } = await supabase.functions.invoke("ghost-trainer-feedback", {
         body: {
-          messages: [
-            {
-              role: "user",
-              content: `${contextMsg} En 2-3 phrases maximum, donne un feedback encourageant, un conseil pratique immédiatement applicable, et indique ce que cela va changer concrètement dans son travail. Sois direct, concret, utile. Pas de jargon. Tutoie l'utilisateur.`,
-            },
-          ],
-          mode: "standard",
-          session_id: `today_feedback_${session.user.id}_${Date.now()}`,
+          user_input: `Mission complétée : "${m.title}". Score : ${missionScore ?? "non mesuré"}/100. Type : ${m.mission_type}. Domaine : ${m.domain}.`,
+          mission_title: m.title,
+          mission_type: m.mission_type,
+          score: missionScore,
+          context: `Professionnel, domaine: ${m.domain}`,
         },
       });
-      if (data?.content) setAiFeedback(data.content);
+      if (data?.feedback) setGhostFeedback(data.feedback as GhostFeedback);
     } catch {
       // Feedback optionnel — ne pas bloquer la page
     } finally {
@@ -647,29 +642,36 @@ export default function Today() {
                 </div>
               </div>
 
-              {/* Feedback IA */}
-              <div className="rounded-2xl border border-border/50 bg-card/80 p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                    <MessageSquare className="w-3.5 h-3.5 text-primary" />
+              {/* Ghost Trainer Feedback */}
+              {ghostFeedback ? (
+                <GhostTrainerFeedback
+                  feedback={ghostFeedback}
+                  userInput={userProduction}
+                  missionTitle={mission?.title}
+                  onNextChallenge={() => navigate("/app/chat")}
+                />
+              ) : (
+                <div className="rounded-2xl border border-border/50 bg-card/80 p-5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ghost Trainer</p>
                   </div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Votre assistant</p>
+                  {feedbackLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Analyse de votre performance en cours…</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {score === 100
+                        ? "Excellent travail ! Chaque action compte. Continuez à ce rythme demain."
+                        : "Bien joué. L'important, c'est de pratiquer régulièrement. Revenez demain pour consolider."}
+                    </p>
+                  )}
                 </div>
-                {feedbackLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Analyse en cours…</span>
-                  </div>
-                ) : aiFeedback ? (
-                  <p className="text-sm text-foreground leading-relaxed">{aiFeedback}</p>
-                ) : (
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {score === 100
-                      ? "Excellent travail ! Chaque action compte. Continuez à ce rythme demain."
-                      : "Bien joué. L'important, c'est de pratiquer régulièrement. Revenez demain pour consolider."}
-                  </p>
-                )}
-              </div>
+              )}
 
               {/* Prochain pas */}
               <div className="space-y-2.5">

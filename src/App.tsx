@@ -30,6 +30,7 @@ const ModuleDetail   = lazy(() => import("./pages/app/ModuleDetail"));
 const Chat           = lazy(() => import("./pages/app/Chat"));
 const Settings       = lazy(() => import("./pages/app/Settings"));
 const Today          = lazy(() => import("./pages/app/Today"));
+const LibraryPage = lazy(() => import("./pages/app/Library"));
 const Jarvis         = lazy(() => import("./pages/app/Jarvis"));
 const PhishingLab    = lazy(() => import("./pages/app/labs/PhishingLab"));
 const CyberLab       = lazy(() => import("./pages/app/labs/CyberLab"));
@@ -154,6 +155,7 @@ const App = () => (
                   <Route path="modules/:slug" element={<ModuleDetail />} />
                   <Route path="chat"          element={<Chat />} />
                   <Route path="settings"      element={<Settings />} />
+                  <Route path="library"       element={<LibraryPage />} />
                   <Route
                     path="today"
                     element={<ProtectedRoute requirePro><Today /></ProtectedRoute>}
