@@ -5,7 +5,6 @@ import { verifyCronSecret } from "../_shared/cron-auth.ts";
 const ALLOWED_ORIGINS = [
   "https://formetoialia.com",
   "https://www.formetoialia.com",
-  "https://genie-ai-mastery.lovable.app", // legacy — backward compat
 ];
 
 function getCorsHeaders(req: Request) {
