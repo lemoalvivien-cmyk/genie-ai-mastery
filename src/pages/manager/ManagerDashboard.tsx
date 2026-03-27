@@ -1002,7 +1002,7 @@ export default function ManagerDashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Non authentifié");
 
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-compliance-dossier`;
+      const url = edgeFunctionUrl("export-compliance-dossier");
       const res = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },

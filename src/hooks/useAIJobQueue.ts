@@ -10,8 +10,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/env";
+
 const POLL_TIMEOUT_MS = 60_000; // 1 minute max wait
 const POLL_INTERVAL_MS = 2_000;  // 2s polling fallback
 

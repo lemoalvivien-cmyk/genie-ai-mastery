@@ -79,7 +79,7 @@ export interface CreateJobParams {
   risk_level?: RiskLevel;
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+import { SUPABASE_URL } from "@/lib/env";
 
 export function useOpenClaw() {
   const { user } = useAuth();

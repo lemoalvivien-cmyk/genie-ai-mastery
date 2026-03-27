@@ -5,8 +5,9 @@
  * The sessionStorage fallback is kept only as a fast UX guard when the network is down.
  */
 
-const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
-const RATE_LIMIT_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/rate-limit-login`;
+import { edgeFunctionUrl } from "@/lib/env";
+
+const RATE_LIMIT_URL = edgeFunctionUrl("rate-limit-login");
 
 // ── Server-side rate limit (primary, SOC2-compliant) ─────────────────────────
 
