@@ -302,8 +302,13 @@ export default function Chat() {
       else setKittState("idle");
     } catch (err) {
       const isAbort = err instanceof Error && err.name === "AbortError";
-      const errMsg = isAbort ? "Temps dépassé. Réessayez." : err instanceof Error ? err.message : "Erreur inconnue";
-      setMessages(prev => prev.filter(m => m.id !== "loading").concat({ id: crypto.randomUUID(), role: "assistant", content: `❌ ${errMsg}` }));
+      const isNetwork = err instanceof Error && (err.message.includes("fetch") || err.message.includes("network") || err.message.includes("Failed"));
+      const errMsg = isAbort
+        ? "⏱️ Temps de réponse dépassé (30s). Le serveur est peut-être surchargé. Réessayez dans quelques instants."
+        : isNetwork
+        ? "📡 Problème de connexion. Vérifiez votre réseau et réessayez."
+        : err instanceof Error ? `⚠️ ${err.message}` : "⚠️ Une erreur inattendue est survenue. Réessayez.";
+      setMessages(prev => prev.filter(m => m.id !== "loading").concat({ id: crypto.randomUUID(), role: "assistant", content: errMsg }));
       setKittState("idle");
     } finally {
       clearTimeout(timeoutId);
