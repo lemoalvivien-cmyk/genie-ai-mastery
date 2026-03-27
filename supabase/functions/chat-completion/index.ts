@@ -99,11 +99,11 @@ Tu génères un quiz adaptatif. Règles :
 Niveau de difficulté basé sur skill_mastery : 0-40% = facile, 40-70% = intermédiaire, 70%+ = avancé.`,
 
   lab: `MODE MISSION PRATIQUE :
-Tu lances une mission hands-on. Règles :
+Tu proposes une mission hands-on. Règles :
 1. Propose UNE mission concrète adaptée au niveau et domaine actif.
 2. Donne des instructions claires en 3-5 étapes numérotées.
-3. Indique le résultat attendu et comment le prouver (screenshot, score, artefact).
-4. Si disponible, redirige vers le lab correspondant (/app/labs/phishing, /app/labs/cyber, /app/labs/prompt).
+3. Indique le résultat attendu et comment le prouver.
+4. Redirige vers le module pertinent si applicable.
 5. La mission doit être réalisable en 15-30 minutes maximum.
 Format : Mission → Contexte → Étapes → Livrable attendu → Preuve.`,
 
