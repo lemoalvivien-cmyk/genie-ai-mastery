@@ -174,7 +174,7 @@ export const PRODUCT_TRUTH_MATRIX: ProductClaim[] = [
     location: "Chat.tsx",
     category: "voice",
     status: "proven",
-    proof: "useVoiceEngine hook + text-to-speech edge function + Web Speech API STT",
+    proof: "useVoiceEngine hook + text-to-speech edge function + Web Speech API STT + features.voiceMode flag",
     note: "Behind features.voiceMode flag + Pro-only gate",
   },
 

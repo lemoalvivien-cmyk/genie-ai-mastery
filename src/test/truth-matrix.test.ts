@@ -60,6 +60,10 @@ const ALLOWED_CONTEXTS: RegExp[] = [
   /construit automatiquement/i,
   /expirera automatiquement/i,
   /se fera automatiquement/i,
+  // "en direct" for demo CTA (links to /demo page, not a live stream claim)
+  /mission en direct/i,
+  // "rapport" + "automatiquement" in artifact save context (proven via useSaveArtifact)
+  /automatiquement sauvegardé/i,
   // CSS/code comments
   /\/\/.*/,
 ];
