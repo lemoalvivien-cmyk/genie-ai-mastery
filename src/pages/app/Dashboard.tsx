@@ -314,7 +314,7 @@ export default function Dashboard() {
                       Débloquez tout Formetoialia Pro
                     </h3>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Vous avez utilisé {usedMessages}/{maxMessages} message{maxMessages > 1 ? "s" : ""} KITT aujourd'hui. Passez Pro pour un accès illimité.
+                      Vous avez utilisé {usedMessages}/{maxMessages} message{maxMessages > 1 ? "s" : ""} KITT aujourd'hui. Passez Pro pour 500 échanges/jour.
                     </p>
                   </div>
                 </div>
@@ -416,16 +416,16 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── 7. CyberPath 48h Challenge Banner ── */}
+          {/* ── 7. Explore playbooks banner ── */}
           <Link
-            to="/app/cyberpath"
+            to="/app/modules"
             className="block animate-slide-up group"
           >
             <div
               className="p-4 rounded-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.01]"
               style={{
-                background: "rgba(254,44,64,0.06)",
-                border: "1px solid rgba(254,44,64,0.25)",
+                background: "rgba(82,87,216,0.06)",
+                border: "1px solid rgba(82,87,216,0.25)",
               }}
             >
               <div className="flex items-center justify-between">
@@ -434,17 +434,17 @@ export default function Dashboard() {
                     className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                     style={{ background: "linear-gradient(135deg, #5257D8, #FE2C40)" }}
                   >
-                    <Shield className="w-4.5 h-4.5 text-white" />
+                    <BookOpen className="w-4 h-4 text-white" />
                   </div>
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Défi Exclusif
+                      Playbooks métier
                     </p>
                     <p className="text-sm font-bold" style={{ color: "#E8E9F0" }}>
-                      CyberPath 48h — Exécution cyber guidée
+                      Explorer les playbooks disponibles
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Playbook cyber complet guidé par l'IA. +700 XP.
+                      Exécutions guidées par l'IA sur vos tâches réelles.
                     </p>
                   </div>
                 </div>

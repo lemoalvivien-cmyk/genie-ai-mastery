@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ARGS = [
-  "Tous les modules illimités",
-  "KITT IA sans restriction",
-  "Attestation de compétences",
+  "Tous les playbooks métier",
+  "Assistance KITT — 500 échanges/jour",
+  "Attestations PDF vérifiables",
 ];
 
 interface PaywallOverlayProps {
