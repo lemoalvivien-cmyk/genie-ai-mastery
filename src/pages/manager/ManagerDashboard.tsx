@@ -233,7 +233,7 @@ function ROIBanner({ team, stats }: { team: TeamMember[]; stats: OrgStats | null
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />14 jours d'essai inclus</span>
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Jusqu'à 25 sièges</span>
-          <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Rapport mensuel auto</span>
+          <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Rapport mensuel exportable</span>
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Aucune formation à organiser</span>
         </div>
         <Link to="/pricing">
@@ -663,12 +663,8 @@ function VuePilotage({ team, stats, activationRate, completionRate, totalComplet
   orgId: string | undefined;
   toast: (args: { title: string; description?: string }) => void;
 }) {
-  const topPlaybooks = [
-    { title: "Rédiger un mail difficile", uses: Math.max(0, Math.round(totalCompleted * 0.3)), category: "Communication" },
-    { title: "Résumer un document long", uses: Math.max(0, Math.round(totalCompleted * 0.2)), category: "Analyse" },
-    { title: "Préparer une présentation", uses: Math.max(0, Math.round(totalCompleted * 0.15)), category: "Présentation" },
-    { title: "Créer un script d'appel", uses: Math.max(0, Math.round(totalCompleted * 0.1)), category: "Vente" },
-  ];
+  // Note: playbook usage data not yet tracked individually — showing mission count only
+  const topPlaybooks: { title: string; uses: number; category: string }[] = [];
 
   const blockers = [
     ...(inactiveMembers > 0 ? [{ type: "warning" as const, label: `${inactiveMembers} membre${inactiveMembers > 1 ? "s" : ""} inactif${inactiveMembers > 1 ? "s" : ""}`, desc: "Relancez-les — chaque mission = ~20 min économisées." }] : []),
@@ -962,7 +958,7 @@ export default function ManagerDashboard() {
 
   useEffect(() => {
     if (!profile?.org_id) return;
-    const interval = setInterval(loadData, 15_000);
+    const interval = setInterval(loadData, 120_000); // refresh every 2 min
     return () => clearInterval(interval);
   }, [profile?.org_id, loadData]);
 
@@ -1137,11 +1133,11 @@ export default function ManagerDashboard() {
   // ─── Actions collaborateur ───────────────────────────────────────────────
 
   const handleRelance = (member: TeamMember) => {
-    toast({ title: `Rappel envoyé à ${member.full_name ?? member.email}`, description: "Un email de relance a été envoyé." });
+    toast({ title: `Relance notée pour ${member.full_name ?? member.email}`, description: "La relance automatique par email sera disponible prochainement. En attendant, contactez directement le collaborateur." });
   };
 
   const handlePlaybook = (member: TeamMember) => {
-    toast({ title: `Playbook recommandé à ${member.full_name ?? member.email}`, description: "\"Rédiger un mail difficile\" — résultat en 10 min." });
+    toast({ title: `Recommandation notée`, description: `Suggestion pour ${member.full_name ?? member.email} : envoyez-lui le lien vers le playbook \"Rédiger un mail difficile\" par email.` });
   };
 
   // ─── Derived ─────────────────────────────────────────────────────────────
