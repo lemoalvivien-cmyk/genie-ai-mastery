@@ -660,7 +660,7 @@ export default function Index() {
               <p className="text-sm sm:text-base text-muted-foreground mb-5 leading-relaxed">
                 Vous ne payez pas pour former votre équipe à l'IA.
                 Vous payez pour la <strong className="text-foreground">rendre opérationnelle</strong>,
-                mesurer l'adoption, et prouver la valeur en temps réel.
+                mesurer l'adoption, et prouver la valeur.
               </p>
               <div
                 className="rounded-xl border border-primary/20 px-4 py-3 mb-5 text-sm"
@@ -695,7 +695,6 @@ export default function Index() {
                 className="rounded-2xl border border-border overflow-hidden"
                 style={{ background: "hsl(var(--card))" }}
               >
-                {/* Fake cockpit header */}
                 <div
                   className="px-4 py-3 border-b border-border flex items-center justify-between"
                   style={{ background: "hsl(var(--background)/0.5)" }}
@@ -705,36 +704,34 @@ export default function Index() {
                     className="text-[10px] px-2 py-0.5 rounded-full border font-semibold text-muted-foreground border-border"
                     style={{ background: "hsl(var(--secondary)/0.5)" }}
                   >
-                    Aperçu
+                    Illustration
                   </span>
                 </div>
-                <div className="p-4 space-y-3">
+                <div className="p-5 space-y-4">
+                  {/* Capabilities list instead of fake data */}
                   {[
-                    { name: "Marie R.", progress: 78, tag: "Communication", status: "Actif" },
-                    { name: "Thomas B.", progress: 45, tag: "Productivité", status: "Actif" },
-                    { name: "Sophie L.", progress: 92, tag: "Analyse", status: "Complété" },
-                    { name: "David M.", progress: 12, tag: "Communication", status: "À relancer" },
-                  ].map((member) => (
+                    { icon: Users, label: "Progression individuelle de chaque membre", detail: "Score, modules complétés, dernière activité" },
+                    { icon: BarChart3, label: "Taux d'adoption de l'équipe", detail: "Membres actifs vs inactifs, tendance hebdomadaire" },
+                    { icon: Clock, label: "Heures économisées estimées", detail: "Basé sur 20 min/mission × missions complétées" },
+                    { icon: FileCheck, label: "Rapports & attestations exportables", detail: "PDF, historique, preuves vérifiables" },
+                  ].map((cap) => (
                     <div
-                      key={member.name}
-                      className="flex items-center gap-3 p-3 rounded-xl"
+                      key={cap.label}
+                      className="flex items-start gap-3 p-3 rounded-xl"
                       style={{ background: "hsl(var(--secondary)/0.4)" }}
                     >
                       <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-                        style={{ background: "hsl(var(--primary)/0.2)", color: "hsl(var(--primary))" }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: "hsl(var(--primary)/0.15)" }}
                       >
-                        {member.name.split(" ").map(n => n[0]).join("")}
+                        <cap.icon className="w-3.5 h-3.5 text-primary" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-semibold text-foreground truncate">{member.name}</span>
-                          <span className="text-[10px] text-muted-foreground shrink-0 ml-2">{member.progress}%</span>
-                        </div>
-                        <div className="h-1 rounded-full overflow-hidden" style={{ background: "hsl(var(--border))" }}>
-                          <div
-                            className="h-full rounded-full"
-                            style={{
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{cap.label}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{cap.detail}</p>
+                      </div>
+                    </div>
+                  ))}
                               width: `${member.progress}%`,
                               background: member.progress > 70
                                 ? "hsl(142 71% 45%)"
