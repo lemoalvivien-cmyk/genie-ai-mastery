@@ -209,10 +209,12 @@ const App = () => (
                   path="/manager"
                   element={<ProtectedRoute requireRole="manager"><ManagerDashboard /></ProtectedRoute>}
                 />
-                <Route
-                  path="/manager/openclaw"
-                  element={<ProtectedRoute requireRole="manager"><ManagerOpenClawPage /></ProtectedRoute>}
-                />
+                {features.openclawRuntime && (
+                  <Route
+                    path="/manager/openclaw"
+                    element={<ProtectedRoute requireRole="manager"><ManagerOpenClawPage /></ProtectedRoute>}
+                  />
+                )}
                 <Route
                   path="/manager/revenue-ops"
                   element={<ProtectedRoute requireRole="manager"><RevenueOpsDashboard /></ProtectedRoute>}
