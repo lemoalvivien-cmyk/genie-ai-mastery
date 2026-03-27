@@ -32,9 +32,6 @@ const Settings       = lazy(() => import("./pages/app/Settings"));
 const Today          = lazy(() => import("./pages/app/Today"));
 const LibraryPage = lazy(() => import("./pages/app/Library"));
 const Jarvis         = lazy(() => import("./pages/app/Jarvis"));
-const PhishingLab    = lazy(() => import("./pages/app/labs/PhishingLab"));
-const CyberLab       = lazy(() => import("./pages/app/labs/CyberLab"));
-const PromptLab      = lazy(() => import("./pages/app/labs/PromptLab"));
 
 // ── Admin ────────────────────────────────────────────────────────
 const ControlRoom     = lazy(() => import("./pages/admin/ControlRoom"));
@@ -52,12 +49,6 @@ const ManagerOnboarding         = lazy(() => import("./pages/manager/ManagerOnbo
 const EnterpriseAttackSimulation = lazy(() => import("./pages/manager/EnterpriseAttackSimulation"));
 const PartnerDashboard          = lazy(() => import("./pages/partner/PartnerDashboard"));
 
-// ── OpenClaw Agent Jobs ───────────────────────────────────────────
-const AgentJobsPage         = lazy(() => import("./pages/app/AgentJobsPage"));
-const CyberPath48h          = lazy(() => import("./pages/app/CyberPath48h"));
-const AttestationNFT        = lazy(() => import("./pages/app/AttestationNFT"));
-const AgentJobDetailPage    = lazy(() => import("./pages/app/AgentJobDetailPage"));
-const AgentJobCreatePage    = lazy(() => import("./pages/app/AgentJobCreatePage"));
 
 // ── Public pages ─────────────────────────────────────────────────
 const Demo              = lazy(() => import("./pages/Demo"));
@@ -166,40 +157,11 @@ const App = () => (
                     path="jarvis"
                     element={<Navigate to="/app/chat" replace />}
                   />
-                  <Route
-                    path="labs/phishing"
-                    element={<ProtectedRoute requirePro><PhishingLab /></ProtectedRoute>}
-                  />
-                  <Route
-                    path="labs/cyber"
-                    element={<ProtectedRoute requirePro><CyberLab /></ProtectedRoute>}
-                  />
-                  <Route
-                    path="labs/prompt"
-                    element={<ProtectedRoute requirePro><PromptLab /></ProtectedRoute>}
-                  />
-                  {/* ── Agent Jobs (Agents IA) ──────────────────────────────── */}
-                  <Route
-                    path="agent-jobs"
-                    element={<ProtectedRoute requirePro><AgentJobsPage /></ProtectedRoute>}
-                  />
-                  <Route
-                    path="agent-jobs/new"
-                    element={<ProtectedRoute requirePro><AgentJobCreatePage /></ProtectedRoute>}
-                  />
-                  <Route
-                    path="agent-jobs/:id"
-                    element={<ProtectedRoute requirePro><AgentJobDetailPage /></ProtectedRoute>}
-                  />
-                  <Route
-                    path="cyberpath"
-                    element={<ProtectedRoute><CyberPath48h /></ProtectedRoute>}
-                  />
-                  {/* /app/attestation-nft → redirect to settings (attestations tab) */}
-                  <Route
-                    path="attestation-nft"
-                    element={<Navigate to="/app/settings" replace />}
-                  />
+                  {/* Legacy routes → redirect to dashboard */}
+                  <Route path="labs/*" element={<Navigate to="/app/dashboard" replace />} />
+                  <Route path="agent-jobs/*" element={<Navigate to="/app/dashboard" replace />} />
+                  <Route path="cyberpath" element={<Navigate to="/app/dashboard" replace />} />
+                  <Route path="attestation-nft" element={<Navigate to="/app/settings" replace />} />
                 </Route>
 
                 {/* ── Admin ────────────────────────────────────────────── */}

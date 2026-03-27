@@ -15,7 +15,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
 import { KITTModePanel } from "@/components/chat/KITTModePanel";
-import { useBrainTracker } from "@/hooks/useBrainTracker";
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -165,7 +165,7 @@ export default function Chat() {
   const { data: kittContext } = useKITTContext();
   const hasProgress = (kittContext?.completed_modules ?? 0) > 0;
   const { track } = useAnalytics();
-  const { trackBrain } = useBrainTracker();
+  
 
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
   const welcomeContent = isPanic
