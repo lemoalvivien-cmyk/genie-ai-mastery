@@ -12,6 +12,8 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import { CookieBanner } from "@/components/legal/CookieBanner";
+import { features } from "@/config/features";
+import { FeatureUnavailable } from "@/components/FeatureGate";
 
 // ── Public / Auth ────────────────────────────────────────────────
 const Landing        = lazy(() => import("./pages/Index"));
@@ -164,40 +166,42 @@ const App = () => (
                   <Route path="attestation-nft" element={<Navigate to="/app/settings" replace />} />
                 </Route>
 
-                {/* ── Admin ────────────────────────────────────────────── */}
-                <Route
-                  path="/admin/growth"
-                  element={<ProtectedRoute requireRole="admin"><GrowthDashboard /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/control-room"
-                  element={<ProtectedRoute requireRole="admin"><ControlRoom /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/ops"
-                  element={<ProtectedRoute requireRole="admin"><OpsCenter /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/runbook"
-                  element={<ProtectedRoute requireRole="admin"><Runbook /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/go-live"
-                  element={<ProtectedRoute requireRole="admin"><GoLiveChecklist /></ProtectedRoute>}
-                />
+                {/* ── Admin (feature-flagged) ───────────────────────────── */}
+                {features.adminDashboard ? (
+                  <>
+                    <Route
+                      path="/admin/growth"
+                      element={<ProtectedRoute requireRole="admin"><GrowthDashboard /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin/control-room"
+                      element={<ProtectedRoute requireRole="admin"><ControlRoom /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin/ops"
+                      element={<ProtectedRoute requireRole="admin"><OpsCenter /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin/runbook"
+                      element={<ProtectedRoute requireRole="admin"><Runbook /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin/go-live"
+                      element={<ProtectedRoute requireRole="admin"><GoLiveChecklist /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin-operations"
+                      element={<ProtectedRoute requireRole="admin"><AdminOperations /></ProtectedRoute>}
+                    />
+                  </>
+                ) : null}
                 <Route
                   path="/admin/*"
                   element={
                     <ProtectedRoute requireRole="admin">
-                      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-                        <p>Admin Dashboard (à venir)</p>
-                      </div>
+                      <FeatureUnavailable name="Administration" />
                     </ProtectedRoute>
                   }
-                />
-                <Route
-                  path="/admin-operations"
-                  element={<ProtectedRoute requireRole="admin"><AdminOperations /></ProtectedRoute>}
                 />
 
                 {/* ── Manager ──────────────────────────────────────────── */}
