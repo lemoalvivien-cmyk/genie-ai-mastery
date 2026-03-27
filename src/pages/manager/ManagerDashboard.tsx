@@ -5,6 +5,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { edgeFunctionUrl } from "@/lib/env";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Brain, LogOut, Users, CheckCircle, BarChart3, BookOpen, Download, Upload, Plus,

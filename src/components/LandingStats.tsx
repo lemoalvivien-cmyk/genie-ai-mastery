@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, FileText, Users, Zap } from "lucide-react";
+import { edgeFunctionUrl } from "@/lib/env";
 
 interface PublicStats {
   users_trained: number;
