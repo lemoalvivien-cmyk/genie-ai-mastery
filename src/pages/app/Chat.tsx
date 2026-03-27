@@ -15,6 +15,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKITTContext, type KITTMode } from "@/hooks/useKITTContext";
 import { KITTModePanel } from "@/components/chat/KITTModePanel";
+import { features } from "@/config/features";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -398,20 +399,22 @@ export default function Chat() {
                   disabled={isLoading}
                 />
               </div>
-              {isPro ? (
-                <Button variant="outline" size="icon"
-                  className={`shrink-0 h-[52px] w-[52px] transition-all relative ${isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"}`}
-                  onClick={handleMicPress}>
-                  <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
-                  {isListening && <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />}
-                </Button>
-              ) : (
-                <Button variant="outline" size="icon"
-                  className="shrink-0 h-[52px] w-[52px] text-muted-foreground opacity-50"
-                  onClick={() => navigate("/pricing")}>
-                  <Lock className="w-4 h-4" />
-                </Button>
-              )}
+              {features.voiceMode ? (
+                isPro ? (
+                  <Button variant="outline" size="icon"
+                    className={`shrink-0 h-[52px] w-[52px] transition-all relative ${isListening ? "border-indigo-400 text-indigo-400 bg-indigo-400/10" : "text-muted-foreground"}`}
+                    onClick={handleMicPress}>
+                    <Mic className={`w-4 h-4 ${isListening ? "text-indigo-400" : ""}`} />
+                    {isListening && <span className="absolute inset-0 rounded-md border border-primary opacity-40 animate-ping" />}
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="icon"
+                    className="shrink-0 h-[52px] w-[52px] text-muted-foreground opacity-50"
+                    onClick={() => navigate("/pricing")}>
+                    <Lock className="w-4 h-4" />
+                  </Button>
+                )
+              ) : null}
               <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading}
                 size="icon" className="shrink-0 min-h-[52px] min-w-[52px] h-[52px] w-[52px]"
                 style={{
