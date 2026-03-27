@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, FileText, Users, Zap } from "lucide-react";
+import { edgeFunctionUrl } from "@/lib/env";
 
 interface PublicStats {
   users_trained: number;
@@ -72,9 +73,7 @@ export const LandingStats = React.forwardRef<HTMLDivElement>((_, ref) => {
   useEffect(() => {
     if (stats) return; // cache hit — skip fetch
     const controller = new AbortController();
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-
-    fetch(`${supabaseUrl}/functions/v1/get-public-stats`, {
+    fetch(edgeFunctionUrl("get-public-stats"), {
       signal: controller.signal,
     })
       .then((r) => (r.ok ? r.json() : null))

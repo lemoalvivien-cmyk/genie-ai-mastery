@@ -1,14 +1,15 @@
 import * as Sentry from "@sentry/react";
+import { SENTRY_DSN, APP_VERSION, MODE } from "@/lib/env";
 
-const DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+const DSN = SENTRY_DSN || undefined;
 
 export function initSentry() {
   if (!DSN) return; // No-op in dev if DSN not set
 
   Sentry.init({
     dsn: DSN,
-    environment: import.meta.env.MODE,
-    release: "formetoialia@" + (import.meta.env.VITE_APP_VERSION ?? "latest"),
+    environment: MODE,
+    release: "formetoialia@" + APP_VERSION,
     // Only sample 20% of transactions in prod to keep quota low
     tracesSampleRate: 0.2,
     // Don't send source maps to users console

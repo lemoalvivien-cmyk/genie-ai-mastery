@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { SUPABASE_URL } from "@/lib/env";
 
 export type JobStatus = "queued" | "running" | "succeeded" | "failed" | "cancelled";
 export type RiskLevel = "low" | "medium" | "high";
@@ -79,7 +80,7 @@ export interface CreateJobParams {
   risk_level?: RiskLevel;
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
 
 export function useOpenClaw() {
   const { user } = useAuth();

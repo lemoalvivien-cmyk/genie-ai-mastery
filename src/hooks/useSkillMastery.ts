@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
+import { edgeFunctionUrl } from "@/lib/env";
 
 export interface SkillMastery {
   skill_id: string;
@@ -86,7 +87,7 @@ export function useConversationalScoring() {
     if (!utterance.trim()) return;
 
     pendingRef.current = true;
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/score-utterance`;
+    const url = edgeFunctionUrl("score-utterance");
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -172,7 +173,7 @@ export function fireScoreUtterance(params: {
   const { utterance, assistantReply, skillIds, moduleId, accessToken, onAllMastered } = params;
   if (!skillIds.length) return;
 
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/score-utterance`;
+  const url = edgeFunctionUrl("score-utterance");
   fetch(url, {
     method: "POST",
     headers: {
