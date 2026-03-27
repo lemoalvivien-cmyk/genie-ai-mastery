@@ -869,7 +869,7 @@ export default function Index() {
                   {[
                     "Missions illimitées",
                     "Playbooks métier complets",
-                    "Assistance KITT illimitée",
+                    "Assistance KITT — 500 échanges/jour",
                     "Cockpit manager",
                     "Bibliothèque d'équipe",
                     "Attestations vérifiables",
