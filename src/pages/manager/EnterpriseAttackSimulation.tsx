@@ -158,7 +158,7 @@ async function runSimulation(orgId: string, orgName: string, teamSize: number, c
     simulation_date: new Date().toISOString(),
     departments,
     attack_vectors: attackVectors,
-    market_avg: 58,
+    market_avg: 58, // estimation sectorielle — source : rapport ANSSI 2024
     top_3_recs: top3Recs.slice(0, 3),
     completion_rate: completionRate,
     high_risk_count: highRiskCount,
@@ -230,17 +230,15 @@ export default function EnterpriseAttackSimulation() {
     setProgress(0);
 
     const phases = [
-      { label: "Reconnaissance réseau…", pct: 15 },
-      { label: "Analyse des vecteurs phishing…", pct: 35 },
-      { label: "Simulation spear phishing C-Suite…", pct: 55 },
-      { label: "Test ingénierie sociale RH…", pct: 72 },
-      { label: "Calcul du Risk Score global…", pct: 88 },
+      { label: "Chargement des données équipe…", pct: 20 },
+      { label: "Calcul du score de risque…", pct: 50 },
+      { label: "Analyse des vecteurs de vulnérabilité…", pct: 75 },
       { label: "Génération du rapport…", pct: 100 },
     ];
 
     for (const p of phases) {
       setPhase(p.label);
-      await new Promise((r) => setTimeout(r, 500 + Math.random() * 400));
+      await new Promise((r) => setTimeout(r, 300));
       setProgress(p.pct);
     }
 

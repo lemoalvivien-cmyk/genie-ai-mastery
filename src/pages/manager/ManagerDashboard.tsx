@@ -233,7 +233,7 @@ function ROIBanner({ team, stats }: { team: TeamMember[]; stats: OrgStats | null
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />14 jours d'essai inclus</span>
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Jusqu'à 25 sièges</span>
-          <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Rapport mensuel auto</span>
+          <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Rapport mensuel exportable</span>
           <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" />Aucune formation à organiser</span>
         </div>
         <Link to="/pricing">
@@ -663,12 +663,8 @@ function VuePilotage({ team, stats, activationRate, completionRate, totalComplet
   orgId: string | undefined;
   toast: (args: { title: string; description?: string }) => void;
 }) {
-  const topPlaybooks = [
-    { title: "Rédiger un mail difficile", uses: Math.max(0, Math.round(totalCompleted * 0.3)), category: "Communication" },
-    { title: "Résumer un document long", uses: Math.max(0, Math.round(totalCompleted * 0.2)), category: "Analyse" },
-    { title: "Préparer une présentation", uses: Math.max(0, Math.round(totalCompleted * 0.15)), category: "Présentation" },
-    { title: "Créer un script d'appel", uses: Math.max(0, Math.round(totalCompleted * 0.1)), category: "Vente" },
-  ];
+  // Note: playbook usage data not yet tracked individually — showing mission count only
+  const topPlaybooks: { title: string; uses: number; category: string }[] = [];
 
   const blockers = [
     ...(inactiveMembers > 0 ? [{ type: "warning" as const, label: `${inactiveMembers} membre${inactiveMembers > 1 ? "s" : ""} inactif${inactiveMembers > 1 ? "s" : ""}`, desc: "Relancez-les — chaque mission = ~20 min économisées." }] : []),
@@ -784,38 +780,20 @@ function VuePilotage({ team, stats, activationRate, completionRate, totalComplet
         </CardContent>
       </Card>
 
-      {/* Playbooks les plus utilisés */}
+      {/* Playbooks — données réelles non encore trackées */}
       <Card className="bg-card/70 border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-primary" />
-            Playbooks les plus utiles
+            Playbooks recommandés
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          {topPlaybooks.map((pb, i) => (
-            <div key={pb.title} className="flex items-center gap-3">
-              <span className="text-xs font-black text-muted-foreground/30 w-5 text-right">#{i + 1}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-foreground truncate">{pb.title}</span>
-                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{pb.uses} usages</span>
-                </div>
-                <div className="h-1 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${totalCompleted > 0 ? (pb.uses / totalCompleted * 100) : 0}%`,
-                      background: "hsl(var(--primary))",
-                    }}
-                  />
-                </div>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-primary/20 text-primary shrink-0" style={{ background: "hsl(var(--primary)/0.06)" }}>
-                {pb.category}
-              </span>
-            </div>
-          ))}
+        <CardContent>
+          <div className="text-center py-6 text-sm text-muted-foreground">
+            <BookOpen className="w-7 h-7 mx-auto mb-2 opacity-20" />
+            <p>Le suivi détaillé par playbook sera disponible après les premières missions d'équipe.</p>
+            <p className="text-xs mt-1">{totalCompleted} mission{totalCompleted > 1 ? "s" : ""} complétée{totalCompleted > 1 ? "s" : ""} au total.</p>
+          </div>
         </CardContent>
       </Card>
 
@@ -962,7 +940,7 @@ export default function ManagerDashboard() {
 
   useEffect(() => {
     if (!profile?.org_id) return;
-    const interval = setInterval(loadData, 15_000);
+    const interval = setInterval(loadData, 120_000); // refresh every 2 min
     return () => clearInterval(interval);
   }, [profile?.org_id, loadData]);
 
@@ -1137,11 +1115,11 @@ export default function ManagerDashboard() {
   // ─── Actions collaborateur ───────────────────────────────────────────────
 
   const handleRelance = (member: TeamMember) => {
-    toast({ title: `Rappel envoyé à ${member.full_name ?? member.email}`, description: "Un email de relance a été envoyé." });
+    toast({ title: `Relance notée pour ${member.full_name ?? member.email}`, description: "La relance automatique par email sera disponible prochainement. En attendant, contactez directement le collaborateur." });
   };
 
   const handlePlaybook = (member: TeamMember) => {
-    toast({ title: `Playbook recommandé à ${member.full_name ?? member.email}`, description: "\"Rédiger un mail difficile\" — résultat en 10 min." });
+    toast({ title: `Recommandation notée`, description: `Suggestion pour ${member.full_name ?? member.email} : envoyez-lui le lien vers le playbook \"Rédiger un mail difficile\" par email.` });
   };
 
   // ─── Derived ─────────────────────────────────────────────────────────────
@@ -1304,6 +1282,28 @@ export default function ManagerDashboard() {
             <TabsContent value="overview" className="mt-6">
               {loading ? (
                 <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Chargement…</div>
+              ) : !profile?.org_id ? (
+                <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+                  <Building2 className="w-12 h-12 text-muted-foreground/20" />
+                  <div>
+                    <h3 className="font-semibold text-foreground">Aucune organisation liée</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Créez votre organisation pour accéder au cockpit manager.</p>
+                  </div>
+                  <Link to="/manager/onboarding">
+                    <Button size="sm" className="gap-1.5"><Plus className="w-3.5 h-3.5" />Créer mon organisation</Button>
+                  </Link>
+                </div>
+              ) : team.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+                  <Users className="w-12 h-12 text-muted-foreground/20" />
+                  <div>
+                    <h3 className="font-semibold text-foreground">Équipe vide</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Invitez vos premiers collaborateurs pour commencer le suivi.</p>
+                  </div>
+                  <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
+                    <Plus className="w-3.5 h-3.5" />Inviter un collaborateur
+                  </Button>
+                </div>
               ) : (
                 <VueEnsemble
                   team={team} stats={stats} activeMembers={activeMembers} inactiveMembers={inactiveMembers}
