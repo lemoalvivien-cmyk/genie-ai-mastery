@@ -624,29 +624,27 @@ Simplifie davantage tes explications. Utilise au moins 1 analogie du quotidien.
     // KITT IA stage 1: short structured JSON — cheap model, small budget
     const jarvisShortPrompt = `${enrichedSystemPrompt}
 
-INSTRUCTIONS MODE JARVIS — RÉPONSE STRUCTURÉE :
-Tu es JARVIS. Applique ta chaîne de pensée (interne) puis réponds UNIQUEMENT avec ce JSON strict :
+INSTRUCTIONS MODE KITT — RÉPONSE STRUCTURÉE :
+Tu es KITT. Applique ta chaîne de pensée (interne) puis réponds UNIQUEMENT avec ce JSON strict :
 {
   "message": "Ton message en markdown. Style Tony Stark / Deadpool light. 3-5 phrases max. 1 blague légère autorisée. TOUJOURS une prochaine étape concrète à la fin.",
-  "action": "attack|motivate|generate_exercise|sleepforge|quiz|explain|synthesis|remediate",
+  "action": "motivate|generate_exercise|quiz|explain|synthesis|remediate",
   "tts_text": "Version courte du message pour la synthèse vocale. Max 2 phrases. Naturel, conversationnel. Pas de markdown.",
   "plan": [
-    { "step": "Description courte de l'étape", "action_type": "quiz|lab|module|external", "action_id": "identifiant", "cta_label": "Texte du bouton" }
+    { "step": "Description courte de l'étape", "action_type": "quiz|module|chat", "action_id": "identifiant", "cta_label": "Texte du bouton" }
   ],
-  "immediate_action": { "type": "quiz|lab|module|chat|download", "id": "identifiant", "label": "Ce que l'utilisateur doit faire maintenant" },
+  "immediate_action": { "type": "quiz|module|chat", "id": "identifiant", "label": "Ce que l'utilisateur doit faire maintenant" },
   "proof_type": "badge|pdf|score|none",
   "confidence": 0.85
 }
 Règles de mapping action :
-- "attack" : si l'utilisateur veut s'entraîner / simuler une attaque
 - "motivate" : si l'utilisateur doute, exprime de la fatigue ou de la frustration
-- "generate_exercise" : si l'utilisateur veut pratiquer sans lab formel
-- "sleepforge" : si l'utilisateur mentionne la nuit, le soir, "avant de dormir"
+- "generate_exercise" : si l'utilisateur veut pratiquer
 - "quiz" : si l'utilisateur veut être évalué ou tester ses connaissances
 - "explain" : question d'explication ou de compréhension
 - "synthesis" : bilan, résumé, rapport de progression
 - "remediate" : lacune détectée dans le contexte KITT ou expressément mentionnée
-Pour action_id : "phishing" pour phishing lab, "cyber" pour cyber lab, "prompt" pour prompt lab.
+Pour action_id : utilise le slug du module pertinent.
 CRITIQUE : JSON valide uniquement. Pas de texte avant ou après. Pas de commentaires dans le JSON.`;
 
     // KITT IA stage 2: deep dive — only triggered by "Explique plus"
