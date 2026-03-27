@@ -80,7 +80,7 @@ const PRO_FEATURES = [
   { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées", "Playbooks métier complets", "Exécutions guidées par KITT"] },
   { group: "Agir", icon: Zap, items: ["Assistance KITT — 500 échanges/jour", "Livrables téléchargeables à chaque session"] },
   { group: "Prouver", icon: FileCheck, items: ["Attestations PDF vérifiables", "QR code de vérification publique", "Historique exportable"] },
-  { group: "Piloter", icon: BarChart3, items: ["Cockpit manager — jusqu'à 25 membres", "Suivi progression individuel & collectif", "Bibliothèque d'équipe partagée", "Rapports automatisés"] },
+  { group: "Piloter", icon: BarChart3, items: ["Cockpit manager — jusqu'à 25 membres", "Suivi progression individuel & collectif", "Bibliothèque d'équipe partagée", "Rapports exportables"] },
 ];
 
 const FAQ_DATA = [
