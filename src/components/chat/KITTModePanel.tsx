@@ -90,7 +90,7 @@ export function KITTModePanel({ mode, onModeChange, context, isPro }: Props) {
           )}
           {mode === "lab" && (
             <p className="text-[11px] text-muted-foreground">
-              Lance une mission pratique dans le lab correspondant à ton parcours.
+              KITT génère une mission pratique adaptée à ton niveau.
             </p>
           )}
           {mode === "correction" && (

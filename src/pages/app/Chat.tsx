@@ -105,7 +105,7 @@ function UpsellBubble({ content }: { content: string }) {
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
           style={{ background: "#FE2C40", color: "#fff" }}>
           <Lock className="w-4 h-4" />
-          Débloquer KITT IA illimité →
+          Passer au plan Pro — 500 échanges/jour →
         </a>
       </div>
     </div>
@@ -302,8 +302,13 @@ export default function Chat() {
       else setKittState("idle");
     } catch (err) {
       const isAbort = err instanceof Error && err.name === "AbortError";
-      const errMsg = isAbort ? "Temps dépassé. Réessayez." : err instanceof Error ? err.message : "Erreur inconnue";
-      setMessages(prev => prev.filter(m => m.id !== "loading").concat({ id: crypto.randomUUID(), role: "assistant", content: `❌ ${errMsg}` }));
+      const isNetwork = err instanceof Error && (err.message.includes("fetch") || err.message.includes("network") || err.message.includes("Failed"));
+      const errMsg = isAbort
+        ? "⏱️ Temps de réponse dépassé (30s). Le serveur est peut-être surchargé. Réessayez dans quelques instants."
+        : isNetwork
+        ? "📡 Problème de connexion. Vérifiez votre réseau et réessayez."
+        : err instanceof Error ? `⚠️ ${err.message}` : "⚠️ Une erreur inattendue est survenue. Réessayez.";
+      setMessages(prev => prev.filter(m => m.id !== "loading").concat({ id: crypto.randomUUID(), role: "assistant", content: errMsg }));
       setKittState("idle");
     } finally {
       clearTimeout(timeoutId);
