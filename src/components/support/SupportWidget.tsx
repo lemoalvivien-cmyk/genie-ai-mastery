@@ -105,7 +105,7 @@ export const BLOCKING_MESSAGES: Record<string, { title: string; body: string; ct
   },
   trial_ended: {
     title: "⏱️ Votre essai est terminé",
-    body: "Vous avez profité de 14 jours d'accès complet. Pour continuer avec tous les modules, KITT illimité et les attestations, passez à Pro.",
+    body: "Vous avez profité de 14 jours d'accès complet. Pour continuer avec tous les playbooks, KITT (500 échanges/jour) et les attestations, passez à Pro.",
     cta: "Continuer avec Pro →",
     href: "/pricing",
   },
