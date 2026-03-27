@@ -732,43 +732,12 @@ export default function Index() {
                       </div>
                     </div>
                   ))}
-                              width: `${member.progress}%`,
-                              background: member.progress > 70
-                                ? "hsl(142 71% 45%)"
-                                : member.progress > 30
-                                  ? "hsl(var(--primary))"
-                                  : "hsl(var(--accent))",
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <span
-                        className="text-[10px] px-1.5 py-0.5 rounded-full border font-medium shrink-0"
-                        style={{
-                          borderColor: member.status === "Complété"
-                            ? "hsl(142 71% 45% / 0.3)"
-                            : member.status === "À relancer"
-                              ? "hsl(var(--accent)/0.3)"
-                              : "hsl(var(--primary)/0.3)",
-                          color: member.status === "Complété"
-                            ? "hsl(142 71% 45%)"
-                            : member.status === "À relancer"
-                              ? "hsl(var(--accent))"
-                              : "hsl(var(--primary))",
-                          background: "transparent",
-                        }}
-                      >
-                        {member.status}
-                      </span>
-                    </div>
-                  ))}
                 </div>
                 <div
-                  className="px-4 py-3 border-t border-border flex items-center justify-between"
+                  className="px-4 py-3 border-t border-border text-center"
                   style={{ background: "hsl(var(--background)/0.3)" }}
                 >
-                  <span className="text-xs text-muted-foreground">4 membres actifs · 1 à relancer</span>
-                  <span className="text-xs font-semibold text-primary cursor-pointer hover:underline">Exporter →</span>
+                  <span className="text-[10px] text-muted-foreground">Disponible dans le plan Pro · Jusqu'à 25 membres</span>
                 </div>
               </div>
             </FadeIn>
