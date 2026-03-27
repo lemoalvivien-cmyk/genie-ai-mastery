@@ -158,7 +158,7 @@ async function runSimulation(orgId: string, orgName: string, teamSize: number, c
     simulation_date: new Date().toISOString(),
     departments,
     attack_vectors: attackVectors,
-    market_avg: 58,
+    market_avg: 58, // estimation sectorielle — source : rapport ANSSI 2024
     top_3_recs: top3Recs.slice(0, 3),
     completion_rate: completionRate,
     high_risk_count: highRiskCount,

@@ -264,7 +264,7 @@ function BillingSection({ orgId }: { orgId: string | null }) {
           <div className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="text-xs text-muted-foreground">MRR</span>
-            <Badge className="ml-auto text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse">LIVE</Badge>
+            <Badge className="ml-auto text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30">CALCULÉ</Badge>
           </div>
           <div className="text-2xl font-black text-emerald-400">
             {loading ? "…" : euros(billing?.mrr_cents ?? 0)}
