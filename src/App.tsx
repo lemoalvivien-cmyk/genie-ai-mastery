@@ -31,7 +31,7 @@ const Chat           = lazy(() => import("./pages/app/Chat"));
 const Settings       = lazy(() => import("./pages/app/Settings"));
 const Today          = lazy(() => import("./pages/app/Today"));
 const LibraryPage = lazy(() => import("./pages/app/Library"));
-const Jarvis         = lazy(() => import("./pages/app/Jarvis"));
+
 
 // ── Admin ────────────────────────────────────────────────────────
 const ControlRoom     = lazy(() => import("./pages/admin/ControlRoom"));

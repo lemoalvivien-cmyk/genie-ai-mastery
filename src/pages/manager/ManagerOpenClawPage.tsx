@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { useOpenClaw } from "@/hooks/useOpenClaw";
-import { RuntimeStatusBadge } from "@/components/openclaw/OpenClawBadges";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, RefreshCw, Activity, Shield, Clock, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+
+function RuntimeStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    active: { label: "Actif", cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" },
+    inactive: { label: "Inactif", cls: "bg-muted text-muted-foreground border-border" },
+    error: { label: "Erreur", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+  };
+  const cfg = map[status] ?? map.inactive;
+  return <Badge variant="outline" className={`text-xs ${cfg.cls}`}>{cfg.label}</Badge>;
+}
 
 const PROFILE_LABELS: Record<string, string> = {
   tutor_readonly: "Tuteur lecture seule",
