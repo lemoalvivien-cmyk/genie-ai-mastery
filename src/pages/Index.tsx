@@ -549,7 +549,7 @@ export default function Index() {
               <div className="text-center mt-7">
                 <CTAPrimary onClick={handleCTA}>
                   <Sparkles className="w-4 h-4" />
-                  Voir tous les playbooks
+                  Commencer gratuitement
                   <ArrowRight className="w-4 h-4" />
                 </CTAPrimary>
               </div>
@@ -643,7 +643,7 @@ export default function Index() {
 
           <FadeIn className="text-center mt-8">
             <CTASecondary onClick={handleCTA}>
-              Voir tous les playbooks <ArrowRight className="w-4 h-4" />
+              Démarrer une mission <ArrowRight className="w-4 h-4" />
             </CTASecondary>
           </FadeIn>
         </Sec>
@@ -673,10 +673,10 @@ export default function Index() {
               </div>
               <ul className="space-y-2.5 mb-7">
                 {[
-                  "Score d'adoption équipe en temps réel",
-                  "Signaux d'inactivité et relances automatiques",
-                  "Heures économisées estimées par membre",
-                  "Rapport mensuel exportable en 1 clic",
+                  "Suivi de progression par membre",
+                  "Visibilité sur les membres inactifs",
+                  "Heures économisées estimées par équipe",
+                  "Rapports exportables",
                   "Jusqu'à 25 membres inclus dans le plan",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground/80">
@@ -702,18 +702,18 @@ export default function Index() {
                 >
                   <span className="text-xs font-bold text-foreground">Cockpit équipe</span>
                   <span
-                    className="text-[10px] px-2 py-0.5 rounded-full border font-semibold text-emerald-400 border-emerald-400/30"
-                    style={{ background: "hsl(142 71% 45% / 0.08)" }}
+                    className="text-[10px] px-2 py-0.5 rounded-full border font-semibold text-muted-foreground border-border"
+                    style={{ background: "hsl(var(--secondary)/0.5)" }}
                   >
-                    En direct
+                    Aperçu
                   </span>
                 </div>
                 <div className="p-4 space-y-3">
                   {[
-                    { name: "Marie R.", progress: 78, tag: "IA Pro", status: "Actif" },
-                    { name: "Thomas B.", progress: 45, tag: "Cybersécurité", status: "Actif" },
-                    { name: "Sophie L.", progress: 92, tag: "IA Perso", status: "Complété" },
-                    { name: "David M.", progress: 12, tag: "IA Pro", status: "À relancer" },
+                    { name: "Marie R.", progress: 78, tag: "Communication", status: "Actif" },
+                    { name: "Thomas B.", progress: 45, tag: "Productivité", status: "Actif" },
+                    { name: "Sophie L.", progress: 92, tag: "Analyse", status: "Complété" },
+                    { name: "David M.", progress: 12, tag: "Communication", status: "À relancer" },
                   ].map((member) => (
                     <div
                       key={member.name}
@@ -813,7 +813,7 @@ export default function Index() {
                 { feature: "Suivi de progression", classic: "Aucun", fti: "Mesurable & exportable" },
                 { feature: "Usage solo uniquement", classic: "Oui", fti: "Pilotage équipe inclus" },
                 { feature: "Résultat documenté", classic: "Non", fti: "Attestation + rapport" },
-                { feature: "Adapté à mon niveau", classic: "Non", fti: "Parcours adaptatif intégré" },
+                { feature: "Adapté à mon niveau", classic: "Non", fti: "Guidance progressive intégrée" },
               ].map((row, i) => (
                 <div
                   key={row.feature}

@@ -77,9 +77,9 @@ const FREE_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-  { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées", "Playbooks métier complets", "Exécutions guidées adaptatives"] },
+  { group: "Exécuter", icon: BookOpen, items: ["Missions illimitées", "Playbooks métier complets", "Exécutions guidées par KITT"] },
   { group: "Agir", icon: Zap, items: ["Assistance KITT — 500 échanges/jour", "Livrables téléchargeables à chaque session"] },
-  { group: "Prouver", icon: FileCheck, items: ["Attestations PDF à signature numérique", "QR code de vérification publique", "Historique exportable"] },
+  { group: "Prouver", icon: FileCheck, items: ["Attestations PDF vérifiables", "QR code de vérification publique", "Historique exportable"] },
   { group: "Piloter", icon: BarChart3, items: ["Cockpit manager — jusqu'à 25 membres", "Suivi progression individuel & collectif", "Bibliothèque d'équipe partagée", "Rapports automatisés"] },
 ];
 
@@ -102,7 +102,7 @@ const FAQ_DATA = [
   },
   {
     q: "Que contient l'offre Pro en pratique ?",
-    a: "Trois dimensions : Exécuter (missions illimitées, playbooks métier complets, exécutions guidées adaptatives sur votre vrai travail), Agir (KITT — 500 échanges/jour, livrables téléchargeables à chaque session), Prouver (attestations PDF à signature numérique, QR code de vérification, historique exportable). Pas de vidéos passives.",
+    a: "Trois dimensions : Exécuter (missions illimitées, playbooks métier complets, exécutions guidées par KITT sur votre vrai travail), Agir (KITT — 500 échanges/jour, livrables téléchargeables à chaque session), Prouver (attestations PDF vérifiables, QR code de vérification, historique exportable). Pas de vidéos passives.",
   },
   {
     q: "Les attestations sont-elles reconnues officiellement ?",
@@ -208,7 +208,7 @@ export default function Pricing() {
     <>
       <Helmet>
         <title>Prix — Formetoialia · 59€/mois pour toute l'équipe</title>
-        <meta name="description" content="Formetoialia Pro — 59€ TTC/mois. Missions quotidiennes, playbooks métier, cockpit manager temps réel, attestations vérifiables. 14 jours d'essai sans carte. Jusqu'à 25 membres." />
+        <meta name="description" content="Formetoialia Pro — 59€ TTC/mois. Missions quotidiennes, playbooks métier, cockpit manager, attestations vérifiables. 14 jours d'essai sans carte. Jusqu'à 25 membres." />
         <link rel="canonical" href="https://formetoialia.com/pricing" />
         <meta property="og:title" content="Prix Formetoialia — Rendez votre équipe opérationnelle sur l'IA" />
         <meta property="og:description" content="Un plan. Tout inclus. 59€ TTC/mois pour 25 membres. Cockpit manager inclus. 14 jours d'essai sans carte." />
@@ -260,7 +260,7 @@ export default function Pricing() {
               <span style={{ color: "hsl(var(--primary))" }}>avec des résultats mesurables dès la première semaine.</span>
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
-              Missions quotidiennes guidées, playbooks métier complets, cockpit manager temps réel, attestations vérifiables.
+              Missions quotidiennes guidées, playbooks métier complets, cockpit manager, attestations vérifiables.
               <strong className="text-foreground"> Jusqu'à 25 membres. 59€ TTC/mois. Aucun coût caché.</strong>
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground/70">
@@ -458,14 +458,14 @@ export default function Pricing() {
                     <span className="text-primary">Vous payez pour piloter.</span>
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                    Voyez en temps réel qui utilise l'IA, qui stagne, et ce que ça représente en heures économisées. Exportez un rapport en un clic.
+                    Voyez qui utilise l'IA, qui stagne, et suivez la progression de chaque membre. Exportez vos rapports.
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { icon: Activity, label: "Score d'adoption", value: "temps réel" },
-                      { icon: Timer, label: "Heures éco. estimées", value: "auto-calculées" },
+                      { icon: Activity, label: "Suivi progression", value: "par membre" },
+                      { icon: Timer, label: "Heures éco. estimées", value: "par équipe" },
                       { icon: Award, label: "Attestations équipe", value: "exportables" },
-                      { icon: Lightbulb, label: "Recommandations IA", value: "contextuelles" },
+                      { icon: Lightbulb, label: "Indicateurs d'usage", value: "actifs / inactifs" },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center gap-2 p-2.5 rounded-lg bg-background/40 border border-border/40">
                         <item.icon className="w-4 h-4 text-primary shrink-0" />
@@ -486,8 +486,8 @@ export default function Pricing() {
                 <div className="rounded-xl border border-border overflow-hidden text-xs" style={{ background: "hsl(var(--card))" }}>
                   <div className="px-4 py-2.5 border-b border-border flex items-center justify-between bg-background/40">
                     <span className="font-bold text-foreground text-xs">Cockpit équipe — ce mois</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 font-semibold">
-                      En direct
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground border border-border font-semibold">
+                      Aperçu
                     </span>
                   </div>
                   <div className="p-3 grid grid-cols-3 gap-2 border-b border-border/30">

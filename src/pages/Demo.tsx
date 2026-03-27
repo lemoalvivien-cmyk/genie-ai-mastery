@@ -159,9 +159,9 @@ const STEP_CONTENT: Record<string, React.ReactNode> = {
       </p>
       {[
         { type: "Prompt", title: "Prospection RH LinkedIn × 5", date: "Aujourd'hui", score: "78/100", icon: MessageSquare, color: "text-primary" },
-        { type: "Analyse", title: "Email phishing détecté — Banque", date: "Hier", score: "92/100", icon: Shield, color: "text-emerald-400" },
-        { type: "Synthèse", title: "Module IA Pro — Chapitre 3", date: "Il y a 2j", score: "Complété", icon: BookOpen, color: "text-violet-400" },
-        { type: "Lab", title: "Phishing Lab — Niveau 2 réussi", date: "Il y a 3j", score: "Certifié", icon: FlaskConical, color: "text-amber-400" },
+        { type: "Analyse", title: "Contrat fournisseur — Points clés extraits", date: "Hier", score: "92/100", icon: Shield, color: "text-emerald-400" },
+        { type: "Synthèse", title: "Compte rendu réunion Q1", date: "Il y a 2j", score: "Complété", icon: BookOpen, color: "text-violet-400" },
+        { type: "Rapport", title: "Plan d'action commercial — Draft", date: "Il y a 3j", score: "Validé", icon: FileCheck, color: "text-amber-400" },
       ].map((item) => (
         <div key={item.title}
           className="flex items-center gap-3 p-3 rounded-xl border border-border"
@@ -197,10 +197,10 @@ const STEP_CONTENT: Record<string, React.ReactNode> = {
 
       <div className="space-y-2.5">
         {[
-          { label: "IA Pro", pct: 68, color: "bg-primary" },
-          { label: "Cybersécurité", pct: 41, color: "bg-emerald-400" },
-          { label: "Phishing Lab", pct: 100, color: "bg-violet-400" },
-          { label: "Prompt Lab", pct: 25, color: "bg-amber-400" },
+          { label: "Communication", pct: 68, color: "bg-primary" },
+          { label: "Productivité", pct: 41, color: "bg-emerald-400" },
+          { label: "Analyse", pct: 100, color: "bg-violet-400" },
+          { label: "Stratégie", pct: 25, color: "bg-amber-400" },
         ].map((m) => (
           <div key={m.label}>
             <div className="flex justify-between text-xs mb-1">
@@ -223,7 +223,7 @@ const STEP_CONTENT: Record<string, React.ReactNode> = {
         <FileCheck className="w-5 h-5 text-primary shrink-0" />
         <div>
           <p className="text-sm font-bold text-foreground">Attestation disponible</p>
-          <p className="text-xs text-muted-foreground">Phishing Lab — PDF signé + QR code de vérification</p>
+          <p className="text-xs text-muted-foreground">Analyse documentaire — PDF vérifiable + QR code</p>
         </div>
         <button className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-primary-foreground bg-primary">
           Voir →
