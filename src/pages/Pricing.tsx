@@ -482,64 +482,32 @@ export default function Pricing() {
                   </div>
                 </div>
 
-                {/* Mini cockpit mockup */}
+                {/* Cockpit capabilities illustration */}
                 <div className="rounded-xl border border-border overflow-hidden text-xs" style={{ background: "hsl(var(--card))" }}>
                   <div className="px-4 py-2.5 border-b border-border flex items-center justify-between bg-background/40">
-                    <span className="font-bold text-foreground text-xs">Cockpit équipe — ce mois</span>
+                    <span className="font-bold text-foreground text-xs">Cockpit équipe — ce que vous verrez</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground border border-border font-semibold">
-                      Aperçu
+                      Illustration
                     </span>
                   </div>
-                  <div className="p-3 grid grid-cols-3 gap-2 border-b border-border/30">
+                  <div className="p-4 space-y-3">
                     {[
-                      { label: "Actifs", value: "8/10", color: "text-emerald-500" },
-                      { label: "Missions", value: "47", color: "text-primary" },
-                      { label: "Heures éco.", value: "~16h", color: "text-amber-400" },
-                    ].map((kpi) => (
-                      <div key={kpi.label} className="text-center p-2 rounded-lg bg-background/30">
-                        <div className={`text-base font-black ${kpi.color}`}>{kpi.value}</div>
-                        <div className="text-muted-foreground">{kpi.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-3 space-y-2">
-                    {[
-                      { name: "Marie R.", pct: 78, status: "Actif", statusColor: "text-emerald-500" },
-                      { name: "Thomas B.", pct: 45, status: "Actif", statusColor: "text-emerald-500" },
-                      { name: "Sophie L.", pct: 92, status: "Top", statusColor: "text-amber-400" },
-                      { name: "David M.", pct: 12, status: "À relancer", statusColor: "text-destructive" },
-                    ].map((m) => (
-                      <div key={m.name} className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
-                          {m.name[0]}
-                        </div>
+                      { icon: Activity, label: "Progression individuelle", detail: "Score et modules par membre", color: "text-emerald-500" },
+                      { icon: Users, label: "Taux d'adoption équipe", detail: "Actifs vs inactifs, tendance", color: "text-primary" },
+                      { icon: Timer, label: "Heures économisées estimées", detail: "Basé sur 20 min/mission", color: "text-amber-400" },
+                      { icon: Award, label: "Attestations & exports", detail: "PDF vérifiables, rapports", color: "text-violet-400" },
+                    ].map((cap) => (
+                      <div key={cap.label} className="flex items-center gap-3 p-2.5 rounded-lg bg-background/30 border border-border/30">
+                        <cap.icon className={`w-4 h-4 ${cap.color} shrink-0`} />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="font-medium text-foreground truncate text-[11px]">{m.name}</span>
-                            <span className={`${m.statusColor} font-semibold text-[10px] shrink-0 ml-1`}>{m.status}</span>
-                          </div>
-                          <div className="h-1 rounded-full bg-border overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{
-                                width: `${m.pct}%`,
-                                background: m.pct > 70 ? "hsl(142 71% 45%)" : m.pct > 30 ? "hsl(var(--primary))" : "hsl(var(--destructive))",
-                              }}
-                            />
-                          </div>
+                          <span className="font-semibold text-foreground text-[11px]">{cap.label}</span>
+                          <span className="text-muted-foreground text-[10px] ml-1.5">— {cap.detail}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground w-7 text-right shrink-0">{m.pct}%</span>
                       </div>
                     ))}
                   </div>
-                  <div className="px-3 py-2 border-t border-border/30 flex items-center justify-between bg-background/20">
-                    <span className="text-muted-foreground text-[10px]">1 membre à relancer · Export dispo</span>
-                    <button
-                      onClick={handleCheckout}
-                      className="text-[10px] font-bold text-primary hover:underline"
-                    >
-                      Activer →
-                    </button>
+                  <div className="px-3 py-2 border-t border-border/30 text-center bg-background/20">
+                    <span className="text-muted-foreground text-[10px]">Disponible dès l'activation Pro · Jusqu'à 25 membres</span>
                   </div>
                 </div>
               </div>
