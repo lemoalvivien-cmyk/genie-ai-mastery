@@ -6,8 +6,6 @@ import { useStreak } from "@/hooks/useStreak";
 import { PanicButton } from "@/components/PanicButton";
 import { LegalFooterLinks } from "@/components/legal/LegalFooterLinks";
 import { useSubscription } from "@/hooks/useSubscription";
-import { JarvisNudgeProvider } from "@/components/jarvis/JarvisNudge";
-import { JarvisOverlay } from "@/components/jarvis/JarvisOverlay";
 import SupportWidget from "@/components/support/SupportWidget";
 
 function LegalLinks() {
@@ -258,8 +256,6 @@ export default function AppLayout() {
       </div>
 
       <PanicButton />
-      <JarvisNudgeProvider />
-      <JarvisOverlay />
       <SupportWidget />
     </div>
   );
