@@ -223,7 +223,7 @@ const STEP_CONTENT: Record<string, React.ReactNode> = {
         <FileCheck className="w-5 h-5 text-primary shrink-0" />
         <div>
           <p className="text-sm font-bold text-foreground">Attestation disponible</p>
-          <p className="text-xs text-muted-foreground">Phishing Lab — PDF signé + QR code de vérification</p>
+          <p className="text-xs text-muted-foreground">Analyse documentaire — PDF vérifiable + QR code</p>
         </div>
         <button className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-primary-foreground bg-primary">
           Voir →
