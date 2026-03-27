@@ -181,6 +181,7 @@ const STEP_CONTENT: Record<string, React.ReactNode> = {
 
   progression: (
     <div className="space-y-4">
+      <p className="text-[10px] text-muted-foreground/60 text-right font-semibold uppercase tracking-wide">Illustration du parcours</p>
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: "XP total", value: "1 240", color: "text-primary" },
