@@ -230,17 +230,15 @@ export default function EnterpriseAttackSimulation() {
     setProgress(0);
 
     const phases = [
-      { label: "Reconnaissance réseau…", pct: 15 },
-      { label: "Analyse des vecteurs phishing…", pct: 35 },
-      { label: "Simulation spear phishing C-Suite…", pct: 55 },
-      { label: "Test ingénierie sociale RH…", pct: 72 },
-      { label: "Calcul du Risk Score global…", pct: 88 },
+      { label: "Chargement des données équipe…", pct: 20 },
+      { label: "Calcul du score de risque…", pct: 50 },
+      { label: "Analyse des vecteurs de vulnérabilité…", pct: 75 },
       { label: "Génération du rapport…", pct: 100 },
     ];
 
     for (const p of phases) {
       setPhase(p.label);
-      await new Promise((r) => setTimeout(r, 500 + Math.random() * 400));
+      await new Promise((r) => setTimeout(r, 300));
       setProgress(p.pct);
     }
 
