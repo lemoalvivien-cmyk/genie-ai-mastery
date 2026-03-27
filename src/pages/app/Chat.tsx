@@ -105,7 +105,7 @@ function UpsellBubble({ content }: { content: string }) {
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
           style={{ background: "#FE2C40", color: "#fff" }}>
           <Lock className="w-4 h-4" />
-          Débloquer KITT IA illimité →
+          Passer au plan Pro — 500 échanges/jour →
         </a>
       </div>
     </div>
