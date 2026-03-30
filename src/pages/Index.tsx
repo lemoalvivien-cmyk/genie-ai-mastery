@@ -386,9 +386,11 @@ export default function Index() {
         </ErrorBoundary>
 
         {/* ══ 3. PROMESSE ═════════════════════════════════════════ */}
+        <ErrorBoundary name="section-features">
         <Sec
           className="max-w-5xl mx-auto"
           style={{ paddingTop: 0 }}
+          aria-label="Fonctionnalités de FormetoiAlia"
         >
           <FadeIn className="text-center mb-12">
             <Chip><Zap className="w-3 h-3" /> La promesse</Chip>
