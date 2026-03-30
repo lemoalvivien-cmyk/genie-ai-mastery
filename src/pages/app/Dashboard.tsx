@@ -187,6 +187,30 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* ── Bienvenue nouvel utilisateur ── */}
+          {!isDashboardLoading && stats?.completedModules === 0 && totalXP === 0 && (
+            <div
+              className="p-5 rounded-2xl animate-slide-up"
+              style={{
+                background: "linear-gradient(135deg, rgba(82,87,216,0.12), rgba(254,44,64,0.08))",
+                border: "1px solid rgba(82,87,216,0.25)",
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <TrendingUp className="w-6 h-6 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-bold text-sm" style={{ color: "#E8E9F0" }}>
+                    Bienvenue sur Formetoialia ! 🎉
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Commencez par votre première mission quotidienne pour gagner du XP et débloquer vos playbooks.
+                    Vos stats s'afficheront ici au fur et à mesure de votre progression.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── 3. Mission du jour ── */}
           {!missionDone && (
             <Link

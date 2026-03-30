@@ -85,12 +85,28 @@ Deno.serve(async (req) => {
     log.push(`auto-attestations error: ${err}`);
   }
 
-  // ── 5. AI budget check — alert if daily cost exceeds threshold ──────────────
+  // ── 5. AI budget check ──────────────────────────────────────────────────────
   try {
     const budgetResult = await checkAIBudgetAlert(supabase);
     log.push(`budget-alert: ${JSON.stringify(budgetResult)}`);
   } catch (err) {
     log.push(`budget-alert error: ${err}`);
+  }
+
+  // ── 6. Trial ending emails (J-3 before trial_end) ─────────────────────────
+  try {
+    const trialResult = await sendTrialEndingEmails(supabase, RESEND_API_KEY);
+    log.push(`trial-ending: ${JSON.stringify(trialResult)}`);
+  } catch (err) {
+    log.push(`trial-ending error: ${err}`);
+  }
+
+  // ── 7. Re-engagement emails (7 days inactive) ─────────────────────────────
+  try {
+    const reengageResult = await sendReEngagementEmails(supabase, RESEND_API_KEY);
+    log.push(`re-engagement: ${JSON.stringify(reengageResult)}`);
+  } catch (err) {
+    log.push(`re-engagement error: ${err}`);
   }
 
   console.log("daily-cron done:", log.join(" | "));
