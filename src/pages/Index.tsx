@@ -948,11 +948,14 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 11. CTA FINAL ════════════════════════════════════════ */}
+        <ErrorBoundary name="section-cta-final">
         <Sec
           className="max-w-2xl mx-auto text-center"
           style={{ paddingBottom: "5rem" }}
+          aria-label="Appel à l'action"
         >
           <FadeIn>
             <div
