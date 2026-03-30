@@ -79,14 +79,11 @@ serve(async (req) => {
   // On supprime explicitement les tables sans FK cascade vers profiles
   const tables = [
     "chat_messages",
-    "genieos_conversations",
     "knowledge_documents",
     "knowledge_chunks",
     "knowledge_sources",
     "data_documents",
     "data_sources",
-    "genieos_agents",
-    "genieos_workflows",
     "openclaw_jobs",
     "memory_timeline",
     "action_logs",
