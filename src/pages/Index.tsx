@@ -383,6 +383,7 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 3. PROMESSE ═════════════════════════════════════════ */}
         <Sec
