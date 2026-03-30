@@ -27,40 +27,36 @@ export default function AdminAnalytics() {
     async function fetchAnalytics() {
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
-      const [usersRes, chatRes, onboardedRes, totalUsersRes, proUsersRes, topRes] =
-        await Promise.all([
-          // 1. New users last 7 days
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact", head: true })
-            .gte("created_at", sevenDaysAgo),
-          // 2. Chat messages last 7 days
-          supabase
-            .from("analytics_events")
-            .select("id", { count: "exact", head: true })
-            .eq("event_name", "chat_message")
-            .gte("created_at", sevenDaysAgo),
-          // 3. Users who completed onboarding
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact", head: true })
-            .eq("onboarding_completed", true),
-          // Total users
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact", head: true }),
-          // 4. Pro users (plan = pro)
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact", head: true })
-            .eq("plan", "pro"),
-          // 5. Top features
-          supabase
-            .from("analytics_events")
-            .select("event_name")
-            .gte("created_at", sevenDaysAgo)
-            .limit(1000),
-        ]);
+      const usersRes = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", sevenDaysAgo);
+
+      const chatRes = await supabase
+        .from("analytics_events")
+        .select("id", { count: "exact", head: true })
+        .eq("event_name", "chat_message")
+        .gte("created_at", sevenDaysAgo);
+
+      const onboardedRes = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("onboarding_completed", true);
+
+      const totalUsersRes = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true });
+
+      const proUsersRes = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("plan", "pro");
+
+      const topRes = await supabase
+        .from("analytics_events")
+        .select("event_name")
+        .gte("created_at", sevenDaysAgo)
+        .limit(1000);
 
       // Count top features manually
       const featureCounts: Record<string, number> = {};
