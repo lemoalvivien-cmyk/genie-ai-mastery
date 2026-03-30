@@ -50,7 +50,7 @@ export default function AdminAnalytics() {
       const proUsersRes = await supabase
         .from("profiles")
         .select("id", { count: "exact", head: true })
-        .eq("plan", "pro");
+        .not("plan", "is", null);
 
       const topRes = await supabase
         .from("analytics_events")
