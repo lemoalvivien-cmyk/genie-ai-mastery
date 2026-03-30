@@ -189,7 +189,7 @@ export default function Index() {
             <nav className="hidden sm:flex items-center gap-5" aria-label="Navigation principale">
               {[
                 { label: "Comment ça marche", href: "#how" },
-                { label: "Playbooks", href: "#playbooks" },
+                { label: "Playbooks", href: "/playbooks" },
                 { label: "Prix", href: "/pricing" },
                 { label: "Démo", href: "/demo" },
               ].map((item) => (
@@ -657,9 +657,100 @@ export default function Index() {
           </div>
 
           <FadeIn className="text-center mt-8">
-            <CTASecondary onClick={handleCTA}>
-              Démarrer une mission <ArrowRight className="w-4 h-4" />
+            <CTASecondary href="/playbooks">
+              Voir tous les playbooks <ArrowRight className="w-4 h-4" />
             </CTASecondary>
+          </FadeIn>
+        </Sec>
+        </ErrorBoundary>
+
+        {/* ══ 6b. TÉMOIGNAGES ═════════════════════════════════════ */}
+        <ErrorBoundary name="section-testimonials">
+        <Sec
+          className="max-w-5xl mx-auto"
+          style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Témoignages utilisateurs"
+        >
+          <FadeIn className="text-center mb-12">
+            <Chip><Users className="w-3 h-3" /> Retours utilisateurs</Chip>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-3">
+              Ce qu'en disent les premiers utilisateurs.
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Retours collectés auprès de nos bêta-testeurs pendant la phase de lancement.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            {[
+              {
+                initials: "SM",
+                name: "Sophie M.",
+                role: "DRH — PME, 45 personnes",
+                stars: 5,
+                quote: "On cherchait un moyen concret de former nos managers à l'IA sans les envoyer en formation 3 jours. Avec Formetoialia, ils produisent des livrables utiles dès la première session.",
+                tag: "Bêta testeur",
+                color: "hsl(var(--primary))",
+              },
+              {
+                initials: "TL",
+                name: "Thomas L.",
+                role: "Directeur commercial — ETI",
+                stars: 5,
+                quote: "Le cockpit manager m'a permis de justifier l'investissement IA auprès de ma direction en 2 semaines. Les rapports d'heures économisées sont convaincants.",
+                tag: "Early adopter",
+                color: "hsl(var(--accent))",
+              },
+              {
+                initials: "CB",
+                name: "Claire B.",
+                role: "Responsable formation — Groupe 200 pers.",
+                stars: 4,
+                quote: "Enfin un outil qui ne survend pas. Les playbooks sont concrets et les attestations vérifiables. Mes équipes l'utilisent vraiment au quotidien.",
+                tag: "Bêta testeur",
+                color: "hsl(142 71% 45%)",
+              },
+            ].map((t, i) => (
+              <FadeIn key={t.name} delay={i * 0.1}>
+                <div
+                  className="p-5 rounded-2xl border border-border h-full flex flex-col"
+                  style={{ background: "hsl(var(--card))" }}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0"
+                      style={{ background: t.color }}
+                    >
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{t.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{t.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-0.5 mb-3">
+                    {Array.from({ length: 5 }).map((_, si) => (
+                      <span key={si} className={si < t.stars ? "text-amber-400" : "text-border"}>★</span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed flex-1 italic">
+                    "{t.quote}"
+                  </p>
+                  <span
+                    className="mt-3 self-start text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20 text-primary"
+                    style={{ background: "hsl(var(--primary)/0.06)" }}
+                  >
+                    {t.tag}
+                  </span>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+          <FadeIn className="text-center">
+            <p className="text-xs text-muted-foreground/50">
+              Témoignages recueillis avec l'accord des utilisateurs · Phase bêta 2025
+            </p>
           </FadeIn>
         </Sec>
         </ErrorBoundary>
@@ -687,6 +778,18 @@ export default function Index() {
                 <span className="text-muted-foreground ml-1">
                   10 membres · 2 missions/sem. = ~13h éco./mois. À 50€/h = <span className="text-primary font-bold">650€ de valeur pour 59€.</span>
                 </span>
+                <details className="mt-2">
+                  <summary className="text-xs text-primary cursor-pointer hover:underline inline-flex items-center gap-1">
+                    <HelpCircle className="w-3 h-3" /> Voir le calcul détaillé
+                  </summary>
+                  <div className="mt-2 p-3 rounded-lg text-xs text-muted-foreground leading-relaxed" style={{ background: "hsl(var(--background)/0.5)" }}>
+                    <p className="mb-1"><strong className="text-foreground">Hypothèse :</strong> 10 membres actifs, 2 missions/semaine, 20 min économisées par mission.</p>
+                    <p className="mb-1">→ 10 × 2 × 4 semaines × 20 min = <strong className="text-foreground">~13h économisées/mois</strong></p>
+                    <p className="mb-1">→ À 50€/h (coût chargé moyen) = <strong className="text-foreground">650€ de valeur mensuelle</strong></p>
+                    <p className="mb-1">→ Formetoialia Pro : <strong className="text-foreground">59€ TTC/mois</strong></p>
+                    <p className="mt-2 text-muted-foreground/60">* Estimation indicative. Le gain réel dépend de l'usage de chaque équipe. Basé sur les retours des bêta-testeurs.</p>
+                  </div>
+                </details>
               </div>
               <ul className="space-y-2.5 mb-7">
                 {[

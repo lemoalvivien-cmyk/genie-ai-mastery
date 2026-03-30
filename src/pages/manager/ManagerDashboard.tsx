@@ -1294,15 +1294,65 @@ export default function ManagerDashboard() {
                   </Link>
                 </div>
               ) : team.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
-                  <Users className="w-12 h-12 text-muted-foreground/20" />
-                  <div>
-                    <h3 className="font-semibold text-foreground">Équipe vide</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Invitez vos premiers collaborateurs pour commencer le suivi.</p>
+                <div className="space-y-6">
+                  {/* Seed data demo banner */}
+                  <div className="rounded-xl border border-amber-500/30 px-4 py-3 flex items-start gap-3" style={{ background: "hsl(45 95% 58% / 0.06)" }}>
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">Données de démonstration</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Invitez votre équipe pour voir vos vraies données. Les exemples ci-dessous illustrent ce que vous verrez.
+                      </p>
+                    </div>
                   </div>
-                  <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
-                    <Plus className="w-3.5 h-3.5" />Inviter un collaborateur
-                  </Button>
+
+                  {/* Demo KPIs */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 opacity-60">
+                    <KpiCard icon={Activity} label="Membres actifs" value="2 / 3" sub="67% d'activation" accent="sky" />
+                    <KpiCard icon={CheckCircle} label="Missions terminées" value={5} sub="2 en cours" accent="emerald" />
+                    <KpiCard icon={Timer} label="Heures économisées est." value="~2h" sub="20 min / mission" accent="amber" />
+                    <KpiCard icon={Award} label="Attestations" value={0} sub="En cours" accent="violet" />
+                  </div>
+
+                  {/* Demo team table */}
+                  <Card className="bg-card/70 border-border/50 opacity-60">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Users className="w-4 h-4 text-primary" /> Équipe (aperçu)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="divide-y divide-border/50">
+                        {[
+                          { name: "Marie D.", status: "Invitation envoyée", modules: 0 },
+                          { name: "Lucas T.", status: "Invitation envoyée", modules: 0 },
+                          { name: "Emma R.", status: "Invitation envoyée", modules: 0 },
+                        ].map((m) => (
+                          <div key={m.name} className="flex items-center justify-between px-5 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
+                                {m.name.split(" ").map(w => w[0]).join("")}
+                              </div>
+                              <span className="text-sm text-foreground">{m.name}</span>
+                            </div>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                              {m.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* CTA */}
+                  <div className="text-center space-y-3">
+                    <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
+                      <Plus className="w-3.5 h-3.5" />Inviter mes premiers collaborateurs
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Les données de démonstration disparaîtront dès que vos collaborateurs rejoindront l'organisation.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <VueEnsemble

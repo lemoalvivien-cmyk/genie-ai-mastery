@@ -60,6 +60,7 @@ const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const GuideList         = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail       = lazy(() => import("./pages/guides/GuideDetail"));
 const LegalCenter       = lazy(() => import("./pages/legal/LegalCenter"));
+const Playbooks         = lazy(() => import("./pages/Playbooks"));
 const NotFound          = lazy(() => import("./pages/NotFound"));
 
 const PageLoader = React.forwardRef<HTMLDivElement>((_, ref) => (
@@ -115,6 +116,7 @@ const App = () => (
                 <Route path="/verify/:id"    element={<ErrorBoundary name="verify"><VerifyAttestation /></ErrorBoundary>} />
                 <Route path="/guides"        element={<ErrorBoundary name="guides"><GuideList /></ErrorBoundary>} />
                 <Route path="/guides/:slug"  element={<ErrorBoundary name="guide-detail"><GuideDetail /></ErrorBoundary>} />
+                <Route path="/playbooks"     element={<ErrorBoundary name="playbooks"><Playbooks /></ErrorBoundary>} />
                 <Route path="/legal"         element={<ErrorBoundary name="legal"><LegalCenter /></ErrorBoundary>} />
                 <Route path="/legal/:slug"   element={<ErrorBoundary name="legal-detail"><LegalCenter /></ErrorBoundary>} />
                 {/* Legacy legal redirects */}
