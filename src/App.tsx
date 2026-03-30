@@ -14,6 +14,7 @@ import AppLayout from "@/components/AppLayout";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 import { features } from "@/config/features";
 import { FeatureUnavailable } from "@/components/FeatureGate";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // ── Public / Auth ────────────────────────────────────────────────
 const Landing        = lazy(() => import("./pages/Index"));
