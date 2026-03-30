@@ -378,7 +378,7 @@ Deno.serve(async (req) => {
     const mode: string = user_profile.mode ?? "normal";
     const persona: string = user_profile.persona ?? "";
     const domain: string = module_context.domain ?? "";
-    const isKitt = request_type === "jarvis" || request_type === "kitt";
+    const isKitt = request_type === "kitt";
     const isAutopilot = request_type === "autopilot";
 
     // ── Kill switch check (env var AI_DISABLED takes priority, then DB setting) ──

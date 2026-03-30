@@ -17,11 +17,6 @@ const ALLOWED_ORIGINS = [
   "https://www.formetoialia.com",
 ];
 
-const ALLOWED_ORIGINS = [
-  "https://formetoialia.com",
-  "https://www.formetoialia.com",
-];
-
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -84,14 +79,11 @@ serve(async (req) => {
   // On supprime explicitement les tables sans FK cascade vers profiles
   const tables = [
     "chat_messages",
-    "genieos_conversations",
     "knowledge_documents",
     "knowledge_chunks",
     "knowledge_sources",
     "data_documents",
     "data_sources",
-    "genieos_agents",
-    "genieos_workflows",
     "openclaw_jobs",
     "memory_timeline",
     "action_logs",
