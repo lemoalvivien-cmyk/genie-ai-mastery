@@ -154,7 +154,143 @@ async function checkAIBudgetAlert(
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-async function runAutoCampaigns(
+// Feature 6 — Trial ending emails (J-3)
+// ─────────────────────────────────────────────────────────────────────────────
+async function sendTrialEndingEmails(
+  supabase: ReturnType<typeof createClient>,
+  resendKey: string | undefined,
+): Promise<{ checked: number; sent: number }> {
+  const stats = { checked: 0, sent: 0 };
+  if (!resendKey) return stats;
+
+  // Find users whose trial ends in 3 days
+  const threeDaysFromNow = new Date(Date.now() + 3 * 86400000);
+  const threeDaysStart = new Date(threeDaysFromNow);
+  threeDaysStart.setHours(0, 0, 0, 0);
+  const threeDaysEnd = new Date(threeDaysFromNow);
+  threeDaysEnd.setHours(23, 59, 59, 999);
+
+  const { data: expiringUsers } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, trial_end")
+    .gte("trial_end", threeDaysStart.toISOString())
+    .lte("trial_end", threeDaysEnd.toISOString())
+    .eq("plan", "trial");
+
+  if (!expiringUsers?.length) return stats;
+
+  for (const user of expiringUsers) {
+    stats.checked++;
+    if (!user.email) continue;
+
+    // Check if we already sent this email
+    const { data: existing } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("type", "trial_ending")
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) continue;
+
+    try {
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "Formetoialia <formation@formetoialia.com>",
+          to: [user.email],
+          subject: "⏰ Votre essai Formetoialia se termine dans 3 jours",
+          html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;background:#f5f5f7;margin:0;padding:0}.wrap{max-width:560px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)}.header{background:#0d1f45;padding:32px}.header h1{color:#fff;font-size:22px;margin:0}.body{padding:32px;color:#1a1a2e}.cta{display:block;margin:24px 0;background:#6466f1;color:#fff;padding:16px 32px;border-radius:10px;text-decoration:none;text-align:center;font-weight:700;font-size:16px}.footer{background:#f5f5f7;padding:20px;text-align:center;color:#888;font-size:12px}</style></head><body><div class="wrap"><div class="header"><h1>⏰ Plus que 3 jours d'essai</h1></div><div class="body"><p>Bonjour ${user.full_name ?? ""},</p><p>Votre essai gratuit de Formetoialia se termine dans <strong>3 jours</strong>.</p><p>Pour continuer à accéder à vos playbooks, missions quotidiennes et à l'assistant KITT, passez au plan Pro.</p><a class="cta" href="https://formetoialia.com/pricing">Voir les offres →</a><p style="font-size:13px;color:#666">Si vous ne souhaitez pas continuer, aucune action n'est nécessaire. Votre compte restera accessible en mode gratuit.</p></div><div class="footer">Formetoialia — <a href="https://formetoialia.com">formetoialia.com</a></div></div></body></html>`,
+        }),
+      });
+
+      if (resp.ok) {
+        stats.sent++;
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          type: "trial_ending",
+          title: "Essai terminant dans 3 jours",
+          body: "Email de rappel envoyé",
+          metadata: { auto: true },
+        });
+      }
+    } catch (_e) { /* non-blocking */ }
+  }
+
+  return stats;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Feature 7 — Re-engagement emails (7 days inactive)
+// ─────────────────────────────────────────────────────────────────────────────
+async function sendReEngagementEmails(
+  supabase: ReturnType<typeof createClient>,
+  resendKey: string | undefined,
+): Promise<{ checked: number; sent: number }> {
+  const stats = { checked: 0, sent: 0 };
+  if (!resendKey) return stats;
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000).toISOString();
+
+  // Find users inactive for 7+ days (last_active between 14 and 7 days ago)
+  const { data: inactiveUsers } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, last_active_at")
+    .lte("last_active_at", sevenDaysAgo)
+    .gte("last_active_at", fourteenDaysAgo)
+    .limit(50);
+
+  if (!inactiveUsers?.length) return stats;
+
+  for (const user of inactiveUsers) {
+    stats.checked++;
+    if (!user.email) continue;
+
+    // Throttle: max 1 re-engagement email per 30 days
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: recent } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("type", "re_engagement")
+      .gte("created_at", thirtyDaysAgo)
+      .limit(1)
+      .maybeSingle();
+
+    if (recent) continue;
+
+    try {
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "Formetoialia <formation@formetoialia.com>",
+          to: [user.email],
+          subject: "👋 On ne vous oublie pas — votre formation IA vous attend",
+          html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;background:#f5f5f7;margin:0;padding:0}.wrap{max-width:560px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)}.header{background:#0d1f45;padding:32px}.header h1{color:#fff;font-size:22px;margin:0}.body{padding:32px;color:#1a1a2e}.cta{display:block;margin:24px 0;background:#6466f1;color:#fff;padding:16px 32px;border-radius:10px;text-decoration:none;text-align:center;font-weight:700;font-size:16px}.footer{background:#f5f5f7;padding:20px;text-align:center;color:#888;font-size:12px}</style></head><body><div class="wrap"><div class="header"><h1>👋 ${user.full_name ?? "Bonjour"}, on vous attend !</h1></div><div class="body"><p>Cela fait une semaine que vous n'avez pas ouvert Formetoialia.</p><p>Vos playbooks et missions quotidiennes sont prêts. <strong>3 minutes suffisent</strong> pour maintenir votre progression.</p><a class="cta" href="https://formetoialia.com/app/today">Reprendre ma formation →</a><p style="font-size:13px;color:#666">Si vous ne souhaitez plus recevoir ces emails, vous pouvez vous désabonner dans vos paramètres.</p></div><div class="footer">Formetoialia — <a href="https://formetoialia.com">formetoialia.com</a></div></div></body></html>`,
+        }),
+      });
+
+      if (resp.ok) {
+        stats.sent++;
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          type: "re_engagement",
+          title: "Email de re-engagement envoyé",
+          body: "Inactif depuis 7 jours",
+          metadata: { auto: true, inactive_since: user.last_active_at },
+        });
+      }
+    } catch (_e) { /* non-blocking */ }
+  }
+
+  return stats;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
   supabase: ReturnType<typeof createClient>,
   supabaseUrl: string,
   _cronHeaders: Record<string, string>,
