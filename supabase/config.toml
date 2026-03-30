@@ -113,33 +113,6 @@ verify_jwt = true
 [functions.admin-operations]
 verify_jwt = true
 
-[functions.genie-os-chat]
-verify_jwt = true
-
-[functions.genieos-agent-runtime]
-verify_jwt = true
-
-[functions.genieos-multi-agent-runtime]
-verify_jwt = true
-
-[functions.genieos-knowledge]
-verify_jwt = true
-
-[functions.genieos-action-engine]
-verify_jwt = true
-
-[functions.genieos-data-engine]
-verify_jwt = true
-
-[functions.genieos-auto-builder]
-verify_jwt = true
-
-[functions.genieos-cofounder]
-verify_jwt = true
-
-[functions.genieos-revenue-agent]
-verify_jwt = true
-
 [functions.openclaw-create-job]
 verify_jwt = true
 
@@ -150,9 +123,6 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.openclaw-runtime-health]
-verify_jwt = true
-
-[functions.openclaw-cron-manager]
 verify_jwt = true
 
 [functions.openclaw-dev-harness]
@@ -177,19 +147,6 @@ verify_jwt = true
 [functions.get-public-stats]
 verify_jwt = false
 
-[functions.genie-brain-orchestrator]
-verify_jwt = true
-
-[functions.voice-clone-register]
-verify_jwt = true
-
-[functions.enterprise-rag]
-verify_jwt = true
-
-# ── SleepForge — cron nocturne, protégé par X-CRON-SECRET ───────────────────
-[functions.sleepforge]
-verify_jwt = false
-
 # ── rate-limit-login — public endpoint, called before auth ────────────────────
 [functions.rate-limit-login]
 verify_jwt = false
@@ -200,3 +157,11 @@ verify_jwt = true
 
 [functions.ai-queue-processor]
 verify_jwt = false
+
+# ── Ghost Trainer Feedback ───────────────────────────────────────────────────
+[functions.ghost-trainer-feedback]
+verify_jwt = true
+
+# ── Validate CSV Import ─────────────────────────────────────────────────────
+[functions.validate-csv-import]
+verify_jwt = true

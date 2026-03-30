@@ -18,11 +18,11 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["logo-genie.png", "favicon.ico", "robots.txt"],
+      includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
         name: "Formetoialia",
         short_name: "Formetoialia",
-        description: "Formetoialia — La formation qui apprend plus vite que vous. Modules IA, cybersécurité, copilote Genie, attestations vérifiables.",
+        description: "Formetoialia — Missions guidées, playbooks métier, cockpit équipe. Copilote KITT, attestations vérifiables.",
         start_url: "/",
         display: "standalone",
         background_color: "#0C1014",
@@ -33,13 +33,13 @@ export default defineConfig(({ mode }) => ({
         categories: ["education", "productivity"],
         icons: [
           {
-            src: "/logo-genie.png",
+            src: "/logo-formetoialia.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "any",
           },
           {
-            src: "/logo-genie.png",
+            src: "/logo-formetoialia.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any maskable",

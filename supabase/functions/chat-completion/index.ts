@@ -159,8 +159,8 @@ RÈGLES DE SÉCURITÉ NON NÉGOCIABLES :
 - JAMAIS d'inventions de noms de personnes, de faux experts ou de faux organismes
 - Tu es un guide. Tu aides. Tu protèges. Tu ne remplaces pas un professionnel humain.`;
 
-// ── JARVIS PERSONA — Tony Stark + Deadpool light ──────────────────────────────
-const JARVIS_IDENTITY = `Tu t'appelles KITT. Tu es le copilote IA de Formetoialia — un assistant de formation personnalisé.
+// ── KITT PERSONA — Tony Stark + Deadpool light ──────────────────────────────
+const KITT_IDENTITY = `Tu t'appelles KITT. Tu es le copilote IA de Formetoialia — un assistant de formation personnalisé.
 Ton style : Tony Stark (génie bienveillant, sarcasme élégant) + Deadpool light (humour décalé, références pop-culture).
 Tu ADORES motiver les apprenants avec des références ludiques — toujours avec bienveillance.
 
@@ -227,7 +227,7 @@ Reste Jarvis — sarcasme technique bienvenu ("Ah, tu connais MITRE ATT&CK T1566
 - "Tony Stark ne code pas seul. Il a son armure IA. Toi aussi."`
     : "";
 
-  return JARVIS_IDENTITY + modeOverride + personaContext + vibeCodingContext + SAFETY_PROMPT;
+  return KITT_IDENTITY + modeOverride + personaContext + vibeCodingContext + SAFETY_PROMPT;
 }
 
 // ─── KITT user context injection ──────────────────────────────────────────────
@@ -368,7 +368,7 @@ Deno.serve(async (req) => {
       module_context = {},
       request_type = "chat",
       session_id,
-      jarvis_stage = "short",  // "short" | "long"
+      kitt_stage = "short",  // "short" | "long"
       expert_mode = false,
       autopilot_id = null,     // "conformite_48h" | "vibe_coding_mvp" | "cyber_hygiene_tpe"
       adaptation_level = 0,    // 0=normal | 1=simplify | 2=eli10 (forced analogies)
@@ -378,7 +378,7 @@ Deno.serve(async (req) => {
     const mode: string = user_profile.mode ?? "normal";
     const persona: string = user_profile.persona ?? "";
     const domain: string = module_context.domain ?? "";
-    const isJarvis = request_type === "jarvis";
+    const isKitt = request_type === "jarvis" || request_type === "kitt";
     const isAutopilot = request_type === "autopilot";
 
     // ── Kill switch check (env var AI_DISABLED takes priority, then DB setting) ──
@@ -559,9 +559,9 @@ Deno.serve(async (req) => {
       maxTokens = 300; // Eco mode: short responses only
     } else if (isAutopilot) {
       maxTokens = 800;   // Autopilot: structured JSON plan, bounded
-    } else if (isJarvis && jarvis_stage === "short") {
+    } else if (isKitt && kitt_stage === "short") {
       maxTokens = 500;
-    } else if (isJarvis && jarvis_stage === "long") {
+    } else if (isKitt && kitt_stage === "long") {
       maxTokens = 900;
     } else if (request_type === "generation") {
       maxTokens = 1500;
@@ -570,7 +570,7 @@ Deno.serve(async (req) => {
     }
 
     // Cache key includes stage so short and long are cached independently
-    const cacheKey = await hashPrompt(sanitized + mode + model + (isJarvis ? jarvis_stage : ""));
+    const cacheKey = await hashPrompt(sanitized + mode + model + (isKitt ? kitt_stage : ""));
     const { data: cached } = await supabase
       .from("chat_messages")
       .select("content")
@@ -622,7 +622,7 @@ Simplifie davantage tes explications. Utilise au moins 1 analogie du quotidien.
 
 
     // KITT IA stage 1: short structured JSON — cheap model, small budget
-    const jarvisShortPrompt = `${enrichedSystemPrompt}
+    const kittShortPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT — RÉPONSE STRUCTURÉE :
 Tu es KITT. Applique ta chaîne de pensée (interne) puis réponds UNIQUEMENT avec ce JSON strict :
@@ -648,7 +648,7 @@ Pour action_id : utilise le slug du module pertinent.
 CRITIQUE : JSON valide uniquement. Pas de texte avant ou après. Pas de commentaires dans le JSON.`;
 
     // KITT IA stage 2: deep dive — only triggered by "Explique plus"
-    const jarvisLongPrompt = `${enrichedSystemPrompt}
+    const kittLongPrompt = `${enrichedSystemPrompt}
 
 INSTRUCTIONS MODE KITT IA — APPROFONDISSEMENT (ÉTAPE 2) :
 L'utilisateur veut en savoir plus. Donne une explication plus riche MAIS garde le ton rassurant.
@@ -749,8 +749,8 @@ Réponds UNIQUEMENT avec ce bloc JSON (rien d'autre) :
     let systemPrompt: string;
     if (isAutopilot && autopilot_id && AUTOPILOT_PROMPTS[autopilot_id]) {
       systemPrompt = AUTOPILOT_PROMPTS[autopilot_id];
-    } else if (isJarvis) {
-      systemPrompt = (jarvis_stage === "long" ? jarvisLongPrompt : jarvisShortPrompt) + ELI10_OVERRIDE;
+    } else if (isKitt) {
+      systemPrompt = (kitt_stage === "long" ? kittLongPrompt : kittShortPrompt) + ELI10_OVERRIDE;
     } else {
       systemPrompt = enrichedSystemPrompt + ELI10_OVERRIDE;
     }

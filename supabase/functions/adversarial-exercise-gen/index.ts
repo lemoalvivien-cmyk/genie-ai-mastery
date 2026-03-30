@@ -179,7 +179,7 @@ Génère en JSON :
     feedback: exercise.explanation,
     joke: isCorrect
       ? "Même Tony Stark t'envierait. Presque."
-      : "JARVIS dit : erreur enregistrée. On va corriger ça ensemble.",
+      : "KITT dit : erreur enregistrée. On va corriger ça ensemble.",
     next_step: "Continuer sur ce module",
   };
 

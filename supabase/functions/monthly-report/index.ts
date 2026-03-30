@@ -4,7 +4,7 @@
  * Generates a multi-page PDF "Bilan Formation — [Mois]" for each org:
  *   - Page 1 : Résumé exécutif (taux complétion, score moyen, nb attestations)
  *   - Page 2 : Tableau par employé (nom, modules, score, attestation)
- *   - Page 3 : Recommandations Jarvis (top 3 axes de progression)
+ *   - Page 3 : Recommandations KITT (top 3 axes de progression)
  *   - Page 4 : Conformité AI Act (checklist)
  *
  * Then emails the PDF to managers via Resend and stores in `proofs`.
@@ -196,11 +196,11 @@ async function buildMonthlyReport(data: {
     });
   }
 
-  // ── Page 3: Jarvis recommendations ────────────────────────────────────────
+  // ── Page 3: KITT recommendations ────────────────────────────────────────
   {
     const page = pdf.addPage([W, H]);
     page.drawRectangle({ x: 0, y: H - 60, width: W, height: 60, color: NAVY });
-    page.drawText("RECOMMANDATIONS JARVIS", { x: 30, y: H - 38, size: 14, font: fontBold, color: WHITE });
+    page.drawText("RECOMMANDATIONS KITT", { x: 30, y: H - 38, size: 14, font: fontBold, color: WHITE });
     page.drawText("3 axes de progression prioritaires identifiés par l'IA", { x: 30, y: H - 53, size: 9, font: fontRegular, color: LIGHT });
 
     let y = H - 100;

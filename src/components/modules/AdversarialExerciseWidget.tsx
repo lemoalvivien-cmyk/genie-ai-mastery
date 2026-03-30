@@ -119,7 +119,7 @@ function ScoreCard({ result }: { result: NonNullable<ReturnType<typeof useAdvers
         style={{ background: "rgba(82,87,216,0.08)", border: "1px solid rgba(82,87,216,0.2)" }}
       >
         <p className="text-sm italic text-muted-foreground">
-          🤖 <span className="text-primary font-medium">JARVIS :</span> "{result.sarcasm_comment}"
+          🤖 <span className="text-primary font-medium">KITT :</span> "{result.sarcasm_comment}"
         </p>
         {result.joke && (
           <p className="text-xs text-muted-foreground mt-2 opacity-70">😏 {result.joke}</p>
