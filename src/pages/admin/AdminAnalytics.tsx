@@ -80,7 +80,7 @@ export default function AdminAnalytics() {
         newUsers7d: usersRes.count ?? 0,
         chatMessages7d: chatRes.count ?? 0,
         onboardingRate: totalUsers > 0 ? Math.round((onboarded / totalUsers) * 100) : 0,
-        conversionRate: totalSubs > 0 ? Math.round((activeSubs / totalSubs) * 100) : 0,
+        conversionRate: totalUsers > 0 ? Math.round((proUsers / totalUsers) * 100) : 0,
         topFeatures,
         loading: false,
       });
