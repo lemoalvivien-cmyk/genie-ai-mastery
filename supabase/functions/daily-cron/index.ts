@@ -291,6 +291,9 @@ async function sendReEngagementEmails(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Feature 1 — Auto-campaigns when completion rate < 70%
+// ─────────────────────────────────────────────────────────────────────────────
+async function runAutoCampaigns(
   supabase: ReturnType<typeof createClient>,
   supabaseUrl: string,
   _cronHeaders: Record<string, string>,
