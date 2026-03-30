@@ -100,7 +100,43 @@ Deno.serve(async (req) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Feature 1 — Auto-campaigns when completion rate < 70%
+// Feature 5 — AI Budget Alert (checks daily AI spend vs threshold)
+// ─────────────────────────────────────────────────────────────────────────────
+async function checkAIBudgetAlert(
+  supabase: ReturnType<typeof createClient>,
+): Promise<{ total_cost_eur: number; alert_sent: boolean }> {
+  const BUDGET_ALERT_THRESHOLD_EUR = 50;
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data } = await supabase
+    .from("ai_usage_daily")
+    .select("cost_estimate")
+    .eq("date", today);
+
+  const totalCost = (data ?? []).reduce(
+    (sum: number, r: { cost_estimate: number }) => sum + (r.cost_estimate ?? 0),
+    0,
+  );
+
+  if (totalCost > BUDGET_ALERT_THRESHOLD_EUR) {
+    await sendAlert({
+      level: "critical",
+      title: `Budget IA dépassé : ${totalCost.toFixed(2)}€ aujourd'hui`,
+      message: `Le budget quotidien IA a dépassé le seuil de ${BUDGET_ALERT_THRESHOLD_EUR}€. Coût actuel : ${totalCost.toFixed(2)}€. Vérifiez les logs ai_usage_daily.`,
+      source: "daily-cron",
+      context: {
+        date: today,
+        total_cost_eur: totalCost.toFixed(2),
+        threshold_eur: BUDGET_ALERT_THRESHOLD_EUR,
+      },
+    });
+    return { total_cost_eur: totalCost, alert_sent: true };
+  }
+
+  return { total_cost_eur: totalCost, alert_sent: false };
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 async function runAutoCampaigns(
   supabase: ReturnType<typeof createClient>,
