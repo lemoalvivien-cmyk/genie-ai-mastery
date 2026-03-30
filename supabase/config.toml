@@ -166,3 +166,7 @@ verify_jwt = true
 # ── Validate CSV Import ─────────────────────────────────────────────────────
 [functions.validate-csv-import]
 verify_jwt = true
+
+# ── Email Queue (called by pg_cron, protected by service_role_key) ───────────
+[functions.process-email-queue]
+verify_jwt = true
