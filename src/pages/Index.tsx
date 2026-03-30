@@ -930,11 +930,14 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 10. FAQ ══════════════════════════════════════════════ */}
+        <ErrorBoundary name="section-faq">
         <Sec
           className="max-w-2xl mx-auto"
           style={{ paddingTop: 0 }}
+          aria-label="Questions fréquentes"
         >
           <FadeIn className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-foreground">Questions fréquentes</h2>
