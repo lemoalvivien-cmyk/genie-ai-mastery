@@ -246,7 +246,6 @@ const App = () => (
                 <Route path="*" element={<ErrorBoundary name="not-found"><NotFound /></ErrorBoundary>} />
               </Routes>
               </ErrorBoundary>
-              </Routes>
             </Suspense>
           </AuthInitializer>
         </BrowserRouter>
