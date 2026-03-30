@@ -49,15 +49,11 @@ export default function AdminAnalytics() {
           supabase
             .from("profiles")
             .select("id", { count: "exact", head: true }),
-          // 4. Active subscriptions
+          // 4. Pro users (plan = pro)
           supabase
-            .from("subscriptions")
+            .from("profiles")
             .select("id", { count: "exact", head: true })
-            .eq("status", "active"),
-          // Total subscriptions (trials included)
-          supabase
-            .from("subscriptions")
-            .select("id", { count: "exact", head: true }),
+            .eq("plan", "pro"),
           // 5. Top features
           supabase
             .from("analytics_events")
