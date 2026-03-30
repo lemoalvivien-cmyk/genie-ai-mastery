@@ -146,12 +146,12 @@ const App = () => (
                   <Route path="welcome"         element={<ErrorBoundary name="welcome"><Welcome /></ErrorBoundary>} />
                   <Route path="first-victory"   element={<ErrorBoundary name="first-victory"><FirstVictory /></ErrorBoundary>} />
                   <Route path="dashboard"     element={<ErrorBoundary name="dashboard"><Dashboard /></ErrorBoundary>} />
-                  <Route path="placement"     element={<PlacementQuiz />} />
-                  <Route path="modules"       element={<Modules />} />
-                  <Route path="modules/:slug" element={<ModuleDetail />} />
-                  <Route path="chat"          element={<Chat />} />
-                  <Route path="settings"      element={<Settings />} />
-                  <Route path="library"       element={<LibraryPage />} />
+                  <Route path="placement"     element={<ErrorBoundary name="placement"><PlacementQuiz /></ErrorBoundary>} />
+                  <Route path="modules"       element={<ErrorBoundary name="modules"><Modules /></ErrorBoundary>} />
+                  <Route path="modules/:slug" element={<ErrorBoundary name="module-detail"><ModuleDetail /></ErrorBoundary>} />
+                  <Route path="chat"          element={<ErrorBoundary name="chat"><Chat /></ErrorBoundary>} />
+                  <Route path="settings"      element={<ErrorBoundary name="settings"><Settings /></ErrorBoundary>} />
+                  <Route path="library"       element={<ErrorBoundary name="library"><LibraryPage /></ErrorBoundary>} />
                   <Route
                     path="today"
                     element={<Today />}
