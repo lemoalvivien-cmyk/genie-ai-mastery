@@ -14,6 +14,7 @@ import AppLayout from "@/components/AppLayout";
 import { CookieBanner } from "@/components/legal/CookieBanner";
 import { features } from "@/config/features";
 import { FeatureUnavailable } from "@/components/FeatureGate";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // ── Public / Auth ────────────────────────────────────────────────
 const Landing        = lazy(() => import("./pages/Index"));
@@ -102,19 +103,20 @@ const App = () => (
             <PageViewTracker />
             <CookieBanner />
             <Suspense fallback={<PageLoader />}>
+              <ErrorBoundary name="app-root">
               <Routes>
                 {/* ── Public ──────────────────────────────────────────── */}
-                <Route path="/"              element={<Landing />} />
-                <Route path="/login"         element={<Login />} />
-                <Route path="/register"      element={<Register />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/pricing"       element={<Pricing />} />
-                <Route path="/demo"          element={<Demo />} />
-                <Route path="/verify/:id"    element={<VerifyAttestation />} />
-                <Route path="/guides"        element={<GuideList />} />
-                <Route path="/guides/:slug"  element={<GuideDetail />} />
-                <Route path="/legal"         element={<LegalCenter />} />
-                <Route path="/legal/:slug"   element={<LegalCenter />} />
+                <Route path="/"              element={<ErrorBoundary name="landing"><Landing /></ErrorBoundary>} />
+                <Route path="/login"         element={<ErrorBoundary name="login"><Login /></ErrorBoundary>} />
+                <Route path="/register"      element={<ErrorBoundary name="register"><Register /></ErrorBoundary>} />
+                <Route path="/reset-password" element={<ErrorBoundary name="reset-password"><ResetPassword /></ErrorBoundary>} />
+                <Route path="/pricing"       element={<ErrorBoundary name="pricing"><Pricing /></ErrorBoundary>} />
+                <Route path="/demo"          element={<ErrorBoundary name="demo"><Demo /></ErrorBoundary>} />
+                <Route path="/verify/:id"    element={<ErrorBoundary name="verify"><VerifyAttestation /></ErrorBoundary>} />
+                <Route path="/guides"        element={<ErrorBoundary name="guides"><GuideList /></ErrorBoundary>} />
+                <Route path="/guides/:slug"  element={<ErrorBoundary name="guide-detail"><GuideDetail /></ErrorBoundary>} />
+                <Route path="/legal"         element={<ErrorBoundary name="legal"><LegalCenter /></ErrorBoundary>} />
+                <Route path="/legal/:slug"   element={<ErrorBoundary name="legal-detail"><LegalCenter /></ErrorBoundary>} />
                 {/* Legacy legal redirects */}
                 <Route path="/cgu"              element={<Navigate to="/legal/cgu" replace />} />
                 <Route path="/confidentialite"  element={<Navigate to="/legal/confidentialite" replace />} />
@@ -141,15 +143,15 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="welcome"         element={<Welcome />} />
-                  <Route path="first-victory"   element={<FirstVictory />} />
-                  <Route path="dashboard"     element={<Dashboard />} />
-                  <Route path="placement"     element={<PlacementQuiz />} />
-                  <Route path="modules"       element={<Modules />} />
-                  <Route path="modules/:slug" element={<ModuleDetail />} />
-                  <Route path="chat"          element={<Chat />} />
-                  <Route path="settings"      element={<Settings />} />
-                  <Route path="library"       element={<LibraryPage />} />
+                  <Route path="welcome"         element={<ErrorBoundary name="welcome"><Welcome /></ErrorBoundary>} />
+                  <Route path="first-victory"   element={<ErrorBoundary name="first-victory"><FirstVictory /></ErrorBoundary>} />
+                  <Route path="dashboard"     element={<ErrorBoundary name="dashboard"><Dashboard /></ErrorBoundary>} />
+                  <Route path="placement"     element={<ErrorBoundary name="placement"><PlacementQuiz /></ErrorBoundary>} />
+                  <Route path="modules"       element={<ErrorBoundary name="modules"><Modules /></ErrorBoundary>} />
+                  <Route path="modules/:slug" element={<ErrorBoundary name="module-detail"><ModuleDetail /></ErrorBoundary>} />
+                  <Route path="chat"          element={<ErrorBoundary name="chat"><Chat /></ErrorBoundary>} />
+                  <Route path="settings"      element={<ErrorBoundary name="settings"><Settings /></ErrorBoundary>} />
+                  <Route path="library"       element={<ErrorBoundary name="library"><LibraryPage /></ErrorBoundary>} />
                   <Route
                     path="today"
                     element={<Today />}
@@ -241,8 +243,9 @@ const App = () => (
                 {/* /os/* → redirect to dashboard */}
                 <Route path="/os/*" element={<Navigate to="/app/dashboard" replace />} />
 
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<ErrorBoundary name="not-found"><NotFound /></ErrorBoundary>} />
               </Routes>
+              </ErrorBoundary>
             </Suspense>
           </AuthInitializer>
         </BrowserRouter>

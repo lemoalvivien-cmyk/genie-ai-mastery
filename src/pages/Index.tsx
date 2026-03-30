@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from "react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
@@ -39,11 +40,11 @@ function FadeIn({ children, delay = 0, className = "" }: {
   );
 }
 
-function Sec({ children, id = "", className = "", style }: {
-  children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties;
+function Sec({ children, id = "", className = "", style, "aria-label": ariaLabel }: {
+  children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties; "aria-label"?: string;
 }) {
   return (
-    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style}>
+    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style} aria-label={ariaLabel}>
       {children}
     </section>
   );
@@ -218,7 +219,8 @@ export default function Index() {
         </header>
 
         {/* ══ 1. HERO ═════════════════════════════════════════════ */}
-        <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 sm:px-6 pt-10 pb-16 text-center overflow-hidden">
+        <ErrorBoundary name="section-hero">
+        <section aria-label="Présentation de FormetoiAlia" className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 sm:px-6 pt-10 pb-16 text-center overflow-hidden">
           {/* Ambient glow */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -324,9 +326,11 @@ export default function Index() {
             </motion.div>
           </motion.div>
         </section>
+        </ErrorBoundary>
 
         {/* ══ 2. PROBLÈME ═════════════════════════════════════════ */}
-        <Sec className="max-w-5xl mx-auto">
+        <ErrorBoundary name="section-problem">
+        <Sec className="max-w-5xl mx-auto" aria-label="Le problème que résout FormetoiAlia">
           <FadeIn className="text-center mb-12">
             <Chip><AlertCircle className="w-3 h-3" /> Le vrai problème</Chip>
             <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
@@ -379,11 +383,14 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 3. PROMESSE ═════════════════════════════════════════ */}
+        <ErrorBoundary name="section-features">
         <Sec
           className="max-w-5xl mx-auto"
           style={{ paddingTop: 0 }}
+          aria-label="Fonctionnalités de FormetoiAlia"
         >
           <FadeIn className="text-center mb-12">
             <Chip><Zap className="w-3 h-3" /> La promesse</Chip>
@@ -442,12 +449,15 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 4. COMMENT ÇA MARCHE ════════════════════════════════ */}
+        <ErrorBoundary name="section-how">
         <Sec
           id="how"
           className="max-w-4xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Comment ça marche"
         >
           <FadeIn className="text-center mb-14">
             <Chip><Zap className="w-3 h-3" /> Comment ça marche</Chip>
@@ -505,9 +515,11 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 5. PLAYBOOKS TEASER (ex Emergency) ═════════════════ */}
-        <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }}>
+        <ErrorBoundary name="section-playbooks-teaser">
+        <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }} aria-label="Exemples de missions">
           <FadeIn>
             <div
               className="rounded-2xl p-7 sm:p-10 border border-primary/20"
@@ -556,12 +568,15 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 6. PLAYBOOKS ════════════════════════════════════════ */}
+        <ErrorBoundary name="section-playbooks">
         <Sec
           id="playbooks"
           className="max-w-6xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Playbooks disponibles"
         >
           <FadeIn className="text-center mb-12">
             <Chip><BookOpen className="w-3 h-3" /> Playbooks</Chip>
@@ -647,9 +662,11 @@ export default function Index() {
             </CTASecondary>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 7. COCKPIT MANAGER ══════════════════════════════════ */}
-        <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
+        <ErrorBoundary name="section-cockpit">
+        <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }} aria-label="Cockpit manager">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <FadeIn>
               <Chip><Users className="w-3 h-3" /> Pour les dirigeants & managers</Chip>
@@ -743,11 +760,14 @@ export default function Index() {
             </FadeIn>
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 8. COMPARATIF ═══════════════════════════════════════ */}
+        <ErrorBoundary name="section-comparison">
         <Sec
           className="max-w-4xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Comparaison avec ChatGPT"
         >
           <FadeIn className="text-center mb-10">
             <Chip><TrendingUp className="w-3 h-3" /> Comparaison honnête</Chip>
@@ -797,9 +817,11 @@ export default function Index() {
             </p>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 9. PRICING TEASER ═══════════════════════════════════ */}
-        <Sec className="max-w-3xl mx-auto" id="pricing">
+        <ErrorBoundary name="section-pricing">
+        <Sec className="max-w-3xl mx-auto" id="pricing" aria-label="Tarification">
           <FadeIn className="text-center mb-10">
             <Chip>Prix</Chip>
             <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-3">
@@ -908,11 +930,14 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 10. FAQ ══════════════════════════════════════════════ */}
+        <ErrorBoundary name="section-faq">
         <Sec
           className="max-w-2xl mx-auto"
           style={{ paddingTop: 0 }}
+          aria-label="Questions fréquentes"
         >
           <FadeIn className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-foreground">Questions fréquentes</h2>
@@ -923,11 +948,14 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 11. CTA FINAL ════════════════════════════════════════ */}
+        <ErrorBoundary name="section-cta-final">
         <Sec
           className="max-w-2xl mx-auto text-center"
           style={{ paddingBottom: "5rem" }}
+          aria-label="Appel à l'action"
         >
           <FadeIn>
             <div
@@ -976,6 +1004,7 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         <ProFooter />
       </div>

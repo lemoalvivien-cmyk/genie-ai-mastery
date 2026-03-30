@@ -155,6 +155,7 @@ verify_jwt = false
 [functions.ai-queue-enqueue]
 verify_jwt = true
 
+# INTERNAL: Called by ai-queue-enqueue (service_role_key) or cron. Auth validated in code via X-Internal-Secret header.
 [functions.ai-queue-processor]
 verify_jwt = false
 
