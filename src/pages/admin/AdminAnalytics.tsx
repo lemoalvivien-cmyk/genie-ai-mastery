@@ -74,8 +74,7 @@ export default function AdminAnalytics() {
 
       const totalUsers = totalUsersRes.count ?? 1;
       const onboarded = onboardedRes.count ?? 0;
-      const totalSubs = totalSubsRes.count ?? 1;
-      const activeSubs = activeSubsRes.count ?? 0;
+      const proUsers = proUsersRes.count ?? 0;
 
       setData({
         newUsers7d: usersRes.count ?? 0,
