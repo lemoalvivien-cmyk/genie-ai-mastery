@@ -662,9 +662,11 @@ export default function Index() {
             </CTASecondary>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 7. COCKPIT MANAGER ══════════════════════════════════ */}
-        <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }}>
+        <ErrorBoundary name="section-cockpit">
+        <Sec className="max-w-5xl mx-auto" style={{ paddingTop: 0 }} aria-label="Cockpit manager">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <FadeIn>
               <Chip><Users className="w-3 h-3" /> Pour les dirigeants & managers</Chip>
