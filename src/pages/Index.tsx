@@ -24,11 +24,12 @@ import {
 } from "@/lib/seo";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
-function FadeIn({ children, delay = 0, className = "" }: {
+const FadeIn = React.forwardRef<HTMLDivElement, {
   children: React.ReactNode; delay?: number; className?: string;
-}) {
+}>(function FadeIn({ children, delay = 0, className = "" }, ref) {
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
@@ -38,17 +39,19 @@ function FadeIn({ children, delay = 0, className = "" }: {
       {children}
     </motion.div>
   );
-}
+});
+FadeIn.displayName = "FadeIn";
 
-function Sec({ children, id = "", className = "", style, "aria-label": ariaLabel }: {
+const Sec = React.forwardRef<HTMLElement, {
   children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties; "aria-label"?: string;
-}) {
+}>(function Sec({ children, id = "", className = "", style, "aria-label": ariaLabel }, ref) {
   return (
-    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style} aria-label={ariaLabel}>
+    <section ref={ref} id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style} aria-label={ariaLabel}>
       {children}
     </section>
   );
-}
+});
+Sec.displayName = "Sec";
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
