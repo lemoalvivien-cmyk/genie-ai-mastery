@@ -657,8 +657,8 @@ export default function Index() {
           </div>
 
           <FadeIn className="text-center mt-8">
-            <CTASecondary onClick={handleCTA}>
-              Démarrer une mission <ArrowRight className="w-4 h-4" />
+            <CTASecondary href="/playbooks">
+              Voir tous les playbooks <ArrowRight className="w-4 h-4" />
             </CTASecondary>
           </FadeIn>
         </Sec>
