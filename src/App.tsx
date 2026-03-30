@@ -116,6 +116,7 @@ const App = () => (
                 <Route path="/verify/:id"    element={<ErrorBoundary name="verify"><VerifyAttestation /></ErrorBoundary>} />
                 <Route path="/guides"        element={<ErrorBoundary name="guides"><GuideList /></ErrorBoundary>} />
                 <Route path="/guides/:slug"  element={<ErrorBoundary name="guide-detail"><GuideDetail /></ErrorBoundary>} />
+                <Route path="/playbooks"     element={<ErrorBoundary name="playbooks"><Playbooks /></ErrorBoundary>} />
                 <Route path="/legal"         element={<ErrorBoundary name="legal"><LegalCenter /></ErrorBoundary>} />
                 <Route path="/legal/:slug"   element={<ErrorBoundary name="legal-detail"><LegalCenter /></ErrorBoundary>} />
                 {/* Legacy legal redirects */}
