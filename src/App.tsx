@@ -42,6 +42,7 @@ const OpsCenter       = lazy(() => import("./pages/admin/OpsCenter"));
 const Runbook           = lazy(() => import("./pages/admin/Runbook"));
 const GrowthDashboard   = lazy(() => import("./pages/admin/GrowthDashboard"));
 const AdminOperations   = lazy(() => import("./pages/admin/GodMode"));
+const AdminAnalytics    = lazy(() => import("./pages/admin/AdminAnalytics"));
 const GoLiveChecklist   = lazy(() => import("./pages/admin/GoLiveChecklist"));
 
 // ── Other protected ──────────────────────────────────────────────
@@ -200,6 +201,10 @@ const App = () => (
                     <Route
                       path="/admin-operations"
                       element={<ProtectedRoute requireRole="admin"><AdminOperations /></ProtectedRoute>}
+                    />
+                    <Route
+                      path="/admin/analytics"
+                      element={<ProtectedRoute requireRole="admin"><AdminAnalytics /></ProtectedRoute>}
                     />
                   </>
                 ) : null}

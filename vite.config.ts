@@ -86,11 +86,13 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     assetsInlineLimit: 4096,
+    chunkSizeWarningLimit: 200,
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-query": ["@tanstack/react-query", "zustand"],
+          "vendor-animation": ["framer-motion"],
           "vendor-radix": [
             "@radix-ui/react-accordion",
             "@radix-ui/react-dialog",
