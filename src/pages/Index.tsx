@@ -1004,6 +1004,7 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         <ProFooter />
       </div>
