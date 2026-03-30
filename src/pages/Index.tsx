@@ -515,9 +515,11 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 5. PLAYBOOKS TEASER (ex Emergency) ═════════════════ */}
-        <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }}>
+        <ErrorBoundary name="section-playbooks-teaser">
+        <Sec className="max-w-4xl mx-auto" style={{ paddingTop: 0 }} aria-label="Exemples de missions">
           <FadeIn>
             <div
               className="rounded-2xl p-7 sm:p-10 border border-primary/20"
