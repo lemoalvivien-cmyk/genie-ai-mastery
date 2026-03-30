@@ -326,6 +326,7 @@ export default function Index() {
             </motion.div>
           </motion.div>
         </section>
+        </ErrorBoundary>
 
         {/* ══ 2. PROBLÈME ═════════════════════════════════════════ */}
         <Sec className="max-w-5xl mx-auto">
