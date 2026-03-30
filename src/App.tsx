@@ -103,19 +103,20 @@ const App = () => (
             <PageViewTracker />
             <CookieBanner />
             <Suspense fallback={<PageLoader />}>
+              <ErrorBoundary name="app-root">
               <Routes>
                 {/* ── Public ──────────────────────────────────────────── */}
-                <Route path="/"              element={<Landing />} />
-                <Route path="/login"         element={<Login />} />
-                <Route path="/register"      element={<Register />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/pricing"       element={<Pricing />} />
-                <Route path="/demo"          element={<Demo />} />
-                <Route path="/verify/:id"    element={<VerifyAttestation />} />
-                <Route path="/guides"        element={<GuideList />} />
-                <Route path="/guides/:slug"  element={<GuideDetail />} />
-                <Route path="/legal"         element={<LegalCenter />} />
-                <Route path="/legal/:slug"   element={<LegalCenter />} />
+                <Route path="/"              element={<ErrorBoundary name="landing"><Landing /></ErrorBoundary>} />
+                <Route path="/login"         element={<ErrorBoundary name="login"><Login /></ErrorBoundary>} />
+                <Route path="/register"      element={<ErrorBoundary name="register"><Register /></ErrorBoundary>} />
+                <Route path="/reset-password" element={<ErrorBoundary name="reset-password"><ResetPassword /></ErrorBoundary>} />
+                <Route path="/pricing"       element={<ErrorBoundary name="pricing"><Pricing /></ErrorBoundary>} />
+                <Route path="/demo"          element={<ErrorBoundary name="demo"><Demo /></ErrorBoundary>} />
+                <Route path="/verify/:id"    element={<ErrorBoundary name="verify"><VerifyAttestation /></ErrorBoundary>} />
+                <Route path="/guides"        element={<ErrorBoundary name="guides"><GuideList /></ErrorBoundary>} />
+                <Route path="/guides/:slug"  element={<ErrorBoundary name="guide-detail"><GuideDetail /></ErrorBoundary>} />
+                <Route path="/legal"         element={<ErrorBoundary name="legal"><LegalCenter /></ErrorBoundary>} />
+                <Route path="/legal/:slug"   element={<ErrorBoundary name="legal-detail"><LegalCenter /></ErrorBoundary>} />
                 {/* Legacy legal redirects */}
                 <Route path="/cgu"              element={<Navigate to="/legal/cgu" replace />} />
                 <Route path="/confidentialite"  element={<Navigate to="/legal/confidentialite" replace />} />
