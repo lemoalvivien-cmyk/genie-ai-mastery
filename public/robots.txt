@@ -3,6 +3,8 @@ Allow: /
 Allow: /guides/
 Disallow: /app/
 Disallow: /admin/
+Disallow: /dashboard
+Disallow: /auth
 Disallow: /onboarding
 Disallow: /reset-password
 
