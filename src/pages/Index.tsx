@@ -778,6 +778,18 @@ export default function Index() {
                 <span className="text-muted-foreground ml-1">
                   10 membres · 2 missions/sem. = ~13h éco./mois. À 50€/h = <span className="text-primary font-bold">650€ de valeur pour 59€.</span>
                 </span>
+                <details className="mt-2">
+                  <summary className="text-xs text-primary cursor-pointer hover:underline inline-flex items-center gap-1">
+                    <HelpCircle className="w-3 h-3" /> Voir le calcul détaillé
+                  </summary>
+                  <div className="mt-2 p-3 rounded-lg text-xs text-muted-foreground leading-relaxed" style={{ background: "hsl(var(--background)/0.5)" }}>
+                    <p className="mb-1"><strong className="text-foreground">Hypothèse :</strong> 10 membres actifs, 2 missions/semaine, 20 min économisées par mission.</p>
+                    <p className="mb-1">→ 10 × 2 × 4 semaines × 20 min = <strong className="text-foreground">~13h économisées/mois</strong></p>
+                    <p className="mb-1">→ À 50€/h (coût chargé moyen) = <strong className="text-foreground">650€ de valeur mensuelle</strong></p>
+                    <p className="mb-1">→ Formetoialia Pro : <strong className="text-foreground">59€ TTC/mois</strong></p>
+                    <p className="mt-2 text-muted-foreground/60">* Estimation indicative. Le gain réel dépend de l'usage de chaque équipe. Basé sur les retours des bêta-testeurs.</p>
+                  </div>
+                </details>
               </div>
               <ul className="space-y-2.5 mb-7">
                 {[
