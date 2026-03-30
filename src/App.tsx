@@ -154,9 +154,13 @@ const App = () => (
                     path="today"
                     element={<Today />}
                   />
-                  {/* /app/jarvis → redirect to chat (same copilot, single entry point) */}
+                  {/* /app/jarvis or /app/kitt → redirect to chat (single entry point) */}
                   <Route
                     path="jarvis"
+                    element={<Navigate to="/app/chat" replace />}
+                  />
+                  <Route
+                    path="kitt"
                     element={<Navigate to="/app/chat" replace />}
                   />
                   {/* Legacy routes → redirect to dashboard */}
