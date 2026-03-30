@@ -329,7 +329,8 @@ export default function Index() {
         </ErrorBoundary>
 
         {/* ══ 2. PROBLÈME ═════════════════════════════════════════ */}
-        <Sec className="max-w-5xl mx-auto">
+        <ErrorBoundary name="section-problem">
+        <Sec className="max-w-5xl mx-auto" aria-label="Le problème que résout FormetoiAlia">
           <FadeIn className="text-center mb-12">
             <Chip><AlertCircle className="w-3 h-3" /> Le vrai problème</Chip>
             <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-4">
