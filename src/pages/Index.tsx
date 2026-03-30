@@ -42,15 +42,16 @@ const FadeIn = React.forwardRef<HTMLDivElement, {
 });
 FadeIn.displayName = "FadeIn";
 
-function Sec({ children, id = "", className = "", style, "aria-label": ariaLabel }: {
+const Sec = React.forwardRef<HTMLElement, {
   children: React.ReactNode; id?: string; className?: string; style?: React.CSSProperties; "aria-label"?: string;
-}) {
+}>(function Sec({ children, id = "", className = "", style, "aria-label": ariaLabel }, ref) {
   return (
-    <section id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style} aria-label={ariaLabel}>
+    <section ref={ref} id={id} className={`py-16 sm:py-24 px-4 sm:px-6 ${className}`} style={style} aria-label={ariaLabel}>
       {children}
     </section>
   );
-}
+});
+Sec.displayName = "Sec";
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
