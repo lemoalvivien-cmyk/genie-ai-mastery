@@ -299,7 +299,7 @@ Génère le parcours adaptatif avec Temporal Mirror + Infinite Branching.`;
           difficulty: profile.level <= 2 ? "debutant" : "intermediaire",
           estimated_time: 20,
           motivation_hook:
-            "Iron Man n'avait pas de JARVIS au début. Toi non plus. Mais ça va changer.",
+            "Iron Man n'avait pas de KITT au début. Toi non plus. Mais ça va changer.",
           step_type: "module",
           domain: topGaps[0]?.domain ?? "cyber",
           branch_label: "optimal",

@@ -24,8 +24,8 @@ const CHECKLIST: CheckItem[] = [
   // ── Vérité produit ───────────────────────────────────────────────────────
   { id: "p1", category: "Produit", label: "H1 aligné : 'Transformez votre équipe avec l'IA'", detail: "Plus de 'Arrêtez les formations IA qui finissent en oubli' en H1 principal", status: "ok" },
   { id: "p2", category: "Produit", label: "Package.json name=formetoialia, version=1.0.0", detail: "Vérifié : name=formetoialia, version=1.0.0", status: "ok" },
-  { id: "p3", category: "Produit", label: "JARVIS absent du front public", detail: "grep JARVIS dans Index.tsx, Pricing.tsx, OnboardingUnlock.tsx — zéro occurrence", status: "ok" },
-  { id: "p4", category: "Produit", label: "OnboardingUnlock : 'Jarvis — coach IA vocal' supprimé", detail: "Remplacé par 'Copilote KITT — 500 échanges/jour'", status: "ok" },
+  { id: "p3", category: "Produit", label: "JARVIS absent du front public + backend", detail: "grep JARVIS dans Index.tsx, Pricing.tsx, edge functions — zéro occurrence", status: "ok" },
+  { id: "p4", category: "Produit", label: "Branding KITT unifié partout", detail: "Copilote KITT — 500 échanges/jour, plus aucune trace Jarvis", status: "ok" },
   { id: "p5", category: "Produit", label: ".env.example présent et documenté", detail: "Clés requises listées sans valeurs réelles — ne jamais committer .env.local", status: "ok" },
 
   // ── Billing de vérité ────────────────────────────────────────────────────

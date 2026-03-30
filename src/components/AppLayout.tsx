@@ -27,7 +27,7 @@ export default function AppLayout() {
     return <Outlet />;
   }
 
-  const isChat = location.pathname === "/app/chat" || location.pathname === "/app/jarvis";
+  const isChat = location.pathname === "/app/chat" || location.pathname === "/app/kitt";
 
   // ── Desktop sidebar nav ─────────────────────────────────────────────────────
   const desktopNavItems = [

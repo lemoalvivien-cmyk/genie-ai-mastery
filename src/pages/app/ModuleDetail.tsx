@@ -10,7 +10,7 @@ import { QuizPlayer } from "@/components/modules/QuizPlayer";
 import { PdfDownloadButton } from "@/components/pdf/PdfDownloadButton";
 import { useUpsertUserSkills } from "@/hooks/useSkills";
 import { supabase } from "@/integrations/supabase/client";
-import { ELI10Button } from "@/components/jarvis/ELI10Button";
+import { ELI10Button } from "@/components/kitt/ELI10Button";
 import { useSkillMastery } from "@/hooks/useSkillMastery";
 import { DEMO_PLAYBOOKS, getPlaybookMeta as getPlaybookMetaData } from "@/data/playbooks";
 import { useEffect, useRef } from "react";
