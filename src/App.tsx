@@ -243,7 +243,9 @@ const App = () => (
                 {/* /os/* → redirect to dashboard */}
                 <Route path="/os/*" element={<Navigate to="/app/dashboard" replace />} />
 
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<ErrorBoundary name="not-found"><NotFound /></ErrorBoundary>} />
+              </Routes>
+              </ErrorBoundary>
               </Routes>
             </Suspense>
           </AuthInitializer>
