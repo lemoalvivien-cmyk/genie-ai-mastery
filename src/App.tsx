@@ -202,6 +202,10 @@ const App = () => (
                       path="/admin-operations"
                       element={<ProtectedRoute requireRole="admin"><AdminOperations /></ProtectedRoute>}
                     />
+                    <Route
+                      path="/admin/analytics"
+                      element={<ProtectedRoute requireRole="admin"><AdminAnalytics /></ProtectedRoute>}
+                    />
                   </>
                 ) : null}
                 <Route

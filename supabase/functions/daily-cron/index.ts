@@ -85,6 +85,14 @@ Deno.serve(async (req) => {
     log.push(`auto-attestations error: ${err}`);
   }
 
+  // ── 5. AI budget check — alert if daily cost exceeds threshold ──────────────
+  try {
+    const budgetResult = await checkAIBudgetAlert(supabase);
+    log.push(`budget-alert: ${JSON.stringify(budgetResult)}`);
+  } catch (err) {
+    log.push(`budget-alert error: ${err}`);
+  }
+
   console.log("daily-cron done:", log.join(" | "));
   return new Response(JSON.stringify({ ok: true, log }), {
     headers: { "Content-Type": "application/json" },
