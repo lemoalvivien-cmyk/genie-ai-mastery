@@ -568,12 +568,15 @@ export default function Index() {
             </div>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 6. PLAYBOOKS ════════════════════════════════════════ */}
+        <ErrorBoundary name="section-playbooks">
         <Sec
           id="playbooks"
           className="max-w-6xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Playbooks disponibles"
         >
           <FadeIn className="text-center mb-12">
             <Chip><BookOpen className="w-3 h-3" /> Playbooks</Chip>
