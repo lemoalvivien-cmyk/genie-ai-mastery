@@ -10,10 +10,8 @@
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyCronSecret } from "../_shared/cron-auth.ts";
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyCronSecret } from "../_shared/cron-auth.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { sendAlert } from "../_shared/alerts.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
