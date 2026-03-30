@@ -189,7 +189,7 @@ export default function Index() {
             <nav className="hidden sm:flex items-center gap-5" aria-label="Navigation principale">
               {[
                 { label: "Comment ça marche", href: "#how" },
-                { label: "Playbooks", href: "#playbooks" },
+                { label: "Playbooks", href: "/playbooks" },
                 { label: "Prix", href: "/pricing" },
                 { label: "Démo", href: "/demo" },
               ].map((item) => (
