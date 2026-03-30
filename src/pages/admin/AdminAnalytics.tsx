@@ -27,7 +27,7 @@ export default function AdminAnalytics() {
     async function fetchAnalytics() {
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
-      const [usersRes, chatRes, onboardedRes, totalUsersRes, activeSubsRes, totalSubsRes, topRes] =
+      const [usersRes, chatRes, onboardedRes, totalUsersRes, proUsersRes, topRes] =
         await Promise.all([
           // 1. New users last 7 days
           supabase
