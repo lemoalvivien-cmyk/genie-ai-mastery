@@ -817,9 +817,11 @@ export default function Index() {
             </p>
           </FadeIn>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 9. PRICING TEASER ═══════════════════════════════════ */}
-        <Sec className="max-w-3xl mx-auto" id="pricing">
+        <ErrorBoundary name="section-pricing">
+        <Sec className="max-w-3xl mx-auto" id="pricing" aria-label="Tarification">
           <FadeIn className="text-center mb-10">
             <Chip>Prix</Chip>
             <h2 className="text-2xl sm:text-4xl font-black text-foreground mb-3">
