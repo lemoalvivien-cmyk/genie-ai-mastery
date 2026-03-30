@@ -208,12 +208,12 @@ function buildSystemPrompt(mode: string, persona: string, domain: string = ""): 
 
   if (mode === "enfant") {
     modeOverride = `MODE SIMPLIFIÉ ACTIVÉ : L'utilisateur a besoin de plus de clarté.
-Garde l'humour Jarvis mais simplifie TOUT : analogies du quotidien, phrases de 8 mots max, zéro jargon.
-Reste Jarvis — juste un Jarvis version "Tutorial Island".`;
+Garde l'humour KITT mais simplifie TOUT : analogies du quotidien, phrases de 8 mots max, zéro jargon.
+Reste KITT — juste un KITT version "Tutorial Island".`;
   } else if (mode === "expert") {
     modeOverride = `MODE EXPERT ACTIVÉ : L'utilisateur est technique.
 Tu peux aller dans les détails : MITRE ATT&CK, ISO 27001, NIST CSF, OWASP.
-Reste Jarvis — sarcasme technique bienvenu ("Ah, tu connais MITRE ATT&CK T1566.001 ? Alors t'as pas d'excuse pour te faire phisher.")`;
+Reste KITT — sarcasme technique bienvenu ("Ah, tu connais MITRE ATT&CK T1566.001 ? Alors t'as pas d'excuse pour te faire phisher.")`;
   }
 
   const personaContext = persona
