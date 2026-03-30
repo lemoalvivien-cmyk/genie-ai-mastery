@@ -143,9 +143,9 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="welcome"         element={<Welcome />} />
-                  <Route path="first-victory"   element={<FirstVictory />} />
-                  <Route path="dashboard"     element={<Dashboard />} />
+                  <Route path="welcome"         element={<ErrorBoundary name="welcome"><Welcome /></ErrorBoundary>} />
+                  <Route path="first-victory"   element={<ErrorBoundary name="first-victory"><FirstVictory /></ErrorBoundary>} />
+                  <Route path="dashboard"     element={<ErrorBoundary name="dashboard"><Dashboard /></ErrorBoundary>} />
                   <Route path="placement"     element={<PlacementQuiz />} />
                   <Route path="modules"       element={<Modules />} />
                   <Route path="modules/:slug" element={<ModuleDetail />} />
