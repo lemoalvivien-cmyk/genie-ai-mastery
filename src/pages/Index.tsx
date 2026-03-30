@@ -760,11 +760,14 @@ export default function Index() {
             </FadeIn>
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 8. COMPARATIF ═══════════════════════════════════════ */}
+        <ErrorBoundary name="section-comparison">
         <Sec
           className="max-w-4xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Comparaison avec ChatGPT"
         >
           <FadeIn className="text-center mb-10">
             <Chip><TrendingUp className="w-3 h-3" /> Comparaison honnête</Chip>
