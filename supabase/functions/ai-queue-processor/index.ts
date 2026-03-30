@@ -95,14 +95,27 @@ async function callProviderWithFallback(
 }
 
 // ── Main handler ──────────────────────────────────────────────────────────────
+// INTERNAL FUNCTION: Called by ai-queue-enqueue or cron with service_role_key.
+// verify_jwt = false in config.toml — auth enforced here via service role key check.
 Deno.serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   const preflight = handleOptions(req, corsHeaders);
   if (preflight) return preflight;
 
+  // ── Auth guard: only service_role_key callers allowed ──────────────────
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.replace("Bearer ", "");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!token || token !== serviceKey) {
+    return new Response(JSON.stringify({ error: "Forbidden: internal function only" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    serviceKey,
     { auth: { persistSession: false } },
   );
 
