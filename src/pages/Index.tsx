@@ -219,7 +219,8 @@ export default function Index() {
         </header>
 
         {/* ══ 1. HERO ═════════════════════════════════════════════ */}
-        <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 sm:px-6 pt-10 pb-16 text-center overflow-hidden">
+        <ErrorBoundary name="section-hero">
+        <section aria-label="Présentation de FormetoiAlia" className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 sm:px-6 pt-10 pb-16 text-center overflow-hidden">
           {/* Ambient glow */}
           <div
             className="absolute inset-0 pointer-events-none"
