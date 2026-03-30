@@ -449,12 +449,15 @@ export default function Index() {
             ))}
           </div>
         </Sec>
+        </ErrorBoundary>
 
         {/* ══ 4. COMMENT ÇA MARCHE ════════════════════════════════ */}
+        <ErrorBoundary name="section-how">
         <Sec
           id="how"
           className="max-w-4xl mx-auto"
           style={{ borderTop: "1px solid hsl(var(--border)/0.4)" }}
+          aria-label="Comment ça marche"
         >
           <FadeIn className="text-center mb-14">
             <Chip><Zap className="w-3 h-3" /> Comment ça marche</Chip>
