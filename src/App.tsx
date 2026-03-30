@@ -60,6 +60,7 @@ const VerifyAttestation = lazy(() => import("./pages/VerifyAttestation"));
 const GuideList         = lazy(() => import("./pages/guides/GuideList"));
 const GuideDetail       = lazy(() => import("./pages/guides/GuideDetail"));
 const LegalCenter       = lazy(() => import("./pages/legal/LegalCenter"));
+const Playbooks         = lazy(() => import("./pages/Playbooks"));
 const NotFound          = lazy(() => import("./pages/NotFound"));
 
 const PageLoader = React.forwardRef<HTMLDivElement>((_, ref) => (
