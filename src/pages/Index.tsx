@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from "react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
