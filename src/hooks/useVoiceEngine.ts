@@ -240,6 +240,30 @@ export function useVoiceEngine({
     onStateChange("idle");
   }, [onStateChange]);
 
+  // ── Cleanup on unmount — prevent memory leaks ────────────────────────────────
+  useEffect(() => {
+    return () => {
+      // Stop SpeechRecognition
+      try { recognitionRef.current?.stop(); } catch { /* */ }
+      // Stop MediaStream tracks
+      micStreamRef.current?.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+      // Stop TTS audio
+      try { ttsAudioRef.current?.pause(); } catch { /* */ }
+      ttsAudioRef.current = null;
+      // Cancel Web Speech synthesis
+      try { window.speechSynthesis?.cancel(); } catch { /* */ }
+      // Close AudioContext
+      try { audioCtxRef.current?.close(); } catch { /* */ }
+      audioCtxRef.current = null;
+      // Nullify analyser refs
+      ttsSourceRef.current = null;
+      ttsAnalyserRef.current = null;
+      analyserRef.current = null;
+      isSpeakingRef.current = false;
+    };
+  }, []);
+
   return {
     isListening,
     isSpeaking,
