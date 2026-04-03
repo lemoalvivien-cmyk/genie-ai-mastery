@@ -5554,6 +5554,51 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals_safe: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string | null
+          referral_code: string | null
+          referred_email_masked: string | null
+          referrer_id: string | null
+          status: Database["public"]["Enums"]["referral_status"] | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          referral_code?: string | null
+          referred_email_masked?: never
+          referrer_id?: string | null
+          status?: Database["public"]["Enums"]["referral_status"] | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          referral_code?: string | null
+          referred_email_masked?: never
+          referrer_id?: string | null
+          status?: Database["public"]["Enums"]["referral_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "org_member_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_org_invitation: {

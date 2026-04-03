@@ -14,7 +14,7 @@ function generateReferralCode(userId: string): string {
 
 interface Referral {
   id: string;
-  referred_email: string;
+  referred_email_masked: string;
   referral_code: string;
   status: "pending" | "completed" | "rewarded";
   created_at: string;
@@ -39,12 +39,12 @@ export default function ReferralSection() {
     enabled: !!userId,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("referrals")
-        .select("id, referral_code, referred_email, status, created_at, completed_at")
+        .from("referrals_safe")
+        .select("id, referral_code, referred_email_masked, status, created_at, completed_at")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
-      return (data ?? []) as Referral[];
+      return (data ?? []) as unknown as Referral[];
     },
   });
 
@@ -200,7 +200,7 @@ export default function ReferralSection() {
               const { label, style } = statusMeta(r.status);
               return (
                 <div key={r.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-border/40 bg-secondary/10 text-xs">
-                  <span className="text-foreground font-medium truncate flex-1">{r.referred_email}</span>
+                  <span className="text-foreground font-medium truncate flex-1">{r.referred_email_masked}</span>
                   <span className={`ml-2 px-2 py-0.5 rounded-full border text-[10px] font-semibold shrink-0 ${style}`}>
                     {label}
                   </span>

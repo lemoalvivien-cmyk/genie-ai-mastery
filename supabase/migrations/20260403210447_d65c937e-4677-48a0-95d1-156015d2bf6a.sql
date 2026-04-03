@@ -1,0 +1,1 @@
+ALTER VIEW public.referrals_safe SET (security_invoker = true);
