@@ -39,12 +39,12 @@ export default function ReferralSection() {
     enabled: !!userId,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("referrals")
-        .select("id, referral_code, referred_email, status, created_at, completed_at")
+        .from("referrals_safe")
+        .select("id, referral_code, referred_email_masked, status, created_at, completed_at")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
-      return (data ?? []) as Referral[];
+      return (data ?? []) as unknown as Referral[];
     },
   });
 
