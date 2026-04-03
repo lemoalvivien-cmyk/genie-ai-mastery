@@ -14,7 +14,7 @@ function generateReferralCode(userId: string): string {
 
 interface Referral {
   id: string;
-  referred_email: string;
+  referred_email_masked: string;
   referral_code: string;
   status: "pending" | "completed" | "rewarded";
   created_at: string;
