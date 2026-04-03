@@ -1,16 +1,21 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 import { getAuthenticatedUser } from "../_shared/auth.ts";
-import { shield } from "../_shared/shield.ts";
+import { getClientIp, hashIp, checkIpRateLimit } from "../_shared/shield.ts";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const MAX_EMAILS = 500;
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const preflight = handleCorsPreflight(req);
+  if (preflight) return preflight;
 
-  const shieldResult = await shield(req, { maxPerHour: 30, maxPerMinute: 5 });
-  if (!shieldResult.allowed) {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
+  const ip = getClientIp(req);
+  const ipHash = await hashIp(ip);
+  const rl = await checkIpRateLimit(ipHash, "validate-csv-import", 30, 1);
+  if (!rl.allowed) {
     return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
       status: 429,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
