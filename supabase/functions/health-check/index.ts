@@ -35,11 +35,15 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
     checks.db = error ? "degraded" : "ok";
-    if (error) checks.db_error = error.message;
+    if (error) {
+      checks.db_error = "database_unavailable";
+      console.error("[health-check] DB error:", error.message);
+    }
   } catch (e) {
     checks.db = "down";
-    checks.db_error = String(e);
+    checks.db_error = "database_unavailable";
     checks.status = "degraded";
+    console.error("[health-check] DB error:", e instanceof Error ? e.message : String(e));
   }
 
   checks.latency_ms = Date.now() - start;
