@@ -99,12 +99,12 @@ serve(async (req) => {
 
     let customerId = orgData.stripe_customer_id;
     if (!customerId) {
-      const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
       if (customers.data.length > 0) {
         customerId = customers.data[0].id;
       } else {
         const customer = await stripe.customers.create({
-          email: user.email!,
+          email: user.email,
           name: user.user_metadata?.full_name as string | undefined,
           metadata: { user_id: user.id, org_id: orgId ?? "" },
         });
