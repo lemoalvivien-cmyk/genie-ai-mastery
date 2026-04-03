@@ -200,7 +200,7 @@ export default function ReferralSection() {
               const { label, style } = statusMeta(r.status);
               return (
                 <div key={r.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-border/40 bg-secondary/10 text-xs">
-                  <span className="text-foreground font-medium truncate flex-1">{r.referred_email}</span>
+                  <span className="text-foreground font-medium truncate flex-1">{r.referred_email_masked}</span>
                   <span className={`ml-2 px-2 py-0.5 rounded-full border text-[10px] font-semibold shrink-0 ${style}`}>
                     {label}
                   </span>
