@@ -37,6 +37,14 @@ serve(async (req) => {
 
   logStep("Processing event", { type: event.type, id: event.id });
 
+  // ── Replay protection — reject events older than 24h ────────────────────────
+  const MAX_EVENT_AGE_SECONDS = 86400;
+  const eventAge = Math.floor(Date.now() / 1000) - event.created;
+  if (eventAge > MAX_EVENT_AGE_SECONDS) {
+    logStep("Event too old — rejecting", { eventId: event.id, ageSeconds: eventAge });
+    return new Response("Event too old", { status: 400 });
+  }
+
   // ── Idempotency check ───────────────────────────────────────────────────────
   const { data: existingEvent } = await supabase
     .from("audit_logs")
